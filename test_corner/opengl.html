@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test OpenGL</title>
+</head>
+<script type="text/javascript" src="../res/misc/webgl-utils.js"></script>
+<script type="text/javascript">
+    var canvas;
+    var gl;
+
+    function init() {
+        canvas = document.getElementById("canvas");
+        gl = WebGLUtils.setupWebGL(canvas);
+        if(!gl) {
+            alert("Could not set up WebGL. Sorry.");
+            return;
+        }
+
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(1.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    window.onload = init;
+</script>
+<body>
+    <canvas id="canvas" width="512" height="512" style="background:blue;">
+        Your browser does not support canvas. Sorry.
+    </canvas>
+</body>
+</html>

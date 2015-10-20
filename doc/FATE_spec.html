@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Yoan Lecoq">
+    <meta name="description" content="The Fight And Travel game Engine (FATE)'s specification.">
+    <meta name="keywords" content="FATE, specification">
+    <title>The FATE Specification</title>
+    <style type="text/css">
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size:12px;
+        }
+        code, code * {
+            font-family: monospace;
+            background:#EEEEFF;
+        }
+        div.code_block {
+            padding-left:4px;
+            border:1px solid blue;
+            background:#EEEEFF;
+        }
+        div.indent {
+            padding-left:32px;
+        }
+        h1 {
+            color:red;
+            font-size:24px;
+        }
+        h2 {
+            color:red;
+            font-size:20px;
+        }
+        h3 {
+            color:red;
+            font-size:16px;
+        }
+        div.informative {
+            margin:0 32px; 
+            padding:4px 16px;
+            background:#FFFD99;
+            border:1px solid orange;
+        }
+        figure {
+            padding:4px 16px;
+        }
+        figure, figure * {
+            background:#CCE0FF;
+        }
+        figure > figcaption {
+            text-align:center;
+            color:blue;
+            font-weight:bold;
+            font-size:16px;
+        }
+        figure > table {
+            margin: 8px auto;
+            text-align:center;
+            border:2px solid blue; 
+            border-collapse:collapse;
+        }
+        figure > table td, 
+        figure > table th {
+            text-align:center;
+            vertical-align:middle;
+            border:1px solid blue;
+        }
+        figure > img {
+            display:block;
+            margin:0 auto;
+            text-align:center;
+            border:1px solid blue;
+        }
+        figure > p {}
+
+    </style>
+</head>
+<body>
+<header>
+    <img src="logo.png">
+    <h1>The Fight And Travel game Engine (FATE)'s specification</h1>
+</header>
+<h1>Table of contents</h1>
+<nav>
+    <ol>
+        <li>Foreword</li>
+        <li>Introduction</li>
+        <li>Scope</li>
+        <li>Terms and definitions</li>
+        <li>Clauses</li>
+        <ol>
+            <li>Representation of the Game Universe</li>
+            <ol>
+                <li>Units (Spatial, Ticks, Render)</li>
+                <li>The Global Tree</li>
+                <ol>
+                    <li>Philosophy</li>
+                    <li>Node definition</li>
+                    <ol>
+                        <li>Name rules</li>
+                        <li>Value types</li>
+                        <li>Entry types (Entry, Symlink, Hard Link)</li>
+                        <li>Use (self, sched)</li>
+                        <li>Access permissions (None, Read, Write, Read|Write)</li>
+                    </ol>
+                </ol>
+            </ol>
+            <li>The Scheduler</li>
+            <li>Creating the Game Universe</li>
+            <ol>
+                <li>Creating Entities</li>
+                <ol>
+                    <li>Spatial resources</li>
+                    <li>Spatial resources animation</li>
+                    <li>Audio resources (binauralize)</li>
+                    <li>States with the FST language</li>
+                    <ol>
+                        <li>Introduction to FST</li>
+                        <li>Preprocessor directives</li>
+                        <li>State definitions</li>
+                        <li>State Controllers</li>
+                        <li>Path resolution</li>
+                        <li>Operators</li>
+                    </ol>
+                </ol>
+                <li>Executing the game</li>
+            </ol>
+            <li>(Informative) Technical recommendations</li>
+            <ol>
+                <li>Philosophy (Speed &gt; Space &gt; Readability)</li>
+                <li>Large model loading</li>
+            </ol>
+        </ol>
+        <li>Annexes</li>
+        <ul>
+            <li>Annex A : FST Preprocessor directives reference</li>
+            <li>Annex B : State Controllers reference</li>
+            <li>Annex C : Scheduler nodes reference</li>
+        </ul>
+    </ol>
+</nav>
+<figure>
+    <figcaption>Table 1 - Exemple Table</figcaption>
+    <table>
+        <tr>
+            <th>Title</th>
+        </tr>
+        <tr>
+            <td>Data</td>
+        </tr>
+    </table>
+    <p>Explanation and notes</p>
+</figure>
+<figure>
+    <img src="figex.png">
+    <p>Description</p>
+    <figcaption>Figure 1 - Exemple Figure</figcaption>
+</figure>
+
+---- Spacetime and The Scheduler
+
+---- The FST format
+An FST source file contains a list of States.
+A State contains a list of Callbacks.
+A Callback contains these Blocks, in any order :
+    -&gt; A "do" Block;
+    -&gt; Optionally, a "to" Block;
+    -&gt; Optionally, a "when" Block;
+
+---- Preprocessor
+
+#insert "file"
+
+#replace
+text
+
+some more text
+#by
+replaced text here
+#end
+
+Useful definitions :
+
+#replace
+yes 
+#by
+1
+#end
+#replace
+no
+#by
+0
+#end
+
+#replace
+mul({{a}},{{b}})
+#by
+({{a}}*{{b}})
+#end
+
+mul(2,3) =&gt; (2*3)
+
+---- States
+---- Callbacks
+
+This lists the available Callbacks.
+
+Copy     
+       Parameters :
+       Depth
+       Overwrite
+Delete
+
+---- Path resolution
+In FST, all nodes (i.e the Lnode, as well as all of the Vnodes, Enodes and
+their variables) are located in the Global Tree, in a parent-children
+relationship. 
+One can think of the Global Tree as a true filesystem, except
+that each directory is a file at the same time.
+The Tree structure has shown its efficiency for years :
+    -&gt; You use it everyday to manage your data and access resources;
+    -&gt; UNIX's "Everything is a file" philosophy makes programming on this
+       platform quite easier. You need and interface to the System's Kernel,
+       and you know there is a file for it you can read and write to 
+       (note that that file can be virtual);
+    -&gt; In programming languages, functions can be thought of as nodes that
+       carry their own value and can call other nodes (The "main" function
+       being the root node);
+    -&gt; That's what Object-Oriented Programming is about, after all;
+    -&gt; You can locate nodes by their absolute position in the hierarchy 
+       (eg. A global counter) or their relative position to the current node
+       (eg. The chest near to your hero).
+    -&gt; You can rearrange nodes as they move into the world.
+    -&gt; This allows creating a game world like this :
+       Universe
+       `- Galaxy_0
+          `- SubGalaxy_0
+          `- SubGalaxy_1
+          `- Solar_System
+             `- Venus
+             `- Earth
+                `- Continents
+                `- Seas
+                   `- Lost_Island
+                      `- Hero
+             `- Jupiter
+          `- SubGalaxy_N
+       `- Galaxy_1
+       `- Galaxy_N
+    -&gt; Need to share files ? Use a Network FileSystem.
+       Need online multiplayer ? Do this with nodes.
+    -&gt; All the filesystem goodies come in, such as Symbolic Links 
+       (weak references) and Hard Links (strong references with 
+       reference counting)
+
+The following explains the semantics of a Path in FST's Global Tree.
+
+Node names
+Node names are strings of only alphanumerical characters from the UTF-8
+character set. Underscores ('_') are allowed. No name may have less than one
+alphabetic character.
+The user is advised to stick to the following convention :
+-&gt; User-created node names should start with an uppercase letter, as each word following it should do.
+-&gt; Names consisting of no uppercase letter should be left for the Scheduler.
+
+No node name may be one of these reserved names :
+
+statelabel
+random
+x
+y
+z
+time
+rotation
+scale
+vel
+accel
+targets
+&lt;number value&gt;
+on
+off
+yes
+no
+true
+false
+
+Which are ordered like so :
+MyEnode
+`- x           &lt;= MyEnode's x axis's offset (relative to its parent's).
+   `- vel      &lt;= MyEnode's x axis's offset's velocity.
+   `- accel    &lt;= MyEnode's x axis's offset's velocity's velocity.
+   `- rotation &lt;= MyEnode's rotation around its x axis.
+      `- vel   &lt;= MyEnode's rotation's velocity around its x axis.
+      `- accel &lt;= MyEnode's rotation's velocity's velocity around its x axis.
+   `- scale    &lt;= MyEnode's x axis's scale.
+      `- vel   &lt;= MyEnode's x axis's scale's velocity.
+      `- accel &lt;= MyEnode's x axis's scale's velocity's velocity.
+`- y           &lt;= MyEnode's y axis's offset (relative to its parent's).
+   `- vel      &lt;= MyEnode's y axis's offset's velocity.
+   `- accel    &lt;= MyEnode's y axis's offset's velocity's velocity.
+   `- rotation &lt;= MyEnode's rotation around its y axis.
+      `- vel   &lt;= MyEnode's rotation's velocity around its y axis.
+      `- accel &lt;= MyEnode's rotation's velocity's velocity around its y axis.
+   `- scale    &lt;= MyEnode's y axis's scale.
+      `- vel   &lt;= MyEnode's y axis's scale's velocity.
+      `- accel &lt;= MyEnode's y axis's scale's velocity's velocity.
+`- z           &lt;= MyEnode's z axis's offset (relative to its parent's).
+   `- vel      &lt;= MyEnode's z axis's offset's velocity.
+   `- accel    &lt;= MyEnode's z axis's offset's velocity's velocity.
+   `- rotation &lt;= MyEnode's rotation around its z axis.
+      `- vel   &lt;= MyEnode's rotation's velocity around its z axis.
+      `- accel &lt;= MyEnode's rotation's velocity's velocity around its z axis.
+   `- scale    &lt;= MyEnode's z axis's scale.
+      `- vel   &lt;= MyEnode's z axis's scale's velocity.
+      `- accel &lt;= MyEnode's z axis's scale's velocity's velocity.
+`- time        &lt;= MyEnode's time axis's offset (relative to its parent's).
+   `- vel      &lt;= MyEnode's time axis's offset's velocity.
+   `- accel    &lt;= MyEnode's time axis's offset's velocity's velocity.
+`- targets     &lt;= Filled by Hard Links to Enodes reached by one or more 
+                     of MyEnode's Red HitBoxes in current time position. 
+                     These Hard Links are removed at the beginning of the next
+                     step in time. MyEnode can copy one or more of them to 
+                     a personal node to keep track of them.
+`- dnode       &lt;= Hard Link to MyEnode's Dnode.
+  
+
+Separator and operators :
+-&gt; The '.' symbol is the "child-of" operator.
+-&gt; The '^' symbol resolves to the parent node of the previously resolved 
+      node in the path.
+
+Prefixes :
+-&gt; The absence of prefix means "the current node". 
+-&gt; Paths starting with '%' are relative to the Lnode (which is also 
+   the root node).
+-&gt; Paths starting with ':' are relative to the Root Vnode 
+   (it actually resolves to "%.root_vnode").
+   To remember it, think of ':' as a pair of eyes ("The view").
+   The Root Vnode is shared across the network.
+-&gt; Paths starting with '&amp;' are relative to the Root Enode
+   (it actually resolves to "%.root_enode").
+   To remember it, think of '&amp;' as a weird capital 'E'.
+   The Root Enode is shared across the network.
+-&gt; Paths starting with '@' are relative to the Root Dnode
+   (it actually resolves to "%.root_dnode").
+   It is also referred to as the "Aether", where the Entities are loaded but 
+   not yet instanciated (aka "brought to existence").
+-&gt; Paths starting with '~' are relative to the executable's full path in 
+   the user's filesystem. (it actually resolves to "%.app_path").
+   The '~' character is used as a shortcut to the home directory on Linux.
+
+Wildcards :
+-&gt; The '?' character is replaced at resolution-time by any 
+   alphanumerical character.
+-&gt; The '*' character is replaced at resolution-time by one or more
+   alphanumerical characters.
+
+See examples below :
+
+-&gt; "foo" resolves to the node named "foo" that is a child of the current
+   node, as do ".foo", "..foo", "...foo" and "......foo";
+-&gt; "&amp;.Earth.Continents" resolves to the node named "Continents" that is 
+   a child of the node named "Earth" that is a child of the Root Enode,
+   as do "&amp;...Earth..Continents" and "&amp;.Earth.^.Earth.Continents".
+-&gt; "^.bar" resolves to the node named "bar" that is a child of the 
+    parent node of the current node, as do "...^..bar".
+-&gt; "foo*bar" resolves to each node that is a child of the current node, 
+    and which name starts with "foo" and ends with "bar", as do "foo**bar" 
+    and "foo***bar".
+-&gt; "foo?ar" resolves to each node that is a child of the current node, and 
+    which name starts with "foo", followed by a single character and "ar".
+
+Access rules :
+-&gt; Trying to access a non-existing node will result in creating it with a
+   default value. Refer to the following table :
+
+Those are IMMUTABLE !
+
+Node type    Friendly identifier 
+    Lnode    Local Device Node
+    Fnode    File Node
+    Knode    Value-holder (Key) Node
+    Dnode    Entity Data Node
+    Enode    Entity Instance Node
+    Vnode    View Node
+Value type (Knodes only)
+    f32      Single-precision floating-point number
+    f64      Double-precision floating-point number
+    s8       Signed 8-bit integer                  
+    s16      Signed 16-bit integer                 
+    s32      Signed 32-bit integer                 
+    s64      Signed 64-bit integer                 
+    u8       Unsigned 8-bit integer                
+    u16      Unsigned 16-bit integer               
+    u32      Unsigned 32-bit integer               
+    u64      Unsigned 64-bit integer               
+Entry type
+    HardLink Hard link
+    SymLink  Symbolic link
+Role
+    Custom   Not used by the Scheduler
+    Sched    Used by the Scheduler
+Access
+    NoAccess  Can't be accessed
+    Read      Can be read
+    Write     Can be written to
+    ReadWrite Can be read and written to
+
+
+Any resource in FST's Global Tree is accessed by a path, may it be 
+relative or absolute.
+
+
+---- Blocks
+---- The special assignation callback
+
+do-block {
+    do &lt;action&gt; [with &lt;p0&gt; = &lt;v0&gt; [, &lt;p1&gt; = &lt;v1&gt; [, &lt;pn&gt; = &lt;vn&gt;]]]
+}
+to-block { 
+    [to &lt;path_0&gt; [, &lt;path_1&gt; [, &lt;path_n&gt;]]]
+}
+when-block { 
+    [when &lt;cond_0&gt; [, &lt;cond_1&gt; [, &lt;cond_n&gt;]]]
+}
+
+state &lt;label_0&gt;
+
+//State Controllers here
+
+state &lt;label_1&gt;
+
+
+
+<h1>Annexes</h1>
+
+
+
+<h2>Annex A : FST Preprocessor directives reference</h2>
+
+<h3>File content insertion : #include "filename" directive</h3>
+<p>
+The <code>#include "filename"</code> directive shall be replaced by 
+the content of the file whose path in the User's Filesystem is 
+<code>filename</code>. 
+The next end-of-line character following such a directive shall be preserved.
+<br>
+<code>filename</code>'s characters shall be read "as-is", which means, for
+instance, that spaces and backslashes are read as they are and lose any 
+other meaning.
+<br>
+<code>filename</code> shall not contain quote characters.
+<br>
+<code>filename</code> shall be given "as-is" to the User's Operating System,
+which will handle path resolution itself. It means, for instance, that slashes
+should be placed between a folder's path and a given file or sub-folder of that
+folder.
+</p>
+<p>
+The presence of any character other than space between the <code>#include</code> 
+token and the <code>"filename"</code> token shall cause an error.
+<br>
+The presence of any character other than space between the 
+<code>"filename"</code> token and the end-of-line shall cause an error.
+<br>
+A <code>filename</code> pointing to a file that can't be accessed shall cause an error.
+<br>
+Implementations shall not have the number of levels of inclusion be under a fixed limit.
+<br>
+However, infinite inclusions shall be detected by implementations and cause 
+an error.
+(eg. "A.fst" includes "B.fst", and "B.fst" includes "A.fst").
+<div class="informative">
+    The implementation could detect infinite inclusions by building a directed 
+    graph and detecting cycles in it.
+</div>
+</p>
+
+<h3>Content substitution : #replace, #by</h3>
+<p>
+The following FST code :
+<div class="code_block"><code><pre>
+#replace
+before
+#by
+after
+#end
+</pre></code></div>
+shall cause the implementation to treat every occurence of <code>before</code>
+at if it was <code>after</code>, for the remaining of the preprocessing step.
+<br>
+<code>before</code> shall start right after the first end-of-line character 
+following the <code>#replace</code> directive, and end right before the last 
+end-of-line character preceding the <code>#by</code> directive.
+<br>
+<code>after</code> shall start right after the first end-of-line character 
+following the <code>#by</code> directive, and end right before the last 
+end-of-line character preceding the <code>#end</code> directive.
+</p>
+
+<h3>User-defined messages : #info, #warn, #error</h3>
+<p>
+The following FST code :
+<div class="code_block"><code><pre>
+#info
+message
+#end
+</pre></code></div>
+shall be a hint to the implementation to present <code>message</code> to the
+user.
+<br>
+How and when <code>message</code> is presented is up to the implementation.
+<div class="informative">
+    <code>message</code> could be printed in a special color at the very moment 
+    the <code>#end</code> directive is parsed.
+</div>
+<br>
+The <code>#warn</code> and <code>#error</code> directives shall behave 
+similarly, except that <code>#error</code> shall cause an error as an additional effect.
+<br>
+<code>message</code> shall start right after the first end-of-line character 
+following the <code>#info</code> directive, and end right before the last 
+end-of-line character preceding the <code>#end</code> directive.
+</p>
+
+
+<h2>Annex B : FST State Controllers reference</h2>
+<h3>ChangeState</h3>
+<p>Causes the target to switch to a given state, and delays its execution 
+until the next tick. The old state's execution is interrupted.<p>
+Required parameters:
+<div class="indent">
+    value (State node)
+    <div class="indent">
+        The new state the target will switch to.
+    </div>
+</div>
+<h3>ExecState</h3>
+<p>Causes the target to execute another state.<br>
+To be accurate, it does three things :<br>
+1) Interrupts the target's current state execution;<br>
+2) Changes the target's current state;<br>
+3) Executes the new state immediately.<br>
+A too frequent use of ExecState is discouraged in favor of ChangeState.<br>
+It is only recommended to use it to execute small states that nearly act as functions.<br>
+</p>
+<h3>Copy</h3>
+<p>Description...</p>
+Required parameters:
+<div class="indent">
+    none
+</div>
+Optional parameters:
+<div class="indent">
+    depth (32-bit integer)
+    overwrite (boolean)
+    target (s8) (entry, symlink, hardlink)
+    ticket (node)
+    <div class="indent">
+        Explanation here.
+    </div>
+</div>
+
+<h3>Delete</h3>
+<p>Description...</p>
+
+<h3>Nothing</h3>
+
+<h2>Annex C : Scheduler nodes reference</h2>
+
+<footer></footer>
+</body>
+</html>

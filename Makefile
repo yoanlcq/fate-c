@@ -1,0 +1,102 @@
+### COMPILER
+
+CC = gcc
+CCFLAGS = -Iinclude -O3 -m$(ARCH)  
+LDLIBS = -lm \
+		 -lcsfml-audio \
+		 -lcsfml-graphics \
+		 -lcsfml-network \
+		 -lcsfml-window \
+		 -lcsfml-system 
+
+
+### SYSTEM
+
+define OS_ARCH_ERROR
+
+
+OS and ARCH are not defined. 
+Please set them on the command line when calling make,
+with one of the following values :
+
+OS = windows | linux | osx
+ARCH = 32 | 64 (don't specify for osx)
+
+Like so : 
+    make OS=linux ARCH=64
+
+
+endef
+
+ifndef OS
+$(error $(call OS_ARCH_ERROR))
+endif
+
+ifneq ($(OS),osx)
+ifndef ARCH
+$(error $(call OS_ARCH_ERROR))
+endif
+endif
+
+
+### PROJECT FILES
+
+BUILDDIR = build/$(OS)$(ARCH)
+ifeq ($(OS),windows)
+BUILDDIR = build\$(OS)$(ARCH)
+endif
+BINDIR = bin/$(OS)$(ARCH)
+EXE := $(BINDIR)/game
+OFILES = 
+
+
+#### SHELL
+
+ifeq ($(OS),linux)
+CLEANCMD = rm -f $(BUILDDIR)/*
+LDLIBS += -lGL
+endif
+ifeq ($(OS),windows)
+CLEANCMD = del /f /q $(BUILDDIR)\*
+LDLIBS += -lopengl32 #-lglut -lglu32 -lglew32mx -lopengl32
+EXE := $(EXE).exe #To prevent useless recompilation
+endif
+
+
+
+
+### GOALS
+
+all: $(EXE)
+
+define OFILE_MACRO
+OFILES += $(BUILDDIR)/$(1).o 
+$(BUILDDIR)/$(1).o : src/$(1).c $(2) $(3) $(4) $(5) $(6) $(7) $(8)
+	$(CC) $(CCFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).o
+endef
+
+$(eval $(call OFILE_MACRO,glew,include/glew/glew.h,include/glew/glxew.h,include/glew/wglew.h))
+$(eval $(call OFILE_MACRO,display_resolutions,include/utils/display_resolutions.h))
+$(eval $(call OFILE_MACRO,pathto,include/utils/pathto.h))
+$(eval $(call OFILE_MACRO,opengl_debug,include/opengl_debug.h))
+$(eval $(call OFILE_MACRO,glmake,include/glmake.h))
+$(eval $(call OFILE_MACRO,cube,include/cube.h))
+$(eval $(call OFILE_MACRO,oldmain))
+
+#ifeq ($(OS),windows)
+#$(BUILDDIR)/$(OS)$(ARCH)/fst.res : src/fst/fst.rc src/fst/fst.ico
+#	windres src/fst/fst.rc -O coff -o $(BUILDDIR)/$(OS)$(ARCH)/fst.res
+#OFILES += $(BUILDDIR)/fst.res
+#endif
+
+$(EXE) : $(OFILES)
+	$(CC) $(CCFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)
+
+
+### PHONY GOALS
+
+clean:
+	$(CLEANCMD)
+mrproper : clean all
+re : mrproper
+.PHONY: clean mrproper re
