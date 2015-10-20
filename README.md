@@ -1,6 +1,7 @@
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.
   
+Yeah, that's a cube.  
 ![Screenshot](http://yoanlecoq.com/dl/fatewip.png)
   
   
