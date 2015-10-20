@@ -1,7 +1,7 @@
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.
   
-![Screenshot](yoanlecoq.com/dl/fatewip.png)
+![Screenshot](http://yoanlecoq.com/dl/fatewip.png)
   
   
 Please treat this repository as it is : A big "IT student's Work In Progress".  
