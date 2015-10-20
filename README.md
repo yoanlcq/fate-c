@@ -1,7 +1,9 @@
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.
   
-Yeah, that's a cube.  
+A spec for the engine is being written under `doc/`.
+  
+And here's a cube that represents the current progress for the OpenGL rendering backend.  
 ![Screenshot](http://yoanlecoq.com/dl/fatewip.png)
   
   
