@@ -7,10 +7,15 @@ And here's a cube that represents the current progress for the OpenGL rendering 
 ![Screenshot](http://yoanlecoq.com/dl/fatewip.png)
   
   
-Please treat this repository as it is : A big "IT student's Work In Progress".  
-It is NOT yet suited for review or contributions.  
+**Please treat this repository as it is : _A big IT student's work in progress_.**  
+It is **NOT** yet suited for review or contributions.  
 Therefore, I advise you wait a year or two before coming back.
   
+
+
+
+
+
 However, if you feel like reading bullet lists, here you go.
   
 ## Yet another game engine...
