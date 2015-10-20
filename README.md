@@ -7,7 +7,7 @@ And here's a cube that represents the current progress for the OpenGL rendering 
 ![Screenshot](http://yoanlecoq.com/dl/fatewip.png)
   
   
-**Please treat this repository as it is : _A big IT student's work in progress_.**  
+**Please treat this repository as it is : _An IT student's work in progress_.**  
 It is **NOT** yet suited for review or contributions.  
 Therefore, I advise you wait a year or two before coming back.
   
