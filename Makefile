@@ -1,17 +1,3 @@
-### COMPILER
-
-CC = gcc
-CCFLAGS = -Iinclude -O3 -m$(ARCH)  
-LDLIBS = -lm \
-		 -lcsfml-audio \
-		 -lcsfml-graphics \
-		 -lcsfml-network \
-		 -lcsfml-window \
-		 -lcsfml-system 
-
-#Define ARCH as empty (in case we're osx)
-ARCH=
-
 ### SYSTEM
 
 define OS_ARCH_ERROR
@@ -40,6 +26,24 @@ $(error $(call OS_ARCH_ERROR))
 endif
 endif
 
+ifndef ARCH
+ARCH=
+endif
+
+
+### COMPILER
+
+CC = gcc
+CCFLAGS = -Iinclude -O3
+ifneq($(ARCH),)
+CCFLAGS += -m$(ARCH) 
+endif
+LDLIBS = -lm \
+		 -lcsfml-audio \
+		 -lcsfml-graphics \
+		 -lcsfml-network \
+		 -lcsfml-window \
+		 -lcsfml-system 
 
 ### PROJECT FILES
 
