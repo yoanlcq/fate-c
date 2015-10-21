@@ -35,7 +35,7 @@ endif
 
 CC = gcc
 CCFLAGS = -Iinclude -O3
-ifneq($(ARCH),)
+ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
 LDLIBS = -lm \
