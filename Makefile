@@ -9,6 +9,8 @@ LDLIBS = -lm \
 		 -lcsfml-window \
 		 -lcsfml-system 
 
+#Define ARCH as empty (in case we're osx)
+ARCH=
 
 ### SYSTEM
 
