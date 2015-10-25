@@ -75,9 +75,10 @@ GLuint glmake_compile_or_get_shader(const char *path){
     else if(strcmp(ext, ".comp") == 0)
         shtype = GL_COMPUTE_SHADER;
     else {
-        fprintf(stderr, "Unrecognised file extension from '%s'.\n", path);
-        fprintf(stderr, "Recognised file extensions are ");
-        fprintf(stderr, ".vert, .frag, .tesc, .tese, .geom and .comp.\n");
+        fprintf(stderr, "Unrecognised file extension from '%s'.\n"
+                        "Recognised file extensions are "
+                                      ".vert, .frag, .tesc, .tese, .geom and .comp.\n", 
+                        path);
         return 0;
     }
 
@@ -144,7 +145,7 @@ GLuint glmake_compile_or_get_shader(const char *path){
 
     if(status == GL_TRUE) {
         glmake_shaders_db.entries = realloc(glmake_shaders_db.entries, 
-                (glmake_shaders_db.top+1)*sizeof(struct glmake_shaders_db_entry));
+            (glmake_shaders_db.top+1) * sizeof(struct glmake_shaders_db_entry));
         glmake_shaders_db.entries[glmake_shaders_db.top].path_hash = hash;
         glmake_shaders_db.entries[glmake_shaders_db.top].shader_id = shid;
         ++(glmake_shaders_db.top);
@@ -197,8 +198,8 @@ int glmake(GLuint program, const char *save_path, ...)
     if(binfile != NULL) 
     {
         /* Check if any shader file supplied has a more recent last write time 
-         * than 'save_path'. In that case, 'save_path' is outdated and we should not 
-         * read its binary. */
+         * than 'save_path'. In that case, 'save_path' is outdated and 
+         * we should not read its binary. */
         binfile_mtime = glmake_last_write_time(save_path);
         va_start(ap, save_path);
         for(;;) 
@@ -218,30 +219,60 @@ int glmake(GLuint program, const char *save_path, ...)
 
         if(!outdated)
         {
+            /*
             fseek(binfile, 0, SEEK_END);
             binlen = ftell(binfile)-sizeof(GLenum);
             bin = malloc(binlen);
             rewind(binfile);
             bytes_read = fread(&binfmt, sizeof(GLenum), 1, binfile);
             bytes_read = fread(bin, 1, binlen, binfile);
-            fclose(binfile);
-            glProgramBinary(program, binfmt, bin, binlen);
-            free(bin);
-
-            if(glGetError() != GL_INVALID_ENUM) {
-                glGetProgramiv(program, GL_LINK_STATUS, &status);
-                if(status == GL_TRUE) {
-                    printf("Successfully reused '%s'.\n", save_path);
-                    return 1;
-                }
+            */
+            for(;;) {
+                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
+                if(retval==EOF) break;
+                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
+                if(retval==EOF) break;
+                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
+                if(retval==EOF) break;
+                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
+                if(retval==EOF) break;
+                retval = fscanf(binfile, "Binary format : 0x%08x", &binfmt);
+                if(retval <= 0) break;
+                fgetc(binfile);
+                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
+                break;
             }
-        
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
-            err = malloc(errlen+1);
-            glGetProgramInfoLog(program, errlen, &errlen, err);
-            err[errlen] = '\0';
-            fprintf(stderr, "Could not use '%s' :\n%s\n", save_path, err);
-            free(err);
+
+            if(retval==EOF || retval <= 0) {
+                fprintf(stderr, "Failed to parse header ('%s')\n", save_path);
+            } else {
+                binlen = ftell(binfile);
+                fseek(binfile, 0, SEEK_END);
+                binlen = ftell(binfile) - binlen;
+                fseek(binfile, -binlen, SEEK_END);
+
+                bin = malloc(binlen);
+                bytes_read = fread(bin, 1, binlen, binfile);
+
+                fclose(binfile);
+                glProgramBinary(program, binfmt, bin, binlen);
+                free(bin);
+
+                if(glGetError() != GL_INVALID_ENUM) {
+                    glGetProgramiv(program, GL_LINK_STATUS, &status);
+                    if(status == GL_TRUE) {
+                        printf("Successfully reused '%s'.\n", save_path);
+                        return 1;
+                    }
+                }
+            
+                glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
+                err = malloc(errlen+1);
+                glGetProgramInfoLog(program, errlen, &errlen, err);
+                err[errlen] = '\0';
+                fprintf(stderr, "Could not use '%s' :\n%s\n", save_path, err);
+                free(err);
+            }
         }
     } /* binfile != NULL */
     /* endif opengl 4.1 */
@@ -287,7 +318,20 @@ int glmake(GLuint program, const char *save_path, ...)
         if(!binfile) {
             fprintf(stderr, "Could not save binary to '%s'.\n", save_path);
         } else {
-            fwrite(&binfmt, sizeof(GLenum), 1, binfile);
+            /* Fixme : Set a dirty flag to prevent querying strings all the 
+             * time. */
+            fprintf(binfile, 
+                    "--- OpenGL program binary ---\n"
+                    "Renderer      : %s\n"
+                    "Vendor        : %s\n"
+                    "GLSL version  : %s\n"
+                    "Binary format : 0x%08x\n"
+                    "---\n",
+                    glGetString(GL_RENDERER),
+                    glGetString(GL_VENDOR),
+                    glGetString(GL_SHADING_LANGUAGE_VERSION),
+                    binfmt
+                    );
             fwrite(bin, 1, binlen, binfile);
             fclose(binfile);
         }

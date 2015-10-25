@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
     GLuint progid = glCreateProgram();
     if(!glmake(progid,
-               pathto("@/res/precomp/triangles.bin"),
+               pathto("@/data/OpenGL/triangles.glb"),
                pathto("@/res/shaders/triangles.vert"),
                pathto("@/res/shaders/triangles.frag"),
                NULL))
