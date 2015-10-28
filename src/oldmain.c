@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     glGetIntegerv(GL_MAJOR_VERSION, &gl_version[0]);
     glGetIntegerv(GL_MINOR_VERSION, &gl_version[1]);
 
-    if(gl_version[0] < 4 && gl_version[1] < 3)
+    if(gl_version[0] < 4 || (gl_version[0] >= 4 && gl_version[1] < 3))
     {
         fprintf(stderr, 
                 "Your hardware does not meet the requirements.\n"

@@ -34,7 +34,7 @@ endif
 ### COMPILER
 
 CC = gcc
-CCFLAGS = -Iinclude -O3 -m$(ARCH)  
+CCFLAGS = -Iinclude -O3
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
