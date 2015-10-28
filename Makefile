@@ -1,17 +1,3 @@
-### COMPILER
-
-CC = gcc
-CCFLAGS = -Iinclude -O3 -m$(ARCH)  
-LDLIBS = -lm \
-		 -lcsfml-audio \
-		 -lcsfml-graphics \
-		 -lcsfml-network \
-		 -lcsfml-window \
-		 -lcsfml-system 
-
-
-### SYSTEM
-
 define OS_ARCH_ERROR
 
 
@@ -38,20 +24,40 @@ $(error $(call OS_ARCH_ERROR))
 endif
 endif
 
+.PHONY: all clean mrproper re
+
+### COMPILER
+
+CC = gcc
+CCFLAGS = -Iinclude -O3 -m$(ARCH)  
+LDLIBS = -lm \
+		 -lcsfml-audio \
+		 -lcsfml-graphics \
+		 -lcsfml-network \
+		 -lcsfml-window \
+		 -lcsfml-system 
+
 
 ### PROJECT FILES
 
+BINDIR = bin/$(OS)$(ARCH)
 BUILDDIR = build/$(OS)$(ARCH)
 ifeq ($(OS),windows)
+#Because windows' shell can't do it if there's a '/'.
+BINDIR = bin\$(OS)$(ARCH)
 BUILDDIR = build\$(OS)$(ARCH)
 endif
-BINDIR = bin/$(OS)$(ARCH)
 EXE := $(BINDIR)/game
 OFILES = 
 
 
-#### SHELL
+### SHELL
 
+MKDIR = mkdir
+
+ifneq ($(OS),windows)
+MKDIR += -p
+endif
 ifeq ($(OS),linux)
 CLEANCMD = rm -f $(BUILDDIR)/*
 LDLIBS += -lGL
@@ -84,12 +90,18 @@ $(eval $(call OFILE_MACRO,cube,include/cube.h))
 $(eval $(call OFILE_MACRO,oldmain))
 
 #ifeq ($(OS),windows)
-#$(BUILDDIR)/$(OS)$(ARCH)/fst.res : src/fst/fst.rc src/fst/fst.ico
-#	windres src/fst/fst.rc -O coff -o $(BUILDDIR)/$(OS)$(ARCH)/fst.res
+#$(BUILDDIR)/fst.res : src/fst/fst.rc src/fst/fst.ico
+#	windres src/fst/fst.rc -O coff -o $(BUILDDIR)/fst.res
 #OFILES += $(BUILDDIR)/fst.res
 #endif
 
-$(EXE) : $(OFILES)
+$(BINDIR):
+	$(MKDIR) $(BINDIR)
+
+$(BUILDDIR):
+	$(MKDIR) $(BUILDDIR)
+
+$(EXE) : $(BUILDDIR) $(BINDIR) $(OFILES)
 	$(CC) $(CCFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)
 
 
@@ -99,4 +111,3 @@ clean:
 	$(CLEANCMD)
 mrproper : clean all
 re : mrproper
-.PHONY: clean mrproper re
