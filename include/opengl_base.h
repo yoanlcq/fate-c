@@ -3,9 +3,9 @@
 
 #define GL_GLEXT_PROTOTYPES
 #define GLEW_STATIC
-#include <glew/glew.h>
+#include <GL/glew.h>
 #include <SFML/OpenGL.h>
-#include <glew/glext.h>
+#include <GL/glext.h>
 #ifndef GL_VERSION_4_3
 #error We target OpenGL 4.3.
 #endif

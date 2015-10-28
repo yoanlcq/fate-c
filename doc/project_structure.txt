@@ -1,0 +1,49 @@
+Note : let the <target> variable be one of :
+    linux64
+    linux32
+    osx
+    windows32
+    windows64
+
+
+bin/<target> :
+    The engine's executable, as well as the related tools' executables.
+
+build/<target> :
+    Temporary files resulting from the project's building process.
+    This directory is not to be delivered with games (duh!)
+
+data/ :
+    Maybe it would be best named "userdata".
+    This directory must contain everything that would vary between users.
+    Exemples would be config files, saves, precompiled shader binaries, 
+    extensions, etc.
+    Not to be confused with res/.
+
+data/shader_binaries/
+    Self-explanatory.
+
+doc/ :
+    Well duh.
+
+include/ :
+    All header files, including some embedded 3rd-party libraries headers.
+
+lib/<target> :
+    Dynamically-loaded libraries go here, whether or not they are 3rd party.
+    Engine extensions should, however, go under data/extensions/<target>.
+
+res/ :
+    Read like "resources".
+    This directory must contain everything that would vary between games.
+    Exemples would be 3D models, shaders, fonts, etc.
+    Not to be confused with data/.
+
+src/ :
+    All source files. Also named "No header file's land".
+
+experiments/ :
+    People could call it "spikes" or "tests". Well, it's both plus anything 
+    you want. This is where anyone can put works-in-progress or anything that 
+    might be of interest to the internal developers. There's no convention in 
+    there, and code is not really required to be well-written.

@@ -24,19 +24,26 @@ $(error $(call OS_ARCH_ERROR))
 endif
 endif
 
+ifndef ARCH
+#None for OS X
+ARCH=
+endif
+
 .PHONY: all clean mrproper re
 
 ### COMPILER
 
 CC = gcc
 CCFLAGS = -Iinclude -O3 -m$(ARCH)  
+ifneq ($(ARCH),)
+CCFLAGS += -m$(ARCH) 
+endif
 LDLIBS = -lm \
 		 -lcsfml-audio \
 		 -lcsfml-graphics \
 		 -lcsfml-network \
 		 -lcsfml-window \
 		 -lcsfml-system 
-
 
 ### PROJECT FILES
 
@@ -51,10 +58,9 @@ EXE := $(BINDIR)/game
 OFILES = 
 
 
-### SHELL
+#### SHELL
 
 MKDIR = mkdir
-
 ifneq ($(OS),windows)
 MKDIR += -p
 endif
@@ -73,7 +79,16 @@ endif
 
 ### GOALS
 
-all: $(EXE)
+all: $(BINDIR) $(BUILDDIR) $(DATADIR) $(EXE)
+
+$(BINDIR):
+	$(MKDIR) $(BINDIR)
+
+$(BUILDDIR):
+	$(MKDIR) $(BUILDDIR)
+
+$(DATADIR):
+	$(MKDIR) $(DATADIR)
 
 define OFILE_MACRO
 OFILES += $(BUILDDIR)/$(1).o 
@@ -81,7 +96,7 @@ $(BUILDDIR)/$(1).o : src/$(1).c $(2) $(3) $(4) $(5) $(6) $(7) $(8)
 	$(CC) $(CCFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).o
 endef
 
-$(eval $(call OFILE_MACRO,glew,include/glew/glew.h,include/glew/glxew.h,include/glew/wglew.h))
+$(eval $(call OFILE_MACRO,glew,include/GL/glew.h,include/GL/glxew.h,include/GL/wglew.h))
 $(eval $(call OFILE_MACRO,display_resolutions,include/utils/display_resolutions.h))
 $(eval $(call OFILE_MACRO,pathto,include/utils/pathto.h))
 $(eval $(call OFILE_MACRO,opengl_debug,include/opengl_debug.h))
@@ -95,13 +110,7 @@ $(eval $(call OFILE_MACRO,oldmain))
 #OFILES += $(BUILDDIR)/fst.res
 #endif
 
-$(BINDIR):
-	$(MKDIR) $(BINDIR)
-
-$(BUILDDIR):
-	$(MKDIR) $(BUILDDIR)
-
-$(EXE) : $(BUILDDIR) $(BINDIR) $(OFILES)
+$(EXE) : $(OFILES)
 	$(CC) $(CCFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)
 
 
