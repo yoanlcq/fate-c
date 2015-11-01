@@ -1,0 +1,38 @@
+Filesystem API :
+
+void fst_vfs_init(fst_vfs *fs);
+void fst_vfs_make_current(fst_vfs *fs);
+void fst_vfs_deinit(fst_vfs *fs);
+
+
+Node API (requires a current vfs) :
+
+const fst_node* fst_resolve_readonly(const uint8_t *path, uint32_t flags);
+fst_node*       fst_resolve(const uint8_t *path, uint32_t flags);
+fst_nodequeue*  fst_resolve_multiple(const uint8_t *path, uint32_t flags);
+void            fst_symlink(const uint8_t *path, const uint8_t *dst);
+const uint8_t*  fst_readlink(const fst_symlink *lnk);
+void            fst_create(const fst_node *initializer, const uint8_t *path);
+void            fst_link(fst_node *n, const uint8_t *path);
+void            fst_unlink(const uint8_t *path);
+void            fst_copy(fst_node *n, const uint8_t *path);
+void            fst_move(fst_node *n, const uint8_t *path);
+void            fst_rename(fst_node *n, const uint8_t *name);
+fst_statdata    fst_stat(fst_node *n);
+void            fst_nctl(fst_node *n, uint32_t op, ...);
+
+flags for resolve*():
+    FST_RESOLVE_NO_FOLLOW
+    FST_RESOLVE_NO_CACHE_READ
+    FST_RESOLVE_NO_CACHE_WRITE
+    FST_RESOLVE_NO_CACHE //Combination of both above.
+
+Engine Event API :
+
+void                fst_ee_mask(fst_ee_extension_handle exth, uint32_t mask);
+uint32_t            fst_ee_get_mask(fst_ee_extension_handle exth);
+fst_ee_watch_handle fst_ee_watch(fst_ee_extension_handle exth, 
+                                 const uint8_t *path_no_wilcards,
+                                 uint32_t mask);
+void                fst_ee_unwatch(fst_ee_watch_handle wh);
+

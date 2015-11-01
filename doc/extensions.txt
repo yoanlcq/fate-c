@@ -33,9 +33,10 @@ void handler_or_whatever(const fst_ee_event *e) {
          *
          * This is where it all begins, and the engine has already decided 
          * if your extension is compatible or not with it.
-         * See e->extension_loaded->id; if id is 0, the it is not compatible.
-         * An extension id may be as simple as an array index or a hash of its
-         * name and version.
+         * See e->extension_loaded->handle; if handle is NULL, then
+         * it is not compatible.
+         * An extension handle may be as simple as an array index or a hash 
+         * of its name and version.
          * 
          * If it is not compatible, here is your opportunity to alert the user,
          * because you will receive no more events (not even 
@@ -44,9 +45,9 @@ void handler_or_whatever(const fst_ee_event *e) {
          * 
          * Otherwise, go on happily by initializing your extension here, and
          * don't forget to set its event mask.
-         * fst_ee_mask(&FST_EXT_<NAME>, <mask>);
-         * watchd = fst_ee_add_watch(extension_id, <path_no_wildcards>, 
-         *                           <node_types>, <event_types>);
+         * fst_ee_mask(extension_handle, <mask>);
+         * watchd = fst_ee_add_watch(extension_handle, <path_no_wildcards>, 
+         *                           <event_mask>);
          * fst_ee_rm_watch(extension_id, <watchd>);
          * Telling the engine which events you want and don't want is important
          * because we care about in-game performance. 
@@ -87,12 +88,14 @@ void handler_or_whatever(const fst_ee_event *e) {
          */
         break;
 
-    case FST_EE_NODE_LINKED: /* After  ++reference_count or creation */
-    case FST_EE_NODE_UNLINK: /* Before --reference_count or deletion */
-    case FST_EE_NODE_PRE_READ:   /* Before reading */
-    case FST_EE_NODE_POST_READ:  /* Before reading */
-    case FST_EE_NODE_PRE_WRITE:  /* Before writing (contains old and new value) */
-    case FST_EE_NODE_POST_WRITE:  /* Before writing (contains old and new value) */
+    case FST_EE_NODE_LINKED:  /* After ++links_count or creation */
+    case FST_EE_NODE_UNLINK: /* Before --links_count or deletion */
+    case FST_EE_NODE_PRE_READ:  /* Before reading */
+    case FST_EE_NODE_POST_READ:  /* After reading */
+    case FST_EE_NODE_PRE_WRITE: /* Before writing (also provides new value) */
+    case FST_EE_NODE_POST_WRITE: /* After writing (also provides old value) */
+    case FST_EE_NODE_RENAME: /* Before renaming */
+    case FST_EE_NODE_RENAMED: /* After renaming */
     /* 
      * Since all of the engine's services are available as nodes, there is 
      * no need for more event types.
