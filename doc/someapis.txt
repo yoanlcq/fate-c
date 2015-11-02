@@ -15,6 +15,7 @@ const uint8_t*  fst_readlink(const fst_symlink *lnk);
 void            fst_create(const fst_node *initializer, const uint8_t *path);
 void            fst_link(fst_node *n, const uint8_t *path);
 void            fst_unlink(const uint8_t *path);
+void            fst_yield(fst_node *n);
 void            fst_copy(fst_node *n, const uint8_t *path);
 void            fst_move(fst_node *n, const uint8_t *path);
 void            fst_rename(fst_node *n, const uint8_t *name);

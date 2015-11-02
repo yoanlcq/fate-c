@@ -49,6 +49,7 @@ LDLIBS = -lm \
 
 BINDIR = bin/$(OS)$(ARCH)
 BUILDDIR = build/$(OS)$(ARCH)
+DATADIR = data
 ifeq ($(OS),windows)
 #Because windows' shell can't do it if there's a '/'.
 BINDIR = bin\$(OS)$(ARCH)
@@ -79,7 +80,7 @@ endif
 
 ### GOALS
 
-all: $(BINDIR) $(BUILDDIR) $(DATADIR) $(EXE)
+all: $(BINDIR) $(BUILDDIR) $(DATADIR) $(DATADIR)/OpenGL $(EXE)
 
 $(BINDIR):
 	$(MKDIR) $(BINDIR)
@@ -89,6 +90,10 @@ $(BUILDDIR):
 
 $(DATADIR):
 	$(MKDIR) $(DATADIR)
+
+$(DATADIR)/OpenGL:
+	$(MKDIR) $(DATADIR)/OpenGL
+
 
 define OFILE_MACRO
 OFILES += $(BUILDDIR)/$(1).o 

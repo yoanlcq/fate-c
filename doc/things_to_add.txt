@@ -1,0 +1,8 @@
+-> Rename namespace to fte.
+
+-> fate/OpenGL/wrapper.h
+-> fate/OpenGL/context.h
+-> SFML fullscreen extension
+-> fate/OpenGL/debug.h
+-> fate/OpenGL/progdb.h
+-> data/fate.cfg
