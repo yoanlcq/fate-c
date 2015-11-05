@@ -1,0 +1,132 @@
+struct fate_version_t {
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+};
+typedef struct fate_version_t fate_version_t;
+
+/* EE stands for Engine Event. */
+
+struct fate_modheader {
+    fate_version_t version; /* <- Required to allow for multiple versions 
+                             * of a mod to be present. */
+    fate_version_t engine_version;
+    const uint8_t *name; /* <- Acts as an identifier. */
+    const uint8_t *info; /* <- Put some more info for the user. */
+    void (*ee_handler)(const fate_ee_event*);
+};
+typedef struct fate_modheader fate_modheader;
+
+
+fate_ext_<name>.dll
+
+/* Custom part */
+
+/* All functions except your event handler should be marked static. */
+
+fate_mod_handle fate_mod_<NAME>_handle;
+
+void handler_or_whatever(const fate_ee_event *e) {
+    switch(e->type) {
+    case FATE_EE_MOD_LOADED:
+        /*
+         * This event is sent to a mod right after it is loaded.
+         *
+         * This is where it all begins, and the engine has already decided 
+         * if your mod is compatible or not with it.
+         * See e->mod_loaded->handle; if handle is NULL, then
+         * it is not compatible.
+         * A mod handle may be as simple as an array index or a hash 
+         * of its name and version.
+         * 
+         * If it is not compatible, here is your opportunity to alert the user,
+         * because you will receive no more events (not even 
+         * FATE_EE_MOD_UNLOADED) and get unloaded right after this 
+         * function returns.
+         * 
+         * Otherwise, go on happily by initializing your mod here, and
+         * don't forget to set its event mask.
+         * fate_ee_mask(mod_handle, <mask>);
+         * watch = fate_ee_watch(mod_handle, <path_no_wildcards>, <event_mask>);
+         * fate_ee_unwatch(mod_handle, watch);
+         * Telling the engine which events you want and don't want is important
+         * because we care about in-game performance. 
+         * By default, your event mask is only set to FATE_EE_MOD_UNLOAD.
+         */
+        break;
+    case FATE_EE_MOD_UNLOAD:
+        /*
+         * This event is sent to a mod right before it is unloaded 
+         * (given it was compatible with the engine).
+         * Please be nice and clean-up your stuff here.
+         */
+        break;
+    case FATE_EE_ALL_MODS_LOADED:
+        /* 
+         * The engine is done loading all the mods it could find. 
+         * Subscribe to this event if you want to interact with other 
+         * mods.
+         * If the user adds new mods to the directory at runtime, they will
+         * be loaded and this event will be sent again.
+         */
+        break;
+    case FATE_EE_CUSTOM:
+        /*
+         * It is never actually sent by the engine, but it is there for events 
+         * provided by mods themselves. That way, mods can 
+         * communicate between them. 
+         * One should use it like so :
+         * 
+         * fate_mod_handle receiver; <- Of course, don't let it at NULL.
+         * your_data_t your_data; <- Your own struct, for example.
+         * fate_ee_event e;
+         * e.type = FATE_EE_CUSTOM;
+         * e.custom = &your_data;
+         * fate_ee_sendto(receiver, &e);
+         *
+         * Then the receiving mod is responsible for handling the data in 
+         * e.custom. You can put anything in it, like your mod 
+         * itself, the data's length, etc. However, it is your responsibility.
+         */
+        break;
+
+    case FATE_EE_NODE_LINKED:  /* After ++links_count or creation */
+    case FATE_EE_NODE_UNLINK: /* Before --links_count or deletion */
+    case FATE_EE_NODE_PRE_READ:  /* Before reading */
+    case FATE_EE_NODE_POST_READ:  /* After reading */
+    case FATE_EE_NODE_PRE_WRITE: /* Before writing (also provides new value) */
+    case FATE_EE_NODE_POST_WRITE: /* After writing (also provides old value) */
+    case FATE_EE_NODE_RENAME: /* Before renaming */
+    case FATE_EE_NODE_RENAMED: /* After renaming */
+    /* 
+     * There is no need for more event types.
+     * Feature that the engine is ready to expose to mods are provided 
+     * as nodes.
+     * Otherwise, the mod's developer is responsible for implementing the
+     * needed features without disturbing the engine, which can be as
+     * inconvenient as it seems.
+     * FATE's goal being to do its best to be efficient, the line has to 
+     * be drawn somewhere.
+     *
+     * Please note that you should use nodes to be notified of video/audio
+     * backend changes. 
+     * The user's not gonna be happy if you call a GL function whereas the
+     * active video backend is Vulkan and there is no OpenGL context.
+     * In the same way, it is your responsibility to make sure that the 
+     * backend's functions you reach for are compatible with its version.
+     * (i.e Don't call glShaderBinary() while the GL's version is 1.1, 
+     * pretty please).
+     * In such cases, your mod should just do nothing instead.
+     */
+    }
+}
+
+/* Required part */
+
+const fate_modheader FATE_MOD_<NAME> = {
+    {1,0,0},
+    {1,0,0},
+    <name>,
+    "<name>, written by <author>. More info here as you wish.",
+    &handler_or_whatever
+};
