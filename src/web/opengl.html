@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test OpenGL</title>
+</head>
+<script type="text/javascript" src="../../res/web/webgl-utils.js"></script>
+<script type="text/javascript" src="../../res/web/webgl-debug.js"></script>
+<script type="text/javascript">
+
+var canvas;
+var gl;
+
+function log_info() {
+    var gl_info_elem = document.getElementById("gl_info");
+    gl_info_elem.innerHTML = 
+          "WebGL version  : " + gl.getParameter(gl.VERSION) + "<br>"
+        + "WebGL renderer : " + gl.getParameter(gl.RENDERER) + "<br>"
+        + "WebGL vendor   : " + gl.getParameter(gl.VENDOR) + "<br>"
+        + "Extensions : ";
+    var exts = gl.getSupportedExtensions();
+    for(var i=0 ; i<exts.length ; ++i)
+        gl_info.innerHTML += exts[i] + "<br>";
+}
+function lose_restore() {
+    canvas.setRestoreTimeout(-1);
+    window.addEventListener("mousedown", function() {
+        canvas.loseContext();
+    });
+    window.addEventListener("mousedown", function() {
+        canvas.restoreContext();
+    });
+}
+function resize() {
+    if(gl.canvas.width != gl.canvas.clientWidth 
+    || gl.canvas.height != gl.canvas.clientHeight) 
+    {
+        gl.canvas.width = gl.canvas.clientWidth;
+        gl.canvas.height = gl.canvas.clientHeight;
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    }
+}
+var timeSpent = 0;
+var old_abs_time_ms = 0;
+function render(abs_time_ms) {
+    console.log(abs_time_ms);
+    var delta_ms = abs_time_ms - old_abs_time_ms;
+    old_abs_time_ms = abs_time_ms;
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    timeSpent += delta_ms*0.001;
+    var factor = (Math.sin(timeSpent) + 1) * 0.5;
+    gl.clearColor(factor * 0.7 + 0.3, 0.0, 0.0, 1.0);
+    requestAnimationFrame(render);
+}
+function init() {
+    canvas = document.getElementById("canvas");
+    gl = WebGLUtils.setupWebGL(canvas);
+    if(!gl) {
+        alert("Could not set up WebGL. Sorry.");
+        return;
+    }
+    canvas.addEventListener("webglcontextlost", function(event) {
+        event.preventDefault();
+        alert("The WebGL context has been lost; "
+            + "the game has to restart.");
+    }, false);
+    canvas.addEventListener("webglcontextrestored", init, false);
+
+    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    window.requestAnimationFrame(render);
+}
+
+window.onload = init;
+
+</script>
+<body>
+    <div id="gl_info"></div>
+    <p>This square should appear black.</p>
+    <canvas id="canvas" width="512" height="512" style="background:blue;">
+        Your browser does not support canvas. Sorry.
+    </canvas>
+</body>
+</html>
