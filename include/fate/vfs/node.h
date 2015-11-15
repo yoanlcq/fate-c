@@ -1,20 +1,21 @@
-#ifndef FST_NODE_H
-#define FST_NODE_H
+#ifndef FATE_NODE_H
+#define FATE_NODE_H
 
 #include <stdint.h>
 
-enum fst_node_type {
-    FST_NODE  = 0, /* For typeless nodes. See below. */
-    FST_LNODE = 1,
-    FST_KNODE = 2,
-    FST_DNODE = 3,
-    FST_ENODE = 4,
-    FST_VNODE = 5,
-    FST_SNODE = 6, /* State nodes are wrapper for function pointers. */
+enum fate_node_type {
+    FATE_EXTENDED_NODE = 0,
+    FATE_ANODE = 1, /* For anonymous nodes. See below. */
+    FATE_LNODE = 2,
+    FATE_KNODE = 3,
+    FATE_DNODE = 4,
+    FATE_ENODE = 5,
+    FATE_VNODE = 6,
+    FATE_SNODE = 7, /* State nodes are wrapper for function pointers. */
 };
-typedef enum fst_node_type fst_node_type;
-const char *fst_node_type_names[7][2] = {
-    {"Node",  "Typeless Node"}, 
+typedef enum fate_node_type fate_node_type;
+const char *fate_node_type_names[7][2] = {
+    {"Node",  "Anonymous Node"}, 
     {"Lnode", "Local Device Node"},
     {"Knode", "Value Node"},
     {"Dnode", "Entity Data Node"},
@@ -24,7 +25,7 @@ const char *fst_node_type_names[7][2] = {
 };
 
 /*
- * How can typeless nodes be created ?
+ * How can anonymous nodes be created ?
  *
  * Have the following tree structure :
  *
@@ -35,8 +36,8 @@ const char *fst_node_type_names[7][2] = {
  * Attempting to _access_ "Earth.Sky.Bird" will change the tree like so :
  *
  * Earth       <= Enode
- * `- Sky      <= Typeless node
- *    `- Bird  <= Typeless node
+ * `- Sky      <= anonymous node
+ *    `- Bird  <= anonymous node
  * `- Sea      <= Enode
  * `- Ground   <= Enode
  *
@@ -46,94 +47,77 @@ const char *fst_node_type_names[7][2] = {
 
 
 /* The following flags apply only to Knodes. */
-enum fst_value_type {
-    FST_KNODE_NONE  =  0, /* Unused and actually only for debug printing. */
-    FST_KNODE_UTF8  =  1,
-    FST_KNODE_S8    =  2,
-    FST_KNODE_S16   =  3,
-    FST_KNODE_S32   =  4,
-    FST_KNODE_S64   =  5,
-    FST_KNODE_U8    =  6,
-    FST_KNODE_U16   =  7,
-    FST_KNODE_U32   =  8,
-    FST_KNODE_U64   =  9,
-    FST_KNODE_F32   = 10,
-    FST_KNODE_F64   = 11
+enum fate_value_size {
+    FATE_8 = 0,
+    FATE_16 = 1,
+    FATE_32 = 2,
+    FATE_64 = 3,
 };
-typedef enum fst_value_type fst_value_type;
-const char *fst_value_type_names[13][2] = {
-    {"None",  "No value type"},
-    {"utf8",  "UTF-8 string"},
-    {"s8",    "Signed 8-bit integer"},
-    {"s16",   "Signed 16-bit integer"},
-    {"s32",   "Signed 32-bit integer"},
-    {"s64",   "Signed 64-bit integer"},
-    {"u8",    "Unsigned 8-bit integer"},
-    {"u16",   "Unsigned 16-bit integer"},
-    {"u32",   "Unsigned 32-bit integer"},
-    {"u64",   "Unsigned 64-bit integer"},
-    {"f32",   "Single-precision floating-point number"},
-    {"f64",   "Double-precision floating-point number"}
-};
+typedef enum fate_value_size fate_value_size;
 
-enum fst_entry_type {
-    FST_HARDLINK = 0,
-    FST_SYMLINK  = 1
+enum fate_value_type {
+    FATE_UNSIGNED      = 0,
+    FATE_SIGNED        = 1,
+    FATE_FLOATINGPOINT = 2
 };
-typedef enum fst_entry_type fst_entry_type;
-const char *fst_entry_type_names[2] = {
-    "HardLink", "SymLink"
-};
+typedef enum fate_value_type fate_value_type;
 
-enum fst_owner {
-    FST_OWNED_BY_USER      = 0,
-    FST_OWNED_BY_SCHEDULER = 1
+enum fate_value_storage {
+    FATE_ARRAY = 0,
+    FATE_SINGLE = 1
 };
-typedef enum fst_owner fst_owner;
-const char *fst_owner_names[2] = {
+typedef enum fate_value_storage fate_value_storage;
+
+enum fate_owner {
+    FATE_OWNED_BY_USER      = 0,
+    FATE_OWNED_BY_SCHEDULER = 1
+};
+typedef enum fate_owner fate_owner;
+const char *fate_owner_names[2] = {
     "User", "Scheduler"
 };
 
 /* The permissions applies to an individual node. */
-enum fst_perms {
-    FST_PERMS_NONE        = 0,
-    FST_PERMS_READ        = 1,
-    FST_PERMS_WRITE       = 2,
-    FST_PERMS_READWRITE   = 3, /* Notice that 3 == 1|2 */
-    FST_PERMS_ADDCHILDREN = 4,
-    FST_PERMS_DELETE      = 8
+enum fate_perms {
+    FATE_PERMS_NONE        = 0,
+    FATE_PERMS_READ        = 1,
+    FATE_PERMS_WRITE       = 2,
+    FATE_PERMS_READWRITE   = 3, /* Notice that 3 == 1|2 */
+    FATE_PERMS_ADDCHILDREN = 4,
+    FATE_PERMS_DELETE      = 8
 };
-typedef enum fst_perms fst_perms;
+typedef enum fate_perms fate_perms;
 
-#define FST_LEAF_ATTRIBUTES \
-    fst_entry_type  entry_type  : 1; \
-    fst_node_type   type        : 3; \
-    fst_value_type  value_type  : 4; \
-    fst_owner       owner       : 1; \
-    fst_perms       perms       : 4; \
-    unsigned        network_shared : 1; \
-    unsigned        reserved    : 2; \
-    unsigned char   links_count
+#define FATE_LEAF_ATTRIBUTES \
+    fate_node_type      type           : 4; \
+    fate_value_storage  value_storage  : 1; \
+    fate_value_type     value_type     : 2; \
+    fate_value_size     value_size     : 2; \
+    fate_owner          owner          : 1; \
+    fate_perms          perms          : 4; \
+    unsigned            network_shared : 1; \
+    unsigned            reserved       : 9; \
+    uint8_t             links_count
 
-#define FST_NODE_ATTRIBUTES \
-    FST_LEAF_ATTRIBUTES; \
-    fst_dentry     *dentries
+#define FATE_NODE_ATTRIBUTES \
+    FATE_LEAF_ATTRIBUTES; \
+    fate_dentry     *dentries
 
-struct fst_node {
-    FST_NODE_ATTRIBUTES;
+struct fate_node {
+    FATE_NODE_ATTRIBUTES;
 };
-typedef struct fst_node fst_node;
+typedef struct fate_node fate_node;
 
-struct fst_dentry {
+struct fate_dentry {
     uint8_t  *name;
-    fst_node *node;
+    fate_node *node;
 };
-typedef struct fst_dentry fst_dentry;
+typedef struct fate_dentry fate_dentry;
 
-struct fst_symlink {
-    FST_LEAF_ATTRIBUTES;
+struct fate_symlink {
+    FATE_LEAF_ATTRIBUTES;
     uint8_t *target_path;
 };
-typedef struct fst_symlink fst_symlink;
+typedef struct fate_symlink fate_symlink;
 
-#endif /* FST_NODE_H */
+#endif /* FATE_NODE_H */
