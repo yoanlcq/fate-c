@@ -1,10 +1,8 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-#include <opengl_base.h>
+#include <fate/gl.h>
 #include <linmath/linmath.h>
-
-typedef enum Cube_input Cube_input;
 
 typedef struct Cube_ {
     GLbyte  vertices[8][3];

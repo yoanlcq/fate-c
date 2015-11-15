@@ -2,25 +2,16 @@
  * @file opengl_debug.h
  * @author Yoan Lecoq
  * @date 13 Jul 2015
- * @brief Header file to toggle OpenGL debugging statically.
- *
- * This file defines an OpenGL debug callback function, named opengl_debug_callback, and a 
- * macro named OPENGL_DEBUG indicating whether OpenGL debugging is enabled or not, that should
- * be checked by the application code via #ifdef ... #endif blocks.
+ * @brief Header file for all things "OpenGL debug".
  *
  */
 
-#ifndef OPENGL_DEBUG_H
-#define OPENGL_DEBUG_H
+#ifndef FATE_GL_DBG_H
+#define FATE_GL_DBG_H
 
-#include <opengl_base.h>
+#include <fate/gl.h>
 
-
-/* Comment the following line to turn off OpenGL debugging. */
-#define OPENGL_DEBUG
-
-
-#ifdef OPENGL_DEBUG
+#ifdef FATE_DEFS_DEBUG_BUILD
 
 #ifndef APIENTRY /* Noticeable on Linux */
 #define APIENTRY
@@ -33,7 +24,7 @@ typedef void (APIENTRY *DEBUGPROC)  (GLenum source,
                                      GLsizei length, 
                                      const GLchar* message, 
                                      void* userParam);
-void APIENTRY opengl_debug_callback (GLenum source, 
+void APIENTRY fate_gl_dbg_callback  (GLenum source, 
                                      GLenum type, 
                                      GLuint id,
                                      GLenum severity, 
@@ -41,5 +32,5 @@ void APIENTRY opengl_debug_callback (GLenum source,
                                      const GLchar* message, 
                                      void* userParam);
 
-#endif /* OPENGL_DEBUG */
-#endif /* OPENGL_DEBUG_H */
+#endif /* FATE_DEFS_DEBUG_BUILD */
+#endif /* FATE_GL_DBG_H */

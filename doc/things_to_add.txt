@@ -4,6 +4,6 @@
 -> fate/gl/context.h
 -> SFML fullscreen extension
 -> fate/gl/debug.h
--> fate/gl/progdb.h
+-> fate/gl/mkprog.h
 -> data/fate.cfg
 -> fate/vk/...h

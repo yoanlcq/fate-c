@@ -64,12 +64,9 @@ OFILES =
 MKDIR = mkdir
 ifneq ($(OS),windows)
 MKDIR += -p
-endif
-ifeq ($(OS),linux)
 CLEANCMD = rm -f $(BUILDDIR)/*
 LDLIBS += -lGL
-endif
-ifeq ($(OS),windows)
+else
 CLEANCMD = del /f /q $(BUILDDIR)\*
 LDLIBS += -lopengl32 #-lglut -lglu32 -lglew32mx -lopengl32
 EXE := $(EXE).exe #To prevent useless recompilation
@@ -94,26 +91,21 @@ $(DATADIR):
 $(DATADIR)/OpenGL:
 	$(MKDIR) $(DATADIR)/OpenGL
 
+#ifeq ($(OS),windows)
+#$(BUILDDIR)/game.res : res/windres/game.rc res/windres/game.ico
+#	windres res/windres/game.rc -O coff -o $(BUILDDIR)/game.res
+#OFILES += $(BUILDDIR)/game.res
+#endif
 
-define OFILE_MACRO
+define MKOBJ
 OFILES += $(BUILDDIR)/$(1).o 
-$(BUILDDIR)/$(1).o : src/$(1).c $(2) $(3) $(4) $(5) $(6) $(7) $(8)
+$(BUILDDIR)/$(1).o : src/$(1).c include/$(2) include/$(3) include/$(4) include/$(5) include/$(6) include/$(7) include/$(8)
 	$(CC) $(CCFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).o
 endef
 
-$(eval $(call OFILE_MACRO,glew,include/GL/glew.h,include/GL/glxew.h,include/GL/wglew.h))
-$(eval $(call OFILE_MACRO,display_resolutions,include/utils/display_resolutions.h))
-$(eval $(call OFILE_MACRO,pathto,include/utils/pathto.h))
-$(eval $(call OFILE_MACRO,opengl_debug,include/opengl_debug.h))
-$(eval $(call OFILE_MACRO,glmake,include/glmake.h))
-$(eval $(call OFILE_MACRO,cube,include/cube.h))
-$(eval $(call OFILE_MACRO,oldmain))
+# Be careful : There's a reason why there are no spaces between commas.
 
-#ifeq ($(OS),windows)
-#$(BUILDDIR)/fst.res : src/fst/fst.rc src/fst/fst.ico
-#	windres src/fst/fst.rc -O coff -o $(BUILDDIR)/fst.res
-#OFILES += $(BUILDDIR)/fst.res
-#endif
+$(eval $(call MKOBJ,glew,GL/glew.h,GL/glxew.h,GL/wglew.h))
 
 $(EXE) : $(OFILES)
 	$(CC) $(CCFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)

@@ -77,7 +77,7 @@ GLuint glmake_compile_or_get_shader(const char *path){
     else {
         fprintf(stderr, "Unrecognised file extension from '%s'.\n"
                         "Recognised file extensions are "
-                                      ".vert, .frag, .tesc, .tese, .geom and .comp.\n", 
+                        ".vert, .frag, .tesc, .tese, .geom and .comp.\n", 
                         path);
         return 0;
     }
@@ -173,6 +173,7 @@ void glmake_clean(void)
         glmake_shaders_db.entries = NULL;
         glmake_shaders_db.top = 0;
     }
+    glReleaseShaderCompiler();
 }
 
 int glmake(GLuint program, const char *save_path, ...)

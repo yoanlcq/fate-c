@@ -1,4 +1,4 @@
-#include <opengl_base.h>
+#include <fate/gl/base.h>
 #include <cube.h>
 
 void Cube_init(Cube *c) 
