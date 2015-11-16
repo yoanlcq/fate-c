@@ -1,6 +1,31 @@
 #ifndef FATE_DEFS_H
 #define FATE_DEFS_H
 
+
+#if defined(_WIN32) || defined(__WIN32__)
+    #define FATE_DEFS_WINDOWS
+#elif defined(linux) || defined(__linux)
+    #define FATE_DEFS_LINUX
+#elif defined(__APPLE__) || defined(MACOSX) || defined(macintosh) ||            defined(Macintosh)
+    #define FATE_DEFS_OSX
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+    #define FATE_DEFS_FREEBSD
+#else
+    #error This operating system is not supported by F.A.T.E.
+#endif
+
+#ifdef FATE_DEFS_WINDOWS
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+#endif
+
+
+#define FATE_DEFS_STACKTRACE_FRAMES_CAPACITY 128
+#define FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY 256
+
+
+
 /* If this macro is set, GNU extensions are used when they perform 
  * better than otherwise naïve code. 
  * Our source must still provide fallback code. */
