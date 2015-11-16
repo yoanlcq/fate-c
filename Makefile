@@ -34,7 +34,9 @@ endif
 ### COMPILER
 
 CC = gcc
-CCFLAGS = -Iinclude -O3
+CCFLAGS = -Iinclude
+CCDEBUGFLAGS = -O0 -g -rdynamic -DFATE_DEBUG_BUILD
+CCRELEASEFLAGS = -O3
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
@@ -100,7 +102,11 @@ $(DATADIR)/OpenGL:
 define MKOBJ
 OFILES += $(BUILDDIR)/$(1).o 
 $(BUILDDIR)/$(1).o : src/$(1).c include/$(2) include/$(3) include/$(4) include/$(5) include/$(6) include/$(7) include/$(8)
-	$(CC) $(CCFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).o
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).o
+DEBUG_OFILES += $(BUILDDIR)/$(1).debug.o 
+$(BUILDDIR)/$(1).debug.o : src/$(1).c include/$(2) include/$(3) include/$(4) include/$(5) include/$(6) include/$(7) include/$(8)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -c src/$(1).c -o $(BUILDDIR)/$(1).debug.o
+
 endef
 
 # Be careful : There's a reason why there are no spaces between commas.
@@ -108,7 +114,10 @@ endef
 $(eval $(call MKOBJ,glew,GL/glew.h,GL/glxew.h,GL/wglew.h))
 
 $(EXE) : $(OFILES)
-	$(CC) $(CCFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -o $(EXE) $(OFILES) $(LDLIBS)
+$(DEBUG_EXE) : $(DEBUG_OFILES)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -o $(EXE) $(DEBUG_OFILES) $(LDLIBS)
+
 
 
 ### PHONY GOALS
