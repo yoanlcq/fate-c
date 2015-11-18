@@ -1,3 +1,5 @@
+#include <fate/defs.h>
+
 #ifdef FATE_DEFS_WINDOWS
 
 #include <Windows.h>
@@ -62,7 +64,7 @@ void fate_install_crash_handler(void) {
 /* Very unlikely, but since it is most often compiled out, it causes no harm. */
 void fate_install_crash_handler(void) {
     fate_logf_err("The POSIX signal handler was not available "
-                  "at compilation.\n", stderr);
+                  "at compilation.\n");
 }
 
 #else  /* _POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE */
@@ -183,13 +185,18 @@ void fate_install_crash_handler(void) {
 
 
 unsigned recursive(unsigned d) {
+    if(d==1) {
+        fate_logf_err("--- Early stack trace ---\n");
+        fate_log_stacktrace(&fate_logf_err);
+        fate_logf_err("--- Stack trace ---\n");
+    }
     unsigned foo = 100/(d--);
     return recursive(d);
 }
 
 int main(void) {
     fate_install_crash_handler();
-    fate_logf_err("%u\n", recursive(5));
+    fate_logf_err("%u\n", recursive(4));
     return 0;
 }
 

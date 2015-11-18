@@ -10,7 +10,7 @@
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
 void fate_log_stacktrace(void (*logfunc)(const char *fmt, ...))
 {
-    unsigned i;
+    unsigned i, j;
     unsigned short frames;
     void *stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
     TCHAR modname[FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY];
@@ -39,7 +39,7 @@ void fate_log_stacktrace(void (*logfunc)(const char *fmt, ...))
         SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
 #if _WIN32_WINNT >= 0x0501
         if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
-                             symbol->ModBase, &modhandle) 
+                            (LPCSTR) symbol->ModBase, &modhandle)) 
         {
             modname_len = GetModuleFileName(modhandle, modname, 
                               FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY);

@@ -7,7 +7,7 @@ Note : let the <target> variable be one of :
 
 
 bin/<target> :
-    The engine's executable, as well as the related tools' executables.
+    The executables and .dll directory.
 
 build/<target> :
     Temporary files resulting from the project's building process.
@@ -20,8 +20,8 @@ data/ :
     extensions, etc.
     Not to be confused with res/.
 
-data/shader_binaries/
-    Self-explanatory.
+data/OpenGL/
+    Most often cache files from the OpenGL backend.
 
 doc/ :
     Well duh.
@@ -31,7 +31,7 @@ include/ :
 
 lib/<target> :
     Dynamically-loaded libraries go here, whether or not they are 3rd party.
-    Engine extensions should, however, go under data/extensions/<target>.
+    Mods should, however, go under data/mods/<target>.
 
 res/ :
     Read like "resources".
