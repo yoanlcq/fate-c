@@ -1,5 +1,5 @@
-#include <fate/gl/base.h>
-#include <cube.h>
+#include <fate/gl/defs.h>
+#include <fate/gl/cube.h>
 
 void Cube_init(Cube *c) 
 {

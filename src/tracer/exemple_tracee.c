@@ -6,13 +6,13 @@
 const char *bar(const char *str) { return str; }
 
 int main(void) {
-    int cnt = TRACED printf("foo%s\n", bar("baz"));
+    int cnt = /*TRACED*/ printf("foo%s\n", bar("baz"));
     return 0;
 }
 
 
 /* After running tracer */
-
+/*
 #include <stdio.h>
 #include <fate/tracer.h>
 
@@ -21,13 +21,11 @@ const char *bar(const char *str) { return str; }
 int main(void) {
     int cnt;
     typeof(bar("baz")) ____wtf;
-    FATE_TRACE_PUSH(); //++fate_tracer_level
     FATE_TRACE_1(____wtf = , bar, "baz");
     FATE_TRACE_2(cnt = , printf, "foo%s\n", ____wtf);
-    FATE_TRACE_POP(); //--fate_tracer_level
     return 0;
 }
-
+*/
 
 /* When FATE_TRACER_ENABLED is defined */
 /* 
@@ -57,6 +55,7 @@ int main(void) {
  *
  */
 
+/*
 #include <stdio.h>
 #include <fate/tracer.h>
 
@@ -66,8 +65,6 @@ int main(void) {
 
     int cnt;
     typeof(bar("baz")) ____wtf;
-
-    FATE_TRACE_PUSH(); //++fate_tracer_level
 
     fate_logf_trace(
         "~> [%3u] %s:%5u: %s ==> %s(", 
@@ -91,7 +88,6 @@ int main(void) {
     FATE_TRACE_GENERIC(cnt = printf("foo\n", ____wtf));
     fate_logf_trace("\n");
 
-    FATE_TRACE_POP(); //--fate_tracer_level
     return 0;
 }
-
+*/
