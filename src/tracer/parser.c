@@ -31,6 +31,10 @@ uint64_t readfile(const char *filename, char **buf) {
     char *left;
 
     for(left=*buf ; left<(*buf)+buf_len ; ++left) {
+        if(!removing && left[0]=='"') {
+            do ++left; while(left[0] != '"');
+            ++left;
+        }
         if(left[0]=='/' && left[1]=='*')
             removing = 1;
         if(removing && left[0]=='*' && left[1]=='/') {
@@ -42,6 +46,10 @@ uint64_t readfile(const char *filename, char **buf) {
     }
 
     for(left=*buf ; left<(*buf)+buf_len ; ++left) {
+        if(!removing && left[0]=='"') {
+            do ++left; while(left[0] != '"');
+            ++left;
+        }
         if(left[0]=='/' && left[1]=='/')
             removing = 1;
         if(removing && left[0]=='\n')
@@ -51,6 +59,10 @@ uint64_t readfile(const char *filename, char **buf) {
     }
     removing = 0;
     for(left=*buf ; left<(*buf)+buf_len ; ++left) {
+        if(!removing && left[0]=='"') {
+            do ++left; while(left[0] != '"');
+            ++left;
+        }
         if(!removing && left[0]=='#' && left[-1] != '\'')
             removing = 1;
         if(removing && left[0]=='\\' && left[1]=='\n') {
@@ -63,7 +75,7 @@ uint64_t readfile(const char *filename, char **buf) {
         if(removing)
             left[0] = ' ';
     }
-    //fwrite(*buf, 1, buf_len, stdout);
+    fwrite(*buf, 1, buf_len, stdout);
 
     return buf_len;
 }

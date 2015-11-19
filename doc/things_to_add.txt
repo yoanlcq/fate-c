@@ -1,9 +1,7 @@
 -> Rename namespace to fate.
 
--> fate/gl/wrapper.h
 -> fate/gl/context.h
 -> SFML fullscreen extension
--> fate/gl/debug.h
 -> fate/gl/mkprog.h
--> data/fate.cfg
+-> data/faterc.cfg
 -> fate/vk/...h
