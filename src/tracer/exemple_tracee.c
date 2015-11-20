@@ -1,18 +1,16 @@
 /* Initial code */
 
 #include <stdio.h>
-#include <fate/tracer.h> /* FATE_TRACED empty macro */
+#include <fate/tracer.h>
 
 const char *bar(const char *str) { return str; }
 
 int main(void) {
-    int cnt = /*TRACED*/ printf("foo%s\n", bar("baz"));
+    int cnt = 5 | printf("foo%s\n", bar("baz"));
     return 0;
 }
 
-
 /* After running tracer */
-/*
 #include <stdio.h>
 #include <fate/tracer.h>
 
@@ -20,18 +18,22 @@ const char *bar(const char *str) { return str; }
 
 int main(void) {
     int cnt;
-    typeof(bar("baz")) ____wtf;
-    FATE_TRACE_1(____wtf = , bar, "baz");
-    FATE_TRACE_2(cnt = , printf, "foo%s\n", ____wtf);
+    typeof(bar("baz")) ____wtf1;
+    typeof(bar("baz")) ____wtf2;
+    typeof(bar("baz")) ____wtf3;
+    typeof(printf("foo%s\n", bar("baz"))) ____wtf0;
+
+    ____wtf1 = bar("baz");
+    ____wtf2 = bar("baz");
+    ____wtf3 = bar("baz");
+    FATE_TRACE_4(____wtf0, printf, "foo%s%s%s\n", ____wtf0, ____wtf1, ____wtf2);
+    cnt = 5 | ____wtf0;
+
     return 0;
 }
-*/
 
 /* When FATE_TRACER_ENABLED is defined */
 /* 
- *
- * ___NON___ : Normalement, les macros devraient passer. 
- * Pas besoin de préprocesseur.
  *  Comment mon truc gère les Macros ??
  *  Lancer le C préprocesseur une fois;
  *  Ecrire dans le fichier.
