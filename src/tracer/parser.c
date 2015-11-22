@@ -5,11 +5,51 @@
 #include <ctype.h>
 
 //"(\"(foobar)";
+//
+void remove_C_comments_and_preprocessor_directives(char *src) {
 
-uint64_t readfile(const char *filename, char **buf) {
+    for( ; *src ; ++src) {
+        switch(*src) {
+        case '\'': 
+            if(src[1]=='\\' && src[2]=='\'')
+                src += 3;
+            else do ++src; while(*src!='\'');
+            break;
+        case '"':
+            do ++src; while(!(*src=='"' && src[-1]!='\\'));
+            break;
+        case '/':
+            if(src[1]=='/') {
+                src[0] = src[1] = ' ';
+                ++src;
+                for(++src ; *src!='\n' ; ++src)
+                    *src = ' ';
+            } else if(src[1]=='*') {
+                src[0] = src[1] = ' ';
+                ++src;
+                for(++src ; !(*src=='*' && src[1]=='/') ; ++src)
+                    *src = ' ';
+                src[0] = src[1] = ' ';
+                ++src;
+            }
+            break;
+        case '#': 
+            *src = ' ';
+            for(++src ; *src!='\n' ; ++src) {
+                if(*src=='\\' && src[1]=='\n') {
+                    src[0] = src[1] = ' ';
+                    ++src;
+                } else *src = ' ';
+            }
+            break;
+        }
+    }
+}
+
+size_t readfile(const char *filename, char **buf) {
     char tmp_buf[BUFSIZ];
     size_t bytes_read;
-    uint64_t buf_len;
+    size_t buf_len;
     FILE *in = fopen(filename, "r");
 
     if(!in) {
@@ -26,56 +66,8 @@ uint64_t readfile(const char *filename, char **buf) {
         buf_len += bytes_read;
     }
     fclose(in);
-
-    int removing = 0;
-    char *left;
-
-    for(left=*buf ; left<(*buf)+buf_len ; ++left) {
-        if(!removing && left[0]=='"') {
-            do ++left; while(left[0] != '"');
-            ++left;
-        }
-        if(left[0]=='/' && left[1]=='*')
-            removing = 1;
-        if(removing && left[0]=='*' && left[1]=='/') {
-            left[0] = left[1] = ' ';
-            removing = 0;
-        }
-        if(removing)
-            left[0] = ' ';
-    }
-
-    for(left=*buf ; left<(*buf)+buf_len ; ++left) {
-        if(!removing && left[0]=='"') {
-            do ++left; while(left[0] != '"');
-            ++left;
-        }
-        if(left[0]=='/' && left[1]=='/')
-            removing = 1;
-        if(removing && left[0]=='\n')
-            removing = 0;
-        if(removing)
-            left[0] = ' ';
-    }
-    removing = 0;
-    for(left=*buf ; left<(*buf)+buf_len ; ++left) {
-        if(!removing && left[0]=='"') {
-            do ++left; while(left[0] != '"');
-            ++left;
-        }
-        if(!removing && left[0]=='#' && left[-1] != '\'')
-            removing = 1;
-        if(removing && left[0]=='\\' && left[1]=='\n') {
-            left[0] = ' ';
-            ++left;
-            continue;
-        }
-        if(removing && left[0]=='\n')
-            removing = 0;
-        if(removing)
-            left[0] = ' ';
-    }
-    fwrite(*buf, 1, buf_len, stdout);
+    *buf = realloc(*buf, buf_len+1);
+    (*buf)[buf_len] = '\0';
 
     return buf_len;
 }
@@ -259,7 +251,7 @@ unsigned get_numargs(const char *left, size_t n) {
     return numargs;
 }
 
-void print_function_calls(const char *buf, uint64_t buf_len) {
+void print_function_calls(const char *buf, size_t buf_len) {
     unsigned stack, numargs;
     const char *left, *right;
     for(stack=0, left=buf ; left < buf+buf_len ; ++left) {
@@ -292,16 +284,34 @@ void print_function_calls(const char *buf, uint64_t buf_len) {
     }
 }
 
+#include <ast.h>
+
 int main(int argc, char *argv[]) {
+
     if(argc <= 1) {
         fputs("Usage: %s <filename>\n", stderr);
         exit(EXIT_FAILURE);
     }
 
     char *buf;
-    uint64_t buf_len = readfile(argv[1], &buf);
+    size_t buf_len = readfile(argv[1], &buf);
 
-    print_function_calls(buf, buf_len);
+    if(!buf_len) {
+        fputs("A problem has been encountered. Exiting.\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+
+    remove_C_comments_and_preprocessor_directives(buf);
+    //puts(buf);
+
+    ast ast;
+    ast_init(&ast, 
+        "int cnt = 5 | "
+        "printf(\"%s%d\\n\", foo(bar(21)), sin(42)+cos(12))");
+    ast_print_to(&ast, stdout);
+    ast_deinit(&ast);
+
+    //print_function_calls(buf, buf_len);
 
     free(buf);
 
