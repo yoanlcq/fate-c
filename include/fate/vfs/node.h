@@ -5,24 +5,16 @@
 
 enum fate_node_type {
     FATE_EXTENDED_NODE = 0,
-    FATE_ANODE = 1, /* For anonymous nodes. See below. */
-    FATE_LNODE = 2,
-    FATE_KNODE = 3,
-    FATE_DNODE = 4,
-    FATE_ENODE = 5,
-    FATE_VNODE = 6,
-    FATE_SNODE = 7, /* State nodes are wrapper for function pointers. */
+    FATE_ANODE = 1, /* Anonymous node. */
+    FATE_LNODE = 2, /* Local device node. */
+    FATE_KNODE = 3, /* Value node. (Derived from 'Key') */
+    FATE_DNODE = 4, /* Entity Data node. */
+    FATE_ENODE = 5, /* Entity instance node. */
+    FATE_VNODE = 6, /* View node. */
+    FATE_SNODE = 7, /* State node (function pointer). */
+    FATE_RNODE = 8, /* Region nodes. */
 };
 typedef enum fate_node_type fate_node_type;
-const char *fate_node_type_names[7][2] = {
-    {"Node",  "Anonymous Node"}, 
-    {"Lnode", "Local Device Node"},
-    {"Knode", "Value Node"},
-    {"Dnode", "Entity Data Node"},
-    {"Enode", "Entity Instance Node"},
-    {"Vnode", "View Node"},
-    {"Snode", "State Node"}
-};
 
 /*
  * How can anonymous nodes be created ?
@@ -63,7 +55,7 @@ enum fate_value_type {
 typedef enum fate_value_type fate_value_type;
 
 enum fate_value_storage {
-    FATE_ARRAY = 0,
+    FATE_ARRAY  = 0,
     FATE_SINGLE = 1
 };
 typedef enum fate_value_storage fate_value_storage;
@@ -73,9 +65,6 @@ enum fate_owner {
     FATE_OWNED_BY_SCHEDULER = 1
 };
 typedef enum fate_owner fate_owner;
-const char *fate_owner_names[2] = {
-    "User", "Scheduler"
-};
 
 /* The permissions applies to an individual node. */
 enum fate_perms {
@@ -88,6 +77,7 @@ enum fate_perms {
 };
 typedef enum fate_perms fate_perms;
 
+/* Should be of 32 bits. */
 #define FATE_LEAF_ATTRIBUTES \
     fate_node_type      type           : 4; \
     fate_value_storage  value_storage  : 1; \
@@ -97,11 +87,19 @@ typedef enum fate_perms fate_perms;
     fate_perms          perms          : 4; \
     unsigned            network_shared : 1; \
     unsigned            reserved       : 9; \
-    uint8_t             links_count
+    unsigned char       links_count
+
 
 #define FATE_NODE_ATTRIBUTES \
     FATE_LEAF_ATTRIBUTES; \
-    fate_dentry     *dentries
+    fate_dentry     *dentries; \
+    unsigned     num_dentries
+
+struct fate_symlink {
+    FATE_LEAF_ATTRIBUTES;
+    uint8_t *target_path;
+};
+typedef struct fate_symlink fate_symlink;
 
 struct fate_node {
     FATE_NODE_ATTRIBUTES;
@@ -109,15 +107,10 @@ struct fate_node {
 typedef struct fate_node fate_node;
 
 struct fate_dentry {
-    uint8_t  *name;
+    uint8_t   *name;
     fate_node *node;
 };
 typedef struct fate_dentry fate_dentry;
 
-struct fate_symlink {
-    FATE_LEAF_ATTRIBUTES;
-    uint8_t *target_path;
-};
-typedef struct fate_symlink fate_symlink;
 
 #endif /* FATE_NODE_H */
