@@ -35,7 +35,7 @@ endif
 CC = gcc
 CCFLAGS = -Iinclude
 CCDEBUGFLAGS = -O0 -g -rdynamic -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
-CCRELEASEFLAGS = -O3
+CCRELEASEFLAGS = -O3 -DNDEBUG
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
@@ -99,37 +99,36 @@ $(DATADIR)/OpenGL:
 
 define MKOBJ
 
-$(BUILDDIR)/$(2).o : src/$(2).c include/$(3) include/$(4) include/$(5) \
-	                            include/$(6) include/$(7) include/$(8)
-	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -c src/$(2).c -o $(BUILDDIR)/$(2).o
+$(BUILDDIR)/$(2).o : src/$(2) include/$(3) include/$(4) include/$(5) \
+	                          include/$(6) include/$(7) include/$(8)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -c $< -o $@
 
-$(BUILDDIR)/$(2).debug.o : src/$(2).c include/$(3) include/$(4) include/$(5) \
-	                                  include/$(6) include/$(7) include/$(8)
-	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -c src/$(2).c -o $(BUILDDIR)/$(2).debug.o
+$(BUILDDIR)/$(2)_debug.o : src/$(2) include/$(3) include/$(4) include/$(5) \
+	                                include/$(6) include/$(7) include/$(8)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -c $< -o $@
 
 $(1)_OFILES += $(BUILDDIR)/$(2).o 
-DEBUG_$(1)_OFILES += $(BUILDDIR)/$(2).debug.o 
+DEBUG_$(1)_OFILES += $(BUILDDIR)/$(2)_debug.o 
 
 endef
 
 define MKEXE
 $(BINDIR)/$(1) : $($(1)_OFILES)
-	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) $($(1)_OFILES) \
-		-o $(BINDIR)/$(1) $(LDLIBS)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) $^ -o $@ $(LDLIBS)
 $(BINDIR)/$(1)_debug : $(DEBUG_$(1)_OFILES)
-	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) $(DEBUG_$(1)_OFILES) \
-		-o $(BINDIR)/$(1)_debug $(LDLIBS)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) $^ -o $@ $(LDLIBS)
 $(1): $(BINDIR)/$(1)
 $(1)_debug: $(BINDIR)/$(1)_debug
 endef
 
+#$(shell gcc -MM -MQ "foo_debug.o" src/foo.c)
 
 # Be careful : There's a reason why there are no spaces between commas.
 
-$(eval $(call MKOBJ,game,glew,GL/glew.h,GL/glxew.h,GL/wglew.h))
+$(eval $(call MKOBJ,game,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
 $(eval $(call MKEXE,game))
 
-$(eval $(call MKOBJ,test,test))
+$(eval $(call MKOBJ,test,test.c))
 $(eval $(call MKEXE,test))
 
 
