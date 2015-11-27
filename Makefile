@@ -62,12 +62,13 @@ DATADIR = data
 MKDIR = mkdir
 ifneq ($(OS),windows)
 MKDIR += -p
+EXE_EXTENSION =
 CLEANCMD = rm -f $(BUILDDIR)/*
 LDLIBS += -lGL
 else
+$(EXE_EXTENSION) = .exe
 CLEANCMD = del /f /q $(BUILDDIR)\*
 LDLIBS += -lopengl32 #-lglut -lglu32 -lglew32mx
-GAME_EXE := $(GAME_EXE).exe #To prevent useless recompilation
 endif
 
 
@@ -97,42 +98,47 @@ $(DATADIR)/OpenGL:
 #GAME_OFILES += $(BUILDDIR)/game.res
 #endif
 
+# Too bad $< and $@ do not expand within macros.
 define MKOBJ
 
-$(BUILDDIR)/$(2).o : src/$(2) include/$(3) include/$(4) include/$(5) \
-	                          include/$(6) include/$(7) include/$(8)
-	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -c $< -o $@
+$(BUILDDIR)/$(2).o : src/$(2).c include/$(3) include/$(4) include/$(5) \
+	                            include/$(6) include/$(7) include/$(8)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) -c src/$(2).c -o $(BUILDDIR)/$(2).o
 
-$(BUILDDIR)/$(2)_debug.o : src/$(2) include/$(3) include/$(4) include/$(5) \
-	                                include/$(6) include/$(7) include/$(8)
-	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -c $< -o $@
+$(BUILDDIR)/$(2)_debug.o : src/$(2).c include/$(3) include/$(4) include/$(5) \
+	                                  include/$(6) include/$(7) include/$(8)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) -c src/$(2).c -o $(BUILDDIR)/$(2)_debug.o
 
 $(1)_OFILES += $(BUILDDIR)/$(2).o 
-DEBUG_$(1)_OFILES += $(BUILDDIR)/$(2)_debug.o 
+$(1)_DEBUG_OFILES += $(BUILDDIR)/$(2)_debug.o 
 
 endef
 
 define MKEXE
-$(BINDIR)/$(1) : $($(1)_OFILES)
-	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) $^ -o $@ $(LDLIBS)
-$(BINDIR)/$(1)_debug : $(DEBUG_$(1)_OFILES)
-	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) $^ -o $@ $(LDLIBS)
-$(1): $(BINDIR)/$(1)
-$(1)_debug: $(BINDIR)/$(1)_debug
-endef
 
-#$(shell gcc -MM -MQ "foo_debug.o" src/foo.c)
+$(BINDIR)/$(1)$(EXE_EXTENSION) : $($(1)_OFILES)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) $($(1)_OFILES) \
+		-o $(BINDIR)/$(1)$(EXE_EXTENSION) $(LDLIBS)
+
+$(BINDIR)/$(1)_debug$(EXE_EXTENSION) : $($(1)_DEBUG_OFILES)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) $($(1)_DEBUG_OFILES) \
+		-o $(BINDIR)/$(1)_debug$(EXE_EXTENSION) $(LDLIBS)
+
+$(1): $(BINDIR)/$(1)$(EXE_EXTENSION)
+$(1)_debug: $(BINDIR)/$(1)_debug$(EXE_EXTENSION)
+
+endef
 
 # Be careful : There's a reason why there are no spaces between commas.
 
 $(eval $(call MKOBJ,game,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
 $(eval $(call MKEXE,game))
 
-$(eval $(call MKOBJ,test,test.c))
-$(eval $(call MKEXE,test))
+$(eval $(call MKOBJ,foo,test))
+$(eval $(call MKEXE,foo))
 
 
-default_goals: test_debug test
+default_goals: foo foo_debug
 
 ### PHONY GOALS
 
