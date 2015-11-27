@@ -35,7 +35,7 @@ endif
 
 CC = gcc
 CCFLAGS = -Iinclude
-CCDEBUGFLAGS = -O0 -g -rdynamic -DFATE_DEBUG_BUILD
+CCDEBUGFLAGS = -O0 -g -rdynamic -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
 CCRELEASEFLAGS = -O3
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
@@ -70,7 +70,7 @@ CLEANCMD = rm -f $(BUILDDIR)/*
 LDLIBS += -lGL
 else
 CLEANCMD = del /f /q $(BUILDDIR)\*
-LDLIBS += -lopengl32 #-lglut -lglu32 -lglew32mx -lopengl32
+LDLIBS += -lopengl32 #-lglut -lglu32 -lglew32mx
 EXE := $(EXE).exe #To prevent useless recompilation
 endif
 
