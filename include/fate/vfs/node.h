@@ -4,15 +4,16 @@
 #include <stdint.h>
 
 enum fate_node_type {
-    FATE_EXTENDED_NODE = 0,
-    FATE_ANODE = 1, /* Anonymous node. */
-    FATE_LNODE = 2, /* Local device node. */
-    FATE_KNODE = 3, /* Value node. (Derived from 'Key') */
-    FATE_DNODE = 4, /* Entity Data node. */
-    FATE_ENODE = 5, /* Entity instance node. */
-    FATE_VNODE = 6, /* View node. */
-    FATE_SNODE = 7, /* State node (function pointer). */
-    FATE_RNODE = 8, /* Region nodes. */
+    FATE_NODE    = 0,
+    FATE_SYMLINK = 1,
+    FATE_ANODE   = 2, /* Anonymous node. */
+    FATE_LNODE   = 3, /* Local device node. */
+    FATE_KNODE   = 4, /* Value node. (Derived from 'Key') */
+    FATE_DNODE   = 5, /* Entity Data node. */
+    FATE_ENODE   = 6, /* Entity instance node. */
+    FATE_VNODE   = 7, /* View node. */
+    FATE_SNODE   = 8, /* State node (function pointer). */
+    FATE_RNODE   = 9, /* Region nodes. */
 };
 typedef enum fate_node_type fate_node_type;
 

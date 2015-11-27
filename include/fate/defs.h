@@ -1,6 +1,9 @@
 #ifndef FATE_DEFS_H
 #define FATE_DEFS_H
 
+#if defined(FATE_DEBUG_BUILD)
+#define inline
+#endif
 
 #if defined(_WIN32) || defined(__WIN32__)
     #define FATE_DEFS_WINDOWS
