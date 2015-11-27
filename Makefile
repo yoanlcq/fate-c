@@ -113,27 +113,27 @@ DEBUG_$(1)_OFILES += $(BUILDDIR)/$(2).debug.o
 endef
 
 define MKEXE
-$(1) : $(2)
-	$(CC) $(CCFLAGS) $(3) $(2) -o $(1) $(LDLIBS)
+$(BINDIR)/$(1) : $($(1)_OFILES)
+	$(CC) $(CCFLAGS) $(CCRELEASEFLAGS) $($(1)_OFILES) \
+		-o $(BINDIR)/$(1) $(LDLIBS)
+$(BINDIR)/$(1)_debug : $(DEBUG_$(1)_OFILES)
+	$(CC) $(CCFLAGS) $(CCDEBUGFLAGS) $(DEBUG_$(1)_OFILES) \
+		-o $(BINDIR)/$(1)_debug $(LDLIBS)
+$(1): $(BINDIR)/$(1)
+$(1)_debug: $(BINDIR)/$(1)_debug
 endef
 
 
 # Be careful : There's a reason why there are no spaces between commas.
 
-$(eval $(call MKOBJ,GAME,glew,GL/glew.h,GL/glxew.h,GL/wglew.h))
-$(eval $(call MKEXE,$(BINDIR)/game,$(GAME_OFILES),$(CCRELEASEFLAGS)))
-$(eval $(call MKEXE,$(BINDIR)/game_debug,$(DEBUG_GAME_OFILES),$(CCDEBUGFLAGS)))
-game : $(BINDIR)/game
-game_debug : $(BINDIR)/game_debug
+$(eval $(call MKOBJ,game,glew,GL/glew.h,GL/glxew.h,GL/wglew.h))
+$(eval $(call MKEXE,game))
 
-$(eval $(call MKOBJ,CUBE,cube))
-$(eval $(call MKEXE,$(BINDIR)/cube,$(CUBE_OFILES),$(CCRELEASEFLAGS)))
-$(eval $(call MKEXE,$(BINDIR)/cube_debug,$(DEBUG_CUBE_OFILES),$(CCDEBUGFLAGS)))
-cube : $(BINDIR)/cube
-cube_debug : $(BINDIR)/cube_debug
+$(eval $(call MKOBJ,test,test))
+$(eval $(call MKEXE,test))
 
 
-default_goals: cube_debug cube
+default_goals: test_debug test
 
 ### PHONY GOALS
 
