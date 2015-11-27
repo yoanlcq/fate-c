@@ -132,6 +132,7 @@ $(eval $(call MKEXE,$(BINDIR)/cube_debug,$(DEBUG_CUBE_OFILES),$(CCDEBUGFLAGS)))
 cube : $(BINDIR)/cube
 cube_debug : $(BINDIR)/cube_debug
 
+
 default_goals: cube_debug cube
 
 ### PHONY GOALS

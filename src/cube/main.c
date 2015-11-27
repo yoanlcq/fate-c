@@ -1,10 +1,3 @@
-#include <opengl_base.h>
-#include <opengl_debug.h>
-
-#if CSFML_VERSION_MAJOR != 2 || CSFML_VERSION_MINOR != 3
-#error We target CSFML 2.3. Not above, not under.
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -16,10 +9,10 @@
 #include <SFML/Window.h>
 #include <SFML/Graphics.h>
 #include <linmath/linmath.h>
-#include <utils/pathto.h>
-#include <utils/display_resolutions.h>
-#include <glmake.h>
-#include <cube.h>
+#include <fate/wip/filepath.h>
+#include <fate/wip/display_resolutions.h>
+#include <fate/gl.h>
+#include "cube.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -141,7 +134,7 @@ int main(int argc, char *argv[])
     sfContext *ctx = sfContext_create();
     sfContextSettings ctxs = {24, 8, 0, 4, 3, 
         sfContextCore
-#ifdef OPENGL_DEBUG
+#ifdef FATE_GL_DEBUG
             |sfContextDebug
 #endif
     };
@@ -220,7 +213,7 @@ int main(int argc, char *argv[])
         printf("        %s\n", glGetStringi(GL_EXTENSIONS, i));
     putchar('\n');
 
-#ifdef OPENGL_DEBUG
+#ifdef FATE_GL_DEBUG
     /* Must imperatively follow SFML Window creation. */
     glDebugMessageCallback((GLDEBUGPROC) &opengl_debug_callback, NULL);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
@@ -238,16 +231,16 @@ int main(int argc, char *argv[])
     /* glCullFace(GL_FRONT); */
 
     GLuint progid = glCreateProgram();
-    if(!glmake(progid,
-               pathto("@/data/OpenGL/triangles.glb"),
-               pathto("@/res/shaders/triangles.vert"),
-               pathto("@/res/shaders/triangles.frag"),
-               NULL))
+    if(!fate_gl_mkprog(progid,
+                       datapath("OpenGL/triangles.glb"),
+                       respath("shaders/triangles.vert"),
+                       respath("shaders/triangles.frag"),
+                       NULL))
     {
         fprintf(stderr, "Can't continue.\n");
         exit(EXIT_FAILURE);
     }
-    glmake_clean();
+    fate_gl_mkprog_yield();
     glUseProgram(progid); 
 
     Cube cube;
@@ -390,16 +383,16 @@ int main(int argc, char *argv[])
     glDepthFunc(GL_LESS);
 
     progid = glCreateProgram();
-    if(!glmake(progid,
-               pathto("@/res/precomp/triangles.bin"),
-               pathto("@/res/shaders/triangles.vert"),
-               pathto("@/res/shaders/triangles.frag"),
+    if(!fate_gl_mkprog(progid,
+               datapath("OpenGL/triangles.bin"),
+               respath("shaders/triangles.vert"),
+               respath("shaders/triangles.frag"),
                NULL))
     {
         fprintf(stderr, "Can't continue.\n");
         exit(EXIT_FAILURE);
     }
-    glmake_clean();
+    fate_gl_mkprog_yield();
     glUseProgram(progid); 
 
     Cube_free(&cube);

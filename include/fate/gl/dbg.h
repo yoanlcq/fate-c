@@ -11,7 +11,9 @@
 
 #include <fate/gl.h>
 
-#ifdef FATE_DEFS_DEBUG_BUILD
+#ifdef FATE_DEBUG_BUILD
+
+#define FATE_GL_DEBUG
 
 #ifndef APIENTRY /* Noticeable on Linux */
 #define APIENTRY

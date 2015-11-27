@@ -4,13 +4,11 @@
 #include <fate/gl.h>
 #include <linmath/linmath.h>
 
-typedef struct Cube_ {
-    GLbyte  vertices[8][3];
-    GLubyte colors[8][3];
-    GLubyte indices[17];
+struct Cube {
     GLuint ebo, vao, vbo;
     mat4x4 model;
-} Cube;
+} 
+typedef struct Cube Cube;
 
 void Cube_init(Cube *c);
 void Cube_free(Cube *c);
