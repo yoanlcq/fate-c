@@ -4,3 +4,4 @@ data/**
 lib/**
 res/precomp/**
 .DS_Store
+*.pdb

@@ -1,0 +1,58 @@
+CCFLAGS = /nologo /Iinclude 
+CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DFATE_DEBUG_BUILD /DFATE_ENABLE_TRACING
+CCRELEASEFLAGS = $(CCFLAGS) /O2 /Ot /Ox /GL /Gw /DNDEBUG
+LDLIBS = # csfml-audio.lib \
+		 csfml-graphics.lib \
+		 csfml-network.lib \
+		 csfml-window.lib \
+		 csfml-system.lib \
+		 opengl32.lib
+
+# Dummy rule for include/, because when calling MKOBJ below, 
+# there might not always be 8 arguments.
+include/:
+	
+
+# Too bad $< and $@ do not expand within macros.
+define MKOBJ
+
+$(BUILDDIR)/$(2).obj : src/$(2).c \
+	                   $(if $(3),include/$(3),) \
+					   $(if $(4),include/$(4),) \
+					   $(if $(5),include/$(5),) \
+					   $(if $(6),include/$(6),) \
+					   $(if $(7),include/$(7),) \
+					   $(if $(8),include/$(8),)
+	$(CC) $(CCRELEASEFLAGS) /c src/$(2).c /Fo$(BUILDDIR)/$(2).obj
+
+$(BUILDDIR)/$(2)_debug.obj : src/$(2).c \
+                             $(if $(3),include/$(3),) \
+					         $(if $(4),include/$(4),) \
+					         $(if $(5),include/$(5),) \
+					         $(if $(6),include/$(6),) \
+					         $(if $(7),include/$(7),) \
+					         $(if $(8),include/$(8),)
+	$(CC) $(CCDEBUGFLAGS) -c src/$(2).c /Fo$(BUILDDIR)/$(2)_debug.obj
+
+$(1)_OBJFILES += $(BUILDDIR)/$(2).obj
+$(1)_DEBUG_OBJFILES += $(BUILDDIR)/$(2)_debug.obj
+
+endef
+
+define MKEXE
+
+$(BINDIR)/$(1).exe : $($(1)_OBJFILES)
+	$(CC) $(CCRELEASEFLAGS) $($(1)_OBJFILES) \
+		/Fe$(BINDIR)/$(1).exe $(LDLIBS)
+
+$(BINDIR)/$(1)_debug.exe : $($(1)_DEBUG_OBJFILES)
+	$(CC) $(CCDEBUGFLAGS) $($(1)_DEBUG_OBJFILES) \
+		/Fe$(BINDIR)/$(1)_debug.exe $(LDLIBS) \
+		&& move *.pdb $(BINDIR)
+
+$(1): $(BINDIR)/$(1).exe
+$(1)_debug: $(BINDIR)/$(1)_debug.exe
+
+endef
+
+
