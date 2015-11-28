@@ -232,15 +232,15 @@ int main(int argc, char *argv[])
 
     GLuint progid = glCreateProgram();
     if(!fate_gl_mkprog(progid,
-                       datapath("OpenGL/triangles.glb"),
-                       respath("shaders/triangles.vert"),
-                       respath("shaders/triangles.frag"),
+                       pathto_data("OpenGL/triangles.glb"),
+                       pathto_res("shaders/triangles.vert"),
+                       pathto_res("shaders/triangles.frag"),
                        NULL))
     {
         fprintf(stderr, "Can't continue.\n");
         exit(EXIT_FAILURE);
     }
-    fate_gl_mkprog_yield();
+    fate_gl_mkprog_cleanup();
     glUseProgram(progid); 
 
     Cube cube;

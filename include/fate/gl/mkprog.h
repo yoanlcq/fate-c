@@ -97,12 +97,12 @@ int fate_gl_mkprog(GLuint program, const char *save_path, ...);
 
 /** @brief Clean-up function for fate_gl_mkprog().
  *
- * fate_gl_mkprog_yield() calls glDeleteShader() on each shader object stored 
+ * fate_gl_mkprog_cleanup() calls glDeleteShader() on each shader object stored 
  * previously by fate_gl_mkprog(), and then empties the table. 
  * It is safe to call even if the table is already empty, and does not cause 
  * harm to future calls to fate_gl_mkprog() either.
  */
-void fate_gl_mkprog_yield(void);
+void fate_gl_mkprog_cleanup(void);
 
 
 /* The following are globals and should never be interacted with. */
