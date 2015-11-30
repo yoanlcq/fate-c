@@ -4,13 +4,7 @@
 
 #ifdef FATE_GL_DEBUG
 
-void APIENTRY fate_gl_debug_msg_callback  (GLenum source, 
-                                      GLenum type, 
-                                      GLuint id,
-                                      GLenum severity, 
-                                      GLsizei length, 
-                                      const GLchar* message, 
-                                      void* userParam)
+GLAPIENTRY GLDEBUGPROC fate_gl_debug_msg_callback
 {
     char *source_str;
     switch(source) {
@@ -75,7 +69,7 @@ void APIENTRY fate_gl_debug_msg_callback  (GLenum source,
     _type_ fate_##_name_##_dummy _params_ {} \
     _type_ (*fate_##_name_) _params_ = &fate_##_name_##_dummy;
 
-HELPER(void, glDebugMessageCallback, (DEBUGPROC callback, void *userParam));
+HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, void *userParam));
 HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
             GLenum severity, GLsizei count, const GLuint *ids, 
             GLboolean enabled));

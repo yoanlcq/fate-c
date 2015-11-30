@@ -16,31 +16,13 @@
 
 #define FATE_GL_DEBUG
 
-#ifndef APIENTRY /* Noticeable on Linux */
-#define APIENTRY
-#endif
-
-/* See the OpenGL Red book. */
-typedef void (APIENTRY *DEBUGPROC)  (GLenum source, 
-                                     GLenum type, 
-                                     GLuint id,
-                                     GLenum severity, 
-                                     GLsizei length, 
-                                     const GLchar* message, 
-                                     void* userParam);
-void APIENTRY fate_gl_debug_msg_callback  (GLenum source, 
-                                     GLenum type, 
-                                     GLuint id,
-                                     GLenum severity, 
-                                     GLsizei length, 
-                                     const GLchar* message, 
-                                     void* userParam);
+GLAPIENTRY GLDEBUGPROC fate_gl_debug_msg_callback;
 
 #define HELPER(_type_,_name_,_params_) \
     _type_ fate_##_name_##_dummy _params_; \
     extern _type_ (*fate_##_name_) _params_;
 
-HELPER(void, glDebugMessageCallback, (DEBUGPROC callback, void *userParam));
+HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, void *userParam));
 HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
             GLenum severity, GLsizei count, const GLuint *ids, 
             GLboolean enabled));
