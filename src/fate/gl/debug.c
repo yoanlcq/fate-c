@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <fate/log.h>
+#include <fate/gl/defs.h>
 #include <fate/gl/debug.h>
 
 #ifdef FATE_GL_DEBUG
@@ -68,38 +69,54 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
                     severity_str, type_str, source_str, id, message);
 }
 
-#define HELPER(_type_,_name_,_params_,_body_) \
-    _type_ fate_##_name_##_dummy _params_ {_body_} \
-    _type_ (*fate_##_name_) _params_ = &fate_##_name_##_dummy
 
-HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, 
-                                      const void *userParam),);
-HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
-            GLenum severity, GLsizei count, const GLuint *ids, 
-            GLboolean enabled),);
-HELPER(void, glDebugMessageInsert, (GLenum source, GLenum type, GLuint id, 
+
+void fate_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
+                                       const void *userParam) {}
+PFNGLDEBUGMESSAGECALLBACKPROC fate_glDebugMessageCallback;
+
+void fate_glDebugMessageControl_dummy(GLenum source, GLenum type, 
+                                      GLenum severity, GLsizei count, 
+                                      const GLuint *ids, 
+                                      GLboolean enabled) {}
+PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl;
+
+void fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
-                                    const char *message),);
-HELPER(GLuint,glGetDebugMessageLog, (GLuint count, GLsizei bufSize, 
+                                    const char *message) {}
+PFNGLDEBUGMESSAGEINSERTPROC fate_glDebugMessageInsert;
+
+GLuint fate_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
                                      GLenum *sources, GLenum *types, 
                                      GLuint *ids, GLenum *severities,
                                      GLsizei *lengths, 
-                                     GLchar *messageLog), 
-                                     return 0;);
-HELPER(void, glPushDebugGroup, (GLenum source, GLuint id, GLsizei length, 
-                                const char *message),);
-HELPER(void, glPopDebugGroup, (void),);
-HELPER(void, glObjectLabel, (GLenum identifier, GLuint name, GLsizei length, 
-                             const char *label),);
-HELPER(void, glObjectPtrLabel, (const void *ptr, GLsizei length, 
-                                const GLchar *label),);
-HELPER(void, glGetObjectLabel, (GLenum identifier, GLuint name, 
-                                GLsizei bufSize,
-                                GLsizei *length, char *label),);
-HELPER(void, glGetObjectPtrLabel, (const void *ptr, GLsizei bufSize, 
-                                   GLsizei *length, char *label),);
+                                     GLchar *messageLog) { return 0; }
+PFNGLGETDEBUGMESSAGELOGPROC fate_glGetDebugMessageLog;
 
-#undef HELPER
+void fate_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
+                                const char *message) {}
+PFNGLPUSHDEBUGGROUPPROC fate_glPushDebugGroup;
+
+void fate_glPopDebugGroup_dummy(void) {}
+PFNGLPOPDEBUGGROUPPROC fate_glPopDebugGroup;
+
+void fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
+                             const char *label) {}
+PFNGLOBJECTLABELPROC fate_glObjectLabel;
+
+void fate_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
+                                const GLchar *label) {}
+PFNGLOBJECTPTRLABELPROC fate_glObjectPtrLabel;
+
+void fate_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
+                                GLsizei bufSize,
+                                GLsizei *length, char *label) {}
+PFNGLGETOBJECTLABELPROC fate_glGetObjectLabel;
+
+void fate_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
+                                   GLsizei *length, char *label) {}
+PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel;
+
 
 void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
     (enable ? glEnable : glDisable)(GL_DEBUG_OUTPUT);
@@ -120,19 +137,26 @@ void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
         HELPER(glGetObjectPtrLabel);
 #undef HELPER
     } else {
-#define HELPER(_name_) \
-    fate_##_name_ = fate_##_name_##_dummy
-        HELPER(glDebugMessageCallback);
-        HELPER(glDebugMessageControl);
-        HELPER(glDebugMessageInsert);
-        HELPER(glGetDebugMessageLog);
-        HELPER(glPushDebugGroup);
-        HELPER(glPopDebugGroup);
-        HELPER(glObjectLabel);
-        HELPER(glObjectPtrLabel);
-        HELPER(glGetObjectLabel);
-        HELPER(glGetObjectPtrLabel);
-#undef HELPER
+        fate_glDebugMessageCallback = 
+            (PFNGLDEBUGMESSAGECALLBACKPROC) fate_glDebugMessageCallback_dummy;
+        fate_glDebugMessageControl = 
+            (PFNGLDEBUGMESSAGECONTROLPROC) fate_glDebugMessageControl_dummy;
+        fate_glDebugMessageInsert = 
+            (PFNGLDEBUGMESSAGEINSERTPROC) fate_glDebugMessageInsert_dummy;
+        fate_glGetDebugMessageLog = 
+            (PFNGLGETDEBUGMESSAGELOGPROC) fate_glGetDebugMessageLog_dummy;
+        fate_glPushDebugGroup =
+            (PFNGLPUSHDEBUGGROUPPROC) fate_glPushDebugGroup_dummy;
+        fate_glPopDebugGroup = 
+            (PFNGLPOPDEBUGGROUPPROC) fate_glPopDebugGroup_dummy;
+        fate_glObjectLabel = 
+            (PFNGLOBJECTLABELPROC) fate_glObjectLabel_dummy;
+        fate_glObjectPtrLabel = 
+            (PFNGLOBJECTPTRLABELPROC) fate_glObjectPtrLabel_dummy;
+        fate_glGetObjectLabel = 
+            (PFNGLGETOBJECTLABELPROC) fate_glGetObjectLabel_dummy;
+        fate_glGetObjectPtrLabel = 
+            (PFNGLGETOBJECTPTRLABELPROC) fate_glGetObjectPtrLabel_dummy;
     }
     fate_logf_video("OpenGL debug functions are now turned %s.\n", 
                     can_debug ? "on" : "off");

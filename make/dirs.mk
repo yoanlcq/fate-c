@@ -30,7 +30,8 @@ ifneq ($(OS),windows)
 MKDIR += -p
 CLEANCMD = rm -rf $(BUILDDIR)/*
 else
-CLEANCMD = rmdir /q /s $(BUILDDIR)\*
+CLEANCMD = IF exist $(BUILDDIR) ( rmdir /Q /S $(BUILDDIR) && mkdir $(BUILDDIR) )
+#IF exist myDirName ( echo myDirName exists ) ELSE ( mkdir myDirName && echo myDirName created)
 endif
 
 clean:

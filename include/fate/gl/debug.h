@@ -16,42 +16,60 @@
 
 #define FATE_GL_DEBUG
 
+void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
+
 void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type, 
                                 GLuint id, GLenum severity, 
                                 GLsizei length, const GLchar* message, 
                                 const void* userParam);
 
 
-#define HELPER(_type_,_name_,_params_) \
-    _type_ fate_##_name_##_dummy _params_; \
-    extern _type_ (*fate_##_name_) _params_
+void fate_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
+                                       const void *userParam);
+extern PFNGLDEBUGMESSAGECALLBACKPROC fate_glDebugMessageCallback;
 
-HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, const void *userParam));
-HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
-            GLenum severity, GLsizei count, const GLuint *ids, 
-            GLboolean enabled));
-HELPER(void, glDebugMessageInsert, (GLenum source, GLenum type, GLuint id, 
+void fate_glDebugMessageControl_dummy(GLenum source, GLenum type, 
+                                      GLenum severity, GLsizei count, 
+                                      const GLuint *ids, 
+                                      GLboolean enabled);
+extern PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl;
+
+void fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
-                                    const char *message));
-HELPER(GLuint,glGetDebugMessageLog, (GLuint count, GLsizei bufSize, 
+                                    const char *message);
+extern PFNGLDEBUGMESSAGEINSERTPROC fate_glDebugMessageInsert;
+
+GLuint fate_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
                                      GLenum *sources, GLenum *types, 
                                      GLuint *ids, GLenum *severities,
                                      GLsizei *lengths, 
-                                     GLchar *messageLog));
-HELPER(void, glPushDebugGroup, (GLenum source, GLuint id, GLsizei length, 
-                                const char *message));
-HELPER(void, glPopDebugGroup, (void));
-HELPER(void, glObjectLabel, (GLenum identifier, GLuint name, GLsizei length, 
-                             const char *label));
-HELPER(void, glObjectPtrLabel, (const void *ptr, GLsizei length, const GLchar *label));
-HELPER(void, glGetObjectLabel, (GLenum identifier, GLuint name, GLsizei bufSize,
-                                GLsizei *length, char *label));
-HELPER(void, glGetObjectPtrLabel, (const void *ptr, GLsizei bufSize, 
-                                   GLsizei *length, char *label));
+                                     GLchar *messageLog);
+extern PFNGLGETDEBUGMESSAGELOGPROC fate_glGetDebugMessageLog;
 
-#undef HELPER
+void fate_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
+                                const char *message);
+extern PFNGLPUSHDEBUGGROUPPROC fate_glPushDebugGroup;
 
-void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
+void fate_glPopDebugGroup_dummy(void);
+extern PFNGLPOPDEBUGGROUPPROC fate_glPopDebugGroup;
+
+void fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
+                             const char *label);
+extern PFNGLOBJECTLABELPROC fate_glObjectLabel;
+
+void fate_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
+                                const GLchar *label);
+extern PFNGLOBJECTPTRLABELPROC fate_glObjectPtrLabel;
+
+void fate_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
+                                GLsizei bufSize,
+                                GLsizei *length, char *label);
+extern PFNGLGETOBJECTLABELPROC fate_glGetObjectLabel;
+
+void fate_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
+                                   GLsizei *length, char *label);
+extern PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel;
+
 
 #else /* FATE_DEBUG_BUILD */
 

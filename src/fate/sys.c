@@ -443,7 +443,7 @@ LONG WINAPI fate_win32_exception_handler(EXCEPTION_POINTERS *ep)
     fate_logf_err(".\r\n");
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW)
-        fate_sys_log_stacktrace(&fate_logf_err);
+        fate_sys_log_stacktrace(fate_logf_err);
 
     fate_globalstate_deinit(fate_gs);
     exit(EXIT_FAILURE); /* Not abort(). */

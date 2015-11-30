@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327
+#endif
 #include <SFML/System.h>
 #include <SFML/Window.h>
 #include <SFML/Graphics.h>
@@ -259,7 +262,10 @@ int main(int argc, char *argv[])
                         case sfKeyF11: break;
                     }
                     break;
-                case sfEvtMouseWheelScrolled: break;
+                case sfEvtMouseWheelScrolled: 
+                    distance -= event.mouseWheelScroll.delta;        
+                    dirty = true;
+                    break;
                 case sfEvtMouseButtonPressed:  mousedown = true;  break;
                 case sfEvtMouseButtonReleased: mousedown = false; break;
                 case sfEvtMouseMoved: 
@@ -357,10 +363,10 @@ int main(int argc, char *argv[])
             dirty = true;
         }
         if(zoom_in) {
-            distance -= 1.0f/20.0f;
+            distance -= 0.25f;
             dirty = true;
         } else if(zoom_out) {
-            distance += 1.0f/20.0f;
+            distance += 0.25f;
             dirty = true;
         }
         if(dirty) {
