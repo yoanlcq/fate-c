@@ -1,4 +1,4 @@
-CCFLAGS = /nologo /Iinclude 
+CCFLAGS = /nologo /Iinclude /DGLEW_NO_GLU 
 CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DFATE_DEBUG_BUILD /DFATE_ENABLE_TRACING
 CCRELEASEFLAGS = $(CCFLAGS) /O2 /Ot /Ox /GL /Gw /DNDEBUG
 LDLIBS = # csfml-audio.lib \
