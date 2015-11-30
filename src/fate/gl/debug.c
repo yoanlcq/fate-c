@@ -4,7 +4,10 @@
 
 #ifdef FATE_GL_DEBUG
 
-GLAPIENTRY GLDEBUGPROC fate_gl_debug_msg_callback
+void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type, 
+                                GLuint id, GLenum severity, 
+                                GLsizei length, const GLchar* message, 
+                                const void* userParam)
 {
     char *source_str;
     switch(source) {
@@ -69,7 +72,8 @@ GLAPIENTRY GLDEBUGPROC fate_gl_debug_msg_callback
     _type_ fate_##_name_##_dummy _params_ {} \
     _type_ (*fate_##_name_) _params_ = &fate_##_name_##_dummy;
 
-HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, void *userParam));
+HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, 
+                                      const void *userParam));
 HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
             GLenum severity, GLsizei count, const GLuint *ids, 
             GLboolean enabled));
@@ -86,7 +90,7 @@ HELPER(void, glPushDebugGroup, (GLenum source, GLuint id, GLsizei length,
 HELPER(void, glPopDebugGroup, (void));
 HELPER(void, glObjectLabel, (GLenum identifier, GLuint name, GLsizei length, 
                              const char *label));
-HELPER(void, glObjectPtrLabel, (void *ptr, GLsizei length, const char *label));
+HELPER(void, glObjectPtrLabel, (const void *ptr, GLsizei length, const GLchar *label));
 HELPER(void, glGetObjectLabel, (GLenum identifier, GLuint name, GLsizei bufSize,
                                 GLsizei *length, char *label));
 HELPER(void, glGetObjectPtrLabel, (const void *ptr, GLsizei bufSize, 

@@ -98,15 +98,20 @@ int main(int argc, char *argv[])
             ctxs.antialiasingLevel);
     int num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
-    fate_logf_video("\tExtensions :");
-    for(i=0 ; i<num_glexts ; ++i) 
-        fate_logf_video(" %s", glGetStringi(GL_EXTENSIONS, i));
+    fate_logf_video("\tExtensions :\n");
+    for(i=0 ; i<num_glexts ; i++) {
+        fate_logf_video("%-39s", glGetStringi(GL_EXTENSIONS, i));
+        if(i+1<num_glexts) {
+            ++i;
+            fate_logf_video("%-39s", glGetStringi(GL_EXTENSIONS, i));
+        }
+        fate_logf_video("\n");
+    }
     fate_logf_video("\n");
 
     /* Must imperatively follow SFML Window creation. */
     fate_gl_debug_setup(gl_major, gl_minor, true);
-    fate_glDebugMessageCallback((DEBUGPROC) &fate_gl_debug_msg_callback, 
-            NULL);
+    fate_glDebugMessageCallback(fate_gl_debug_msg_callback, NULL);
     fate_glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
 
