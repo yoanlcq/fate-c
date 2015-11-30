@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
     GLuint progid = glCreateProgram();
     if(!fate_gl_mkprog(progid,
                        "data/OpenGL/triangles.glb",
-                       "res/shaders/triangles.vert",
-                       "res/shaders/triangles.frag",
+                       "res/shaders/triangles.330.core.vert",
+                       "res/shaders/triangles.330.core.frag",
                        NULL))
     {
         fate_logf_err("Can't continue.\n");

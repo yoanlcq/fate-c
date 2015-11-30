@@ -1,1 +1,0 @@
-triangles.330.core.vert
