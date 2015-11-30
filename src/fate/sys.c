@@ -159,9 +159,20 @@ inline bool fate_sys_set_current_directory(const char *path) {
 
 #if defined(FATE_DEFS_LINUX)
 
-#if BSD_SOURCE || _XOPEN_SOURCE >= 500 \
- || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED \
- || _POSIX_C_SOURCE >= 200112L
+#if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
+ || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
+#ifdef _GNU_SOURCE
+#include <sys/syscall.h>
+static inline ssize_t readlink(const char *path, char *buf, size_t bufsiz) {
+    return syscall(SYS_readlink, path, buf, bufsiz);
+}
+static inline int lstat(const char *path, struct stat *buf) {
+    return syscall(SYS_lstat, path, buf);
+}
+#else
+#error Syscalls lstat() and readlink() are not available.
+#endif
+#endif
 static char *get_executable_path(void) {
     struct stat st;
     char *str = (char*)getauxval(AT_EXECFN), *str2;
@@ -179,9 +190,6 @@ static char *get_executable_path(void) {
     }
     return NULL;
 }
-#else
-#error Missing the required macros for lstat() and readlink().
-#endif
 
 #elif defined(FATE_DEFS_FREEBSD)
 

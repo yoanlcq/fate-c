@@ -48,12 +48,6 @@
 #define FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY 256
 
 
-
-/* If this macro is set, GNU extensions are used when they perform 
- * better than otherwise naïve code. 
- * Our source must still provide fallback code. */
-#define _GNU_SOURCE
-
 /* You know, in case it changes in 2040. */
 #define FATE_DEFS_DEFAULT_REFRESH_RATE 60
 
