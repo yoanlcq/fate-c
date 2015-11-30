@@ -30,10 +30,6 @@ int main(int argc, char *argv[])
 #endif
     };
 
-    GLint gl_major, gl_minor;
-    glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
-    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
-
     fate_logf_video(
             "--- OpenGL version ---\n"
             "    Required  : >= %d.%d\n"
@@ -43,15 +39,15 @@ int main(int argc, char *argv[])
             "    Renderer  : %s\n"
             "    Vendor    : %s\n"
             "\n",
-            gl_major, gl_minor, 
+            4, 3, 
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
 
     if(gl_major < 4 || (gl_major == 4 && gl_minor < 3))
     {
-        fate_logf_err("The OpenGL version reported by your driver is not yet"
-                      "supported.\nSorry. I'm working on it.\n");
+        fate_logf_err("The OpenGL version reported by your driver is "
+                      "not supported yet.\nSorry. I'm working on it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -82,6 +78,10 @@ int main(int argc, char *argv[])
 
     ctxs = sfWindow_getSettings(window);
 
+    GLint gl_major, gl_minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+
     fate_logf_video(
             "--- Active OpenGL context settings ---\n"
             "    Version             : %d.%d\n"
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             "    Depth buffer bits   : %d\n"
             "    Stencil buffer bits : %d\n"
             "    Antialiasing level  : %dx\n",
-            ctxs.majorVersion, ctxs.minorVersion,
+            gl_major, gl_minor,
             glGetString(GL_SHADING_LANGUAGE_VERSION),
             ctxs.depthBits,
             ctxs.stencilBits,
