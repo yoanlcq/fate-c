@@ -36,12 +36,12 @@ int main(int argc, char *argv[])
 
     fate_logf_video(
             "--- OpenGL version ---\n"
-            "\tRequired  : >= %d.%d\n"
-            "\tSupported :    %s\n"
+            "    Required  : >= %d.%d\n"
+            "    Supported :    %s\n"
             "\n"
             "--- OpenGL device ---\n"
-            "\tRenderer  : %s\n"
-            "\tVendor    : %s\n"
+            "    Renderer  : %s\n"
+            "    Vendor    : %s\n"
             "\n",
             gl_major, gl_minor, 
             glGetString(GL_VERSION),
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     GLenum glewInitResult = glewInit();
     if(glewInitResult != GLEW_OK)
     {
-        fate_logf_err("Could not initialize GLEW :\n%s\n", 
+        fate_logf_video("Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glewInitResult));
         exit(EXIT_FAILURE);
     }
@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
             sfDefaultStyle, &ctxs);
     sfVector2i vec2i = {0, 0};
     sfWindow_setPosition(window, vec2i);
+    /*sfWindow_setVerticalSyncEnabled(window, true);*/
     sfWindow_setFramerateLimit(window, 60);
     sfWindow_setKeyRepeatEnabled(window, false);
 
@@ -86,11 +87,11 @@ int main(int argc, char *argv[])
 
     fate_logf_video(
             "--- Active OpenGL context settings ---\n"
-            "\tVersion             : %d.%d\n"
-            "\tGLSL version        : %s\n"
-            "\tDepth buffer bits   : %d\n"
-            "\tStencil buffer bits : %d\n"
-            "\tAntialiasing level  : %dx\n",
+            "    Version             : %d.%d\n"
+            "    GLSL version        : %s\n"
+            "    Depth buffer bits   : %d\n"
+            "    Stencil buffer bits : %d\n"
+            "    Antialiasing level  : %dx\n",
             ctxs.majorVersion, ctxs.minorVersion,
             glGetString(GL_SHADING_LANGUAGE_VERSION),
             ctxs.depthBits,
@@ -98,12 +99,12 @@ int main(int argc, char *argv[])
             ctxs.antialiasingLevel);
     int num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
-    fate_logf_video("\tExtensions :\n");
+    fate_logf_video("    Extensions :\n");
     for(i=0 ; i<num_glexts ; i++) {
-        fate_logf_video("%-39s", glGetStringi(GL_EXTENSIONS, i));
+        fate_logf_video("%-38s", glGetStringi(GL_EXTENSIONS, i));
         if(i+1<num_glexts) {
             ++i;
-            fate_logf_video("%-39s", glGetStringi(GL_EXTENSIONS, i));
+            fate_logf_video("%-38s", glGetStringi(GL_EXTENSIONS, i));
         }
         fate_logf_video("\n");
     }
@@ -122,8 +123,8 @@ int main(int argc, char *argv[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* Kind of breaks transparency ? */
-    /* glEnable(GL_CULL_FACE); */
-    /* glCullFace(GL_FRONT); */
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
 
     fate_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
@@ -180,8 +181,12 @@ int main(int argc, char *argv[])
     sfInt64 current_time, last_time = sfClock_restart(clock).microseconds;
 
     bool running = true;
-    /* glClearColor(0.3f, 0.9f, 1.0f, 1.0f); */
+    bool dirty;
+    glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
     while(running) {
+
+        if(dirty)
+            dirty = false;
 
         /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
         current_time = sfClock_getElapsedTime(clock).microseconds;
@@ -229,8 +234,8 @@ int main(int argc, char *argv[])
                     break;
                 case sfEvtKeyPressed:
                     switch(event.key.code) {
-                        case sfKeyZ:        distance += 1.0f; L_y = -100.0f; break;
-                        case sfKeyQ:        distance -= 1.0f; L_x = -100.0f; break;
+                        case sfKeyZ:        L_y = -100.0f; break;
+                        case sfKeyQ:        L_x = -100.0f; break;
                         case sfKeyS:        L_y =  100.0f; break;
                         case sfKeyD:        L_x =  100.0f; break;
                         case sfKeyUp:       R_y = -100.0f; break;
@@ -351,6 +356,19 @@ int main(int argc, char *argv[])
         if(R_x > 10.0f || R_x < -10.0f || R_y>10.0f || R_y<-10.0f) {
             eye[0] += R_x/200.0f;
             eye[1] += R_y/200.0f;
+            dirty = true;
+        }
+        if(zoom_in) {
+            distance -= 1.0f/20.0f;
+            dirty = true;
+        } else if(zoom_out) {
+            distance += 1.0f/20.0f;
+            dirty = true;
+        }
+        if(dirty) {
+            eye[0] =  distance*sinf(h_angle)*cosf(v_angle);
+            eye[1] =  distance*sinf(v_angle);
+            eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
             UPDATE_VIEW();
             UPDATE_MVP();
         }

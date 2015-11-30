@@ -6,5 +6,5 @@ layout(location = 0) out vec4 fColor;
 
 void main() 
 {
-    fColor = vec4(vColor.rgb, 1.0);
+    fColor = vec4(vColor.rgb, 0.6);
 }
