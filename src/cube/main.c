@@ -44,6 +44,10 @@ int main(int argc, char *argv[])
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
 
+    GLint gl_major, gl_minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+
     if(gl_major < 4 || (gl_major == 4 && gl_minor < 3))
     {
         fate_logf_err("The OpenGL version reported by your driver is "
@@ -77,8 +81,6 @@ int main(int argc, char *argv[])
     sfWindow_setKeyRepeatEnabled(window, false);
 
     ctxs = sfWindow_getSettings(window);
-
-    GLint gl_major, gl_minor;
     glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
     glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
 
