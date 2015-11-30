@@ -16,23 +16,23 @@ include/:
 # Too bad $< and $@ do not expand within macros.
 define MKOBJ
 
-$(BUILDDIR)/$(2).obj : src/$(2).c \
+$(BUILDDIR)/$(2).obj : src/$(2) \
 	                   $(if $(3),include/$(3),) \
 					   $(if $(4),include/$(4),) \
 					   $(if $(5),include/$(5),) \
 					   $(if $(6),include/$(6),) \
 					   $(if $(7),include/$(7),) \
 					   $(if $(8),include/$(8),)
-	$(CC) $(CCRELEASEFLAGS) /c src/$(2).c /Fo$(BUILDDIR)/$(2).obj
+	$(CC) $(CCRELEASEFLAGS) /c src/$(2) /Fo$(BUILDDIR)/$(2).obj
 
-$(BUILDDIR)/$(2)_debug.obj : src/$(2).c \
+$(BUILDDIR)/$(2)_debug.obj : src/$(2) \
                              $(if $(3),include/$(3),) \
 					         $(if $(4),include/$(4),) \
 					         $(if $(5),include/$(5),) \
 					         $(if $(6),include/$(6),) \
 					         $(if $(7),include/$(7),) \
 					         $(if $(8),include/$(8),)
-	$(CC) $(CCDEBUGFLAGS) -c src/$(2).c /Fo$(BUILDDIR)/$(2)_debug.obj
+	$(CC) $(CCDEBUGFLAGS) -c src/$(2) /Fo$(BUILDDIR)/$(2)_debug.obj
 
 $(1)_OBJFILES += $(BUILDDIR)/$(2).obj
 $(1)_DEBUG_OBJFILES += $(BUILDDIR)/$(2)_debug.obj

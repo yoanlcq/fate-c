@@ -1,9 +1,7 @@
 #ifndef FATE_TRACER_H
 #define FATE_TRACER_H
 
-
-#define XSTRINGIFY(X) STRINGIFY(X)
-#define STRINGIFY(X) #X
+#include <fate/defs.h>
 
 #ifndef FATE_ENABLE_TRACING
 
@@ -70,7 +68,6 @@
         #else
             #warning Trace : __func__ is only available from C99.
         #endif
-    #define __func__ ""
     #endif
 
     #if __STDC_VERSION__ < 201112L

@@ -14,12 +14,23 @@ BUILDDIR = build$(PATHSEP)$(OS)$(ARCH)
 BINDIR = bin$(PATHSEP)$(OS)$(ARCH)
 DATADIR = data
 
+BUILDDIRS = $(BUILDDIR) \
+		    $(BUILDDIR)$(PATHSEP)fate \
+            $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)gl \
+            $(BUILDDIR)$(PATHSEP)cube \
+
+
+dirs: $(BINDIR) \
+	  $(BUILDDIRS) \
+	  $(DATADIR) \
+	  $(DATADIR)$(PATHSEP)OpenGL
+
 MKDIR = mkdir
 ifneq ($(OS),windows)
 MKDIR += -p
-CLEANCMD = rm -f $(BUILDDIR)/*
+CLEANCMD = rm -rf $(BUILDDIR)/*
 else
-CLEANCMD = del /f /q $(BUILDDIR)\*
+CLEANCMD = rmdir /q /s $(BUILDDIR)\*
 endif
 
 clean:
@@ -28,11 +39,16 @@ mrproper : clean all
 re : mrproper
 
 
-dirs: $(BINDIR) $(BUILDDIR) $(DATADIR) $(DATADIR)$(PATHSEP)OpenGL
 
 $(BINDIR):
 	$(MKDIR) $@
 $(BUILDDIR):
+	$(MKDIR) $@
+$(BUILDDIR)$(PATHSEP)fate:
+	$(MKDIR) $@
+$(BUILDDIR)$(PATHSEP)fate$(PATHSEP)gl:
+	$(MKDIR) $@
+$(BUILDDIR)$(PATHSEP)cube:
 	$(MKDIR) $@
 $(DATADIR):
 	$(MKDIR) $@

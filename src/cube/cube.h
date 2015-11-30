@@ -6,8 +6,7 @@
 
 struct Cube {
     GLuint ebo, vao, vbo;
-    mat4x4 model;
-} 
+};
 typedef struct Cube Cube;
 
 void Cube_init(Cube *c);

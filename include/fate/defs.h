@@ -1,6 +1,15 @@
 #ifndef FATE_DEFS_H
 #define FATE_DEFS_H
 
+#include <fate/log.h>
+
+#define XSTRINGIFY(X) STRINGIFY(X)
+#define STRINGIFY(X) #X
+
+#if __STDC_VERSION__ < 199901L
+#define __func__ ""
+#endif
+
 #if defined(FATE_DEBUG_BUILD)
 #define inline
 #endif
@@ -21,6 +30,17 @@
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
 #endif
+#endif
+
+#ifdef FATE_DEBUG_BUILD
+#define FATE_CHECK_MALLOC(X) \
+    if((X)==NULL) { \
+        fate_logf_err("%s:%u:%s Dynamic allocation failed !\n", \
+                      __FILE__, __LINE__, __func__); \
+        exit(EXIT_FAILURE); \
+    }
+#else
+#define FATE_CHECK_MALLOC(X) (X)
 #endif
 
 

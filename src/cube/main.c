@@ -2,167 +2,56 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 #include <SFML/System.h>
 #include <SFML/Window.h>
 #include <SFML/Graphics.h>
 #include <linmath/linmath.h>
-#include <fate/wip/filepath.h>
-#include <fate/wip/display_resolutions.h>
-#include <fate/gl.h>
+#include <fate.h>
 #include "cube.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#include <Wingdi.h>
-HGLRC saved_opengl_context;
-BOOL saved_opengl_context_is_initialized = FALSE;
-
-/*
- *Basically it's just resizing the window and specifying flags that the border is invisible.
-
- SetWindowLongPtr(hWnd, GWL_STYLE, 
-     WS_SYSMENU | WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE);
-     MoveWindow(hWnd, 0, 0, width, height, TRUE);
-     
-     to set it back:
-
-     RECT rect;
-     rect.left = 0;
-     rect.top = 0;
-     rect.right = width;
-     rect.bottom = height;
-     SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-     MoveWindow(hWnd, 0, 0, rect.right-rect.left, rect.bottom-rect.top, TRUE);
-     
-     or for a not-resizable window:
-
-     SetWindowLongPtr(hWnd, GWL_STYLE, WS_CAPTION | WS_POPUPWINDOW | WS_VISIBLE);
-     AdjustWindowRect(&rect, WS_CAPTION | WS_POPUPWINDOW, FALSE);
-     MoveWindow(hWnd, 0, 0, rect.right-rect.left, rect.bottom-rect.top, TRUE);
-
-     and then just resize your OpenGL viewport settings.
-
-     If you want to set the display mode too, use this:
-
-     change display mode if destination mode is fullscreen
-     if (fullscreen) {
-         DEVMODE dm;
-         dm.dmSize = sizeof(DEVMODE);
-         dm.dmPelsWidth = width;
-         dm.dmPelsHeight = height;
-         dm.dmBitsPerPel = bitsPerPixel;
-         dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
-         success = ChangeDisplaySettings(&dm, 0) == DISP_CHANGE_SUCCESSFUL;
-     }
-     // reset display mode if destination mode is windowed
-     if (!fullscreen)
-         success = ChangeDisplaySettings(0, 0) == DISP_CHANGE_SUCCESSFUL;
-*
-* */
-void save_opengl_context(sfWindowHandle handle) 
-{
-if(!saved_opengl_context_is_initialized) {
-    saved_opengl_context = wglCreateContext(wglGetCurrentDC());
-    saved_opengl_context_is_initialized = TRUE;
-}
-    wglCopyContext(wglGetCurrentContext(),
-                   saved_opengl_context,
-                   GL_ALL_ATTRIB_BITS);
-}
-
-void restore_opengl_context(sfWindowHandle handle)
-{
-    wglMakeCurrent(wglGetCurrentDC(), saved_opengl_context);
-/*
-    glewExperimental = GL_TRUE;
-    GLenum glewInitResult = glewInit();
-    if(glewInitResult != GLEW_OK)
-    {
-        fprintf(stderr, "Could not initialize GLEW :\n%s\n", 
-                glewGetErrorString(glewInitResult));
-        exit(EXIT_FAILURE);
-    }
-#ifdef OPENGL_DEBUG
-    glDebugMessageCallback((GLDEBUGPROC) &opengl_debug_callback, NULL);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
-                          0, NULL, GL_TRUE);
-#endif
-*/
-}
-
-#elif defined(__linux__)
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <GL/glx.h>
-GLXContext saved_opengl_context;
-bool saved_opengl_context_is_initialized = false;
-/*
-One way is to bypass the window manager:
-http://stackoverflow.com/questions/9065669/x11-glx-fullscreen-mode
-XSetWindowAttributes wa;                                                     
-wa.override_redirect = True;                                           
-XCreateWindow( ..., &wa );
-*/
-void save_opengl_context(sfWindowHandle handle)
-{
-    /*
-    if(!saved_opengl_context_is_initialized) {
-        saved_opengl_context = glXCreateContext(handle, vis, NULL, true);
-        saved_opengl_context_is_initialized = true;
-    }
-    glXCopyContext(handle,
-                   wglGetCurrentContext(),
-                   saved_opengl_context,
-                   GL_ALL_ATTRIB_BITS);
-                   */
-}
-
-void restore_opengl_context(sfWindowHandle handle)
-{
-}
-#endif
-
-
-
 
 int main(int argc, char *argv[])
 {
+
+    fate_globalstate_init(fate_gs);
+
+    char *game_path = fate_sys_getgamepath();
+    if(!game_path)
+        exit(EXIT_FAILURE);
+    fate_sys_set_current_directory(game_path);
+    free(game_path);
+
     sfContext *ctx = sfContext_create();
     sfContextSettings ctxs = {24, 8, 0, 4, 3, 
         sfContextCore
 #ifdef FATE_GL_DEBUG
-            |sfContextDebug
+            | sfContextDebug
 #endif
     };
 
-    fprintf(stdout, 
+    GLint gl_major, gl_minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
+
+    fate_logf_video(
             "--- OpenGL version ---\n"
-            "    Required  : >= %d.%d\n"
-            "    Supported :    %s\n"
+            "\tRequired  : >= %d.%d\n"
+            "\tSupported :    %s\n"
             "\n"
             "--- OpenGL device ---\n"
-            "    Renderer  : %s\n"
-            "    Vendor    : %s\n"
+            "\tRenderer  : %s\n"
+            "\tVendor    : %s\n"
             "\n",
-            ctxs.majorVersion, ctxs.minorVersion, 
+            gl_major, gl_minor, 
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
 
-    GLint gl_version[2];
-    glGetIntegerv(GL_MAJOR_VERSION, &gl_version[0]);
-    glGetIntegerv(GL_MINOR_VERSION, &gl_version[1]);
-
-    if(gl_version[0] < 4 || (gl_version[0] >= 4 && gl_version[1] < 3))
+    if(gl_major < 4 || (gl_major == 4 && gl_minor < 3))
     {
-        fprintf(stderr, 
-                "Your hardware does not meet the requirements.\n"
-                "Make sure that the device used is the one you are expecting, "
-                "and that your drivers are up-to-date.\n");
+        fate_logf_err("The OpenGL version reported by your driver is not yet"
+                      "supported.\nSorry. I'm working on it.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -170,7 +59,7 @@ int main(int argc, char *argv[])
     GLenum glewInitResult = glewInit();
     if(glewInitResult != GLEW_OK)
     {
-        fprintf(stderr, "Could not initialize GLEW :\n%s\n", 
+        fate_logf_err("Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glewInitResult));
         exit(EXIT_FAILURE);
     }
@@ -180,13 +69,14 @@ int main(int argc, char *argv[])
     sfVideoMode vm = (vmc > 0 ? vms[0] : sfVideoMode_getDesktopMode());
     vm.width  = 640;
     vm.height = 480;
-    const uint16_t *vmr = prev_resolution(vm.width, vm.height);
+    const uint16_t *vmr = fate_dpyres_prev_in_list(vm.width, vm.height);
     vm.width  = vmr[0];
     vm.height = vmr[1];
     sfVector2u winsiz;
     winsiz.x = vm.width;
     winsiz.y = vm.height;
-    sfWindow *window = sfWindow_create(vm, "OpenGL", sfDefaultStyle, &ctxs);
+    sfWindow *window = sfWindow_create(vm, "Early F.A.T.E cube demo",
+            sfDefaultStyle, &ctxs);
     sfVector2i vec2i = {0, 0};
     sfWindow_setPosition(window, vec2i);
     sfWindow_setFramerateLimit(window, 60);
@@ -194,13 +84,13 @@ int main(int argc, char *argv[])
 
     ctxs = sfWindow_getSettings(window);
 
-    fprintf(stdout,
+    fate_logf_video(
             "--- Active OpenGL context settings ---\n"
-            "    Version             : %d.%d\n"
-            "    GLSL version        : %s\n"
-            "    Depth buffer bits   : %d\n"
-            "    Stencil buffer bits : %d\n"
-            "    Antialiasing level  : %dx\n",
+            "\tVersion             : %d.%d\n"
+            "\tGLSL version        : %s\n"
+            "\tDepth buffer bits   : %d\n"
+            "\tStencil buffer bits : %d\n"
+            "\tAntialiasing level  : %dx\n",
             ctxs.majorVersion, ctxs.minorVersion,
             glGetString(GL_SHADING_LANGUAGE_VERSION),
             ctxs.depthBits,
@@ -208,17 +98,17 @@ int main(int argc, char *argv[])
             ctxs.antialiasingLevel);
     int num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
-    printf("    Extensions :\n");
+    fate_logf_video("\tExtensions :");
     for(i=0 ; i<num_glexts ; ++i) 
-        printf("        %s\n", glGetStringi(GL_EXTENSIONS, i));
-    putchar('\n');
+        fate_logf_video(" %s", glGetStringi(GL_EXTENSIONS, i));
+    fate_logf_video("\n");
 
-#ifdef FATE_GL_DEBUG
     /* Must imperatively follow SFML Window creation. */
-    glDebugMessageCallback((GLDEBUGPROC) &opengl_debug_callback, NULL);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
+    fate_gl_debug_setup(gl_major, gl_minor, true);
+    fate_glDebugMessageCallback((DEBUGPROC) &fate_gl_debug_msg_callback, 
+            NULL);
+    fate_glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
-#endif
 
     glEnable(GL_PRIMITIVE_RESTART);
     glEnable(GL_DEPTH_TEST);
@@ -230,14 +120,15 @@ int main(int argc, char *argv[])
     /* glEnable(GL_CULL_FACE); */
     /* glCullFace(GL_FRONT); */
 
+    fate_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
     if(!fate_gl_mkprog(progid,
-                       pathto_data("OpenGL/triangles.glb"),
-                       pathto_res("shaders/triangles.vert"),
-                       pathto_res("shaders/triangles.frag"),
+                       "data/OpenGL/triangles.glb",
+                       "res/shaders/triangles.vert",
+                       "res/shaders/triangles.frag",
                        NULL))
     {
-        fprintf(stderr, "Can't continue.\n");
+        fate_logf_err("Can't continue.\n");
         exit(EXIT_FAILURE);
     }
     fate_gl_mkprog_cleanup();
@@ -247,18 +138,27 @@ int main(int argc, char *argv[])
     Cube_init(&cube);
 
     float distance = 6.0f;
-
     vec3 eye = {0.0f, 0.0f, -distance}, center = {0,0,0}, up = {0,1,0};
-    mat4x4 MVPMatrix, Projection, View, Model;
-    mat4x4_identity(Model);
-    mat4x4_look_at(View, eye, center, up);
-    mat4x4_perspective(Projection, 45, vm.width/(float)vm.height, 1.0f, 100.0f);
-    mat4x4_dup(MVPMatrix, Model);
-    mat4x4_mul(MVPMatrix, View, MVPMatrix);
-    mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
     GLint MVPMatrixLoc = glGetUniformLocation(progid, "MVPMatrix");
-    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
+    mat4x4 MVPMatrix, Projection, View, Model;
 
+#define UPDATE_VIEW() \
+    mat4x4_identity(Model); \
+    mat4x4_look_at(View, eye, center, up);
+
+#define UPDATE_MVP() \
+    mat4x4_dup(MVPMatrix, Model); \
+    mat4x4_mul(MVPMatrix, View, MVPMatrix); \
+    mat4x4_mul(MVPMatrix, Projection, MVPMatrix); \
+    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0])
+
+#define RESIZE(_W_,_H_) \
+    glViewport(0, 0, _W_, _H_); \
+    mat4x4_perspective(Projection, 45, _W_/(float)_H_, 1.0f, 100.0f); \
+    UPDATE_MVP();
+
+    UPDATE_VIEW();
+    RESIZE(vm.width, vm.height);
 
     int mousex, mousey;
     bool mousein = false, mousedown = false;
@@ -283,7 +183,7 @@ int main(int argc, char *argv[])
         ++frameno;
         if(current_time - last_time >= 100000LL)
         {
-            /* printf("%lf milliseconds/frame\n", 100.0/frameno); */
+            /* fate_logf("%lf milliseconds/frame\n", 100.0/frameno); */
             frameno = 0;
             last_time += 100000LL;
         }
@@ -302,14 +202,9 @@ int main(int argc, char *argv[])
                 case sfEvtClosed:
                     running = false;
                     break;
-                
+               
                 case sfEvtResized:
-                    glViewport(0, 0, event.size.width, event.size.height);
-                    mat4x4_perspective(Projection, 45, event.size.width/(float)event.size.height, 1.0f, 100.0f);
-                    mat4x4_dup(MVPMatrix, Model);
-                    mat4x4_mul(MVPMatrix, View, MVPMatrix);
-                    mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
-                    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
+                    RESIZE(event.size.width, event.size.height);
                     break;
                 case sfEvtLostFocus: break;
                 case sfEvtGainedFocus: break;
@@ -318,8 +213,8 @@ int main(int argc, char *argv[])
                         case '<': case '>':
                             /* Ternary+function pointer combo. */
                             vmr = (event.text.unicode == '<' 
-                                    ? prev_resolution 
-                                    : next_resolution)
+                                    ? fate_dpyres_prev_in_list
+                                    : fate_dpyres_next_in_list)
                                     (vmr[0], vmr[1]);
                             winsiz.x = vmr[0];
                             winsiz.y = vmr[1];
@@ -353,116 +248,45 @@ int main(int argc, char *argv[])
                         case sfKeyRight:    if(R_x > 0.0f) R_x = 0.0f; break;
                         case sfKeyAdd:      zoom_in  = false; break;
                         case sfKeySubtract: zoom_out = false; break;
-                        case sfKeyF11: 
-                            printf("\n%sing Fullscreen.\n\n", fullscreen ? "Leav" : "Go");
-                            /* TODO The true way is a reinit_everything function. */
-                            save_opengl_context(sfWindow_getSystemHandle(window));
-                            sfWindow_destroy(window);
-                            if(fullscreen) {
-                                vm.width = winsiz.x;
-                                vm.height= winsiz.y;
-                                window = sfWindow_create(vm, "OpenGL", sfDefaultStyle, &ctxs);
-                            } else {
-                                vm = sfVideoMode_getFullscreenModes(NULL)[0];
-                                winsiz.x = vm.width;
-                                winsiz.y = vm.height;
-                                window = sfWindow_create(vm, "OpenGL", sfFullscreen, &ctxs);
-                            }
-
-
-
-
-
-
-                            restore_opengl_context(sfWindow_getSystemHandle(window));
-
-    ctxs = sfWindow_getSettings(window);
-
-    glEnable(GL_PRIMITIVE_RESTART);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    progid = glCreateProgram();
-    if(!fate_gl_mkprog(progid,
-               datapath("OpenGL/triangles.bin"),
-               respath("shaders/triangles.vert"),
-               respath("shaders/triangles.frag"),
-               NULL))
-    {
-        fprintf(stderr, "Can't continue.\n");
-        exit(EXIT_FAILURE);
-    }
-    fate_gl_mkprog_yield();
-    glUseProgram(progid); 
-
-    Cube_free(&cube);
-    Cube_init(&cube);
-
-    mat4x4_identity(Model);
-    mat4x4_look_at(View, eye, center, up);
-    mat4x4_perspective(Projection, 45, vm.width/(float)vm.height, 1.0f, 100.0f);
-    mat4x4_dup(MVPMatrix, Model);
-    mat4x4_mul(MVPMatrix, View, MVPMatrix);
-    mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
-    MVPMatrixLoc = glGetUniformLocation(progid, "MVPMatrix");
-    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
-
-    glViewport(0, 0, vm.width, vm.height);
-    mat4x4_perspective(Projection, 45, vm.width/(float)vm.height, 1.0f, 100.0f);
-    mat4x4_dup(MVPMatrix, Model);
-    mat4x4_mul(MVPMatrix, View, MVPMatrix);
-    mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
-    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
-
-
-                            sfWindow_setFramerateLimit(window, 60);
-                            sfWindow_setKeyRepeatEnabled(window, false);
-                            fullscreen = !fullscreen;
-                            break;
+                        case sfKeyF11: break;
                     }
                     break;
                 case sfEvtMouseWheelScrolled: break;
                 case sfEvtMouseButtonPressed:  mousedown = true;  break;
                 case sfEvtMouseButtonReleased: mousedown = false; break;
                 case sfEvtMouseMoved: 
-    if(!mousein) {
-        mousex = event.mouseMove.x;
-        mousey = event.mouseMove.y;
-        mousein = true;
-    }
-    if(mousedown) {
-        h_angle += (event.mouseMove.x - mousex)*M_PI/180.0f;
-        v_angle += (event.mouseMove.y - mousey)*M_PI/180.0f;
-        if(v_angle >= M_PI/2)
-            v_angle = M_PI/2 - M_PI/180.0f;
-        else if(v_angle <= -M_PI/2)
-            v_angle = -M_PI/2 + M_PI/180.0f;
-        eye[0] =  distance*sinf(h_angle)*cosf(v_angle);
-        eye[1] =  distance*sinf(v_angle);
-        eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
 
-        mat4x4_identity(Model);
-        mat4x4_look_at(View, eye, center, up);
-        mat4x4_dup(MVPMatrix, Model);
-        mat4x4_mul(MVPMatrix, View, MVPMatrix);
-        mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
-        glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
-    }    
-    mousex = event.mouseMove.x;
-    mousey = event.mouseMove.y;
+                    if(!mousein) {
+                        mousex = event.mouseMove.x;
+                        mousey = event.mouseMove.y;
+                        mousein = true;
+                    }
+                    if(mousedown) {
+                        h_angle += (event.mouseMove.x - mousex)*M_PI/180.0f;
+                        v_angle += (event.mouseMove.y - mousey)*M_PI/180.0f;
+                        if(v_angle >= M_PI/2)
+                            v_angle = M_PI/2 - M_PI/180.0f;
+                        else if(v_angle <= -M_PI/2)
+                            v_angle = -M_PI/2 + M_PI/180.0f;
+                        eye[0] =  distance*sinf(h_angle)*cosf(v_angle);
+                        eye[1] =  distance*sinf(v_angle);
+                        eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
+
+                        UPDATE_VIEW();
+                        UPDATE_MVP();
+                    }    
+                    mousex = event.mouseMove.x;
+                    mousey = event.mouseMove.y;
 
                     break;
                 case sfEvtMouseEntered:
+                    mousein = true;
                     break;
                 case sfEvtMouseLeft: 
-    mousein = false;
+                    mousein = false;
                     break;
                 case sfEvtJoystickButtonPressed:
                 case sfEvtJoystickButtonReleased:
-                    printf("Joystick %d: Button %2d %s.\n", 
-                            event.joystickButton.joystickId, 
-                            event.joystickButton.button, 
-                            event.type==sfEvtJoystickButtonPressed ? "pressed" : "released");
                     break;
                 case sfEvtJoystickMoved:
                     switch(event.joystickMove.axis) {
@@ -522,12 +346,8 @@ int main(int argc, char *argv[])
         if(R_x > 10.0f || R_x < -10.0f || R_y>10.0f || R_y<-10.0f) {
             eye[0] += R_x/200.0f;
             eye[1] += R_y/200.0f;
-            mat4x4_identity(Model);
-            mat4x4_look_at(View, eye, center, up);
-            mat4x4_dup(MVPMatrix, Model);
-            mat4x4_mul(MVPMatrix, View, MVPMatrix);
-            mat4x4_mul(MVPMatrix, Projection, MVPMatrix);
-            glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0]);
+            UPDATE_VIEW();
+            UPDATE_MVP();
         }
 
         /* TODO traiter évènements */
@@ -538,5 +358,6 @@ int main(int argc, char *argv[])
     sfWindow_destroy(window); /* Also performs close(), which deletes the OpenGL context. */
     sfContext_destroy(ctx);
     sfClock_destroy(clock);
+    fate_globalstate_deinit(fate_gs);
     exit(EXIT_SUCCESS);
 }

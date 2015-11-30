@@ -5,17 +5,33 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <opengl_base.h>
-#include <glmake.h>
+#include <fate/defs.h>
+#include <fate/sys.h>
+#include <fate/log.h>
+#include <fate/file_to_string.h>
+#include <fate/gl/defs.h>
+#include <fate/gl/log.h>
+#include <fate/gl/mkprog.h>
 
-struct glmake_shaders_db  glmake_shaders_db  = {NULL, 0};
-struct glmake_programs_db glmake_programs_db = {NULL, 0};
+struct fgm_shaders_db_entry {
+    uint64_t hash;
+    GLuint shader_id;
+};
+typedef struct fgm_shaders_db_entry fgm_shaders_db_entry;
+
+struct fgm_shaders_db_struct {
+    fgm_shaders_db_entry *entries;
+    unsigned top;
+};
+typedef struct fgm_shaders_db_struct fgm_shaders_db_struct;
+
+static fgm_shaders_db_struct fgm_shaders_db = {NULL, 0};
 
 /* 
  * This hash function is sbdm, from http://www.cse.yorku.ca/~oz/hash.html
  * It is public domain.
  */
-uint64_t glmake_hashfunc(const char *str)
+static inline uint64_t sdbm(const char *str)
 {
     int c;
     uint64_t hash = 0;
@@ -24,329 +40,358 @@ uint64_t glmake_hashfunc(const char *str)
     return hash;
 }
 
-
-#if defined(__WIN32)
-#include <windows.h>
-uint64_t glmake_last_write_time(const char *path) {
-    FILETIME ft;
-    HANDLE fh;
-    fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    GetFileTime(fh, NULL, NULL, &ft);
-    CloseHandle(fh);
-    return (((uint64_t)ft.dwHighDateTime)<<32)+ft.dwLowDateTime;
+static int fgm_shaders_db_entry_cmp(const void* a, const void* b) {
+    const fgm_shaders_db_entry *left = a;
+    const fgm_shaders_db_entry *rght = b;
+    if(left->hash > rght->hash)
+        return 1;
+    if(left->hash < rght->hash)
+        return -1;
+    return 0;
 }
-#else
-#include <sys/stat.h>
-#include <unistd.h>
-uint64_t glmake_last_write_time(const char *path) {
-    struct stat st;
-    stat(path, &st);
-    return st.st_mtime;
-}
-#endif
 
-
-
-struct glmake_shaders_db_entry *find_shaders_hashtable_entry(uint64_t hash)
+static fgm_shaders_db_entry* fgm_find_shader_entry(uint64_t hash)
 {
-    int i;
-    if(glmake_shaders_db.entries != NULL)
-        for(i=glmake_shaders_db.top-1 ; i>=0 ; --i)
-            if(glmake_shaders_db.entries[i].path_hash == hash)
-                return glmake_shaders_db.entries + i;
-    return NULL;
+    fgm_shaders_db_entry key;
+
+    if(!fgm_shaders_db.entries)
+        return NULL;
+
+    key.hash = hash;
+    return bsearch(&key, fgm_shaders_db.entries, 
+                   fgm_shaders_db.top, sizeof(fgm_shaders_db_entry),
+                   fgm_shaders_db_entry_cmp);
 }
 
-GLuint glmake_compile_or_get_shader(const char *path){
+static void fgm_add_shader_entry(const fgm_shaders_db_entry *en)
+{
+    ++(fgm_shaders_db.top);
+    FATE_CHECK_MALLOC(fgm_shaders_db.entries = realloc(fgm_shaders_db.entries,
+            fgm_shaders_db.top*sizeof(fgm_shaders_db_entry)));
 
-    GLenum shtype;
-    const char* ext = strrchr(path, '\0')-5;
-    /**/ if(strcmp(ext, ".vert") == 0)
-        shtype = GL_VERTEX_SHADER;
-    else if(strcmp(ext, ".frag") == 0)
-        shtype = GL_FRAGMENT_SHADER;
-    else if(strcmp(ext, ".tesc") == 0)
-        shtype = GL_TESS_CONTROL_SHADER;
-    else if(strcmp(ext, ".tese") == 0)
-        shtype = GL_TESS_EVALUATION_SHADER;
-    else if(strcmp(ext, ".geom") == 0)
-        shtype = GL_GEOMETRY_SHADER;
-    else if(strcmp(ext, ".comp") == 0)
-        shtype = GL_COMPUTE_SHADER;
-    else {
-        fprintf(stderr, "Unrecognised file extension from '%s'.\n"
-                        "Recognised file extensions are "
-                        ".vert, .frag, .tesc, .tese, .geom and .comp.\n", 
-                        path);
-        return 0;
+    unsigned i;
+    for(i=0 ; i<fgm_shaders_db.top-1 ; ++i) {
+#ifdef FATE_DEBUG_BUILD
+        if(en->hash == fgm_shaders_db.entries[i].hash) {
+            fate_logf_err("fate_gl_mkprog: Hash collision detected "
+                          "in the shaders hashtable.\n"
+                          "The hash is %#016X.\n", en->hash);
+            continue;
+        }
+#endif
+        if(en->hash < fgm_shaders_db.entries[i].hash) {
+            memmove(fgm_shaders_db.entries+i+1, fgm_shaders_db.entries+i, 
+                    (fgm_shaders_db.top-i-1)*sizeof(fgm_shaders_db_entry));
+            break;
+        }
     }
+    memcpy(fgm_shaders_db.entries+i, en, sizeof(fgm_shaders_db_entry));
+}
+
+struct fgm_shader_type_entry {
+    const char *file_extension;
+    GLenum shader_type;
+    uint8_t min_gl_version;
+};
+typedef struct fgm_shader_type_entry fgm_shader_type_entry;
+
+/* 
+ * Must be sorted from latest GL version to older. 
+ * The lower the GL version, the farther the start pointer is set by 
+ * fate_gl_mkprog_setup().
+ */
+static const fgm_shader_type_entry shader_types_db_actual[] = {
+    { "comp", GL_COMPUTE_SHADER,         43 },
+    { "tesc", GL_TESS_CONTROL_SHADER,    40 },
+    { "tese", GL_TESS_EVALUATION_SHADER, 40 },
+    { "geom", GL_GEOMETRY_SHADER,        32 },
+    { "vert", GL_VERTEX_SHADER,          20 },
+    { "frag", GL_FRAGMENT_SHADER,        20 },
+    { NULL,   GL_INVALID_ENUM,            0 }
+};
+
+static const fgm_shader_type_entry *shader_types_db = NULL;
+
+static GLenum fgm_shader_type_from_extension(const char *path) {
+
+    const char *file_extension = strrchr(path, '.');
+    if(!file_extension) {
+#ifdef FATE_DEBUG_BUILD
+        fate_logf_video("\"%s\" has no file extension, "
+                        "which is required to determine the shader type.\n", 
+                        path);
+#endif
+        return GL_INVALID_ENUM;
+    }
+    ++file_extension; /* Skip '.' */
+
+    const fgm_shader_type_entry *it;
+    for(it=shader_types_db ; it->file_extension ; ++it)
+        if(strcmp(file_extension, it->file_extension)==0)
+            return it->shader_type;
+
+#ifdef FATE_DEBUG_BUILD
+    fate_logf_video("Could not determine \"%s\"'s shader type.\n"
+                    "With the current OpenGL version, "
+                    "recognized file extensions are :\n\t",
+                    path);
+
+    for(it=shader_types_db ; ; ++it) {
+        fate_logf_video(".%s", it->file_extension);
+        if((it+2)->file_extension)
+            fate_logf_video(", ");
+        else break;
+    }
+    fate_logf_video("and .%s.\n", (it+1)->file_extension);
+#endif
+    return GL_INVALID_ENUM;
+}
+
+GLuint fgm_find_or_compile_shader(const char *path) 
+{
+    GLenum shtype = fgm_shader_type_from_extension(path);
+    if(shtype == GL_INVALID_ENUM) 
+        return 0;
 
     /* Check hashtable */
-    uint64_t hash = glmake_hashfunc(path); /* reused later */
-    struct glmake_shaders_db_entry *entry;
-    entry = find_shaders_hashtable_entry(hash);
-    if(entry != NULL)
+    uint64_t hash = sdbm(path); /* reused later */
+    fgm_shaders_db_entry *entry = fgm_find_shader_entry(hash);
+    if(entry)
         return entry->shader_id;
 
-    FILE* file = fopen(path, "r");
-
-    /* The weirdest thing in history. Without the following line, 
-     * subsequent fread() calls return -1 with EINVAL if the file had been
-     * opened and closed (!) before in the program's lifetime.
-     * Very probably a MinGW issue. */
-    strerror(errno);
-    
-    if(file == NULL) {
-        fprintf(stderr, "Could not open '%s'\n", path);
+    FILE *file = fopen(path, "r");
+    if(!file) {
+        fate_logf_video("Could not open \"%s\".\n", path);
         return 0;
     }
-
-    fseek(file, 0, SEEK_END);
-    long filesize = ftell(file);
-    rewind(file);
-
-
-    /* Not technically correct, but since file reading is expensive too,
-     * the user should know what's going on. */
-    printf("Compiling '%s'...\n", path); 
-
-    long i;
-    size_t bytes_read;
-    GLchar **shsrc = malloc(((filesize/4096)+1)*sizeof(char*));
-    for(i=0 ; i<filesize/4096 ; ++i) {
-        shsrc[i] = malloc(4096+1);
-        bytes_read = fread(shsrc[i], 1, 4096, file);
-        if(bytes_read <= 0) {
-            fclose(file);
-            return 0;
-        }
-        shsrc[i][4096] = '\0';
-    }
-    shsrc[i] = malloc(filesize-(i*4096)+1);
-    bytes_read = fread(shsrc[i], 1, 4096, file);
-    if(bytes_read < 0)
-        bytes_read = 0;
-    shsrc[i][bytes_read] = '\0';
-    fclose(file);
-
     GLuint shid = glCreateShader(shtype);
-    glShaderSource(shid, i+1, (const GLchar* const*)shsrc, NULL);
+    fate_logf_video("Compiling \"%s\"...\n", path); 
 
-    for(i=0 ; i<filesize/4096 ; ++i)
+    size_t num_strings;
+    char **shsrc = fate_file_to_string_array(file, &num_strings);
+    fclose(file);
+    
+    glShaderSource(shid, num_strings, (const GLchar* const*) shsrc, NULL);
+
+    unsigned i;
+    for(i=0 ; i<num_strings ; ++i)
         free(shsrc[i]);
-    free(shsrc[i]);
     free(shsrc);
 
     glCompileShader(shid);
 
+    fgm_shaders_db_entry res;
     GLint status;
     glGetShaderiv(shid, GL_COMPILE_STATUS, &status);
-
     if(status == GL_TRUE) {
-        glmake_shaders_db.entries = realloc(glmake_shaders_db.entries, 
-            (glmake_shaders_db.top+1) * sizeof(struct glmake_shaders_db_entry));
-        glmake_shaders_db.entries[glmake_shaders_db.top].path_hash = hash;
-        glmake_shaders_db.entries[glmake_shaders_db.top].shader_id = shid;
-        ++(glmake_shaders_db.top);
+        res.hash = hash;
+        res.shader_id = shid;
+        fgm_add_shader_entry(&res);
         return shid;
     }
-
-    GLint errlen;
-    glGetShaderiv(shid, GL_INFO_LOG_LENGTH, &errlen);
-    char *err = malloc(errlen+1);
-    glGetShaderInfoLog(shid, errlen, &errlen, err);
-    err[errlen] = '\0';
-    fprintf(stderr, "Failed to compile '%s' :\n%s\n ", path, err);
-    free(err);
+    fate_logf_video("Could not compile \"%s\" :\n\t", path);
+    fate_gl_log_shader_info(shid);
+    fate_logf_video("\n");
     glDeleteShader(shid);
     return 0;
 }
 
-void glmake_clean(void) 
+static void fate_gl_mkprog_cleanup_2_0(void) 
 {
+    if(!fgm_shaders_db.entries)
+        return;
+
     unsigned i;
-    if(glmake_shaders_db.entries != NULL) {
-        for(i=0 ; i<glmake_shaders_db.top ; ++i)
-            glDeleteShader(glmake_shaders_db.entries[i].shader_id);
-        free(glmake_shaders_db.entries);
-        glmake_shaders_db.entries = NULL;
-        glmake_shaders_db.top = 0;
-    }
-    glReleaseShaderCompiler();
+    for(i=0 ; i<fgm_shaders_db.top ; ++i)
+        glDeleteShader(fgm_shaders_db.entries[i].shader_id);
+
+    free(fgm_shaders_db.entries);
+    fgm_shaders_db.entries = NULL;
+    fgm_shaders_db.top = 0;
 }
 
-int glmake(GLuint program, const char *save_path, ...)
+static void fate_gl_mkprog_cleanup_4_1(void) 
 {
-    const char *tmp_str;
-    char *bin, *err;
-    FILE *binfile;
-    size_t bytes_read;
-    GLsizei errlen;
-    uint64_t binfile_mtime;
-    GLenum binfmt;
-    GLint status, binlen;
-    GLuint shid;
-    bool outdated;
-    va_list ap;
-    int retval;
+    glReleaseShaderCompiler();
+    fate_gl_mkprog_cleanup_2_0();
+}
+
+void (*fate_gl_mkprog_cleanup)(void);
 
 
-    /* if opengl 4.1 */
-    /* The appended 'b' to fopen()'s mode is actually critical for Windows. 
-     * If omitted, the file's size is incorrectly interpreted. */
-    binfile = fopen(save_path, "rb");
-    if(binfile != NULL) 
+static inline bool fgm_file_is_outdated(const char *path, va_list ap) {
+    uint64_t mtime = fate_sys_get_last_write_time(path);
+    for(;;) 
     {
-        /* Check if any shader file supplied has a more recent last write time 
-         * than 'save_path'. In that case, 'save_path' is outdated and 
-         * we should not read its binary. */
-        binfile_mtime = glmake_last_write_time(save_path);
-        va_start(ap, save_path);
-        for(;;) 
-        {
-            tmp_str = va_arg(ap, const char*);
-            if(tmp_str == NULL) 
-                break;
-            if(tmp_str[0] == '\0')
-                continue;
-            outdated = (binfile_mtime < glmake_last_write_time(tmp_str));
-            if(outdated) {
-                fclose(binfile);
-                break;
-            }
-        }
-        va_end(ap);
-
-        if(!outdated)
-        {
-            /*
-            fseek(binfile, 0, SEEK_END);
-            binlen = ftell(binfile)-sizeof(GLenum);
-            bin = malloc(binlen);
-            rewind(binfile);
-            bytes_read = fread(&binfmt, sizeof(GLenum), 1, binfile);
-            bytes_read = fread(bin, 1, binlen, binfile);
-            */
-            for(;;) {
-                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
-                if(retval==EOF) break;
-                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
-                if(retval==EOF) break;
-                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
-                if(retval==EOF) break;
-                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
-                if(retval==EOF) break;
-                retval = fscanf(binfile, "Binary format : 0x%08x", &binfmt);
-                if(retval <= 0) break;
-                fgetc(binfile);
-                do retval = fgetc(binfile); while(retval!='\n'&&retval!=EOF);
-                break;
-            }
-
-            if(retval==EOF || retval <= 0) {
-                fprintf(stderr, "Failed to parse header ('%s')\n", save_path);
-            } else {
-                binlen = ftell(binfile);
-                fseek(binfile, 0, SEEK_END);
-                binlen = ftell(binfile) - binlen;
-                fseek(binfile, -binlen, SEEK_END);
-
-                bin = malloc(binlen);
-                bytes_read = fread(bin, 1, binlen, binfile);
-
-                fclose(binfile);
-                glProgramBinary(program, binfmt, bin, binlen);
-                free(bin);
-
-                if(glGetError() != GL_INVALID_ENUM) {
-                    glGetProgramiv(program, GL_LINK_STATUS, &status);
-                    if(status == GL_TRUE) {
-                        printf("Successfully reused '%s'.\n", save_path);
-                        return 1;
-                    }
-                }
-            
-                glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
-                err = malloc(errlen+1);
-                glGetProgramInfoLog(program, errlen, &errlen, err);
-                err[errlen] = '\0';
-                fprintf(stderr, "Could not use '%s' :\n%s\n", save_path, err);
-                free(err);
-            }
-        }
-    } /* binfile != NULL */
-    /* endif opengl 4.1 */
-
-    retval = 1;
-    va_start(ap, save_path);
-    for(;;)
-    {
-        tmp_str = va_arg(ap, const char *);
-        if(tmp_str == NULL)
+        path = va_arg(ap, const char*);
+        if(path == NULL) 
             break;
-        if(tmp_str[0] == '\0')
+        if(path[0] == '\0')
             continue;
-        shid = glmake_compile_or_get_shader(tmp_str);
+        if(fate_sys_get_last_write_time(path) > mtime)
+            return true;
+    }
+    return false;
+}
+
+static bool fgm_program_from_binary(GLuint program, FILE *binfile, 
+                                    const char *save_path) {
+    uint64_t binlen;
+    char *bin = fate_file_to_string(binfile, &binlen);
+    GLenum binfmt = *(GLenum*)bin;
+
+    glProgramBinary(program, binfmt, bin+sizeof(GLenum), 
+                    (GLsizei) (binlen-sizeof(GLenum)));
+    free(bin);
+
+    GLint status;
+    if(glGetError() != GL_INVALID_ENUM) {
+        glGetProgramiv(program, GL_LINK_STATUS, &status);
+        if(status == GL_TRUE) {
+            fate_logf_video("Successfully reused \"%s\".\n", save_path);
+            return true;
+        }
+    }
+    fate_logf_video("Could not reuse \"%s\" :\n\t", save_path);
+    fate_gl_log_program_info(program);
+    fate_logf_video("\n");
+
+    return false;
+}
+
+static bool fgm_program_to_binary(GLuint program, FILE *binfile) {
+    GLsizei binlen;
+    glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
+    char *bin = malloc(binlen);
+    GLenum binfmt;
+    glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
+    fwrite(&binfmt, sizeof(GLenum), 1, binfile);
+    fwrite(bin, 1, binlen, binfile);
+    free(bin);
+}
+
+
+static int fate_gl_mkprog_2_0_real(GLuint program, const char *save_path, 
+                                   va_list ap)
+{
+    const char *path;
+    int all_good = 1;
+    GLuint shid;
+
+    for(;;) {
+        path = va_arg(ap, const char *);
+        if(path == NULL)
+            break;
+        if(path[0] == '\0')
+            continue;
+        shid = fgm_find_or_compile_shader(path);
         if(shid)
             glAttachShader(program, shid);
         else {
-            fprintf(stderr, "Could not compile/reuse the shader.\n");
-            retval = 0;
+            fate_logf_video("Could not compile/reuse \"%s\".\n", path);
+            all_good = 0;
         }
     }
-    va_end(ap);
 
-    if(retval == 0)
-        return retval;
+    if(!all_good)
+        return 0;
 
     glLinkProgram(program);
 
-    glGetProgramiv(program, GL_ATTACHED_SHADERS, &status);
-    GLuint *shaders = malloc(status*sizeof(GLuint));
-    glGetAttachedShaders(program, status, &status, shaders);
-    for( ; status ; --status)
-        glDetachShader(program, shaders[status-1]);
+    /* Detach all shaders */
+    GLint num_shaders;
+    glGetProgramiv(program, GL_ATTACHED_SHADERS, &num_shaders);
+    GLuint *shaders = malloc(num_shaders*sizeof(GLuint));
+    glGetAttachedShaders(program, num_shaders, &num_shaders, shaders);
+    for( ; num_shaders ; --num_shaders)
+        glDetachShader(program, shaders[num_shaders-1]);
     free(shaders);
 
+    GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if(status == GL_TRUE) {
-        printf("Successfully linked '%s'.\n", save_path);
-        glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
-        bin = malloc(binlen);
-        glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
-        binfile = fopen(save_path, "wb");
-        if(!binfile) {
-            fprintf(stderr, "Could not save binary to '%s'.\n", save_path);
-        } else {
-            /* Fixme : Set a dirty flag to prevent querying strings all the 
-             * time. */
-            fprintf(binfile, 
-                    "--- OpenGL program binary ---\n"
-                    "Renderer      : %s\n"
-                    "Vendor        : %s\n"
-                    "GLSL version  : %s\n"
-                    "Binary format : 0x%08x\n"
-                    "---\n",
-                    glGetString(GL_RENDERER),
-                    glGetString(GL_VENDOR),
-                    glGetString(GL_SHADING_LANGUAGE_VERSION),
-                    binfmt
-                    );
-            fwrite(bin, 1, binlen, binfile);
-            fclose(binfile);
-        }
-        free(bin);
-    } else {
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
-        err = malloc(errlen+1);
-        glGetProgramInfoLog(program, errlen, &errlen, err);
-        err[errlen] = '\0';
-        fprintf(stderr, "Failed to link '%s' :\n%s\n", save_path, err);
-        free(err);
-        retval = 0;
+        fate_logf_video("Successfully linked \"%s\".\n", save_path);
+        return 1;
     }
 
-    return retval;
+    fate_logf_video("Could not link \"%s\" :\n\t", save_path);
+    fate_gl_log_program_info(program);
+    fate_logf_video("\n");
+
+    return 0;
 }
 
+
+static int fate_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
+    
+    va_list ap;
+    bool binfile_is_outdated;
+    FILE *binfile = fopen(save_path, "rb");
+
+    if(binfile) {
+        va_start(ap, save_path);
+        binfile_is_outdated = fgm_file_is_outdated(save_path, ap);
+        va_end(ap);
+        if(!binfile_is_outdated) {
+            if(fgm_program_from_binary(program, binfile, save_path)) {
+                fclose(binfile);
+                return 1;
+            }
+            binfile_is_outdated = true;
+        }
+        fclose(binfile);
+    }
+
+    if(!binfile || binfile_is_outdated) {
+        va_start(ap, save_path);
+        int success = fate_gl_mkprog_2_0_real(program, save_path, ap);
+        va_end(ap);
+        if(!success)
+            return 0;
+        binfile = fopen(save_path, "wb");
+        if(!binfile) {
+            fate_logf_video("Could not save program binary to \"%s\".\n",
+                            save_path);
+            return 1;
+        }
+        fgm_program_to_binary(program, binfile);
+        fclose(binfile);
+    }
+    return 1;
+}
+
+static int fate_gl_mkprog_2_0(GLuint program, const char *save_path, ...) {
+    va_list ap;
+    va_start(ap, save_path);
+    fate_gl_mkprog_2_0_real(program, save_path, ap);
+    va_end(ap);
+}
+
+int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...);
+
+void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor) {
+
+    unsigned version = gl_major*10 + gl_minor;
+
+    if(version < 20) {
+#ifdef FATE_DEBUG_BUILD
+        fate_logf_video("fate_gl_mkprog is not available "
+                        "to this OpenGL version.\n"
+                        "If you see this, something is wrong with "
+                        "the caller's code.\n"); 
+#endif
+        return;
+    }
+
+    for(shader_types_db = shader_types_db_actual ; ; ++shader_types_db)
+        if(shader_types_db->min_gl_version <= version)
+            break;
+
+    if(version >= 41) {
+        fate_gl_mkprog = fate_gl_mkprog_4_1;
+        fate_gl_mkprog_cleanup = fate_gl_mkprog_cleanup_4_1;
+    } else {
+        fate_gl_mkprog = fate_gl_mkprog_2_0;
+        fate_gl_mkprog_cleanup = fate_gl_mkprog_cleanup_2_0;
+    }
+}

@@ -14,6 +14,8 @@
 #include <stdarg.h>
 #include <fate/gl/defs.h>
 
+void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
+
 /**
  * @brief A helper function to create OpenGL programs, in a 'make' fashion.
  *
@@ -36,7 +38,7 @@
  * -> Set any pre-linking parameters to the program object before calling 
  *    fate_gl_mkprog();
  * -> Delete the program object via glDeleteProgram();
- * -> Yield resources by calling fate_gl_mkprog_yield().
+ * -> Clean-up resources by calling fate_gl_mkprog_cleanup().
  *
  *
  * Useful link : https://www.opengl.org/wiki/Shader_Compilation
@@ -84,16 +86,17 @@
  *
  * Basic usage :
  * @code
+ * fate_gl_mkprog_setup(gl_major, gl_minor);
  * GLuint program = glCreateProgram();
  * //Set any pre-linking parameters here.
  * fate_gl_mkprog(program, "cube.bin", "cube.vert", "cube.frag", NULL);
- * fate_gl_mkprog_yield();
+ * fate_gl_mkprog_cleanup();
  * glUseProgram(program);
  * ...
  * glDeleteProgram(program);
  * @endcode
  */
-int fate_gl_mkprog(GLuint program, const char *save_path, ...);
+extern int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...);
 
 /** @brief Clean-up function for fate_gl_mkprog().
  *
@@ -102,35 +105,6 @@ int fate_gl_mkprog(GLuint program, const char *save_path, ...);
  * It is safe to call even if the table is already empty, and does not cause 
  * harm to future calls to fate_gl_mkprog() either.
  */
-void fate_gl_mkprog_cleanup(void);
-
-
-/* The following are globals and should never be interacted with. */
-
-struct fate_gl_mkprog_shaders_db_entry {
-    uint64_t path_hash;
-    GLuint shader_id;
-};
-
-struct fate_gl_mkprog_shaders_db {
-    struct fate_gl_mkprog_shaders_db_entry *entries;
-    unsigned top;
-};
-
-extern struct fate_gl_mkprog_shaders_db fate_gl_mkprog_shaders_db;
-
-struct fate_gl_mkprog_programs_db_entry {
-    GLuint program_id;
-    char *save_path;
-};
-
-struct fate_gl_mkprog_programs_db {
-    struct fate_gl_mkprog_programs_db_entry *entries;
-    unsigned top;
-};
-
-extern struct fate_gl_mkprog_programs_db fate_gl_mkprog_programs_db;
-
-uint64_t fate_gl_mkprog_hashfunc(const char *str);
+extern void (*fate_gl_mkprog_cleanup)(void);
 
 #endif /* FATE_GL_MKPROG_H */ 
