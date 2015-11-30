@@ -72,9 +72,6 @@ int main(int argc, char *argv[])
     const uint16_t *vmr = fate_dpyres_prev_in_list(vm.width, vm.height);
     vm.width  = vmr[0];
     vm.height = vmr[1];
-    sfVector2u winsiz;
-    winsiz.x = vm.width;
-    winsiz.y = vm.height;
     sfWindow *window = sfWindow_create(vm, "Early F.A.T.E cube demo",
             sfDefaultStyle, &ctxs);
     sfVector2i vec2i = {0, 0};
@@ -122,9 +119,9 @@ int main(int argc, char *argv[])
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    /* Kind of breaks transparency ? */
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
 
     fate_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
@@ -166,7 +163,7 @@ int main(int argc, char *argv[])
     UPDATE_VIEW();
     RESIZE(vm.width, vm.height);
 
-    int mousex, mousey;
+    int mousex=0, mousey=0;
     bool mousein = false, mousedown = false;
     float h_angle = 0.0f, v_angle = 0.0f;
     float L_x = 0.0f;
@@ -175,7 +172,6 @@ int main(int argc, char *argv[])
     float R_y = 0.0f;
     bool zoom_in  = false;
     bool zoom_out = false;
-    bool fullscreen = false;
     double frameno = 0;
     sfClock *clock = sfClock_create();
     sfInt64 current_time, last_time = sfClock_restart(clock).microseconds;

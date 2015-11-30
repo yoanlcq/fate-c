@@ -556,7 +556,9 @@ void fate_sys_sighandler(int signum)
 }
 
 void fate_sys_crash_handler_setup(void) {
-    struct sigaction sa = {0};
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(struct sigaction));
 
     sa.sa_flags = SA_RESTART;
 #if _POSIX_C_SOURCE >= 199309L

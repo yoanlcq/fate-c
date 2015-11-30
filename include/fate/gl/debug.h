@@ -24,7 +24,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
 
 #define HELPER(_type_,_name_,_params_) \
     _type_ fate_##_name_##_dummy _params_; \
-    extern _type_ (*fate_##_name_) _params_;
+    extern _type_ (*fate_##_name_) _params_
 
 HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, const void *userParam));
 HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 

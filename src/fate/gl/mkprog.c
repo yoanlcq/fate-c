@@ -35,7 +35,7 @@ static inline uint64_t sdbm(const char *str)
 {
     int c;
     uint64_t hash = 0;
-    while (c = *str++)
+    while((c = *(++str)))
         hash = c + (hash << 6) + (hash << 16) - hash;
     return hash;
 }
@@ -259,7 +259,7 @@ static bool fgm_program_from_binary(GLuint program, FILE *binfile,
     return false;
 }
 
-static bool fgm_program_to_binary(GLuint program, FILE *binfile) {
+static void fgm_program_to_binary(GLuint program, FILE *binfile) {
     GLsizei binlen;
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
     char *bin = malloc(binlen);
@@ -363,8 +363,9 @@ static int fate_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
 static int fate_gl_mkprog_2_0(GLuint program, const char *save_path, ...) {
     va_list ap;
     va_start(ap, save_path);
-    fate_gl_mkprog_2_0_real(program, save_path, ap);
+    int retval = fate_gl_mkprog_2_0_real(program, save_path, ap);
     va_end(ap);
+    return retval;
 }
 
 int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...);

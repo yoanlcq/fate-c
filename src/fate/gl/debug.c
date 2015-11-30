@@ -68,37 +68,41 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
                     severity_str, type_str, source_str, id, message);
 }
 
-#define HELPER(_type_,_name_,_params_) \
-    _type_ fate_##_name_##_dummy _params_ {} \
-    _type_ (*fate_##_name_) _params_ = &fate_##_name_##_dummy;
+#define HELPER(_type_,_name_,_params_,_body_) \
+    _type_ fate_##_name_##_dummy _params_ {_body_} \
+    _type_ (*fate_##_name_) _params_ = &fate_##_name_##_dummy
 
 HELPER(void, glDebugMessageCallback, (GLDEBUGPROC callback, 
-                                      const void *userParam));
+                                      const void *userParam),);
 HELPER(void, glDebugMessageControl, (GLenum source, GLenum type, 
             GLenum severity, GLsizei count, const GLuint *ids, 
-            GLboolean enabled));
+            GLboolean enabled),);
 HELPER(void, glDebugMessageInsert, (GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
-                                    const char *message));
+                                    const char *message),);
 HELPER(GLuint,glGetDebugMessageLog, (GLuint count, GLsizei bufSize, 
                                      GLenum *sources, GLenum *types, 
                                      GLuint *ids, GLenum *severities,
                                      GLsizei *lengths, 
-                                     GLchar *messageLog));
+                                     GLchar *messageLog), 
+                                     return 0;);
 HELPER(void, glPushDebugGroup, (GLenum source, GLuint id, GLsizei length, 
-                                const char *message));
-HELPER(void, glPopDebugGroup, (void));
+                                const char *message),);
+HELPER(void, glPopDebugGroup, (void),);
 HELPER(void, glObjectLabel, (GLenum identifier, GLuint name, GLsizei length, 
-                             const char *label));
-HELPER(void, glObjectPtrLabel, (const void *ptr, GLsizei length, const GLchar *label));
-HELPER(void, glGetObjectLabel, (GLenum identifier, GLuint name, GLsizei bufSize,
-                                GLsizei *length, char *label));
+                             const char *label),);
+HELPER(void, glObjectPtrLabel, (const void *ptr, GLsizei length, 
+                                const GLchar *label),);
+HELPER(void, glGetObjectLabel, (GLenum identifier, GLuint name, 
+                                GLsizei bufSize,
+                                GLsizei *length, char *label),);
 HELPER(void, glGetObjectPtrLabel, (const void *ptr, GLsizei bufSize, 
-                                   GLsizei *length, char *label));
+                                   GLsizei *length, char *label),);
 
 #undef HELPER
 
 void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
+    (enable ? glEnable : glDisable)(GL_DEBUG_OUTPUT);
     /* The variable is used later. */
     int can_debug = !(gl_major < 4 || (gl_major == 4 && gl_minor < 3));
     if(can_debug && enable) {
