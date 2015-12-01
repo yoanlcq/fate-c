@@ -71,36 +71,36 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
 
 
 
-void fate_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
+void GLAPIENTRY fate_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
                                        const void *userParam) {}
 PFNGLDEBUGMESSAGECALLBACKPROC fate_glDebugMessageCallback;
 
-void fate_glDebugMessageControl_dummy(GLenum source, GLenum type, 
+void GLAPIENTRY fate_glDebugMessageControl_dummy(GLenum source, GLenum type, 
                                       GLenum severity, GLsizei count, 
                                       const GLuint *ids, 
                                       GLboolean enabled) {}
 PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl;
 
-void fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
+void GLAPIENTRY fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
                                     const char *message) {}
 PFNGLDEBUGMESSAGEINSERTPROC fate_glDebugMessageInsert;
 
-GLuint fate_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
+GLuint GLAPIENTRY fate_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
                                      GLenum *sources, GLenum *types, 
                                      GLuint *ids, GLenum *severities,
                                      GLsizei *lengths, 
                                      GLchar *messageLog) { return 0; }
 PFNGLGETDEBUGMESSAGELOGPROC fate_glGetDebugMessageLog;
 
-void fate_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
+void GLAPIENTRY fate_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
                                 const char *message) {}
 PFNGLPUSHDEBUGGROUPPROC fate_glPushDebugGroup;
 
-void fate_glPopDebugGroup_dummy(void) {}
+void GLAPIENTRY fate_glPopDebugGroup_dummy(void) {}
 PFNGLPOPDEBUGGROUPPROC fate_glPopDebugGroup;
 
-void fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
+void GLAPIENTRY fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
                              const char *label) {}
 PFNGLOBJECTLABELPROC fate_glObjectLabel;
 
