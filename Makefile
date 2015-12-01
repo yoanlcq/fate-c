@@ -14,6 +14,7 @@ default_goals: game game_debug
 	
 $(eval $(call MKOBJ,game,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
 $(eval $(call MKOBJ,game,fate/globalstate.c,fate/globalstate.h))
+$(eval $(call MKOBJ,game,fate/fatal_alloc.c,fate/fatal_alloc.h))
 $(eval $(call MKOBJ,game,fate/log.c,fate/log.h))
 $(eval $(call MKOBJ,game,fate/file_to_string.c,fate/file_to_string.h))
 $(eval $(call MKOBJ,game,fate/sys.c,fate/sys.h))

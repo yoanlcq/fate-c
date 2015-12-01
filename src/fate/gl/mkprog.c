@@ -8,6 +8,7 @@
 #include <fate/defs.h>
 #include <fate/sys.h>
 #include <fate/log.h>
+#include <fate/fatal_alloc.h>
 #include <fate/file_to_string.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/log.h>
@@ -66,8 +67,9 @@ static fgm_shaders_db_entry* fgm_find_shader_entry(uint64_t hash)
 static void fgm_add_shader_entry(const fgm_shaders_db_entry *en)
 {
     ++(fgm_shaders_db.top);
-    FATE_CHECK_MALLOC(fgm_shaders_db.entries = realloc(fgm_shaders_db.entries,
-            fgm_shaders_db.top*sizeof(fgm_shaders_db_entry)));
+    fgm_shaders_db.entries = fate_fatal_realloc(fgm_shaders_db.entries,
+            fgm_shaders_db.top,
+            sizeof(fgm_shaders_db_entry));
 
     unsigned i;
     for(i=0 ; i<fgm_shaders_db.top-1 ; ++i) {

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <fate/defs.h>
 #include <fate/log.h>
+#include <fate/fatal_alloc.h>
 #include <fate/file_to_string.h>
 
 char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
@@ -22,11 +23,11 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
 
     *num_strings = 0;
 
-    char **strings = malloc(((filesize/BUFSIZ)+1)*sizeof(char*));
+    char **strings = fate_fatal_malloc(((filesize/BUFSIZ)+1), sizeof(char*));
     long i; /* Keep it signed. */
     size_t bytes_read;
     for(i=0 ; i<filesize/BUFSIZ ; ++i) {
-        FATE_CHECK_MALLOC(strings[i] = malloc(BUFSIZ+1));
+        strings[i] = fate_fatal_malloc(BUFSIZ+1, 1);
         bytes_read = fread(strings[i], 1, BUFSIZ, file);
         if(bytes_read <= 0) {
             /* Something's not right if we're here. */
@@ -41,7 +42,7 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
         ++(*num_strings);
     }
 
-    FATE_CHECK_MALLOC(strings[i] = malloc(filesize-(i*BUFSIZ)+1));
+    strings[i] = fate_fatal_malloc(filesize-(i*BUFSIZ)+1, 1);
     bytes_read = fread(strings[i], 1, BUFSIZ, file);
     if(bytes_read < 0)
         bytes_read = 0;
@@ -65,7 +66,7 @@ char *fate_file_to_string(FILE *file, uint64_t *length) {
         bytes_read = fread(tmp_buf, 1, BUFSIZ, file);
         if(bytes_read <= 0)
             break;
-        FATE_CHECK_MALLOC(buf = realloc(buf, buf_len+bytes_read+1));
+        buf = fate_fatal_realloc(buf, buf_len+bytes_read+1, 1);
         memcpy(buf+buf_len, tmp_buf, bytes_read);
         buf_len += bytes_read;
     }
