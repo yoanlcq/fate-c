@@ -70,11 +70,13 @@ int main(int argc, char *argv[])
     size_t vmc = 1;
     const sfVideoMode *vms = sfVideoMode_getFullscreenModes(&vmc);
     sfVideoMode vm = (vmc > 0 ? vms[0] : sfVideoMode_getDesktopMode());
-    vm.width  = 640;
-    vm.height = 480;
-    const uint16_t *vmr = fate_dpyres_prev_in_list(vm.width, vm.height);
+    vm.width  = 320;
+    vm.height = 240;
+    const uint16_t *vmr = fate_dpyres_prev(vm.width, vm.height);
+    /*
     vm.width  = vmr[0];
     vm.height = vmr[1];
+    */
     sfWindow *window = sfWindow_create(vm, "Early F.A.T.E cube demo",
             sfDefaultStyle, &ctxs);
     sfVector2i vec2i = {0, 0};

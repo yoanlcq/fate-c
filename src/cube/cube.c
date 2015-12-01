@@ -64,6 +64,8 @@ void Cube_free(Cube *c) {
     glDeleteVertexArrays(1, &c->vao);
 }
 void Cube_draw(Cube *c) {
+    //glDisable(GL_CULL_FACE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
     glCullFace(GL_FRONT);
     glBindVertexArray(c->vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
