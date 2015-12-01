@@ -340,10 +340,10 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
     for(i=0 ; i<frames ; ++i) {
-        SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
+        SymFromAddr(process, *(DWORD64*)(&stack[i]), 0, symbol);
 #if _WIN32_WINNT >= 0x0501
         if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
-                            (LPCSTR) symbol->ModBase, &modhandle)) 
+                            (LPCSTR)(uintptr_t)(symbol->ModBase), &modhandle)) 
         {
             modname_len = GetModuleFileName(modhandle, modname, 
                               FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY);

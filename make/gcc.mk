@@ -1,4 +1,4 @@
-CCFLAGS = -Iinclude -std=c11 -DGLEW_NO_GLU #-Wall -pedantic
+CCFLAGS = -Iinclude -std=c11 -DGLEW_STATIC -DGLEW_NO_GLU #-Wall -pedantic
 CCDEBUGFLAGS = $(CCFLAGS) -O0 -g \
 			   -D_GNU_SOURCE -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
 ifeq ($(OS),linux)

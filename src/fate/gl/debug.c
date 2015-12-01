@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <fate/log.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/debug.h>
@@ -104,25 +105,30 @@ void GLAPIENTRY fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei
                              const char *label) {}
 PFNGLOBJECTLABELPROC fate_glObjectLabel;
 
-void fate_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
+void GLAPIENTRY fate_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
                                 const GLchar *label) {}
 PFNGLOBJECTPTRLABELPROC fate_glObjectPtrLabel;
 
-void fate_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
+void GLAPIENTRY fate_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
                                 GLsizei bufSize,
                                 GLsizei *length, char *label) {}
 PFNGLGETOBJECTLABELPROC fate_glGetObjectLabel;
 
-void fate_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
+void GLAPIENTRY fate_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
                                    GLsizei *length, char *label) {}
 PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel;
 
-
 void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
-    (enable ? glEnable : glDisable)(GL_DEBUG_OUTPUT);
-    /* The variable is used later. */
-    int can_debug = !(gl_major < 4 || (gl_major == 4 && gl_minor < 3));
+    bool can_debug = !(gl_major < 4 || (gl_major == 4 && gl_minor < 3));
+    
+    if(can_debug && !enable) {
+        glDisable(GL_DEBUG_OUTPUT);
+        glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    }
+    
     if(can_debug && enable) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 #define HELPER(_name_) \
     fate_##_name_ = _name_
         HELPER(glDebugMessageCallback);
@@ -137,29 +143,22 @@ void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
         HELPER(glGetObjectPtrLabel);
 #undef HELPER
     } else {
-        fate_glDebugMessageCallback = 
-            (PFNGLDEBUGMESSAGECALLBACKPROC) fate_glDebugMessageCallback_dummy;
-        fate_glDebugMessageControl = 
-            (PFNGLDEBUGMESSAGECONTROLPROC) fate_glDebugMessageControl_dummy;
-        fate_glDebugMessageInsert = 
-            (PFNGLDEBUGMESSAGEINSERTPROC) fate_glDebugMessageInsert_dummy;
-        fate_glGetDebugMessageLog = 
-            (PFNGLGETDEBUGMESSAGELOGPROC) fate_glGetDebugMessageLog_dummy;
-        fate_glPushDebugGroup =
-            (PFNGLPUSHDEBUGGROUPPROC) fate_glPushDebugGroup_dummy;
-        fate_glPopDebugGroup = 
-            (PFNGLPOPDEBUGGROUPPROC) fate_glPopDebugGroup_dummy;
-        fate_glObjectLabel = 
-            (PFNGLOBJECTLABELPROC) fate_glObjectLabel_dummy;
-        fate_glObjectPtrLabel = 
-            (PFNGLOBJECTPTRLABELPROC) fate_glObjectPtrLabel_dummy;
-        fate_glGetObjectLabel = 
-            (PFNGLGETOBJECTLABELPROC) fate_glGetObjectLabel_dummy;
-        fate_glGetObjectPtrLabel = 
-            (PFNGLGETOBJECTPTRLABELPROC) fate_glGetObjectPtrLabel_dummy;
+#define HELPER(_name_) \
+    fate_##_name_ = fate_##_name_##_dummy
+        HELPER(glDebugMessageCallback); 
+        HELPER(glDebugMessageControl);
+        HELPER(glDebugMessageInsert); 
+        HELPER(glGetDebugMessageLog); 
+        HELPER(glPushDebugGroup);
+        HELPER(glPopDebugGroup);
+        HELPER(glObjectLabel);
+        HELPER(glObjectPtrLabel); 
+        HELPER(glGetObjectLabel); 
+        HELPER(glGetObjectPtrLabel);
+#undef HELPER
     }
-    fate_logf_video("OpenGL debug functions are now turned %s.\n", 
-                    can_debug ? "on" : "off");
+    fate_logf_video("OpenGL debug functions are turned %s.\n", 
+                    can_debug && enable ? "on" : "off");
 }
 
 #endif /* FATE_GL_DEBUG */

@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         fate_logf_video("%-38s", glGetStringi(GL_EXTENSIONS, i));
         if(i+1<num_glexts) {
             ++i;
-            fate_logf_video("%-38s", glGetStringi(GL_EXTENSIONS, i));
+            fate_logf_video(" %-38s", glGetStringi(GL_EXTENSIONS, i));
         }
         fate_logf_video("\n");
     }
@@ -118,20 +118,10 @@ int main(int argc, char *argv[])
     fate_glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
 
-    glEnable(GL_PRIMITIVE_RESTART);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
-
     fate_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
     if(!fate_gl_mkprog(progid,
-                       "data/OpenGL/triangles.glb",
+                       "data/OpenGL/triangles.glpb",
                        "res/shaders/triangles.330.core.vert",
                        "res/shaders/triangles.330.core.frag",
                        NULL))
@@ -140,10 +130,17 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     fate_gl_mkprog_cleanup();
-    glUseProgram(progid); 
-
     Cube cube;
-    Cube_init(&cube);
+    Cube_init(&cube, progid);
+
+    glEnable(GL_PRIMITIVE_RESTART); /* Since OpenGL 3.1 */
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    
+    glDepthFunc(GL_LESS);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     float distance = 6.0f;
     vec3 eye = {0.0f, 0.0f, -distance}, center = {0,0,0}, up = {0,1,0};
@@ -182,12 +179,9 @@ int main(int argc, char *argv[])
     sfInt64 current_time, last_time = sfClock_restart(clock).microseconds;
 
     bool running = true;
-    bool dirty;
+    bool dirty = false;
     glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
     while(running) {
-
-        if(dirty)
-            dirty = false;
 
         /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
         current_time = sfClock_getElapsedTime(clock).microseconds;
@@ -375,6 +369,7 @@ int main(int argc, char *argv[])
             eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
             UPDATE_VIEW();
             UPDATE_MVP();
+            dirty = false;
         }
 
         /* TODO traiter évènements */

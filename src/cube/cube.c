@@ -1,7 +1,9 @@
+#include <string.h>
 #include <fate/gl/defs.h>
+#include <fate/gl/debug.h>
 #include "cube.h"
 
-void Cube_init(Cube *c) {
+void Cube_init(Cube *c, GLuint prog) {
     GLbyte vertices[24] = { 
          127, -127, -127,
          127,  127, -127,
@@ -27,8 +29,13 @@ void Cube_init(Cube *c) {
         0xFF,
         5, 3, 7, 1, 6, 0, 4, 2
     };
+
+    c->prog = prog;
+    glUseProgram(c->prog);
+
     glGenBuffers(1, &c->ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
+    fate_glObjectLabel(GL_BUFFER, c->ebo, strlen("\"Cube EBO\""), "\"Cube EBO\"");
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
@@ -37,6 +44,7 @@ void Cube_init(Cube *c) {
  
     glGenBuffers(1, &c->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);
+    fate_glObjectLabel(GL_BUFFER, c->vbo, strlen("\"Cube VBO\""), "\"Cube VBO\"");
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)+sizeof(colors), NULL, 
             GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -56,6 +64,7 @@ void Cube_free(Cube *c) {
     glDeleteVertexArrays(1, &c->vao);
 }
 void Cube_draw(Cube *c) {
+    glCullFace(GL_FRONT);
     glBindVertexArray(c->vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     glPrimitiveRestartIndex(0xFF);

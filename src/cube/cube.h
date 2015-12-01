@@ -5,11 +5,11 @@
 #include <linmath/linmath.h>
 
 struct Cube {
-    GLuint ebo, vao, vbo;
+    GLuint ebo, vao, vbo, prog;
 };
 typedef struct Cube Cube;
 
-void Cube_init(Cube *c);
+void Cube_init(Cube *c, GLuint prog);
 void Cube_free(Cube *c);
 void Cube_draw(Cube *c);
 

@@ -4,7 +4,9 @@
 #include <fate/defs.h>
 
 #define GL_GLEXT_PROTOTYPES
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #if defined(FATE_DEFS_OSX)
 #include <OpenGL/gl.h>
