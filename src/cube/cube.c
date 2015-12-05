@@ -35,16 +35,17 @@ void Cube_init(Cube *c, GLuint prog) {
 
     glGenBuffers(1, &c->ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
-    fate_glObjectLabel(GL_BUFFER, c->ebo, strlen("\"Cube EBO\""), "\"Cube EBO\"");
+    fate_glObjectLabel(GL_BUFFER, c->ebo, -1, "\"Cube EBO\"");
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &c->vao);
     glBindVertexArray(c->vao);
+    fate_glObjectLabel(GL_VERTEX_ARRAY, c->vao, -1, "\"Cube VAO\"");
  
     glGenBuffers(1, &c->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);
-    fate_glObjectLabel(GL_BUFFER, c->vbo, strlen("\"Cube VBO\""), "\"Cube VBO\"");
+    fate_glObjectLabel(GL_BUFFER, c->vbo, -1, "\"Cube VBO\"");
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)+sizeof(colors), NULL, 
             GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -55,6 +56,7 @@ void Cube_init(Cube *c, GLuint prog) {
             BUFFER_OFFSET(sizeof(vertices)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+
 }
 void Cube_free(Cube *c) {
     glDisableVertexAttribArray(0);

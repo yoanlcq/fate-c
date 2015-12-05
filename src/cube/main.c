@@ -89,18 +89,41 @@ int main(int argc, char *argv[])
     glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
     glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
 
+    GLint ctxflags, ctxpflags;
+    GLboolean double_buffer, stereo_buffers;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &ctxflags);
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &ctxpflags);
+    glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
+    glGetBooleanv(GL_STEREO, &stereo_buffers);
+
     fate_logf_video(
-            "--- Active OpenGL context settings ---\n"
-            "    Version             : %d.%d\n"
-            "    GLSL version        : %s\n"
-            "    Depth buffer bits   : %d\n"
-            "    Stencil buffer bits : %d\n"
-            "    Antialiasing level  : %dx\n",
-            gl_major, gl_minor,
-            glGetString(GL_SHADING_LANGUAGE_VERSION),
-            ctxs.depthBits,
-            ctxs.stencilBits,
-            ctxs.antialiasingLevel);
+        "--- Active OpenGL context settings ---\n"
+        "    Version             : %d.%d\n"
+        "    GLSL version        : %s\n"
+        "    Profile flags       : %s%s(%#x)\n"
+        "    Context flags       : %s%s%s%s(%#x)\n"
+        "    Double buffering    : %s\n"
+        "    Stereo buffers      : %s\n"
+        "    Depth buffer bits   : %d\n"
+        "    Stencil buffer bits : %d\n"
+        "    Antialiasing level  : %d%s\n",
+        gl_major, gl_minor,
+        glGetString(GL_SHADING_LANGUAGE_VERSION),
+        ctxpflags & GL_CONTEXT_CORE_PROFILE_BIT ? "core " : "",
+        ctxpflags & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT ? "compatibility " : "",
+        ctxpflags,
+        ctxflags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT ? "forward_compatible " : "",
+        ctxflags & GL_CONTEXT_FLAG_DEBUG_BIT ? "debug " : "",
+        ctxflags & GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT ? "robust_access " : "",
+        ctxflags & GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR ? "no_error " : "",
+        ctxflags,
+        double_buffer ? "yes" : "no",
+        stereo_buffers ? "yes" : "no",
+        ctxs.depthBits,
+        ctxs.stencilBits,
+        ctxs.antialiasingLevel, ctxs.antialiasingLevel ? "x" : ""
+    );
+
     int num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
     fate_logf_video("    Extensions :\n");
@@ -116,9 +139,6 @@ int main(int argc, char *argv[])
 
     /* Must imperatively follow SFML Window creation. */
     fate_gl_debug_setup(gl_major, gl_minor, true);
-    fate_glDebugMessageCallback(fate_gl_debug_msg_callback, NULL);
-    fate_glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
-                          0, NULL, GL_TRUE);
 
     fate_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
@@ -132,6 +152,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     fate_gl_mkprog_cleanup();
+    fate_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube cube;
     Cube_init(&cube, progid);
 
@@ -144,9 +165,11 @@ int main(int argc, char *argv[])
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+    sfVector2u winsiz;
     float distance = 6.0f;
     vec3 eye = {0.0f, 0.0f, -distance}, center = {0,0,0}, up = {0,1,0};
     GLint MVPMatrixLoc = glGetUniformLocation(progid, "MVPMatrix");
+    GLint ufInvertLoc  = glGetUniformLocation(progid, "ufInvert");
     mat4x4 MVPMatrix, Projection, View, Model;
 
 #define UPDATE_VIEW() \
@@ -158,9 +181,10 @@ int main(int argc, char *argv[])
     mat4x4_mul(MVPMatrix, View, MVPMatrix); \
     mat4x4_mul(MVPMatrix, Projection, MVPMatrix); \
     glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0])
-
+    
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
+    winsiz.x = _W_; winsiz.y = _H_; \
     mat4x4_perspective(Projection, 45, _W_/(float)_H_, 1.0f, 100.0f); \
     UPDATE_MVP();
 
@@ -182,7 +206,6 @@ int main(int argc, char *argv[])
 
     bool running = true;
     bool dirty = false;
-    glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
     while(running) {
 
         /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
@@ -195,14 +218,28 @@ int main(int argc, char *argv[])
             last_time += 100000LL;
         }
 
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
+        glEnable(GL_SCISSOR_TEST);
+
+        glScissor(0, 0, winsiz.x/2, winsiz.y);
+        glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUniform1ui(ufInvertLoc, 0);
         Cube_draw(&cube);
+
+        glScissor(winsiz.x/2, 0, winsiz.x/2, winsiz.y);
+        glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUniform1ui(ufInvertLoc, 1);
+        Cube_draw(&cube);
+        
+        glDisable(GL_SCISSOR_TEST); 
 
         sfWindow_display(window);
 
         sfEvent event;
-        sfVector2u winsiz;
         char *axis_str;
         while(sfWindow_pollEvent(window, &event)) {
             switch(event.type) {

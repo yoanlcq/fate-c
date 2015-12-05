@@ -12,11 +12,11 @@
 #include <fate/gl/defs.h>
 #include <stdbool.h>
 
+void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
+
 #ifdef FATE_DEBUG_BUILD
 
 #define FATE_GL_DEBUG
-
-void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
 
 void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type, 
                                 GLuint id, GLenum severity, 
@@ -83,7 +83,6 @@ extern PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel;
 #define fate_glObjectPtrLabel(...)
 #define fate_glGetObjectLabel(...)
 #define fate_glGetObjectPtrLabel(...)
-#define fate_gl_debug_setup(...)
 
 #endif /* FATE_DEBUG_BUILD */
 

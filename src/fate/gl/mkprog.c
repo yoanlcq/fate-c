@@ -12,6 +12,7 @@
 #include <fate/file_to_string.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/log.h>
+#include <fate/gl/debug.h>
 #include <fate/gl/mkprog.h>
 
 struct fgm_shaders_db_entry {
@@ -167,6 +168,8 @@ GLuint fgm_find_or_compile_shader(const char *path)
         return 0;
     }
     GLuint shid = glCreateShader(shtype);
+    const char *ind = strrchr(path, '/');
+    fate_glObjectLabel(GL_SHADER, shid, -1, ind ? ind+1 : path);
     fate_logf_video("Compiling \"%s\"...\n", path); 
 
     size_t num_strings;
@@ -378,8 +381,8 @@ void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor) {
 
     if(version < 20) {
 #ifdef FATE_DEBUG_BUILD
-        fate_logf_video("fate_gl_mkprog is not available "
-                        "to this OpenGL version.\n"
+        fate_logf_video("fate_gl_mkprog is not available, because the OpenGL "
+                        "version is less than 2.0.\n"
                         "If you see this, something is wrong with "
                         "the caller's code.\n"); 
 #endif
