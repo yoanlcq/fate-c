@@ -1,7 +1,5 @@
--> Rename namespace to fate.
-
 -> fate/gl/context.h
 -> SFML fullscreen extension
--> fate/gl/mkprog.h
--> data/faterc.cfg
 -> fate/vk/...h
+
+http://faculty.ycp.edu/~dbabcock/PastCourses/cs470/labs/index.html
