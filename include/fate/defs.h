@@ -29,14 +29,24 @@
 #endif
 
 #ifdef FATE_DEFS_WINDOWS
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-#endif
+    #ifdef _WIN32_WINNT
+        #if _WIN32_WINNT < 0x0600
+            #undef _WIN32_WINNT
+            #define _WIN32_WINNT 0x0600
+        #endif
+    #else
+        #define _WIN32_WINNT 0x0600
+    #endif
 #endif
 
 #include <fate/log.h>
 
+/* Must be less than 63 for Windows XP and 2000. */
+#ifdef FATE_DEFS_WINDOWS
+#define FATE_DEFS_STACKTRACE_FRAMES_CAPACITY 62
+#else
 #define FATE_DEFS_STACKTRACE_FRAMES_CAPACITY 128
+#endif
 #define FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY 256
 
 /* You know, in case it changes in 2040. */

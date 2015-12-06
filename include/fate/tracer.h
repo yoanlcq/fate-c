@@ -58,10 +58,6 @@
 
 #else /* FATE_ENABLE_TRACING defined */
 
-    #ifndef __GNUC__
-        #error Trace : typeof operator support is required for tracing. Sorry.
-    #endif
-    
     #if __STDC_VERSION__ < 199901L
         #if defined(_MSC_VER) && !__INTEL_COMPILER
             #pragma message("Trace : __func__ is only available from C99.")

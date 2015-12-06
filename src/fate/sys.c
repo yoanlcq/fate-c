@@ -82,7 +82,7 @@ inline bool fate_sys_file_exists(const char *path) {
 
 
 #if defined(FATE_DEFS_WINDOWS)
-inline uint64_t fate_sys_get_last_write_time(const char *path) {
+uint64_t fate_sys_get_last_write_time(const char *path) {
     FILETIME ft;
     HANDLE fh;
     fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
@@ -126,7 +126,10 @@ inline uint64_t fate_sys_get_last_write_time(const char *path) {
 
 
 #if defined(FATE_DEFS_WINDOWS)
-inline bool fate_sys_set_current_directory(const char *path) {
+#if !(_MSC_VER && !__INTEL_COMPILER)
+inline 
+#endif 
+bool fate_sys_set_current_directory(const char *path) {
     return SetCurrentDirectory(path);
 }
 #else
@@ -311,57 +314,114 @@ char *fate_sys_getgamepath(void) {
 
 #ifdef FATE_DEFS_WINDOWS
 
+void fate_sys_log_win32_error(void (*logfunc)(const char *fmt, ...), 
+                              const char *funcstr, DWORD error) 
+{
+    LPTSTR lpMsgBuf;
+
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        error,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR) &lpMsgBuf,
+        0, NULL);
+
+    logfunc("%s failed with error %d : %s", funcstr, error, lpMsgBuf);
+
+    LocalFree(lpMsgBuf);
+}
+
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
-void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
+static void fate_sys_log_stacktrace_win32(
+                                   void (*logfunc)(const char *fmt, ...), 
+                                   const DWORD64 *stack, 
+                                   unsigned short nframes)
 {
     unsigned i, j;
-    unsigned short frames;
-    void *stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
     TCHAR modname[FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY];
     DWORD modname_len;
     SYMBOL_INFO *symbol;
     HANDLE process;
     HMODULE modhandle;
+    BOOL retval;
 
     process = GetCurrentProcess();
-    SymInitialize(process, NULL, TRUE);
-    frames = CaptureStackBackTrace(0, FATE_DEFS_STACKTRACE_FRAMES_CAPACITY,
-                                   stack, NULL);
+    if(!SymInitialize(process, NULL, TRUE)) {
+        fate_sys_log_win32_error(logfunc, "SymInitialize", GetLastError());
+        return;
+    }
+
     /* Do not change this. The structure needs indeed to be 
      * allocated from the heap. */
     symbol = calloc(sizeof(SYMBOL_INFO)+256, 1);
     if(!symbol) {
-        logfunc("log_stacktrace : Could not allocate "
-                "SYMBOL_INFO object.\r\n");
+        logfunc("log_stacktrace : Could not allocate SYMBOL_INFO object.\r\n");
         SymCleanup(process);
         return;
     }
     symbol->MaxNameLen = 255;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-    for(i=0 ; i<frames ; ++i) {
-        SymFromAddr(process, *(DWORD64*)(&stack[i]), 0, symbol);
+    for(i=0 ; i<nframes ; ++i) {
+        if(!SymFromAddr(process, stack[i], 0, symbol)) {
+            fate_sys_log_win32_error(logfunc, "SymFromAddr", GetLastError());
+            continue;
+        }
 #if _WIN32_WINNT >= 0x0501
-        if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
-                            (LPCSTR)(uintptr_t)(symbol->ModBase), &modhandle)) 
-        {
-            modname_len = GetModuleFileName(modhandle, modname, 
-                              FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY);
-            /* MS says that on Windows XP, the string is not null-terminated. */
-            for(j=0 ; j<modname_len ; j++)
-                logfunc("%c", modname[j]);
+        if(symbol->ModBase) {
+            if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
+                                 (LPCSTR)(uintptr_t)(symbol->ModBase), 
+                                 &modhandle)) 
+            {
+                modname_len = GetModuleFileName(modhandle, modname, 
+                                  FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY);
+                /* MS says that on Windows XP, the string is 
+                 * not null-terminated. */
+                for(j=0 ; j<modname_len ; j++)
+                    logfunc("%c", modname[j]);
+            } else {
+                fate_sys_log_win32_error(logfunc, "GetModuleHandleEx",
+                                         GetLastError());
+            }
         }
 #endif
+
+        DWORD col;
+        IMAGEHLP_LINE64 line;
+        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+        if(SymGetLineFromAddr64(process, stack[i], &col, &line))
+            logfunc("(%s:%u:%u) ", line.FileName, line.LineNumber, col);
+        else {
+            DWORD err = GetLastError();
+            if(err != 487)
+                fate_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
+        }
+
+        logfunc("[0x%llx] ", symbol->Address);
         if(symbol->MaxNameLen > 0)
-            logfunc("(%s) ", symbol->Name);
-        logfunc("[0x%llx]", symbol->Address);
+            logfunc("(%s)", symbol->Name);
         if(symbol->Flags & SYMFLAG_VALUEPRESENT)
-            logfunc(" (Value : 0x%llx)", symbol->Value);
+            logfunc("(Value : 0x%llx)", symbol->Value);
         logfunc("\r\n");
     }
 
     free(symbol);
     SymCleanup(process);
+}
+void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
+{
+    PVOID stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+    DWORD64 stack_dw[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+
+    unsigned short i, nframes;
+    nframes = CaptureStackBackTrace(0, FATE_DEFS_STACKTRACE_FRAMES_CAPACITY,
+                                    stack, NULL);
+    for(i=0 ; i<nframes ; ++i)
+        stack_dw[i] = (DWORD64)(uintptr_t)stack[i];
+    fate_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
 }
 
 #else /* !FATE_DEFS_WINDOWS */
@@ -408,7 +468,7 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
 #ifdef FATE_DEFS_WINDOWS
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
-LONG WINAPI fate_win32_exception_handler(EXCEPTION_POINTERS *ep)
+LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
 {
     fate_logf_err("Process received ");
 #define HELPER(_S) \
@@ -440,19 +500,80 @@ LONG WINAPI fate_win32_exception_handler(EXCEPTION_POINTERS *ep)
     }
 #undef HELPER
 #undef DEFAULT
-    fate_logf_err(".\r\n");
+    fate_logf_err(" (%scontinuable, at %p).\r\n", 
+                  ep->ExceptionRecord->ExceptionFlags ? "non" : "",
+                  ep->ExceptionRecord->ExceptionAddress
+                  );
 
-    if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW)
-        fate_sys_log_stacktrace(fate_logf_err);
+    if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
+    || ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
+        fate_logf_err("(Thread ");
+        if(ep->ExceptionRecord->ExceptionInformation[0] == 8)
+            fate_logf_err("caused a user-mode data execution "
+                          "prevention violation ");
+        else
+            fate_logf_err("attempted to %s inacessible data ",
+                          ep->ExceptionRecord->ExceptionInformation[0]
+                              ? "write to" : "read");
+        fate_logf_err("at %p", 
+                      ep->ExceptionRecord->ExceptionInformation[1]);
+        if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
+            fate_logf_err(", NTSTATUS code is %p", 
+                          ep->ExceptionRecord->ExceptionInformation[2]);
+        fate_logf_err(")\r\n");
+    }
+
+    if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
+
+        DWORD64 stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+        unsigned short nframes;
+        // StackWalk64() may modify context record passed to it, so we will
+        // use a copy.
+        CONTEXT context_record = *(ep->ContextRecord);
+        // Initialize stack walking.
+        STACKFRAME64 stack_frame;
+        memset(&stack_frame, 0, sizeof(stack_frame));
+#if defined(_WIN64)
+        int machine_type = IMAGE_FILE_MACHINE_AMD64;
+        stack_frame.AddrPC.Offset = context_record.Rip;
+        stack_frame.AddrFrame.Offset = context_record.Rbp;
+        stack_frame.AddrStack.Offset = context_record.Rsp;
+#else
+        int machine_type = IMAGE_FILE_MACHINE_I386;
+        stack_frame.AddrPC.Offset = context_record.Eip;
+        stack_frame.AddrFrame.Offset = context_record.Ebp;
+        stack_frame.AddrStack.Offset = context_record.Esp;
+#endif
+        stack_frame.AddrPC.Mode = AddrModeFlat;
+        stack_frame.AddrFrame.Mode = AddrModeFlat;
+        stack_frame.AddrStack.Mode = AddrModeFlat;
+        nframes = 0;
+
+        while (StackWalk64(machine_type,
+                           GetCurrentProcess(),
+                           GetCurrentThread(),
+                           &stack_frame,
+                           &context_record,
+                           NULL,
+                           &SymFunctionTableAccess64,
+                           &SymGetModuleBase64,
+                           NULL) 
+                && nframes < FATE_DEFS_STACKTRACE_FRAMES_CAPACITY) {
+            stack[nframes++] = stack_frame.AddrPC.Offset;
+        }
+
+        fate_sys_log_stacktrace_win32(fate_logf_err, stack, nframes);
+    }
 
     fate_globalstate_deinit(fate_gs);
     exit(EXIT_FAILURE); /* Not abort(). */
 
-    return EXCEPTION_EXECUTE_HANDLER;
+    return EXCEPTION_CONTINUE_SEARCH;
 }
  
 void fate_sys_crash_handler_setup(void) {
-    SetUnhandledExceptionFilter(&fate_win32_exception_handler);
+    /* SetUnhandledExceptionFilter(fate_sys_win32_exception_handler); */
+    AddVectoredExceptionHandler(1, fate_sys_win32_exception_handler);
 }
 
 #else /* Unices */

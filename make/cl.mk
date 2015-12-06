@@ -1,12 +1,14 @@
 CCFLAGS = /nologo /Iinclude /DGLEW_STATIC /DGLEW_NO_GLU 
-CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DFATE_DEBUG_BUILD /DFATE_ENABLE_TRACING
+CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DEBUG /DFATE_DEBUG_BUILD /DFATE_ENABLE_TRACING
 CCRELEASEFLAGS = $(CCFLAGS) /O2 /Ot /Ox /GL /Gw /DNDEBUG
-LDLIBS = # csfml-audio.lib \
-		 csfml-graphics.lib \
-		 csfml-network.lib \
-		 csfml-window.lib \
-		 csfml-system.lib \
-		 opengl32.lib
+LDLIBS = csfml-audio-2.lib \
+		 csfml-graphics-2.lib \
+		 csfml-network-2.lib \
+		 csfml-window-2.lib \
+		 csfml-system-2.lib \
+		 opengl32.lib \
+		 Kernel32.lib \
+		 DbgHelp.lib
 
 # Dummy rule for include/, because when calling MKOBJ below, 
 # there might not always be 8 arguments.

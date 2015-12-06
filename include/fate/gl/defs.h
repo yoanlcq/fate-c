@@ -13,7 +13,7 @@
 #else
 #include <GL/gl.h>
 #endif
-#include <GL/glext.h>
+/* #include <GL/glext.h> */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)
 
 #endif /* FATE_GL_DEFS */
