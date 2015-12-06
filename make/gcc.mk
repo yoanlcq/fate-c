@@ -17,7 +17,7 @@ LDLIBS = -lm \
 
 ifeq ($(OS),windows)
 CCFLAGS += -mwindows
-LDLIBS += -lopengl32 -ld3d10 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
+LDLIBS += -lopengl32 -ld3d10 -ldxguid -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
 CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
 LDLIBS += -lGL

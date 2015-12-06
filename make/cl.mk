@@ -8,6 +8,7 @@ LDLIBS = csfml-audio-2.lib \
 		 csfml-system-2.lib \
 		 opengl32.lib \
 		 d3d10.lib \
+		 dxguid.lib \
 		 gdi32.lib \
 		 user32.lib \
 		 Kernel32.lib \
