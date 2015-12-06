@@ -1,4 +1,4 @@
-CCFLAGS = -Iinclude -std=c11 -DGLEW_STATIC -DGLEW_NO_GLU #-Wall -pedantic
+CCFLAGS = -Iinclude -DGLEW_STATIC -DGLEW_NO_GLU #-Wall -pedantic
 CCDEBUGFLAGS = $(CCFLAGS) -O0 -g \
 			   -D_GNU_SOURCE -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
 ifeq ($(OS),linux)
@@ -16,8 +16,10 @@ LDLIBS = -lm \
 		 -lcsfml-system 
 
 ifeq ($(OS),windows)
+CCFLAGS += -mwindows
 LDLIBS += -lopengl32 -ld3d10 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
+CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
 LDLIBS += -lGL
 endif
 

@@ -4,6 +4,9 @@
 #include <fate/defs.h>
 #include <fate/al.h>
 #include <fate/gl.h>
+#ifdef FATE_DEFS_WINDOWS
+#include <fate/d3d.h>
+#endif
 #include <fate/file_to_string.h>
 #include <fate/globalstate.h>
 #include <fate/log.h>

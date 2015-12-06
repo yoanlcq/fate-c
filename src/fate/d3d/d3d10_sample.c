@@ -3,9 +3,15 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <SFML/Window.h>
+#include <fate/defs.h>
 #include <fate/d3d/defs.h>
 
+#ifdef FATE_DEFS_WINDOWS
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                   PSTR pCmdLine, int nCmdShow)
+#else
 int main(int argc, char *argv[])
+#endif
 {
     sfVideoMode vm = sfVideoMode_getDesktopMode();
     vm.width = 640;

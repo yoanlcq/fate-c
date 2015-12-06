@@ -7,14 +7,22 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327
 #endif
+#include <fate.h>
+#if defined(FATE_DEFS_WINDOWS)
+#include <Windows.h>
+#endif
 #include <SFML/System.h>
 #include <SFML/Window.h>
 #include <SFML/Graphics.h>
 #include <linmath/linmath.h>
-#include <fate.h>
 #include "cube.h"
 
+#if defined(FATE_DEFS_WINDOWS)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                   PSTR pCmdLine, int nCmdShow)
+#else
 int main(int argc, char *argv[])
+#endif
 {
 
     fate_globalstate_init(fate_gs);
@@ -110,7 +118,7 @@ int main(int argc, char *argv[])
         gl_major, gl_minor,
         glGetString(GL_SHADING_LANGUAGE_VERSION),
         ctxpflags & GL_CONTEXT_CORE_PROFILE_BIT ? "core " : "",
-        ctxpflags & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT ? "compatibility " : "",
+        ctxpflags & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT ? "compatibility " :"",
         ctxpflags,
         ctxflags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT ? "forward_compatible " : "",
         ctxflags & GL_CONTEXT_FLAG_DEBUG_BIT ? "debug " : "",
