@@ -10,7 +10,7 @@ include make/dirs.mk
 # Changes start here.
 # Be careful : There's a reason why there are no spaces between commas.
 
-default_goals: game game_debug
+default_goals: game game_debug d3d10_sample d3d10_sample_debug
 	
 $(eval $(call MKOBJ,game,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
 $(eval $(call MKOBJ,game,fate/globalstate.c,fate/globalstate.h))
@@ -26,3 +26,11 @@ $(eval $(call MKOBJ,game,cube/cube.c,../src/cube/cube.h))
 $(eval $(call MKOBJ,game,cube/main.c))
 $(eval $(call MKEXE,game))
 
+ifeq ($(OS),windows)
+$(eval $(call MKOBJ,d3d10_sample,fate/d3d/d3d10_sample.c))
+$(eval $(call MKEXE,d3d10_sample))
+else
+d3d10_sample: ;
+d3d10_sample_debug: ;
+.PHONY: d3d10_sample d3d10_sample_debug
+endif

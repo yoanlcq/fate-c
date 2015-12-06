@@ -17,6 +17,7 @@ DATADIR = data
 BUILDDIRS = $(BUILDDIR) \
 		    $(BUILDDIR)$(PATHSEP)fate \
             $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)gl \
+            $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)d3d \
             $(BUILDDIR)$(PATHSEP)cube \
 
 
@@ -48,6 +49,8 @@ $(BUILDDIR):
 $(BUILDDIR)$(PATHSEP)fate:
 	$(MKDIR) $@
 $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)gl:
+	$(MKDIR) $@
+$(BUILDDIR)$(PATHSEP)fate$(PATHSEP)d3d:
 	$(MKDIR) $@
 $(BUILDDIR)$(PATHSEP)cube:
 	$(MKDIR) $@

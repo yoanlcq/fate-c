@@ -7,13 +7,16 @@ LDLIBS = csfml-audio-2.lib \
 		 csfml-window-2.lib \
 		 csfml-system-2.lib \
 		 opengl32.lib \
+		 d3d10.lib \
+		 gdi32.lib \
+		 user32.lib \
 		 Kernel32.lib \
 		 DbgHelp.lib
 
 # Dummy rule for include/, because when calling MKOBJ below, 
 # there might not always be 8 arguments.
-include/:
-	
+include/: ;
+.PHONY: include/
 
 # Too bad $< and $@ do not expand within macros.
 define MKOBJ

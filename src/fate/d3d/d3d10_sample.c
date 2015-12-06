@@ -1,14 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <SFML/Window.h>
-#define INITGUID
-#include <windows.h>
 #include <assert.h>
-#include <d3d10.h>
-#define DXCALLV(_OBJ_, _METHOD_, ...) _OBJ_->lpVtbl->_METHOD_(_OBJ_, __VA_ARGS__)
-#define DXCALL(_OBJ_, _METHOD_) _OBJ_->lpVtbl->_METHOD_(_OBJ_)
-
+#include <SFML/Window.h>
+#include <fate/d3d/defs.h>
 
 int main(int argc, char *argv[])
 {

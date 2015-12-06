@@ -16,7 +16,7 @@ LDLIBS = -lm \
 		 -lcsfml-system 
 
 ifeq ($(OS),windows)
-LDLIBS += -lopengl32 -lDbgHelp #-lglut -lglu32 -lglew32mx
+LDLIBS += -lopengl32 -ld3d10 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
 LDLIBS += -lGL
 endif

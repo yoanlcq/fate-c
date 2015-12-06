@@ -41,12 +41,7 @@
 
 #include <fate/log.h>
 
-/* Must be less than 63 for Windows XP and 2000. */
-#ifdef FATE_DEFS_WINDOWS
-#define FATE_DEFS_STACKTRACE_FRAMES_CAPACITY 62
-#else
 #define FATE_DEFS_STACKTRACE_FRAMES_CAPACITY 128
-#endif
 #define FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY 256
 
 /* You know, in case it changes in 2040. */
