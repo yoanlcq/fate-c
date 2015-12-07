@@ -8,11 +8,13 @@ CCRELEASEFLAGS = $(CCFLAGS) -O3 -D_GNU_SOURCE -DNDEBUG
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
-LDLIBS = -lm \
-		 -lcsfml-audio \
+LDLIBS = -static-libgcc \
+		 -static-libstdc++ \
+		 -lm \
 		 -lcsfml-graphics \
-		 -lcsfml-network \
 		 -lcsfml-window \
+		 -lcsfml-audio \
+		 -lcsfml-network \
 		 -lcsfml-system 
 
 ifeq ($(OS),windows)

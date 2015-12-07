@@ -79,6 +79,64 @@ double*   fate_mem_mergef64(double *p, unsigned num_channels, uint64_t num_frame
 
 
 
+/* Video backend API : */
+enum fate_vb_api {
+    FATE_VB_API_DUMMY     = 0,
+    FATE_VB_API_OPENGL    = 1,
+    FATE_VB_API_OPENGLES  = 2,
+    FATE_VB_API_VULKAN    = 3,
+    FATE_VB_API_DIRECT3D  = 4,
+    FATE_VB_API_MANTLE    = 5,
+    FATE_VB_API_METAL     = 6,
+    FATE_VB_API_GLIDE     = 7,
+    FATE_VB_API_RENDERMAN = 8
+};
+
+typedef fate_gl_context HGLRC;
+typedef fate_gl_context GLXContext;
+typedef fate_gl_context CGLContextObj;
+
+struct fate_vb {
+    enum fate_vb_api api;
+    union fate_vb_desc {
+        struct fate_video_desc_gl {
+            unsigned software      : 1; //Use Mesa ?
+            unsigned major_version : 4;
+            unsigned minor_version : 4;
+            unsigned context_flags :10; //debug, forward-compatible
+            unsigned profile_flags : 3; //core/compatibility;
+            unsigned double_buffer : 1;
+            unsigned stereo_buffer : 1;
+            uint8_t  aux_buffers;
+            uint8_t  red_bits;
+            uint8_t  green_bits;
+            uint8_t  blue_bits;
+            uint8_t  alpha_bits;
+            uint8_t  depth_bits;
+            uint8_t  stencil_bits;
+            uint8_t  accum_red_bits;
+            uint8_t  accum_green_bits;
+            uint8_t  accum_blue_bits;
+            uint8_t  accum_alpha_bits;
+        } gl;
+        struct fate_video_desc_d3d {
+        
+        } d3d;
+    } desc;
+    union fate_vb_context {
+        fate_gl_context gl;
+    } context;
+};
+typedef struct fate_vb fate_vb;
+
+void fate_vb_get_default(fate_vb *out);
+/* When it fails or is NIY, the obtained backend is Dummy. */
+void fate_vb_create(const fate_vb *requested, fate_vb *obtained);
+void fate_vb_delete(const fate_vb *vb);
+void fate_vb_use(const fate_vb *vb);
+void fate_vb_copy(const fate_vb *from, fate_vb *to);
+
+
 /* Virtual Filesystem API : 
  * The Node API functions operate on the current VFS.
  * A VFS needs to be init()'ed before it can be made current.
