@@ -19,17 +19,12 @@ LDLIBS = -static-libgcc \
 
 ifeq ($(OS),windows)
 CCFLAGS += -mwindows
-LDLIBS += -lopengl32 -ld3d10 -ldxguid -lGdi32 -lUser32 -lKernel32 -lDbgHelp
+#LDLIBS += -ld3d10 -ldxguid 
+LDLIBS += -lopengl32 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
 CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
 LDLIBS += -lGL
 endif
-
-#ifeq ($(OS),windows)
-#$(BUILDDIR)/game.res : res/windres/game.rc res/windres/game.ico
-#	windres res/windres/game.rc -O coff -o $(BUILDDIR)/game.res
-#GAME_OFILES += $(BUILDDIR)/game.res
-#endif
 
 # Too bad $< and $@ do not expand within macros.
 define MKOBJ
@@ -58,10 +53,28 @@ $(1)_DEBUG_OFILES += $(BUILDDIR)/$(2)_debug.o
 endef
 
 ifeq ($(OS),windows)
+ifeq ($(ARCH),32)
+WINDRES_TARGET=pe-i386
+else
+WINDRES_TARGET=pe-x86-64
+endif
 EXE_EXTENSION =.exe
 else
 EXE_EXTENSION = 
 endif
+
+define MKRES
+
+ifeq ($(OS),windows)
+
+$(BUILDDIR)/$(1).res: res/windres/$(1).rc res/windres/$(1).ico
+	windres res/windres/$(1).rc -O coff -F $(WINDRES_TARGET) -o $(BUILDDIR)/$(1).res
+$(1)_OFILES += $(BUILDDIR)/$(1).res
+$(1)_DEBUG_OFILES += $(BUILDDIR)/$(1).res
+
+endif
+
+endef
 
 define MKEXE
 

@@ -10,27 +10,31 @@ include make/dirs.mk
 # Changes start here.
 # Be careful : There's a reason why there are no spaces between commas.
 
-default_goals: d3d10_sample d3d10_sample_debug game game_debug
+default_goals: fate_cube_demo fate_cube_demo_debug 
+
+#fate_d3d10_sample fate_d3d10_sample_debug
 	
-$(eval $(call MKOBJ,game,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
-$(eval $(call MKOBJ,game,fate/globalstate.c,fate/globalstate.h))
-$(eval $(call MKOBJ,game,fate/fatal_alloc.c,fate/fatal_alloc.h))
-$(eval $(call MKOBJ,game,fate/log.c,fate/log.h))
-$(eval $(call MKOBJ,game,fate/file_to_string.c,fate/file_to_string.h))
-$(eval $(call MKOBJ,game,fate/sys.c,fate/sys.h))
-$(eval $(call MKOBJ,game,fate/dpyres.c,fate/dpyres.h))
-$(eval $(call MKOBJ,game,fate/gl/debug.c,fate/gl/debug.h))
-$(eval $(call MKOBJ,game,fate/gl/mkprog.c,fate/gl/mkprog.h))
-$(eval $(call MKOBJ,game,fate/gl/log.c,fate/gl/log.h))
-$(eval $(call MKOBJ,game,cube/cube.c,../src/cube/cube.h))
-$(eval $(call MKOBJ,game,cube/main.c))
-$(eval $(call MKEXE,game))
+$(eval $(call MKRES,fate_cube_demo))
+$(eval $(call MKOBJ,fate_cube_demo,glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/globalstate.c,fate/globalstate.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/fatal_alloc.c,fate/fatal_alloc.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/log.c,fate/log.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/file_to_string.c,fate/file_to_string.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/sys.c,fate/sys.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/dpyres.c,fate/dpyres.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/gl/debug.c,fate/gl/debug.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/gl/mkprog.c,fate/gl/mkprog.h))
+$(eval $(call MKOBJ,fate_cube_demo,fate/gl/log.c,fate/gl/log.h))
+$(eval $(call MKOBJ,fate_cube_demo,cube/cube.c,../src/cube/cube.h))
+$(eval $(call MKOBJ,fate_cube_demo,cube/main.c))
+$(eval $(call MKEXE,fate_cube_demo))
 
 ifeq ($(OS),windows)
-$(eval $(call MKOBJ,d3d10_sample,fate/d3d/d3d10_sample.c))
-$(eval $(call MKEXE,d3d10_sample))
+$(eval $(call MKOBJ,fate_d3d10_sample,fate/d3d/d3d10_sample.c))
+$(eval $(call MKEXE,fate_d3d10_sample))
 else
-d3d10_sample: ;
-d3d10_sample_debug: ;
-.PHONY: d3d10_sample d3d10_sample_debug
+fate_d3d10_sample: ;
+fate_d3d10_sample_debug: ;
+.PHONY: fate_d3d10_sample fate_d3d10_sample_debug
 endif
+

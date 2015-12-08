@@ -45,6 +45,15 @@ $(1)_DEBUG_OBJFILES += $(BUILDDIR)/$(2)_debug.obj
 
 endef
 
+define MKRES
+
+$(BUILDDIR)\$(1).res: res/windres/$(1).rc res/windres/$(1).ico
+	rc res\windres\$(1).rc /fo $(BUILDDIR)\$(1).res
+$(1)_OFILES += $(BUILDDIR)\$(1).res
+$(1)_DEBUG_OFILES += $(BUILDDIR)\$(1).res
+
+endif
+
 define MKEXE
 
 $(BINDIR)/$(1).exe : $($(1)_OBJFILES)
