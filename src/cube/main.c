@@ -67,11 +67,12 @@ int main(int argc, char *argv[])
     }
 
     glewExperimental = GL_TRUE;
-    GLenum glewInitResult = glewInit();
-    if(glewInitResult != GLEW_OK)
+    fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
+    GLenum glew = glewInit();
+    if(glew != GLEW_OK)
     {
         fate_logf_video("Could not initialize GLEW :\n%s\n", 
-                glewGetErrorString(glewInitResult));
+                glewGetErrorString(glew));
         exit(EXIT_FAILURE);
     }
 
