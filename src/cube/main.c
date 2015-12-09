@@ -213,6 +213,8 @@ int main(int argc, char *argv[])
     sfClock *clock = sfClock_create();
     sfInt64 current_time, last_time = sfClock_restart(clock).microseconds;
 
+    bool go_west = false, go_east = false;
+    float splitx = 0.5f;
     bool running = true;
     bool dirty = false;
     while(running) {
@@ -222,7 +224,7 @@ int main(int argc, char *argv[])
         ++frameno;
         if(current_time - last_time >= 100000LL)
         {
-            /* fate_logf("%lf milliseconds/frame\n", 100.0/frameno); */
+            fate_logf("%lf milliseconds/frame\n", 100.0/frameno);
             frameno = 0;
             last_time += 100000LL;
         }
@@ -232,13 +234,13 @@ int main(int argc, char *argv[])
 
         glEnable(GL_SCISSOR_TEST);
 
-        glScissor(0, 0, winsiz.x/2, winsiz.y);
+        glScissor(0, 0, splitx*(float)winsiz.x, winsiz.y);
         glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniform1ui(ufInvertLoc, 0);
         Cube_draw(&cube);
 
-        glScissor(winsiz.x/2, 0, winsiz.x/2, winsiz.y);
+        glScissor(splitx*(float)winsiz.x, 0, winsiz.x-splitx*(float)winsiz.x, winsiz.y);
         glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUniform1ui(ufInvertLoc, 1);
@@ -282,9 +284,9 @@ int main(int argc, char *argv[])
                         case sfKeyS:        L_y =  100.0f; break;
                         case sfKeyD:        L_x =  100.0f; break;
                         case sfKeyUp:       R_y = -100.0f; break;
-                        case sfKeyLeft:     R_x = -100.0f; break;
+                        case sfKeyLeft:     R_x = -100.0f; go_west = true; break;
                         case sfKeyDown:     R_y =  100.0f; break;
-                        case sfKeyRight:    R_x =  100.0f; break;
+                        case sfKeyRight:    R_x =  100.0f; go_east = true; break;
                         case sfKeyAdd:      zoom_in  = true; break;
                         case sfKeySubtract: zoom_out = true; break;
                     }
@@ -296,9 +298,9 @@ int main(int argc, char *argv[])
                         case sfKeyS:        if(L_y > 0.0f) L_y = 0.0f; break;
                         case sfKeyD:        if(L_x > 0.0f) L_x = 0.0f; break;
                         case sfKeyUp:       if(R_y < 0.0f) R_y = 0.0f; break;
-                        case sfKeyLeft:     if(R_x < 0.0f) R_x = 0.0f; break;
+                        case sfKeyLeft:     if(R_x < 0.0f) R_x = 0.0f; go_west = false; break;
                         case sfKeyDown:     if(R_y > 0.0f) R_y = 0.0f; break;
-                        case sfKeyRight:    if(R_x > 0.0f) R_x = 0.0f; break;
+                        case sfKeyRight:    if(R_x > 0.0f) R_x = 0.0f; go_east = false; break;
                         case sfKeyAdd:      zoom_in  = false; break;
                         case sfKeySubtract: zoom_out = false; break;
                         case sfKeyF11: break;
@@ -398,7 +400,11 @@ int main(int argc, char *argv[])
                     break;
             } /* end switch(event.type) */
         } /* end while(sfWindow_pollEvent(window) */
-        
+
+        if(go_west)
+            splitx -= 0.0025f;
+        if(go_east)
+            splitx += 0.0025f;
         if(R_x > 10.0f || R_x < -10.0f || R_y>10.0f || R_y<-10.0f) {
             eye[0] += R_x/200.0f;
             eye[1] += R_y/200.0f;
