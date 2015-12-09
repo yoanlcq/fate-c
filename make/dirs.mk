@@ -59,4 +59,7 @@ $(DATADIR):
 	$(MKDIR) $@
 $(DATADIR)$(PATHSEP)OpenGL:
 	$(MKDIR) $@
+$(DATADIR)$(PATHSEP)mods:
+	$(MKDIR) $@
+
 

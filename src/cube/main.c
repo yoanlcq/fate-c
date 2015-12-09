@@ -24,7 +24,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 int main(int argc, char *argv[])
 #endif
 {
-
     fate_globalstate_init(fate_gs);
 
     char *game_path = fate_sys_getgamepath();
@@ -90,8 +89,8 @@ int main(int argc, char *argv[])
             sfDefaultStyle, &ctxs);
     sfVector2i vec2i = {0, 0};
     sfWindow_setPosition(window, vec2i);
-    /*sfWindow_setVerticalSyncEnabled(window, true);*/
-    sfWindow_setFramerateLimit(window, 60);
+    sfWindow_setVerticalSyncEnabled(window, true);
+    //sfWindow_setFramerateLimit(window, 60);
     sfWindow_setKeyRepeatEnabled(window, false);
 
     ctxs = sfWindow_getSettings(window);
@@ -217,6 +216,7 @@ int main(int argc, char *argv[])
     float splitx = 0.5f;
     bool running = true;
     bool dirty = false;
+
     while(running) {
 
         /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
         ++frameno;
         if(current_time - last_time >= 100000LL)
         {
-            fate_logf("%lf milliseconds/frame\n", 100.0/frameno);
+            /* fate_logf("%lf milliseconds/frame\n", 100.0/frameno); */
             frameno = 0;
             last_time += 100000LL;
         }
@@ -303,7 +303,10 @@ int main(int argc, char *argv[])
                         case sfKeyRight:    if(R_x > 0.0f) R_x = 0.0f; go_east = false; break;
                         case sfKeyAdd:      zoom_in  = false; break;
                         case sfKeySubtract: zoom_out = false; break;
-                        case sfKeyF11: break;
+                        case sfKeyF11:
+    /*fullscreen_motif_wm_hints(sfWindow_getSystemHandle(window)); */
+                            break;
+
                     }
                     break;
                 case sfEvtMouseWheelScrolled: 
@@ -401,9 +404,9 @@ int main(int argc, char *argv[])
             } /* end switch(event.type) */
         } /* end while(sfWindow_pollEvent(window) */
 
-        if(go_west)
+        if(go_west && splitx > 0.0025f)
             splitx -= 0.0025f;
-        if(go_east)
+        if(go_east && splitx < 0.9975f)
             splitx += 0.0025f;
         if(R_x > 10.0f || R_x < -10.0f || R_y>10.0f || R_y<-10.0f) {
             eye[0] += R_x/200.0f;

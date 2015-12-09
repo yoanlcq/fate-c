@@ -25,6 +25,9 @@ else
 CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
 LDLIBS += -lGL
 endif
+ifeq ($(OS),linux)
+LDLIBS += -lX11
+endif
 
 # Too bad $< and $@ do not expand within macros.
 define MKOBJ
