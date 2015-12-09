@@ -24,7 +24,8 @@ BUILDDIRS = $(BUILDDIR) \
 dirs: $(BINDIR) \
 	  $(BUILDDIRS) \
 	  $(DATADIR) \
-	  $(DATADIR)$(PATHSEP)OpenGL
+	  $(DATADIR)$(PATHSEP)OpenGL \
+	  $(DATADIR)$(PATHSEP)mods
 
 MKDIR = mkdir
 ifneq ($(OS),windows)
