@@ -11,7 +11,9 @@
 #if defined(FATE_DEFS_WINDOWS)
 #include <Windows.h>
 #endif
-
+#include <SFML/System.h>
+#include <SFML/Window.h>
+#include <SFML/Graphics.h>
 #include <linmath/linmath.h>
 #include "cube.h"
 
