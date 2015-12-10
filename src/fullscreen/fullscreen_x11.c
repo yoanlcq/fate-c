@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <X11/Xlib.h>
+#include <X11/extensions/xf86vmode.h>
 #include <xcb/xcb.h>
 #include <xcb/xcbext.h>
 #include <xcb/xproto.h>
@@ -170,51 +171,42 @@ static inline void could_not_bypass_compositor(const char *s) {
     fate_logf_video("Could not set fullscreen by bypassing compositor: %s\n", s);
 }
 
-static bool fullscreen_bypass_compositor(sfWindowHandle win) {
+/* See http://standards.freedesktop.org/wm-spec/latest/ar01s05.html#idm139870829988448 */
 
-    FATE_XCB_INIT();
-    int default_screen_nbr;
-    xcb_connection_t* conn = xcb_connect(NULL, &default_screen_nbr);
+#ifndef _NET_WM_STATE_REMOVE
+#define _NET_WM_STATE_REMOVE 0
+#endif 
+#ifndef _NET_WM_STATE_ADD
+#define _NET_WM_STATE_ADD    1
+#endif 
+#ifndef _NET_WM_STATE_TOGGLE
+#define _NET_WM_STATE_TOGGLE 2 
+#endif 
 
-    grabFocus(conn, win, default_screen_nbr);
+static bool set_net_wm_state(xcb_connection_t *conn, int default_screen_nbr, xcb_window_t win, bool enabled) {
+    static bool checked = false, giveup = false;
+    static xcb_atom_t netWmState = XCB_ATOM_NONE;
+    static xcb_atom_t netWmStateFullscreen = XCB_ATOM_NONE;
 
-    if(!ewmhSupported(conn, default_screen_nbr)) {
-        could_not_bypass_compositor("EWMH is not supported.\n");
+    if(!checked) {
+        checked = true;
+        FATE_XCB_INIT();
+        FATE_XCB_DECL(nw[2], intern_atom);
+        FATE_XCB_SEND(nw[0], intern_atom, conn, true, strlen("_NET_WM_STATE"), "_NET_WM_STATE");
+        FATE_XCB_SEND(nw[1], intern_atom, conn, true, strlen("_NET_WM_STATE_FULLSCREEN"), "_NET_WM_STATE_FULLSCREEN");
+        FATE_XCB_RECV(nw[0], intern_atom, conn, could_not_get_atom("_NET_WM_STATE"));
+        FATE_XCB_RECV(nw[1], intern_atom, conn, could_not_get_atom("_NET_WM_STATE_FULLSCREEN"));
+        netWmState            = nw[0] ? nw[0]->atom : XCB_ATOM_NONE;
+        netWmStateFullscreen  = nw[1] ? nw[1]->atom : XCB_ATOM_NONE;
+        if(nw[0]) FATE_XCB_FREE(nw[0]);
+        if(nw[1]) FATE_XCB_FREE(nw[1]);
+        if(!netWmState || !netWmStateFullscreen) {
+            could_not_bypass_compositor("Could not get the required atoms.");
+            giveup = true;
+            return false;
+        }
+    } else if(giveup)
         return false;
-    }
-
-    FATE_XCB_DECL(nw[3], intern_atom);
-    FATE_XCB_SEND(nw[0], intern_atom, conn, false, strlen("_NET_WM_BYPASS_COMPOSITOR"), "_NET_WM_BYPASS_COMPOSITOR");
-    FATE_XCB_SEND(nw[1], intern_atom, conn, true,  strlen("_NET_WM_STATE"), "_NET_WM_STATE");
-    FATE_XCB_SEND(nw[2], intern_atom, conn, true,  strlen("_NET_WM_STATE_FULLSCREEN"), "_NET_WM_STATE_FULLSCREEN");
-    FATE_XCB_RECV(nw[0], intern_atom, conn, );
-    FATE_XCB_RECV(nw[1], intern_atom, conn, could_not_get_atom("_NET_WM_STATE"));
-    FATE_XCB_RECV(nw[2], intern_atom, conn, could_not_get_atom("_NET_WM_STATE_FULLSCREEN"));
-
-    xcb_atom_t netWmBypassCompositor = nw[0] ? nw[0]->atom : XCB_ATOM_NONE;
-    xcb_atom_t netWmState            = nw[1] ? nw[1]->atom : XCB_ATOM_NONE;
-    xcb_atom_t netWmStateFullscreen  = nw[2] ? nw[2]->atom : XCB_ATOM_NONE;
-
-    if(nw[0]) FATE_XCB_FREE(nw[0]);
-    if(nw[1]) FATE_XCB_FREE(nw[1]);
-    if(nw[2]) FATE_XCB_FREE(nw[2]);
-
-    if(!netWmState || !netWmStateFullscreen) {
-        could_not_bypass_compositor("Could not get the required atoms.");
-        return false;
-    }
-
-    if(netWmBypassCompositor) {
-        static const uint32_t bypassCompositor = 1;
-        /* Not being able to bypass the compositor is not a fatal error. */
-        xcb_generic_error_t *error;
-        xcb_void_cookie_t cookie;
-
-        cookie = xcb_change_property_checked(conn, XCB_PROP_MODE_REPLACE, win, netWmBypassCompositor, XCB_ATOM_CARDINAL, 32, 1, &bypassCompositor);
-        error = xcb_request_check(conn, cookie);
-        if(error)
-            fate_logf_video("Warning : could not set _NET_WM_BYPASS_COMPOSITOR.");
-    } 
 
     xcb_client_message_event_t event;
     memset(&event, 0, sizeof(event));
@@ -224,7 +216,7 @@ static bool fullscreen_bypass_compositor(sfWindowHandle win) {
     event.format = 32;
     event.sequence = 0;
     event.type = netWmState;
-    event.data.data32[0] = 1; // _NET_WM_STATE_ADD
+    event.data.data32[0] = (enabled ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE);
     event.data.data32[1] = netWmStateFullscreen;
     event.data.data32[2] = 0; // No second property
     event.data.data32[3] = 1; // Normal window
@@ -241,38 +233,91 @@ static bool fullscreen_bypass_compositor(sfWindowHandle win) {
 
     if(wmStateError) {
         could_not_bypass_compositor("Could not send \"_NET_WM_STATE\" event.");
+        free(wmStateError);
         return false;
     }
     return true;
 }
 
-/* From http://tonyobryan.com/index.php?article=9 */
-struct Hints {
-    unsigned long flags;
-    unsigned long functions;
-    unsigned long decorations;
-    long          inputMode;
-    unsigned long status;
-};
-typedef struct Hints Hints;
 
-static bool fullscreen_motif_wm_hints(Window win) {
-    /* We can't access SFML's connection. Duh. */
+static bool fullscreen_bypass_compositor(sfWindowHandle win) {
+
+    FATE_XCB_INIT();
+    int default_screen_nbr;
+    xcb_connection_t* conn = xcb_connect(NULL, &default_screen_nbr);
+
+    grabFocus(conn, win, default_screen_nbr);
+
+    if(!ewmhSupported(conn, default_screen_nbr)) {
+        could_not_bypass_compositor("EWMH is not supported.\n");
+        return false;
+    }
+
+    static xcb_atom_t netWmBypassCompositor = XCB_ATOM_NONE;
+    if(!netWmBypassCompositor) {
+        FATE_XCB_DECL(nw, intern_atom);
+        FATE_XCB_SEND(nw, intern_atom, conn, false, strlen("_NET_WM_BYPASS_COMPOSITOR"), "_NET_WM_BYPASS_COMPOSITOR");
+        FATE_XCB_RECV(nw, intern_atom, conn, );
+        netWmBypassCompositor = nw ? nw->atom : XCB_ATOM_NONE;
+        if(nw) FATE_XCB_FREE(nw);
+    }
+
+    /* Not 'else'. */
+    if(netWmBypassCompositor) {
+        static const uint32_t bypassCompositor = 1;
+        /* Not being able to bypass the compositor is not a fatal error. */
+        xcb_generic_error_t *error;
+        xcb_void_cookie_t cookie;
+
+        cookie = xcb_change_property_checked(conn, XCB_PROP_MODE_REPLACE, win, netWmBypassCompositor, XCB_ATOM_CARDINAL, 32, 1, &bypassCompositor);
+        error = xcb_request_check(conn, cookie);
+        if(error) {
+            fate_logf_video("Warning : could not set _NET_WM_BYPASS_COMPOSITOR.");
+            free(error);
+        }
+    }
+
+    return set_net_wm_state(conn, default_screen_nbr, win, true);
+}
+
+/* Improved version of http://tonyobryan.com/index.php?article=9 */
+#include <Xm/MwmUtil.h>
+
+static bool fullscreen_motif_wm_hints(Window win, bool enable) {
     Display *dpy = XOpenDisplay(NULL);
-    Hints hints = {0,0,0,0,0};
+    MotifWmHints hints;
     Atom property;
 
-    hints.flags = 2;
-    hints.decorations = 0;
+    memset(&hints, 0, sizeof(MotifWmHints));
+    hints.flags = MWM_HINTS_DECORATIONS;
+    if(enable)
+        hints.decorations = MWM_DECOR_ALL; //Was 0
+    else
+        hints.decorations = 0x7e; //Everything
     property = XInternAtom(dpy, "_MOTIF_WM_HINTS", True);
+    if(!property) {
+        XCloseDisplay(dpy);
+        return false;
+    }
     XChangeProperty(dpy, win, property, property, 
             32, PropModeReplace, (const unsigned char*) &hints, 5);
-    size_t cnt = 1;
-    const sfVideoMode *vms = sfVideoMode_getFullscreenModes(&cnt);
-    if(cnt <= 0)
-        return false;
-    XMoveResizeWindow(dpy,win,0,0,vms[0].width,vms[0].height);
+
+    if(!enable) {
+        XCloseDisplay(dpy);
+        return true;
+    }
+
+    int i, cnt, dflscreen = DefaultScreen(dpy);
+    XF86VidModeModeInfo **modesinfo;
+    XF86VidModeGetAllModeLines(dpy, dflscreen, &cnt, &modesinfo);
+    fate_logf_video("XF86 video modes :\n");
+    for(i=0 ; i<cnt ; ++i)
+        fate_logf_video("%hux%hu\n", modesinfo[i]->hdisplay, modesinfo[i]->vdisplay);
     XMapRaised(dpy,win);
+    XF86VidModeSetViewPort(dpy,dflscreen,0,0);
+    XF86VidModeSwitchToMode(dpy,dflscreen,modesinfo[0]);
+    XMoveResizeWindow(dpy,win,0,0,modesinfo[0]->hdisplay,modesinfo[0]->vdisplay);
+    free(modesinfo);
     XGrabPointer(dpy,win,True,0,GrabModeAsync,GrabModeAsync,win,0L,CurrentTime);
     XGrabKeyboard(dpy,win,False,GrabModeAsync,GrabModeAsync,CurrentTime);
 
@@ -280,11 +325,22 @@ static bool fullscreen_motif_wm_hints(Window win) {
     return true;
 }
 
-void fate_sfWindow_enable_fullscreen(const sfWindow *window) {
+bool fate_sfWindow_enable_fullscreen(const sfWindow *window) {
     sfWindowHandle handle = sfWindow_getSystemHandle(window);
-    if(!fullscreen_bypass_compositor(handle))
-        fullscreen_motif_wm_hints(handle);
+    if(fullscreen_bypass_compositor(handle))
+        return true;
+    return fullscreen_motif_wm_hints(handle, true);
 }
-void fate_sfWindow_disable_fullscreen(sfWindow *window) {
-    /* TODO */
+bool fate_sfWindow_disable_fullscreen(sfWindow *window) {
+    int default_screen_nbr;
+    xcb_connection_t *conn = xcb_connect(NULL, &default_screen_nbr);
+
+    if(!ewmhSupported(conn, default_screen_nbr)) {
+        could_not_bypass_compositor("EWMH is not supported.\n");
+        return false;
+    }
+    sfWindowHandle handle = sfWindow_getSystemHandle(window);
+    if(set_net_wm_state(conn, default_screen_nbr, handle, false))
+        return true;
+    return fullscreen_motif_wm_hints(handle, false);
 }
