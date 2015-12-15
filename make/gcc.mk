@@ -8,14 +8,8 @@ CCRELEASEFLAGS = $(CCFLAGS) -O3 -D_GNU_SOURCE -DNDEBUG
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
-LDLIBS = -static-libgcc \
-		 -static-libstdc++ \
-		 -lm \
-		 -lcsfml-graphics \
-		 -lcsfml-window \
-		 -lcsfml-audio \
-		 -lcsfml-network \
-		 -lcsfml-system 
+LDLIBS = -lm \
+		 -lSDL2
 
 ifeq ($(OS),windows)
 CCFLAGS += -mwindows
@@ -24,9 +18,6 @@ LDLIBS += -lopengl32 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
 CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
 LDLIBS += -lGL
-endif
-ifeq ($(OS),linux)
-LDLIBS += -lX11
 endif
 
 # Too bad $< and $@ do not expand within macros.
