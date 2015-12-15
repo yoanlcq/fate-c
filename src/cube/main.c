@@ -263,6 +263,7 @@ int main(int argc, char *argv[])
 
     uint16_t old_win_w, old_win_h;
     double frameno = 0;
+    const double fps_counter_interval = 100.0; /* Should be in [100, 1000] */
     uint32_t current_time, last_time = SDL_GetTicks();
 
     while(running) {
@@ -270,11 +271,12 @@ int main(int argc, char *argv[])
         /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
         current_time = SDL_GetTicks();
         ++frameno;
-        if(current_time - last_time >= 100000)
+        if(SDL_TICKS_PASSED(current_time, last_time+fps_counter_interval))
         {
-            fate_logf_video("%lf milliseconds/frame\n", 100.0/frameno);
+            fate_logf_video("%lf milliseconds/frame = %ld FPS\n", 
+                    fps_counter_interval/frameno, lround(frameno*1000.0/fps_counter_interval));
             frameno = 0;
-            last_time += 100000;
+            last_time += fps_counter_interval;
         }
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
