@@ -87,8 +87,9 @@ int main(int argc, char *argv[])
                         SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
 
-
     uint16_t win_w = 640, win_h = 480;
+    uint16_t old_win_w = win_w;
+    uint16_t old_win_h = win_h;
     SDL_Window *window = SDL_CreateWindow("F.A.T.E Cube demo", 
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h,
             SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
@@ -261,7 +262,6 @@ int main(int argc, char *argv[])
     if(SDL_GL_SetSwapInterval(1) < 0)
         fate_logf_err("Warning : Vsync is disabled. The FPS may skyrocket.\n");
 
-    uint16_t old_win_w, old_win_h;
     double frameno = 0;
     const double fps_counter_interval = 100.0; /* Should be in [100, 1000] */
     uint32_t current_time, last_time = SDL_GetTicks();
