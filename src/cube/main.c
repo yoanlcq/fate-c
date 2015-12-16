@@ -142,15 +142,18 @@ int main(int argc, char *argv[])
     }
 
 
-    GLint ctxflags, ctxpflags;
+    GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
+
     glGetIntegerv(GL_CONTEXT_FLAGS, &ctxflags);
     glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &ctxpflags);
+    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_DEPTH, 
+            GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depth_bits);
+    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_STENCIL, 
+            GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil_bits);
+    glGetIntegerv(GL_STENCIL_BITS, &stencil_bits);
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
-    int depthBits, stencilBits;
-    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthBits);
-    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencilBits);
 
     fate_logf_video(
         "--- Active OpenGL context settings ---\n"
@@ -174,8 +177,8 @@ int main(int argc, char *argv[])
         ctxflags,
         double_buffer ? "yes" : "no",
         stereo_buffers ? "yes" : "no",
-        depthBits,
-        stencilBits
+        depth_bits,
+        stencil_bits
     );
 
     int num_glexts, i;
