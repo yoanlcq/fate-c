@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION==0 && SDL_PATCHLEVEL>=4)
 #if defined(FATE_DEFS_LINUX)  \
-|| defined(FATE_DEFS_FREEBSD) \
-|| defined(FATE_DEFS_OSX)
+ || defined(FATE_DEFS_FREEBSD) \
+ || defined(FATE_DEFS_OSX)
     SDL_SetHintWithpriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
                             SDL_HINT_OVERRIDE);
 #endif
@@ -105,7 +105,17 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    //SDL_GL_MakeCurrent(window, ctx);
+    /* SDL_GL_MakeCurrent(window, ctx); */
+
+    glewExperimental = GL_TRUE;
+    fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
+    GLenum glew = glewInit();
+    if(glew != GLEW_OK)
+    {
+        fate_logf_video("Could not initialize GLEW :\n%s\n", 
+                glewGetErrorString(glew));
+        exit(EXIT_FAILURE);
+    }
 
     fate_logf_video(
             "--- OpenGL version ---\n"
@@ -132,17 +142,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    glewExperimental = GL_TRUE;
-    fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
-    GLenum glew = glewInit();
-    if(glew != GLEW_OK)
-    {
-        fate_logf_video("Could not initialize GLEW :\n%s\n", 
-                glewGetErrorString(glew));
-        exit(EXIT_FAILURE);
-    }
-
-
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
 
@@ -152,7 +151,6 @@ int main(int argc, char *argv[])
             GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depth_bits);
     glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_STENCIL, 
             GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil_bits);
-    glGetIntegerv(GL_STENCIL_BITS, &stencil_bits);
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
 
@@ -262,49 +260,20 @@ int main(int argc, char *argv[])
     bool running = true;
     bool dirty = false;
 
-    if(SDL_GL_SetSwapInterval(1) < 0)
-        fate_logf_err("Warning : Vsync is disabled. The FPS may skyrocket.\n");
+    unsigned framerate_limit = 0;
+
+    if(framerate_limit <= 0)
+        if(SDL_GL_SetSwapInterval(1) < 0)
+            fate_logf_err("Warning : Vsync is disabled. The FPS may skyrocket.\n");
 
     double frameno = 0;
-    const double fps_counter_interval = 100.0; /* Should be in [100, 1000] */
-    uint32_t current_time, last_time = SDL_GetTicks();
+    const double fps_counter_interval = 1000.0; /* Should be in [100, 1000] */
+    uint32_t current_time;
+    uint32_t lim_last_time = SDL_GetTicks();
+    uint32_t last_time = SDL_GetTicks();
 
     while(running) {
-
-        /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
-        current_time = SDL_GetTicks();
-        ++frameno;
-        if(SDL_TICKS_PASSED(current_time, last_time+fps_counter_interval))
-        {
-            fate_logf_video("%lf milliseconds/frame = %ld FPS\n", 
-                    fps_counter_interval/frameno, lround(frameno*1000.0/fps_counter_interval));
-            frameno = 0;
-            last_time += fps_counter_interval;
-        }
-
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glEnable(GL_SCISSOR_TEST);
-
-        glScissor(0, 0, splitx*(float)win_w, win_h);
-        glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUniform1ui(ufInvertLoc, 0);
-        Cube_draw(&cube);
-
-        glScissor(splitx*(float)win_w, 0, win_w-splitx*(float)win_w, win_h);
-        glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUniform1ui(ufInvertLoc, 1);
-        Cube_draw(&cube);
-        
-        glDisable(GL_SCISSOR_TEST); 
-
-        SDL_GL_SwapWindow(window);
-
         SDL_Event event;
-        char *axis_str;
         while(SDL_PollEvent(&event)) {
             switch(event.type) {
                 case SDL_QUIT:
@@ -471,6 +440,48 @@ int main(int argc, char *argv[])
             UPDATE_MVP();
             dirty = false;
         }
+
+        /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
+        current_time = SDL_GetTicks();
+        ++frameno;
+        if(SDL_TICKS_PASSED(current_time, last_time+fps_counter_interval))
+        {
+            fate_logf_video("%lf milliseconds/frame = %ld FPS\n", 
+                    fps_counter_interval/frameno, lround(frameno*1000.0/fps_counter_interval));
+            frameno = 0;
+            last_time += fps_counter_interval;
+        }
+
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnable(GL_SCISSOR_TEST);
+
+        glScissor(0, 0, splitx*(float)win_w, win_h);
+        glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUniform1ui(ufInvertLoc, 0);
+        Cube_draw(&cube);
+
+        glScissor(splitx*(float)win_w, 0, win_w-splitx*(float)win_w, win_h);
+        glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUniform1ui(ufInvertLoc, 1);
+        Cube_draw(&cube);
+        
+        glDisable(GL_SCISSOR_TEST); 
+
+        if(framerate_limit > 0) {
+            current_time = SDL_GetTicks();
+#define a_frame (1000/framerate_limit)
+            if(current_time-lim_last_time < a_frame)
+                SDL_Delay(a_frame/23+a_frame-(current_time-lim_last_time));
+#undef a_frame
+            lim_last_time = SDL_GetTicks();
+        }
+
+        SDL_GL_SwapWindow(window);
+
     } /* end while(running) */
 
     Cube_free(&cube);

@@ -249,17 +249,21 @@ static bool fgm_program_from_binary(GLuint program, FILE *binfile,
                     (GLsizei) (binlen-sizeof(GLenum)));
     free(bin);
 
-    GLint status;
-    if(glGetError() != GL_INVALID_ENUM) {
+    GLint err, status;
+    err = glGetError();
+    if(err != GL_INVALID_ENUM) {
         glGetProgramiv(program, GL_LINK_STATUS, &status);
         if(status == GL_TRUE) {
             fate_logf_video("Successfully reused \"%s\".\n", save_path);
             return true;
         }
     }
-    fate_logf_video("Could not reuse \"%s\" :\n\t", save_path);
-    fate_gl_log_program_info(program);
-    fate_logf_video("\n");
+    fate_logf_video("Could not reuse \"%s\" : \n\t", save_path);
+    if(err != GL_INVALID_ENUM) {
+        fate_gl_log_program_info(program);
+        fate_gl_log_all_errors();
+    } else
+        fate_logf_video("0x%x is an unrecognized binary format.\n", binfmt);
 
     return false;
 }
@@ -270,6 +274,7 @@ static void fgm_program_to_binary(GLuint program, FILE *binfile) {
     char *bin = malloc(binlen);
     GLenum binfmt;
     glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
+    fate_logf_video("(The binary format is 0x%x)\n", binfmt);
     fwrite(&binfmt, sizeof(GLenum), 1, binfile);
     fwrite(bin, 1, binlen, binfile);
     free(bin);
@@ -316,6 +321,14 @@ static int fate_gl_mkprog_2_0_real(GLuint program, const char *save_path,
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if(status == GL_TRUE) {
         fate_logf_video("Successfully linked \"%s\".\n", save_path);
+#ifdef FATE_GL_DEBUG
+        glValidateProgram(program);
+        glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+        fate_logf_video("\"%s\" is %svalid. ", 
+                        save_path, status==GL_TRUE ? "" : "in");
+        fate_gl_log_program_info(program);
+        fate_logf_video("\n");
+#endif
         return 1;
     }
 
@@ -348,6 +361,7 @@ static int fate_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
     }
 
     if(!binfile || binfile_is_outdated) {
+        glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
         va_start(ap, save_path);
         int success = fate_gl_mkprog_2_0_real(program, save_path, ap);
         va_end(ap);
