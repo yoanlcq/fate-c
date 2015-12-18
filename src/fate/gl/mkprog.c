@@ -261,7 +261,7 @@ static bool fgm_program_from_binary(GLuint program, FILE *binfile,
     fate_logf_video("Could not reuse \"%s\" : \n\t", save_path);
     if(err != GL_INVALID_ENUM) {
         fate_gl_log_program_info(program);
-        fate_gl_log_all_errors();
+        fate_logf_video("\n");
     } else
         fate_logf_video("0x%x is an unrecognized binary format.\n", binfmt);
 

@@ -12,7 +12,7 @@ LDLIBS = -lm \
 		 -lSDL2
 
 ifeq ($(OS),windows)
-CCFLAGS += -mwindows
+CCRELEASEFLAGS += -mwindows
 #LDLIBS += -ld3d10 -ldxguid 
 LDLIBS += -lopengl32 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else

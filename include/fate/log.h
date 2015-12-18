@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 
+void fate_fatal(const char *fmt, ...);
 extern void fate_logf_dummy(const char *fmt, ...);
 
 #define FATE_LOGFUNCDECL(_what_) \

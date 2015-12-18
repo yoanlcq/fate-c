@@ -1,6 +1,8 @@
 #ifndef FATE_GLOBALSTATE_H
 #define FATE_GLOBALSTATE_H
 
+#include <fate/defs.h>
+
 struct fate_globalstate {
     FILE *logf_stream;
     FILE *logf_trace_stream;
