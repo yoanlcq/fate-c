@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
               compiled.major, compiled.minor, compiled.patch, SDL_REVISION,
               linked.major, linked.minor, linked.patch, SDL_GetRevision());
 
-    fate_logf_video("--- Video drivers ---\n");
+    fate_logf_video("--- SDL Video drivers ---\n");
     int ndrivers = SDL_GetNumVideoDrivers();
     for(--ndrivers ; ndrivers>=0 ; --ndrivers)
         fate_logf_video("    %s\n", SDL_GetVideoDriver(ndrivers));
@@ -447,12 +447,17 @@ int main(int argc, char *argv[])
             frameno = 0;
             last_time += fps_counter_interval;
             if(framerate_limit <= 0 && fps > fps_ceil) {
-                if(current_display_mode.refresh_rate)
+                const char *str;
+                if(current_display_mode.refresh_rate) {
                     framerate_limit = current_display_mode.refresh_rate;
-                else
+                    str = "from display mode info";
+                } else {
                     framerate_limit = FATE_FALLBACK_REFRESH_RATE;
+                    str = "fallback";
+                }
                 fate_logf_video("Abnormal FPS detected (Vsync is not working). "
-                                "Now limiting FPS to %u.\n", framerate_limit);
+                                "Now limiting FPS to %u (%s).\n", 
+                                framerate_limit, str);
             }
         }
 

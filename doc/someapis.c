@@ -147,13 +147,10 @@ void fate_vb_copy(const fate_vb *from, fate_vb *to);
  *    in the VFS, and provides an "Undo/redo" functionality.
  *
  * Features that could be provided :
- * -> Copy-on-Write (or Lazy writing)
  * -> Node-level snapshots (queuing read/writes while saving the node (also called freezing));
  * -> Checksums (for network gaming);
  * -> Defragmentation (for long-term persistent worlds).
  * -> Encryption
- * -> Eager allocation
- * -> Lazy allocation
  */
 
 void fate_vfs_init(fate_vfs *fs);
@@ -163,15 +160,13 @@ void fate_vfs_make_current(fate_vfs *fs);
 /* The following functions operate on the current VFS, because they are exposed to its users. */
 
 /* cache_flags may be 0 or a bitwise-OR combination of :
- *  FATE_CACHE_READ  //Read the cache while resolving paths.
- *  FATE_CACHE_WRITE //Write path resolution results to the cache.
- * The point of this function is to be called at any moment.
- * Before creating a node, if we know that no node exists with that name, we should disable cache read.
- * Similarly, before creating a node that is not likely to be accessed, we should disable cache write.
- * In both case, the cache flags should be restored after we're done.
+ *  FATE_VFS_CACHE_READ  //Read the cache while resolving paths.
+ *  FATE_VFS_CACHE_WRITE //Write path resolution results to the cache.
+ *  FATE_VFS_COPY_ON_WRITE
  */
-void fate_vfs_cache_flags(uint32_t flags);
-uint32_t fate_vfs_get_cache_flags(void);
+void fate_vfs_enable(uint32_t flags);
+void fate_vfs_disable(uint32_t flags);
+uint32_t fate_vfs_get_flags(void);
 
 /*
  * fate_glob() must return a chunk-allocated array of dentries for efficiency.

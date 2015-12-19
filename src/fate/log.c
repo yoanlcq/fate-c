@@ -42,7 +42,7 @@ void fate_log##_what_##_to_console_and_stream(const char *fmt, ...) { \
     vfprintf(fate_gs->log##_what_##_stream, fmt, ap); \
     va_end(ap); \
 } \
-void (*fate_log##_what_)(const char *fmt, ...) = fate_logf_dummy;
+void (*fate_log##_what_)(const char *fmt, ...) = fate_log##_what_##_to_console
 
 FATE_LOGFUNCDECL(f,stdout);
 FATE_LOGFUNCDECL(f_trace,stderr);

@@ -168,8 +168,7 @@ GLuint fgm_find_or_compile_shader(const char *path)
         return 0;
     }
     GLuint shid = glCreateShader(shtype);
-    const char *ind = strrchr(path, '/');
-    fate_glObjectLabel(GL_SHADER, shid, -1, ind ? ind+1 : path);
+    fate_glObjectLabel(GL_SHADER, shid, -1, path);
     fate_logf_video("Compiling \"%s\"...\n", path); 
 
     size_t num_strings;
