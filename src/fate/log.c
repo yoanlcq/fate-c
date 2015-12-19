@@ -37,10 +37,12 @@ void fate_log##_what_##_to_console_and_stream(const char *fmt, ...) { \
     va_list ap; \
     va_start(ap, fmt); \
     vfprintf(_constream_, fmt, ap); \
+    va_end(ap); \
+    va_start(ap, fmt); \
     vfprintf(fate_gs->log##_what_##_stream, fmt, ap); \
     va_end(ap); \
 } \
-void (*fate_log##_what_)(const char *fmt, ...) = NULL;
+void (*fate_log##_what_)(const char *fmt, ...) = fate_logf_dummy;
 
 FATE_LOGFUNCDECL(f,stdout);
 FATE_LOGFUNCDECL(f_trace,stderr);
