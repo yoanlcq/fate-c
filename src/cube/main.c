@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
     bool running = true;
     bool dirty = false;
 
-    unsigned framerate_limit = 0;
+    unsigned framerate_limit = 60;
 
     if(framerate_limit <= 0)
         if(SDL_GL_SetSwapInterval(1) < 0)
