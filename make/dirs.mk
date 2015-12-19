@@ -25,7 +25,8 @@ dirs: $(BINDIR) \
 	  $(BUILDDIRS) \
 	  $(DATADIR) \
 	  $(DATADIR)$(PATHSEP)OpenGL \
-	  $(DATADIR)$(PATHSEP)mods
+	  $(DATADIR)$(PATHSEP)mods \
+	  $(DATADIR)$(PATHSEP)logs
 
 MKDIR = mkdir
 ifneq ($(OS),windows)
@@ -61,5 +62,6 @@ $(DATADIR)$(PATHSEP)OpenGL:
 	$(MKDIR) $@
 $(DATADIR)$(PATHSEP)mods:
 	$(MKDIR) $@
-
+$(DATADIR)$(PATHSEP)logs:
+	$(MKDIR) $@
 

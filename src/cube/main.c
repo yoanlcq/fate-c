@@ -29,10 +29,8 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        fate_logf_err("SDL_Init failed: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
-    }
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        fate_fatal("SDL_Init failed: %s\n", SDL_GetError());
 
     //We do this after SDL_Init to (hopefully) override its signal handler.
     fate_globalstate_init(fate_gs);
@@ -47,29 +45,31 @@ int main(int argc, char *argv[])
               compiled.major, compiled.minor, compiled.patch, SDL_REVISION,
               linked.major, linked.minor, linked.patch, SDL_GetRevision());
 
-
-    char *game_path = fate_sys_getgamepath();
-    if(!game_path) {
-        fate_logf_err("Couldn't find the game's path.\nSorry.\n");
-        exit(EXIT_FAILURE);
-    }
-    fate_sys_set_current_directory(game_path);
-    free(game_path);
-
     fate_logf_video("--- Video drivers ---\n");
     int ndrivers = SDL_GetNumVideoDrivers();
     for(--ndrivers ; ndrivers>=0 ; --ndrivers)
         fate_logf_video("    %s\n", SDL_GetVideoDriver(ndrivers));
     fate_logf_video("\n");
-
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
+                        0//SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
+#ifdef FATE_GL_DEBUG
+                       |SDL_GL_CONTEXT_DEBUG_FLAG
+#endif
+                        );
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 
+                        SDL_GL_CONTEXT_PROFILE_CORE);
+/*
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
@@ -77,16 +77,8 @@ int main(int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-#ifdef FATE_GL_DEBUG
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 
-                        SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
-
+*/
     uint16_t win_w = 640, win_h = 480;
     uint16_t old_win_w = win_w;
     uint16_t old_win_h = win_h;
@@ -94,16 +86,16 @@ int main(int argc, char *argv[])
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h,
             SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 
-    if(!window) {
-        fate_logf_err("SDL_CreateWindow failed: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
-    }
+    if(!window)
+        fate_fatal("SDL_CreateWindow failed: %s\n", SDL_GetError());
+
+    SDL_DisplayMode current_display_mode;
+    if(SDL_GetCurrentDisplayMode(0, &current_display_mode) != 0)
+        fate_fatal("SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
 
     SDL_GLContext ctx = SDL_GL_CreateContext(window);
-    if(!ctx) {
-        fate_logf_err("SDL_GL_CreateContext failed : %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
-    }
+    if(!ctx)
+        fate_fatal("SDL_GL_CreateContext failed : %s\n", SDL_GetError());
 
     /* SDL_GL_MakeCurrent(window, ctx); */
 
@@ -111,11 +103,8 @@ int main(int argc, char *argv[])
     fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
     GLenum glew = glewInit();
     if(glew != GLEW_OK)
-    {
-        fate_logf_video("Could not initialize GLEW :\n%s\n", 
+        fate_fatal("Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
-        exit(EXIT_FAILURE);
-    }
 
     fate_logf_video(
             "--- OpenGL version ---\n"
@@ -136,11 +125,8 @@ int main(int argc, char *argv[])
     glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
 
     if(gl_major < 4 || (gl_major == 4 && gl_minor < 3))
-    {
-        fate_logf_err("The OpenGL version reported by your driver is "
-                      "not supported yet.\nSorry. I'm working on it.\n");
-        exit(EXIT_FAILURE);
-    }
+        fate_fatal("The OpenGL version reported by your driver is "
+                   "not supported yet.\nSorry. I'm working on it.\n");
 
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
@@ -202,10 +188,7 @@ int main(int argc, char *argv[])
                        "res/shaders/triangles.330.core.vert",
                        "res/shaders/triangles.330.core.frag",
                        NULL))
-    {
-        fate_logf_err("Can't continue.\n");
-        exit(EXIT_FAILURE);
-    }
+        fate_fatal("Could not build the OpenGL program.\n");
     fate_gl_mkprog_cleanup();
     fate_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube cube;
@@ -235,11 +218,18 @@ int main(int argc, char *argv[])
     mat4x4_mul(MVPMatrix, View, MVPMatrix); \
     mat4x4_mul(MVPMatrix, Projection, MVPMatrix); \
     glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0])
-    
+   
+#define FATE_FALLBACK_REFRESH_RATE 60
+#define FATE_DEFAULT_FPS_CEIL 256
+#define FATE_DEFAULT_NEAR 0.25
+#define FATE_DEFAULT_FAR  1024.0
+#define FATE_DEFAULT_FOV  (75.0*M_PI/180.0)
+
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
     win_w = _W_; win_h = _H_; \
-    mat4x4_perspective(Projection, 45, _W_/(float)_H_, 1.0f, 100.0f); \
+    mat4x4_perspective(Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
+                       FATE_DEFAULT_NEAR, FATE_DEFAULT_FAR); \
     UPDATE_MVP();
 
     UPDATE_VIEW();
@@ -260,7 +250,8 @@ int main(int argc, char *argv[])
     bool running = true;
     bool dirty = false;
 
-    unsigned framerate_limit = 60;
+    unsigned fps_ceil = FATE_DEFAULT_FPS_CEIL;
+    unsigned framerate_limit = 0;
 
     if(framerate_limit <= 0)
         if(SDL_GL_SetSwapInterval(1) < 0)
@@ -329,12 +320,10 @@ int main(int argc, char *argv[])
                             if(!is_fullscreen) {
                                 old_win_w = win_w;
                                 old_win_h = win_h;
-                                SDL_DisplayMode dm;
-                                if(SDL_GetCurrentDisplayMode(0, &dm) != 0) {
-                                    fate_logf_video("SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
-                                    break;
-                                }
-                                SDL_SetWindowSize(window, dm.w, dm.h);
+                                SDL_SetWindowSize(window, 
+                                        current_display_mode.w, 
+                                        current_display_mode.h);
+                                fate_logf_video("Now using %s mode.\n", "fullscreen");
                             }
                             if(SDL_SetWindowFullscreen(window, 
                                     (!is_fullscreen)*SDL_WINDOW_FULLSCREEN)<0) {
@@ -346,6 +335,7 @@ int main(int argc, char *argv[])
                                 SDL_SetWindowPosition(window, 
                                         SDL_WINDOWPOS_CENTERED, 
                                         SDL_WINDOWPOS_CENTERED);
+                                fate_logf_video("Now using %s mode.\n", "windowed");
                             }
                         }
                             break;
@@ -446,10 +436,24 @@ int main(int argc, char *argv[])
         ++frameno;
         if(SDL_TICKS_PASSED(current_time, last_time+fps_counter_interval))
         {
-            fate_logf_video("%lf milliseconds/frame = %ld FPS\n", 
-                    fps_counter_interval/frameno, lround(frameno*1000.0/fps_counter_interval));
+            unsigned fps = lround(frameno*1000.0/fps_counter_interval);
+            fate_logf_video("%u frames under %lg milliseconds = "
+                            "%lg milliseconds/frame = "
+                            "%u FPS\n", 
+                    (unsigned)frameno,
+                    fps_counter_interval,
+                    fps_counter_interval/frameno, 
+                    fps);
             frameno = 0;
             last_time += fps_counter_interval;
+            if(framerate_limit <= 0 && fps > fps_ceil) {
+                if(current_display_mode.refresh_rate)
+                    framerate_limit = current_display_mode.refresh_rate;
+                else
+                    framerate_limit = FATE_FALLBACK_REFRESH_RATE;
+                fate_logf_video("Abnormal FPS detected (Vsync is not working). "
+                                "Now limiting FPS to %u.\n", framerate_limit);
+            }
         }
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -475,7 +479,7 @@ int main(int argc, char *argv[])
             current_time = SDL_GetTicks();
 #define a_frame (1000/framerate_limit)
             if(current_time-lim_last_time < a_frame)
-                SDL_Delay(a_frame/23+a_frame-(current_time-lim_last_time));
+                SDL_Delay(a_frame-(current_time-lim_last_time));
 #undef a_frame
             lim_last_time = SDL_GetTicks();
         }

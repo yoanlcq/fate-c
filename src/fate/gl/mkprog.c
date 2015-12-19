@@ -261,9 +261,11 @@ static bool fgm_program_from_binary(GLuint program, FILE *binfile,
     fate_logf_video("Could not reuse \"%s\" : \n\t", save_path);
     if(err != GL_INVALID_ENUM) {
         fate_gl_log_program_info(program);
-        fate_gl_log_all_errors();
+        fate_logf_video("\n");
     } else
-        fate_logf_video("0x%x is an unrecognized binary format.\n", binfmt);
+        fate_logf_video("Either 0x%x is an unrecognized binary format, "
+                        "or the OpenGL implementation just rejected it. "
+                        "See also the context's settings.\n", binfmt);
 
     return false;
 }
@@ -274,7 +276,7 @@ static void fgm_program_to_binary(GLuint program, FILE *binfile) {
     char *bin = malloc(binlen);
     GLenum binfmt;
     glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
-    fate_logf_video("(The binary format is 0x%x)\n", binfmt);
+    fate_logf_video("Saved binary with format 0x%x.\n", binfmt);
     fwrite(&binfmt, sizeof(GLenum), 1, binfile);
     fwrite(bin, 1, binlen, binfile);
     free(bin);
@@ -308,7 +310,7 @@ static int fate_gl_mkprog_2_0_real(GLuint program, const char *save_path,
 
     glLinkProgram(program);
 
-    /* Detach all shaders */
+    /* Detach all shaders before doing anything else */
     GLint num_shaders;
     glGetProgramiv(program, GL_ATTACHED_SHADERS, &num_shaders);
     GLuint *shaders = malloc(num_shaders*sizeof(GLuint));
@@ -361,7 +363,8 @@ static int fate_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
     }
 
     if(!binfile || binfile_is_outdated) {
-        glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+        glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, 
+                            GL_TRUE);
         va_start(ap, save_path);
         int success = fate_gl_mkprog_2_0_real(program, save_path, ap);
         va_end(ap);
