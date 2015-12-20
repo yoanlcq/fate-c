@@ -2,7 +2,6 @@
 #define CUBE_H
 
 #include <fate/gl.h>
-#include <linmath/linmath.h>
 
 struct Cube {
     GLuint ebo, vao, vbo, prog;

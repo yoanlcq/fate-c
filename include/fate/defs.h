@@ -1,6 +1,11 @@
 #ifndef FATE_DEFS_H
 #define FATE_DEFS_H
 
+#define FATE_VERSION_MAJOR 0
+#define FATE_VERSION_MINOR 1
+#define FATE_VERSION_PATCH 0
+#define FATE_VERSION_CODENAME "Rainbow Dice"
+
 #define XSTRINGIFY(X) STRINGIFY(X)
 #define STRINGIFY(X) #X
 
@@ -10,10 +15,6 @@
 
 #if __STDC_VERSION__ < 199901L
 #define __func__ ""
-#endif
-
-#if defined(FATE_DEBUG_BUILD)
-#define inline
 #endif
 
 #if defined(_WIN32) || defined(__WIN32__)

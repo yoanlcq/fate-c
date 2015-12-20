@@ -34,6 +34,9 @@ void GLAPIENTRY fate_glDebugMessageControl_dummy(GLenum source, GLenum type,
                                       GLboolean enabled);
 extern PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl;
 
+void GLAPIENTRY fate_glDebugMessageInsertAMD(GLenum source, GLenum type, GLuint id, 
+                                    GLenum severity, GLsizei length, 
+                                    const char *message);
 void GLAPIENTRY fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
                                     const char *message);

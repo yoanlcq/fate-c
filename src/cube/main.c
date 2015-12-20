@@ -35,6 +35,13 @@ int main(int argc, char *argv[])
     //We do this after SDL_Init to (hopefully) override its signal handler.
     fate_globalstate_init(fate_gs);
 
+    fate_logf("Welcome to F.A.T.E !\n"
+              "Version : %d.%d.%d (\"%s\")\n"
+              "Compiled on %s, %s.\n\n",
+              FATE_VERSION_MAJOR, FATE_VERSION_MINOR, FATE_VERSION_PATCH,
+              FATE_VERSION_CODENAME,
+              __DATE__, __TIME__);
+
     SDL_version compiled;
     SDL_version linked;
     SDL_VERSION(&compiled);
@@ -166,7 +173,7 @@ int main(int argc, char *argv[])
         stencil_bits
     );
 
-    int num_glexts, i;
+    GLint num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
     fate_logf_video("    Extensions :\n");
     for(i=0 ; i<num_glexts ; i++) {
@@ -207,16 +214,15 @@ int main(int argc, char *argv[])
     vec3 eye = {0.0f, 0.0f, -distance}, center = {0,0,0}, up = {0,1,0};
     GLint MVPMatrixLoc = glGetUniformLocation(progid, "MVPMatrix");
     GLint ufInvertLoc  = glGetUniformLocation(progid, "ufInvert");
-    mat4x4 MVPMatrix, Projection, View, Model;
+    mat4 MVPMatrix, Projection, View, Model;
 
 #define UPDATE_VIEW() \
-    mat4x4_identity(Model); \
-    mat4x4_look_at(View, eye, center, up);
+    mat4_identity(Model); \
+    mat4_look_at(View, eye, center, up)
 
 #define UPDATE_MVP() \
-    mat4x4_dup(MVPMatrix, Model); \
-    mat4x4_mul(MVPMatrix, View, MVPMatrix); \
-    mat4x4_mul(MVPMatrix, Projection, MVPMatrix); \
+    mat4_mul(MVPMatrix, Projection, View); \
+    mat4_mul(MVPMatrix, Model, MVPMatrix); \
     glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0])
    
 #define FATE_FALLBACK_REFRESH_RATE 60
@@ -228,9 +234,9 @@ int main(int argc, char *argv[])
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
     win_w = _W_; win_h = _H_; \
-    mat4x4_perspective(Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
-                       FATE_DEFAULT_NEAR, FATE_DEFAULT_FAR); \
-    UPDATE_MVP();
+    mat4_perspective(Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
+                     FATE_DEFAULT_NEAR, FATE_DEFAULT_FAR); \
+    UPDATE_MVP()
 
     UPDATE_VIEW();
     RESIZE(win_w, win_h);
@@ -238,8 +244,6 @@ int main(int argc, char *argv[])
     int mousex=0, mousey=0;
     bool mousein = false, mousedown = false;
     float h_angle = 0.0f, v_angle = 0.0f;
-    float L_x = 0.0f;
-    float L_y = 0.0f;
     float R_x = 0.0f;
     float R_y = 0.0f;
     bool zoom_in  = false;
