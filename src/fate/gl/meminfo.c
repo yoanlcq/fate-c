@@ -37,9 +37,9 @@ static void fgl_meminfo_query_ati(fate_gl_meminfo *m) {
 void (*fate_gl_meminfo_query)(fate_gl_meminfo *m);
 
 void fate_gl_meminfo_setup(GLint gl_major, GLint gl_minor) {
-    if(fate_gl_has_extension("GL_NVX_gpu_memory_info"))
+    if(GLEW_NVX_gpu_memory_info)
         fate_gl_meminfo_query = fgl_meminfo_query_nvx;
-    else if(fate_gl_has_extension("GL_ATI_meminfo"))
+    else if(GLEW_ATI_meminfo)
         fate_gl_meminfo_query = fgl_meminfo_query_ati;
     else fate_gl_meminfo_query = fgl_meminfo_query_dummy;
 }
