@@ -265,7 +265,7 @@ static void fgl_debug_setup_khr(bool enable) {
     const fgl_ign_message *ignmsg;
     
     glEnable(GL_DEBUG_OUTPUT);
-    glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(fate_gl_debug_msg_callback, NULL);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
@@ -297,7 +297,7 @@ static void fgl_debug_setup_arb(bool enable) {
 
     const fgl_ign_message *ignmsg;
     
-    glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
     glDebugMessageCallbackARB(fate_gl_debug_msg_callback, NULL);
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);

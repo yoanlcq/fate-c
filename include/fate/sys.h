@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define FATE_SYS_STACK_LEN 128
+#define FATE_SYS_MODNAME_LEN 256
+
 bool fate_sys_file_exists(const char *path);
 uint64_t fate_sys_get_last_write_time(const char *path);
 bool fate_sys_set_current_directory(const char *path);

@@ -7,10 +7,10 @@
 #include <fate/sys.h>
 #include <fate/log.h>
 
-#if defined(FATE_DEFS_WINDOWS)
+#if defined(FATE_WINDOWS)
 #include <Windows.h>
 #include <DbgHelp.h>
-#elif defined(FATE_DEFS_LINUX)
+#elif defined(FATE_LINUX)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -18,14 +18,14 @@
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FATE_DEFS_FREEBSD)
+#elif defined(FATE_FREEBSD)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FATE_DEFS_OSX)
+#elif defined(FATE_OSX)
 #include <limits.h>
 #include <signal.h>
 #include <mach-o/dyld.h>
@@ -51,7 +51,7 @@
  */
 
 
-#if defined(FATE_DEFS_WINDOWS)
+#if defined(FATE_WINDOWS)
 inline bool fate_sys_file_exists(const char *path) {
     return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
 }
@@ -81,7 +81,7 @@ inline bool fate_sys_file_exists(const char *path) {
  */
 
 
-#if defined(FATE_DEFS_WINDOWS)
+#if defined(FATE_WINDOWS)
 uint64_t fate_sys_get_last_write_time(const char *path) {
     FILETIME ft;
     HANDLE fh;
@@ -125,7 +125,7 @@ inline uint64_t fate_sys_get_last_write_time(const char *path) {
  */
 
 
-#if defined(FATE_DEFS_WINDOWS)
+#if defined(FATE_WINDOWS)
 #if !(_MSC_VER && !__INTEL_COMPILER)
 inline 
 #endif 
@@ -160,7 +160,7 @@ inline bool fate_sys_set_current_directory(const char *path) {
 
 
 
-#if defined(FATE_DEFS_LINUX)
+#if defined(FATE_LINUX)
 
 #if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
  || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
@@ -194,7 +194,7 @@ static char *get_executable_path(void) {
     return NULL;
 }
 
-#elif defined(FATE_DEFS_FREEBSD)
+#elif defined(FATE_FREEBSD)
 
 static char *get_executable_path(void) {
     static char appdir[PATH_MAX];
@@ -224,7 +224,7 @@ static char *get_executable_path(void) {
 }
 
 
-#elif defined(FATE_DEFS_OSX)
+#elif defined(FATE_OSX)
 
 static char *get_executable_path(void) {
     static char appdir[MAXPATHLEN];
@@ -239,13 +239,13 @@ static char *get_executable_path(void) {
     return str2;
 }
 
-#elif defined(FATE_DEFS_WINDOWS)
+#elif defined(FATE_WINDOWS)
 static char *get_executable_path(void) {
     return strdup(_pgmptr);
 }
 #endif
 
-#if defined(FATE_DEFS_WINDOWS)
+#if defined(FATE_WINDOWS)
 #define PATHSEP "\\"
 #else
 #define PATHSEP "/"
@@ -312,7 +312,7 @@ char *fate_sys_getgamepath(void) {
 
 
 
-#ifdef FATE_DEFS_WINDOWS
+#ifdef FATE_WINDOWS
 
 void fate_sys_log_win32_error(void (*logfunc)(const char *fmt, ...), 
                               const char *funcstr, DWORD error) 
@@ -341,7 +341,7 @@ static void fate_sys_log_stacktrace_win32(
                                    unsigned short nframes)
 {
     unsigned i, j;
-    TCHAR modname[FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY];
+    TCHAR modname[FATE_SYS_MODNAME_LEN];
     DWORD modname_len;
     SYMBOL_INFO *symbol;
     HANDLE process;
@@ -377,7 +377,7 @@ static void fate_sys_log_stacktrace_win32(
                                  &modhandle)) 
             {
                 modname_len = GetModuleFileName(modhandle, modname, 
-                                  FATE_DEFS_STACKTRACE_MODULE_NAME_CAPACITY);
+                                  FATE_SYS_MODNAME_LEN);
                 /* MS says that on Windows XP, the string is 
                  * not null-terminated. */
                 for(j=0 ; j<modname_len ; j++)
@@ -413,26 +413,26 @@ static void fate_sys_log_stacktrace_win32(
 }
 void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
 {
-    PVOID stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
-    DWORD64 stack_dw[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+    PVOID stack[FATE_SYS_STACK_LEN];
+    DWORD64 stack_dw[FATE_SYS_STACK_LEN];
 
     unsigned short i, nframes;
-    nframes = CaptureStackBackTrace(0, FATE_DEFS_STACKTRACE_FRAMES_CAPACITY,
+    nframes = CaptureStackBackTrace(0, FATE_SYS_STACK_LEN,
                                     stack, NULL);
     for(i=0 ; i<nframes ; ++i)
         stack_dw[i] = (DWORD64)(uintptr_t)stack[i];
     fate_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
 }
 
-#else /* !FATE_DEFS_WINDOWS */
+#else /* !FATE_WINDOWS */
 
 
 void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
-    void *buffer[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+    void *buffer[FATE_SYS_STACK_LEN];
     char **strings;
     int i, num_strings;
 
-    num_strings = backtrace(buffer, FATE_DEFS_STACKTRACE_FRAMES_CAPACITY);
+    num_strings = backtrace(buffer, FATE_SYS_STACK_LEN);
     strings = backtrace_symbols(buffer, num_strings);
     if(!strings) {
         logfunc("Could not get a stacktrace.\n");
@@ -443,7 +443,7 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
     free(strings);
 }
 
-#endif /* FATE_DEFS_WINDOWS */
+#endif /* FATE_WINDOWS */
 
 
 /*
@@ -465,7 +465,7 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
  */
 
 
-#ifdef FATE_DEFS_WINDOWS
+#ifdef FATE_WINDOWS
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
 LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
@@ -525,7 +525,7 @@ LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
 
-        DWORD64 stack[FATE_DEFS_STACKTRACE_FRAMES_CAPACITY];
+        DWORD64 stack[FATE_SYS_STACK_LEN];
         unsigned short nframes;
         // StackWalk64() may modify context record passed to it, so we will
         // use a copy.
@@ -558,7 +558,7 @@ LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
                            &SymFunctionTableAccess64,
                            &SymGetModuleBase64,
                            NULL) 
-                && nframes < FATE_DEFS_STACKTRACE_FRAMES_CAPACITY) {
+                && nframes < FATE_SYS_STACK_LEN) {
             stack[nframes++] = stack_frame.AddrPC.Offset;
         }
 

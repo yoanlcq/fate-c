@@ -1,5 +1,20 @@
 -> fate/gl/context.h
--> SFML fullscreen extension
 -> fate/vk/...h
+-> Region nodes and portals
+-> Special keys : Fullscreen, Screenshot, Video record, Debug
+-> Inline C/JS code inside FST code
+-> Document the Dev Environnement setup
+-> Document the continuous deliver system
+-> i18n
+-> Emscripten
+-> Document source code
+-> Select shaders based on the GLSL version
+-> Add licenses
+-> Key remapping function
+-> GameState structs (tick-precision, computed ahead-of-time and corrected on user iput)
+-> Implement a realpath() call
+-> Implement VFS handles
+-> Implement diskusage, diskfree
+
 
 http://faculty.ycp.edu/~dbabcock/PastCourses/cs470/labs/index.html

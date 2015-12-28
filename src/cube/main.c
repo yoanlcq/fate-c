@@ -10,7 +10,7 @@
 #include <linmath/linmath.h>
 #include "cube.h"
 
-#if defined(FATE_DEFS_WINDOWS)
+#if FATE_WINDOWS
 #include <Windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    PSTR pCmdLine, int nCmdShow)
@@ -21,9 +21,7 @@ int main(int argc, char *argv[])
 #if SDL_MAJOR_VERSION > 2 \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION==0 && SDL_PATCHLEVEL>=4)
-#if defined(FATE_DEFS_LINUX)  \
- || defined(FATE_DEFS_FREEBSD) \
- || defined(FATE_DEFS_OSX)
+#if defined(FATE_LINUX) || defined(FATE_FREEBSD) || defined(FATE_OSX)
     SDL_SetHintWithpriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
                             SDL_HINT_OVERRIDE);
 #endif

@@ -12,12 +12,16 @@ void fate_fatal(const char *fmt, ...) {
     va_end(ap);
     if(!fate_logf_err)
         fate_logf_err = fate_logf_err_to_console;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
     fate_logf_err(str);
+#pragma GCC diagnostic pop
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
         "F.A.T.E internal error", str, NULL);
     fate_globalstate_deinit(fate_gs);
     exit(EXIT_FAILURE);
 }
+
 void fate_logf_dummy(const char *fmt, ...) {}
 
 #define FATE_LOGFUNCDECL(_what_,_constream_) \
