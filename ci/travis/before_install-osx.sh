@@ -10,6 +10,8 @@ cd ~
 wget https://www.libsdl.org/release/SDL2-2.0.4.dmg;
 # From http://commandlinemac.blogspot.fr/2008/12/installing-dmg-application-from-command.html
 hdiutil mount SDL2-2.0.4.dmg
+echo On fait tourner les serviettes
+ls /Volumes
 sudo cp -R "/Volumes/SDL2-2.0.4/SDL2.framework" /Library/Frameworks
 hdiutil unmount "/Volumes/SDL2-2.0.4/"
 
