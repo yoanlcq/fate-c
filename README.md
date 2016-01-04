@@ -1,3 +1,5 @@
+![Travis build status](https://travis-ci.org/yoanlcq/FATE.svg)
+
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.
   
