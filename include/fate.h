@@ -4,7 +4,7 @@
 #include <fate/defs.h>
 #include <fate/al.h>
 #include <fate/gl.h>
-#ifdef FATE_DEFS_WINDOWS
+#ifdef FATE_WINDOWS
 #include <fate/d3d.h>
 #endif
 #include <fate/file_to_string.h>

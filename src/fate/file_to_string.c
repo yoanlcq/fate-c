@@ -44,8 +44,6 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
 
     strings[i] = fate_fatal_malloc(filesize-(i*BUFSIZ)+1, 1);
     bytes_read = fread(strings[i], 1, BUFSIZ, file);
-    if(bytes_read < 0)
-        bytes_read = 0;
     strings[i][bytes_read] = '\0';
     ++(*num_strings);
 

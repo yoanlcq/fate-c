@@ -1,15 +1,20 @@
-CCFLAGS = -Iinclude -DGLEW_STATIC -DGLEW_NO_GLU -Wall -pedantic
+CCFLAGS = -Iinclude -Wall -pedantic -D_GNU_SOURCE
 CCDEBUGFLAGS = $(CCFLAGS) -g \
-			   -D_GNU_SOURCE -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
+			   -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
+GLEWFLAGS = -O0 -DGLEW_STATIC -DGLEW_NO_GLU
 ifeq ($(OS),linux)
 CCDEBUGFLAGS += -Og -rdynamic
 endif
-CCRELEASEFLAGS = $(CCFLAGS) -O3 -D_GNU_SOURCE -DNDEBUG
+CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
-endif
 LDLIBS = -lm \
 		 -lSDL2
+else
+CCFLAGS += -F/Library/Frameworks 
+LDLIBS = -framework SDL2 \
+		-framework OpenGL
+endif
 
 ifeq ($(OS),windows)
 CCRELEASEFLAGS += -mwindows
@@ -17,32 +22,32 @@ CCRELEASEFLAGS += -mwindows
 LDLIBS += -lopengl32 -lGdi32 -lUser32 -lKernel32 -lDbgHelp
 else
 CCFLAGS += -std=c11 #Under MINGW, it causes a "multiple definition" error with NtCurrentTeb, getCurrentFiber and getFiberData.
+ifeq ($(OS),linux)
 LDLIBS += -lGL
+endif
 endif
 
 # Too bad $< and $@ do not expand within macros.
 define MKOBJ
 
-$(BUILDDIR)/$(2).o : src/$(2) \
-					 $(if $(3),include/$(3),) \
+$(BUILDDIR)/$(3).o : src/$(3) \
 					 $(if $(4),include/$(4),) \
 					 $(if $(5),include/$(5),) \
 					 $(if $(6),include/$(6),) \
 					 $(if $(7),include/$(7),) \
 					 $(if $(8),include/$(8),)
-	$(CC) $(CCRELEASEFLAGS) -c src/$(2) -o $(BUILDDIR)/$(2).o
+	$(CC) $(CCRELEASEFLAGS) $(2) -c src/$(3) -o $(BUILDDIR)/$(3).o
 
-$(BUILDDIR)/$(2)_debug.o : src/$(2) \
-                           $(if $(3),include/$(3),) \
+$(BUILDDIR)/$(3)_debug.o : src/$(3) \
 					       $(if $(4),include/$(4),) \
 					       $(if $(5),include/$(5),) \
 					       $(if $(6),include/$(6),) \
 					       $(if $(7),include/$(7),) \
 					       $(if $(8),include/$(8),)
-	$(CC) $(CCDEBUGFLAGS) -c src/$(2) -o $(BUILDDIR)/$(2)_debug.o
+	$(CC) $(CCDEBUGFLAGS) $(2) -c src/$(3) -o $(BUILDDIR)/$(3)_debug.o
 
-$(1)_OFILES += $(BUILDDIR)/$(2).o 
-$(1)_DEBUG_OFILES += $(BUILDDIR)/$(2)_debug.o 
+$(1)_OFILES += $(BUILDDIR)/$(3).o 
+$(1)_DEBUG_OFILES += $(BUILDDIR)/$(3)_debug.o 
 
 endef
 

@@ -8,7 +8,7 @@
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
-#if defined(FATE_DEFS_OSX)
+#if defined(FATE_OSX)
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>

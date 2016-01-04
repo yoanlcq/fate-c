@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION==0 && SDL_PATCHLEVEL>=4)
 #if defined(FATE_LINUX) || defined(FATE_FREEBSD) || defined(FATE_OSX)
-    SDL_SetHintWithpriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
+    SDL_SetHintWithPriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
                             SDL_HINT_OVERRIDE);
 #endif
 #endif
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             "    Renderer  : %s\n"
             "    Vendor    : %s\n"
             "\n",
-            4, 3, 
+            4, 1, 
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
@@ -128,11 +128,9 @@ int main(int argc, char *argv[])
     GLint gl_major, gl_minor;
     glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
     glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
-
-    if(gl_major < 4 || (gl_major == 4 && gl_minor < 3))
+    if(gl_major < 4 || (gl_major == 4 && gl_minor < 1))
         fate_fatal("The OpenGL version reported by your driver is "
                    "not supported yet.\nSorry. I'm working on it.\n");
-
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
 

@@ -36,7 +36,10 @@ void fate_gl_log_shader_info(GLuint shader) {
     err = malloc((errlen+1)*sizeof(GLchar));
     glGetShaderInfoLog(shader, errlen, &errlen, err);
     err[errlen] = '\0';
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
     fate_logf_video(err);
+#pragma GCC diagnostic pop
     free(err);
 }
 
@@ -47,6 +50,9 @@ void fate_gl_log_program_info(GLuint program) {
     err = malloc((errlen+1)*sizeof(GLchar));
     glGetProgramInfoLog(program, errlen, &errlen, err);
     err[errlen] = '\0';
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
     fate_logf_video(err);
+#pragma GCC diagnostic pop
     free(err);
 }

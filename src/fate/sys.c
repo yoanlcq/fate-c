@@ -26,9 +26,14 @@
 #include <unistd.h>
 #include <execinfo.h>
 #elif defined(FATE_OSX)
+#include <stdint.h>
 #include <limits.h>
 #include <signal.h>
 #include <mach-o/dyld.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <sys/mount.h>
 #include <execinfo.h>
 #endif
 
@@ -229,7 +234,7 @@ static char *get_executable_path(void) {
 static char *get_executable_path(void) {
     static char appdir[MAXPATHLEN];
     char *str, *str2;
-    size_t size = MAXPATHLEN;
+    uint32_t size = MAXPATHLEN;
     if(_NSGetExecutablePath(appdir, &size) == 0)
         return realpath(appdir, NULL);
     str = malloc(size);
