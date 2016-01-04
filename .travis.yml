@@ -9,6 +9,4 @@ install:
     - sudo apt-get install -y libsdl2-dev gcc-4.9
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60
 script:
-    - gcc --version
-    - ldd --version
     - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc
