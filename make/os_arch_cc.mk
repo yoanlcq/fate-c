@@ -51,7 +51,9 @@ $(error $(call OS_ARCH_CC_ERROR))
 else
 ifneq ($(CC),gcc)
 ifneq ($(CC),cl)
+ifneq ($(CC),clang)
 $(error $(call CC_ERROR))
+endif
 endif
 endif
 endif

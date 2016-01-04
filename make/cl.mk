@@ -2,11 +2,8 @@ CCFLAGS = /nologo /Iinclude
 CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DEBUG /DFATE_DEBUG_BUILD /DFATE_ENABLE_TRACING
 CCRELEASEFLAGS = $(CCFLAGS) /O2 /Ot /Ox /GL /Gw /DNDEBUG
 GLEWFLAGS = /DGLEW_STATIC /DGLEW_NO_GLU
-LDLIBS = csfml-audio-2.lib \
-		 csfml-graphics-2.lib \
-		 csfml-network-2.lib \
-		 csfml-window-2.lib \
-		 csfml-system-2.lib \
+LDLIBS = SDL2.lib \
+		 SDL2main.lib \
 		 opengl32.lib \
 		 d3d10.lib \
 		 dxguid.lib \
