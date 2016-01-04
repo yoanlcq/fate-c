@@ -1,4 +1,4 @@
-Travis build status - OS X Mavericks and Ubuntu 12.04 64-bits :  
+Travis build status - OS X Mavericks and Ubuntu 12.04 64-bits - gcc and clang :  
 ![Travis build status](https://travis-ci.org/yoanlcq/FATE.svg?branch=master)
 
 # FATE
