@@ -14,7 +14,6 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/auxv.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
@@ -181,11 +180,17 @@ static inline int lstat(const char *path, struct stat *buf) {
 #error Syscalls lstat() and readlink() are not available.
 #endif
 #endif
+#if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
+#include <sys/auxv.h>
+#endif
 static char *get_executable_path(void) {
     struct stat st;
-    char *str = (char*)getauxval(AT_EXECFN), *str2;
+    char *str;
+#if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
+    str = (char*)getauxval(AT_EXECFN), *str2;
     if(str)
         return realpath(str, NULL);
+#endif
     if(lstat("/proc/self/exe", &st) == 0) {
         str = malloc(st.st_size+1);
         if(readlink("/proc/self/exe", str, st.st_size) > 0) {
