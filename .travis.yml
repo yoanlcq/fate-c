@@ -1,0 +1,10 @@
+os:
+- linux
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install -y libSDL2-dev
+language: c
+compiler: gcc
+install:
+script:
+    - make clean; make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc
