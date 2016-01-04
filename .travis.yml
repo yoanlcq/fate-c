@@ -1,11 +1,12 @@
 os:
-- linux
+    - linux
 language: c
 compiler: gcc
 before_install:
-- yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
-- sudo apt-get update -qq
+    - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
+    - sudo apt-get update -qq
 install:
-- sudo apt-get install -y libsdl2-dev
+    - sudo apt-get install -y libsdl2-dev gcc-4.9
 script:
-- make clean; make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc
+    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc-4.9
