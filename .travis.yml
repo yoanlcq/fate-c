@@ -1,12 +1,13 @@
 os:
-    - linux
+    - osx
 language: c
+compiler:
+    - gcc
 before_install:
-    - yes | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
-    - sudo apt-get update -qq
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then . ./ci/travis/before_install-osx.sh; fi
 install:
-    - sudo apt-get install -y libsdl2-dev gcc-4.9
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then . ./ci/travis/install-osx.sh; fi
 script:
-    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc
+    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=$CC
