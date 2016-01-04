@@ -8,6 +8,8 @@ endif
 CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
+endif
+ifneq ($(OS),osx)
 LDLIBS = -lm \
 		 -lSDL2
 else

@@ -10,4 +10,5 @@ install:
     - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi
     - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then . ./ci/travis/install-osx.sh; fi
 script:
-    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=$CC
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=$CC; fi
+    - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then make -j3 OS=$TRAVIS_OS_NAME CC=$CC; fi
