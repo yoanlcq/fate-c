@@ -1,4 +1,5 @@
-![Travis build status](https://travis-ci.org/yoanlcq/FATE.svg)
+Travis build status, for OS X Mavericks and Ubuntu 12.04 64-bits :
+![Travis build status](https://travis-ci.org/yoanlcq/FATE.svg?branch=master)
 
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.
