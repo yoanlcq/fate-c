@@ -7,6 +7,7 @@ before_install:
     - yes | sudo add-apt-repository ppa:zoogie/sdl2-snapshots
     - sudo apt-get update -qq
 install:
-    - sudo apt-get install -y libsdl2-dev gcc-4.9
+    - sudo apt-get install -y libsdl2-dev gcc
 script:
-    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc-4.9
+    - gcc --version
+    - make -j3 OS=$TRAVIS_OS_NAME ARCH=64 CC=gcc
