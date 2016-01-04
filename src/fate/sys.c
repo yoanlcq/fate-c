@@ -185,7 +185,7 @@ static inline int lstat(const char *path, struct stat *buf) {
 #endif
 static char *get_executable_path(void) {
     struct stat st;
-    char *str;
+    char *str2, *str;
 #if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
     str = (char*)getauxval(AT_EXECFN), *str2;
     if(str)
