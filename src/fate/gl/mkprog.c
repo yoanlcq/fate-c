@@ -78,7 +78,8 @@ static void fgm_add_shader_entry(const fgm_shaders_db_entry *en)
         if(en->hash == fgm_shaders_db.entries[i].hash) {
             fate_logf_err("fate_gl_mkprog: Hash collision detected "
                           "in the shaders hashtable.\n"
-                          "The hash is %#016llX.\n", en->hash);
+                          "The hash is %#016llX.\n", 
+                          (unsigned long long)en->hash);
             continue;
         }
 #endif
@@ -344,7 +345,7 @@ static int fate_gl_mkprog_2_0_real(GLuint program, const char *save_path,
 static int fate_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
     
     va_list ap;
-    bool binfile_is_outdated;
+    bool binfile_is_outdated=false;
     FILE *binfile = fopen(save_path, "rb");
 
     if(binfile) {

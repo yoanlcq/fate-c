@@ -116,7 +116,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
                                 GLsizei length, const GLchar* message, 
                                 const void* userParam)
 {
-    char *source_str;
+    char *source_str="";
     switch(source) {
     case GL_DEBUG_SOURCE_API: 
         source_str = "API"; break;
@@ -131,7 +131,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
     case GL_DEBUG_SOURCE_OTHER:
         source_str = "Other"; break;
     }
-    char *type_str;
+    char *type_str="";
     switch(type) {
     case GL_DEBUG_TYPE_ERROR: 
         type_str = "Error"; break;
@@ -152,7 +152,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
     case GL_DEBUG_TYPE_OTHER:
         type_str = "Other"; break;
     }
-    char *severity_str;
+    char *severity_str="";
     switch(severity) {
     case GL_DEBUG_SEVERITY_HIGH:         severity_str = "High"; break;
     case GL_DEBUG_SEVERITY_MEDIUM:       severity_str = "Medium"; break;
@@ -171,7 +171,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback_amd(GLuint id, GLenum category,
                                 GLsizei length, const GLchar* message, 
                                 void* userParam)
 {
-    char *category_str;
+    char *category_str="";
     switch(category) {
     case GL_DEBUG_CATEGORY_API_ERROR_AMD: 
         category_str = "API Error";
@@ -198,7 +198,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback_amd(GLuint id, GLenum category,
         category_str = "Other";
         break;
     }
-    char *severity_str;
+    char *severity_str="";
     switch(severity) {
     case GL_DEBUG_SEVERITY_HIGH_AMD:   severity_str = "High"; break;
     case GL_DEBUG_SEVERITY_MEDIUM_AMD: severity_str = "Medium"; break;
