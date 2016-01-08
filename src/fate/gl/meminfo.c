@@ -6,6 +6,7 @@ static void fgl_meminfo_query_dummy(fate_gl_meminfo *m) {
     m->type = FATE_GL_MEMINFO_NONE;
 }
 static void fgl_meminfo_query_nvx(fate_gl_meminfo *m) {
+#ifndef FATE_EMSCRIPTEN
     m->type = FATE_GL_MEMINFO_NVX;
     glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, 
                   &(m->data.nvx.dedicated_vidmem));
@@ -17,6 +18,7 @@ static void fgl_meminfo_query_nvx(fate_gl_meminfo *m) {
                   &(m->data.nvx.eviction_count));
     glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX,
                   &(m->data.nvx.evicted_mem));
+#endif
 }
 static void fgl_meminfo_query_ati(fate_gl_meminfo *m) {
     GLint buf[4];

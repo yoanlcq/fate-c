@@ -1,4 +1,4 @@
-CCFLAGS = -Iinclude -Iinclude/contrib -Wall
+CCFLAGS = -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE
 CCDEBUGFLAGS = $(CCFLAGS) -g \
 			   -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
 GLEWFLAGS = -O0 -DGLEW_STATIC -DGLEW_NO_GLU

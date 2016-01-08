@@ -17,7 +17,7 @@ endef
 
 define OS_ERROR
 
-The OS variable must be set to either windows, linux or osx.
+The OS variable must be set to either windows, linux, osx or web.
 
 endef
 
@@ -40,7 +40,9 @@ else
 ifneq ($(OS),windows)
 ifneq ($(OS),linux)
 ifneq ($(OS),osx)
+ifneq ($(OS),web)
 $(error $(call OS_ERROR))
+endif
 endif
 endif
 endif
@@ -62,12 +64,14 @@ endif
 
 
 ifneq ($(OS),osx)
+ifneq ($(OS),web)
 ifndef ARCH
 $(error $(call OS_ARCH_CC_ERROR))
 else
 ifneq ($(ARCH),32)
 ifneq ($(ARCH),64)
 $(error $(call ARCH_ERROR))
+endif
 endif
 endif
 endif

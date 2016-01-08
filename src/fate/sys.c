@@ -195,7 +195,7 @@ static inline int lstat(const char *path, struct stat *buf) {
     return syscall(SYS_lstat, path, buf);
 }
 #else
-#error Syscalls lstat() and readlink() are not available.
+#error Syscalls lstat() and readlink() are not available. Please update (g)libc or define _GNU_SOURCE.
 #endif
 #endif
 #if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)

@@ -160,8 +160,12 @@ int main(int argc, char *argv[])
         ctxpflags,
         ctxflags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT ? "forward_compatible " : "",
         ctxflags & GL_CONTEXT_FLAG_DEBUG_BIT ? "debug " : "",
+#ifdef FATE_EMSCRIPTEN
+        "", "",
+#else
         ctxflags & GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT ? "robust_access " : "",
         ctxflags & GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR ? "no_error " : "",
+#endif
         ctxflags,
         double_buffer ? "yes" : "no",
         stereo_buffers ? "yes" : "no",
