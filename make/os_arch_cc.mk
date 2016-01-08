@@ -52,7 +52,9 @@ else
 ifneq ($(CC),gcc)
 ifneq ($(CC),cl)
 ifneq ($(CC),clang)
+ifneq ($(CC),emcc)
 $(error $(call CC_ERROR))
+endif
 endif
 endif
 endif

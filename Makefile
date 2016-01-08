@@ -15,7 +15,9 @@ default_goals: fate_cube_demo fate_cube_demo_debug
 #fate_d3d10_sample fate_d3d10_sample_debug
 	
 $(eval $(call MKRES,fate_cube_demo))
-$(eval $(call MKOBJ,fate_cube_demo,$(GLEWFLAGS),glew.c,GL/glew.h,GL/glxew.h,GL/wglew.h))
+ifneq ($(CC),emcc)
+$(eval $(call MKOBJ,fate_cube_demo,$(GLEWFLAGS),contrib/glew.c,contrib/GL/glew.h,contrib/GL/glxew.h,contrib/GL/wglew.h))
+endif
 $(eval $(call MKOBJ,fate_cube_demo,,fate/globalstate.c,fate/globalstate.h))
 $(eval $(call MKOBJ,fate_cube_demo,,fate/fatal_alloc.c,fate/fatal_alloc.h))
 $(eval $(call MKOBJ,fate_cube_demo,,fate/log.c,fate/log.h))

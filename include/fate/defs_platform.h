@@ -9,8 +9,10 @@
     #define FATE_OSX
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     #define FATE_FREEBSD
+#elif defined(__EMSCRIPTEN__)
+    #define FATE_EMSCRIPTEN
 #else
-    #error This operating system is not supported by F.A.T.E.
+    #error This platform is not supported by F.A.T.E.
 #endif
 
 #if FATE_WINDOWS

@@ -54,12 +54,19 @@
  *
  */
 
-
-#if defined(FATE_WINDOWS)
+#if defined(FATE_EMSCRIPTEN)
+inline bool fate_sys_file_exists(const char *path) {
+    FILE *file = fopen(path, "r");
+    if(!file)
+        return false;
+    fclose(file);
+    return true;
+}
+#elif defined(FATE_WINDOWS)
 inline bool fate_sys_file_exists(const char *path) {
     return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
 }
-#else 
+#else
 inline bool fate_sys_file_exists(const char *path) {
     return !access(path, F_OK);
 }
@@ -85,7 +92,11 @@ inline bool fate_sys_file_exists(const char *path) {
  */
 
 
-#if defined(FATE_WINDOWS)
+#if defined(FATE_EMSCRIPTEN)
+uint64_t fate_sys_get_last_write_time(const char *path) {
+    return 0; /* FIXME */
+}
+#elif defined(FATE_WINDOWS)
 uint64_t fate_sys_get_last_write_time(const char *path) {
     FILETIME ft;
     HANDLE fh;
@@ -129,7 +140,11 @@ inline uint64_t fate_sys_get_last_write_time(const char *path) {
  */
 
 
-#if defined(FATE_WINDOWS)
+#if defined(FATE_EMSCRIPTEN)
+inline bool fate_sys_set_current_directory(const char *path) {
+    return false; /* TODO */
+}
+#elif defined(FATE_WINDOWS)
 #if !(_MSC_VER && !__INTEL_COMPILER)
 inline 
 #endif 
@@ -163,8 +178,11 @@ inline bool fate_sys_set_current_directory(const char *path) {
  */
 
 
-
-#if defined(FATE_LINUX)
+#if defined(FATE_EMSCRIPTEN)
+char *fate_sys_getgamepath(void) {
+    return ""; /* FIXME */
+}
+#elif defined(FATE_LINUX)
 
 #if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
  || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
@@ -255,6 +273,8 @@ static char *get_executable_path(void) {
 }
 #endif
 
+#ifndef FATE_EMSCRIPTEN
+
 #if defined(FATE_WINDOWS)
 #define PATHSEP "\\"
 #else
@@ -299,7 +319,7 @@ char *fate_sys_getgamepath(void) {
 }
 
 #undef PATHSEP
-
+#endif /* EMSCRIPTEN */
 
 
 /*
@@ -321,8 +341,11 @@ char *fate_sys_getgamepath(void) {
  */
 
 
-
-#ifdef FATE_WINDOWS
+#ifdef FATE_EMSCRIPTEN
+void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
+    /* FIXME */
+}
+#elif defined(FATE_WINDOWS)
 
 void fate_sys_log_win32_error(void (*logfunc)(const char *fmt, ...), 
                               const char *funcstr, DWORD error) 
@@ -474,8 +497,11 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
  *
  */
 
-
-#ifdef FATE_WINDOWS
+#ifdef FATE_EMSCRIPTEN
+void fate_sys_crash_handler_setup(void) {
+    /* FIXME */
+}
+#elif defined(FATE_WINDOWS)
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
 LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)

@@ -15,6 +15,7 @@ BINDIR = bin$(PATHSEP)$(OS)$(ARCH)
 DATADIR = data
 
 BUILDDIRS = $(BUILDDIR) \
+			$(BUILDDIR)$(PATHSEP)contrib \
 		    $(BUILDDIR)$(PATHSEP)fate \
             $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)gl \
             $(BUILDDIR)$(PATHSEP)fate$(PATHSEP)d3d \
@@ -47,6 +48,8 @@ re : mrproper
 $(BINDIR):
 	$(MKDIR) $@
 $(BUILDDIR):
+	$(MKDIR) $@
+$(BUILDDIR)$(PATHSEP)contrib:
 	$(MKDIR) $@
 $(BUILDDIR)$(PATHSEP)fate:
 	$(MKDIR) $@
