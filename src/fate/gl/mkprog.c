@@ -105,7 +105,9 @@ typedef struct fgm_shader_type_entry fgm_shader_type_entry;
  * fate_gl_mkprog_setup().
  */
 static const fgm_shader_type_entry shader_types_db_actual[] = {
+#ifndef FATE_EMSCRIPTEN
     { "comp", GL_COMPUTE_SHADER,         43 },
+#endif
     { "tesc", GL_TESS_CONTROL_SHADER,    40 },
     { "tese", GL_TESS_EVALUATION_SHADER, 40 },
     { "geom", GL_GEOMETRY_SHADER,        32 },
@@ -175,8 +177,12 @@ GLuint fgm_find_or_compile_shader(const char *path)
     size_t num_strings;
     char **shsrc = fate_file_to_string_array(file, &num_strings);
     fclose(file);
-    
+   
+#ifdef FATE_EMSCRIPTEN
+    glShaderSource(shid, num_strings, (const GLchar**) shsrc, NULL);
+#else
     glShaderSource(shid, num_strings, (const GLchar* const*) shsrc, NULL);
+#endif
 
     unsigned i;
     for(i=0 ; i<num_strings ; ++i)
