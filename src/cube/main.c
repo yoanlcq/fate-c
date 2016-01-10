@@ -10,7 +10,7 @@
 #include <linmath/linmath.h>
 #include "cube.h"
 
-#if FATE_WINDOWS
+#ifdef FATE_WINDOWS
 #include <Windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    PSTR pCmdLine, int nCmdShow)
@@ -266,6 +266,15 @@ int main(int argc, char *argv[])
     uint32_t current_time;
     uint32_t lim_last_time = SDL_GetTicks();
     uint32_t last_time = SDL_GetTicks();
+
+#ifdef __EMSCRIPTEN__
+/*
+void main_loop_iteration(void *arg) {
+    Une itération de la boucle
+}
+emscripten_set_main_loop_arg(main_loop_iteration, NULL, 0, true); 
+*/
+#endif
 
     while(running) {
         SDL_Event event;
