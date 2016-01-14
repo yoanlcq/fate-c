@@ -69,6 +69,7 @@ void Cube_draw(Cube *c) {
     //glDisable(GL_CULL_FACE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
     glCullFace(GL_FRONT);
+    glUseProgram(c->prog);
     glBindVertexArray(c->vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     glPrimitiveRestartIndex(0xFF);

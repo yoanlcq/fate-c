@@ -7,6 +7,8 @@
 fate_globalstate fate_gs_;
 fate_globalstate *fate_gs = &fate_gs_;
 
+/* See https://kripken.github.io/emscripten-site/docs/api_reference/emscripten.h.html#emscripten-asynchronous-indexeddb-api */
+
 void fate_globalstate_init(fate_globalstate *gs) {
 
     fate_logf_err = fate_logf_err_to_console;

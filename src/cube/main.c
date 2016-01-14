@@ -8,16 +8,44 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_revision.h>
 #include <linmath/linmath.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 #include "cube.h"
 
-#ifdef FATE_WINDOWS
-#include <Windows.h>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
-                   PSTR pCmdLine, int nCmdShow)
-#else
-int main(int argc, char *argv[])
-#endif
-{
+
+struct cube_main {
+    bool running;
+    SDL_Window *window;
+    SDL_DisplayMode current_display_mode;
+    SDL_GLContext glctx;
+    uint16_t win_w, win_h;
+    uint16_t old_win_w, old_win_h;
+    Cube cube;
+    float distance;
+    vec3 eye, center, up;
+    GLint MVPMatrixLoc;
+    GLint ufInvertLoc;
+    mat4 MVPMatrix, Projection, View, Model;
+    int mousex, mousey;
+    bool mousein, mousedown;
+    float h_angle, v_angle;
+    float R_x;
+    float R_y;
+    bool zoom_in, zoom_out;
+    bool go_west, go_east;
+    float splitx;
+    unsigned fps_ceil;
+    unsigned framerate_limit;
+    double frameno;
+    uint32_t lim_last_time;
+    uint32_t last_time;
+};
+
+void cube_main_init(struct cube_main *m) {
+
+    m->running = true;
+
 #if SDL_MAJOR_VERSION > 2 \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION==0 && SDL_PATCHLEVEL>=4)
@@ -26,10 +54,11 @@ int main(int argc, char *argv[])
                             SDL_HINT_OVERRIDE);
 #endif
 #endif
-
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    puts("Initializing SDL...");
+    if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
         fate_fatal("SDL_Init failed: %s\n", SDL_GetError());
 
+    puts("Initializing log system and global state...");
     //We do this after SDL_Init to (hopefully) override its signal handler.
     fate_globalstate_init(fate_gs);
 
@@ -84,25 +113,21 @@ int main(int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
 */
-    uint16_t win_w = 640, win_h = 480;
-    uint16_t old_win_w = win_w;
-    uint16_t old_win_h = win_h;
-    SDL_Window *window = SDL_CreateWindow("F.A.T.E Cube demo", 
-            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h,
+    m->win_w = 640;
+    m->win_h = 480;
+    m->window = SDL_CreateWindow("F.A.T.E Cube demo", 
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m->win_w, m->win_h,
             SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 
-    if(!window)
+    if(!m->window)
         fate_fatal("SDL_CreateWindow failed: %s\n", SDL_GetError());
 
-    SDL_DisplayMode current_display_mode;
-    if(SDL_GetCurrentDisplayMode(0, &current_display_mode) != 0)
+    if(SDL_GetCurrentDisplayMode(0, &m->current_display_mode))
         fate_fatal("SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
 
-    SDL_GLContext ctx = SDL_GL_CreateContext(window);
-    if(!ctx)
+    m->glctx = SDL_GL_CreateContext(m->window);
+    if(!m->glctx)
         fate_fatal("SDL_GL_CreateContext failed : %s\n", SDL_GetError());
-
-    /* SDL_GL_MakeCurrent(window, ctx); */
 
     glewExperimental = GL_TRUE;
     fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
@@ -198,8 +223,7 @@ int main(int argc, char *argv[])
         fate_fatal("Could not build the OpenGL program.\n");
     fate_gl_mkprog_cleanup();
     fate_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
-    Cube cube;
-    Cube_init(&cube, progid);
+    Cube_init(&m->cube, progid);
 
     glEnable(GL_PRIMITIVE_RESTART); /* Since OpenGL 3.1 */
     glEnable(GL_DEPTH_TEST);
@@ -209,21 +233,26 @@ int main(int argc, char *argv[])
     glDepthFunc(GL_LESS);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-    float distance = 6.0f;
-    vec3 eye = {0.0f, 0.0f, -distance}, center = {0,0,0}, up = {0,1,0};
-    GLint MVPMatrixLoc = glGetUniformLocation(progid, "MVPMatrix");
-    GLint ufInvertLoc  = glGetUniformLocation(progid, "ufInvert");
-    mat4 MVPMatrix, Projection, View, Model;
+    
+    m->distance = 6.0f;
+    m->eye[0] = 0.0f;
+    m->eye[1] = 0.0f;
+    m->eye[2] = -m->distance;
+    memset(m->center, 0, sizeof(vec3));
+    m->up[0] = 0.0f;
+    m->up[1] = 1.0f;
+    m->up[2] = 0.0f;
+    m->MVPMatrixLoc = glGetUniformLocation(m->cube.prog, "MVPMatrix");
+    m->ufInvertLoc  = glGetUniformLocation(m->cube.prog, "ufInvert");
 
 #define UPDATE_VIEW() \
-    mat4_identity(Model); \
-    mat4_look_at(View, eye, center, up)
+    mat4_identity(m->Model); \
+    mat4_look_at(m->View, m->eye, m->center, m->up)
 
 #define UPDATE_MVP() \
-    mat4_mul(MVPMatrix, Projection, View); \
-    mat4_mul(MVPMatrix, Model, MVPMatrix); \
-    glUniformMatrix4fv(MVPMatrixLoc, 1, GL_FALSE, &MVPMatrix[0][0])
+    mat4_mul(m->MVPMatrix, m->Projection, m->View); \
+    mat4_mul(m->MVPMatrix, m->Model, m->MVPMatrix); \
+    glUniformMatrix4fv(m->MVPMatrixLoc, 1, GL_FALSE, &m->MVPMatrix[0][0])
    
 #define FATE_FALLBACK_REFRESH_RATE 60
 #define FATE_DEFAULT_FPS_CEIL 256
@@ -233,285 +262,299 @@ int main(int argc, char *argv[])
 
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
-    win_w = _W_; win_h = _H_; \
-    mat4_perspective(Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
+    m->win_w = _W_; m->win_h = _H_; \
+    mat4_perspective(m->Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
                      FATE_DEFAULT_NEAR, FATE_DEFAULT_FAR); \
     UPDATE_MVP()
 
     UPDATE_VIEW();
-    RESIZE(win_w, win_h);
+    RESIZE(m->win_w, m->win_h);
 
-    int mousex=0, mousey=0;
-    bool mousein = false, mousedown = false;
-    float h_angle = 0.0f, v_angle = 0.0f;
-    float R_x = 0.0f;
-    float R_y = 0.0f;
-    bool zoom_in  = false;
-    bool zoom_out = false;
+    m->mousex = m->mousey = 0;
+    m->mousein = m->mousedown = false;
+    m->h_angle = m->v_angle = 0.0f;
+    m->R_x = m->R_y = 0.0f;
+    m->zoom_in = m->zoom_out = false;
 
-    bool go_west = false, go_east = false;
-    float splitx = 0.5f;
-    bool running = true;
-    bool dirty = false;
+    m->go_west = m->go_east = false;
+    m->splitx = 0.5f;
 
-    unsigned fps_ceil = FATE_DEFAULT_FPS_CEIL;
-    unsigned framerate_limit = 0;
+    m->fps_ceil = FATE_DEFAULT_FPS_CEIL;
+    m->framerate_limit = 0;
 
-    if(framerate_limit <= 0)
+    if(m->framerate_limit <= 0)
         if(SDL_GL_SetSwapInterval(1) < 0)
             fate_logf_err("Warning : Vsync is disabled. The FPS may skyrocket.\n");
 
-    double frameno = 0;
-    const double fps_counter_interval = 1000.0; /* Should be in [100, 1000] */
-    uint32_t current_time;
-    uint32_t lim_last_time = SDL_GetTicks();
-    uint32_t last_time = SDL_GetTicks();
-
-#ifdef __EMSCRIPTEN__
-/*
-void main_loop_iteration(void *arg) {
-    Une itération de la boucle
+    m->frameno = 0;
+    m->lim_last_time = SDL_GetTicks();
+    m->last_time = SDL_GetTicks();
 }
-emscripten_set_main_loop_arg(main_loop_iteration, NULL, 0, true); 
-*/
-#endif
 
-    while(running) {
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            switch(event.type) {
-                case SDL_QUIT:
-                case SDL_APP_TERMINATING: 
-                    running = false; 
-                    break;
-                case SDL_APP_LOWMEMORY: break;
-                case SDL_APP_WILLENTERBACKGROUND: break;
-                case SDL_APP_DIDENTERBACKGROUND: break;
-                case SDL_APP_WILLENTERFOREGROUND: break;
-                case SDL_APP_DIDENTERFOREGROUND: break;
-                case SDL_WINDOWEVENT: 
-                    switch (event.window.event) {
-                    case SDL_WINDOWEVENT_CLOSE:
-                        running = false;
-                        break;
-                    case SDL_WINDOWEVENT_SHOWN:break;
-                    case SDL_WINDOWEVENT_HIDDEN:break;
-                    case SDL_WINDOWEVENT_EXPOSED:break;
-                    case SDL_WINDOWEVENT_MOVED:break;
-                    case SDL_WINDOWEVENT_RESIZED:
-                    case SDL_WINDOWEVENT_SIZE_CHANGED:
-                        RESIZE(event.window.data1, event.window.data2);
-                        break;
-                    case SDL_WINDOWEVENT_MINIMIZED:break;
-                    case SDL_WINDOWEVENT_MAXIMIZED:break;
-                    case SDL_WINDOWEVENT_RESTORED:break;
-                    case SDL_WINDOWEVENT_ENTER: mousein = true;  break;
-                    case SDL_WINDOWEVENT_LEAVE: mousein = false; break;
-                    case SDL_WINDOWEVENT_FOCUS_GAINED:break;
-                    case SDL_WINDOWEVENT_FOCUS_LOST:break;
-                    }
-                    break;
-                case SDL_SYSWMEVENT: break;
 
-                case SDL_KEYDOWN:
-                    switch(event.key.keysym.sym) {
-                        case SDLK_LEFT:  go_west  = true; break;
-                        case SDLK_RIGHT: go_east  = true; break;
-                        case SDLK_KP_PLUS: zoom_in  = true; break;
-                        case SDLK_KP_MINUS: zoom_out = true; break;
-                    }
-                    break;
-                case SDL_KEYUP: 
-                    switch(event.key.keysym.sym) {
-                        case SDLK_LEFT:     go_west  = false; break;
-                        case SDLK_RIGHT:    go_east  = false; break;
-                        case SDLK_KP_PLUS:  zoom_in  = false; break;
-                        case SDLK_KP_MINUS: zoom_out = false; break;
-                        case SDLK_F11: 
-                        {
-                            bool is_fullscreen = !!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN);
-                            if(!is_fullscreen) {
-                                old_win_w = win_w;
-                                old_win_h = win_h;
-                                SDL_SetWindowSize(window, 
-                                        current_display_mode.w, 
-                                        current_display_mode.h);
-                                fate_logf_video("Now using %s mode.\n", "fullscreen");
-                            }
-                            if(SDL_SetWindowFullscreen(window, 
-                                    (!is_fullscreen)*SDL_WINDOW_FULLSCREEN)<0) {
-                                fate_logf_video("Failed to toggle fullscreen : %s\n", SDL_GetError());
-                                break;
-                            }
-                            if(is_fullscreen) {
-                                SDL_SetWindowSize(window, old_win_w, old_win_h);
-                                SDL_SetWindowPosition(window, 
-                                        SDL_WINDOWPOS_CENTERED, 
-                                        SDL_WINDOWPOS_CENTERED);
-                                fate_logf_video("Now using %s mode.\n", "windowed");
-                            }
-                        }
-                            break;
-                    }
-                    break;
-                case SDL_TEXTEDITING: break;
-                case SDL_TEXTINPUT: break;
-                case SDL_MOUSEMOTION: 
-                    
-                    if(!mousein) {
-                        mousex = event.motion.x;
-                        mousey = event.motion.y;
-                        mousein = true;
-                    }
-                    if(mousedown) {
-                        h_angle += (event.motion.x - mousex)*M_PI/180.0f;
-                        v_angle += (event.motion.y - mousey)*M_PI/180.0f;
-                        if(v_angle >= M_PI/2)
-                            v_angle = M_PI/2 - M_PI/180.0f;
-                        else if(v_angle <= -M_PI/2)
-                            v_angle = -M_PI/2 + M_PI/180.0f;
-                        eye[0] =  distance*sinf(h_angle)*cosf(v_angle);
-                        eye[1] =  distance*sinf(v_angle);
-                        eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
 
-                        UPDATE_VIEW();
-                        UPDATE_MVP();
-                    }    
-                    mousex = event.motion.x;
-                    mousey = event.motion.y;
-                    break;
-                case SDL_MOUSEBUTTONDOWN: 
-                    mousedown = true;                  
-                    break;
-                case SDL_MOUSEBUTTONUP: 
-                    mousedown = false;
-                    break;
-                case SDL_MOUSEWHEEL: 
-                    distance -= event.wheel.y;
-                    dirty = true;
-                    break;
-                case SDL_JOYAXISMOTION: break;
-                case SDL_JOYBALLMOTION: break;
-                case SDL_JOYHATMOTION: break;
-                case SDL_JOYBUTTONDOWN: break;
-                case SDL_JOYBUTTONUP: break;
-                case SDL_JOYDEVICEADDED: break;
-                case SDL_JOYDEVICEREMOVED: break;
-                case SDL_CONTROLLERAXISMOTION: break;
-                case SDL_CONTROLLERBUTTONDOWN: break;
-                case SDL_CONTROLLERBUTTONUP: break;
-                case SDL_CONTROLLERDEVICEADDED: break;
-                case SDL_CONTROLLERDEVICEREMOVED: break;
-                case SDL_CONTROLLERDEVICEREMAPPED: break;
-                case SDL_FINGERDOWN: break;
-                case SDL_FINGERUP: break;
-                case SDL_FINGERMOTION: break;
-                case SDL_DOLLARGESTURE: break;
-                case SDL_DOLLARRECORD: break;
-                case SDL_MULTIGESTURE: break;
-                case SDL_CLIPBOARDUPDATE: break;
-                case SDL_DROPFILE: break;
-             /* case SDL_AUDIODEVICEADDED: break;
-                case SDL_AUDIODEVICEREMOVED: break; */
-                case SDL_RENDER_TARGETS_RESET: break;
-                /* case SDL_RENDER_DEVICE_RESET: break; */
-                case SDL_USEREVENT: break;
-            } /* end switch(event.type) */
-        } /* end while(PollEvent(window)) */
 
-        if(go_west && splitx > 0.0025f)
-            splitx -= 0.0025f;
-        if(go_east && splitx < 0.9975f)
-            splitx += 0.0025f;
-        if(R_x > 10.0f || R_x < -10.0f || R_y>10.0f || R_y<-10.0f) {
-            eye[0] += R_x/200.0f;
-            eye[1] += R_y/200.0f;
-            dirty = true;
-        }
-        if(zoom_in) {
-            distance -= 0.25f;
-            dirty = true;
-        } else if(zoom_out) {
-            distance += 0.25f;
-            dirty = true;
-        }
-        if(dirty) {
-            eye[0] =  distance*sinf(h_angle)*cosf(v_angle);
-            eye[1] =  distance*sinf(v_angle);
-            eye[2] = -distance*cosf(h_angle)*cosf(v_angle);
-            UPDATE_VIEW();
-            UPDATE_MVP();
-            dirty = false;
-        }
+void cube_main_loop_iteration(void *arg) {
+    struct cube_main *m = arg;
 
-        /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
-        current_time = SDL_GetTicks();
-        ++frameno;
-        if(SDL_TICKS_PASSED(current_time, last_time+fps_counter_interval))
-        {
-            unsigned fps = lround(frameno*1000.0/fps_counter_interval);
-            fate_logf_video("%u frames under %lg milliseconds = "
-                            "%lg milliseconds/frame = "
-                            "%u FPS\n", 
-                    (unsigned)frameno,
-                    fps_counter_interval,
-                    fps_counter_interval/frameno, 
-                    fps);
-            frameno = 0;
-            last_time += fps_counter_interval;
-            if(framerate_limit <= 0 && fps > fps_ceil) {
-                const char *str;
-                if(current_display_mode.refresh_rate) {
-                    framerate_limit = current_display_mode.refresh_rate;
-                    str = "from display mode info";
-                } else {
-                    framerate_limit = FATE_FALLBACK_REFRESH_RATE;
-                    str = "fallback";
+    if(!m->running) {
+        glDeleteProgram(m->cube.prog);
+        Cube_free(&m->cube);
+        fate_globalstate_deinit(fate_gs);
+        SDL_GL_DeleteContext(m->glctx);
+        SDL_DestroyWindow(m->window);
+        SDL_Quit();
+        exit(EXIT_SUCCESS);
+    }
+
+    uint32_t current_time;
+    const double fps_counter_interval = 1000.0; /* Should be in [100, 1000] */
+    bool dirty = false;
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        switch(event.type) {
+            case SDL_QUIT:
+            case SDL_APP_TERMINATING: 
+                m->running = false; 
+                break;
+            case SDL_APP_LOWMEMORY: break;
+            case SDL_APP_WILLENTERBACKGROUND: break;
+            case SDL_APP_DIDENTERBACKGROUND: break;
+            case SDL_APP_WILLENTERFOREGROUND: break;
+            case SDL_APP_DIDENTERFOREGROUND: break;
+            case SDL_WINDOWEVENT: 
+                switch (event.window.event) {
+                case SDL_WINDOWEVENT_CLOSE:
+                    m->running = false;
+                    break;
+                case SDL_WINDOWEVENT_SHOWN:break;
+                case SDL_WINDOWEVENT_HIDDEN:break;
+                case SDL_WINDOWEVENT_EXPOSED:break;
+                case SDL_WINDOWEVENT_MOVED:break;
+                case SDL_WINDOWEVENT_RESIZED:
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    RESIZE(event.window.data1, event.window.data2);
+                    break;
+                case SDL_WINDOWEVENT_MINIMIZED:break;
+                case SDL_WINDOWEVENT_MAXIMIZED:break;
+                case SDL_WINDOWEVENT_RESTORED:break;
+                case SDL_WINDOWEVENT_ENTER: m->mousein = true;  break;
+                case SDL_WINDOWEVENT_LEAVE: m->mousein = false; break;
+                case SDL_WINDOWEVENT_FOCUS_GAINED:break;
+                case SDL_WINDOWEVENT_FOCUS_LOST:break;
                 }
-                fate_logf_video("Abnormal FPS detected (Vsync is not working). "
-                                "Now limiting FPS to %u (%s).\n", 
-                                framerate_limit, str);
+                break;
+            case SDL_SYSWMEVENT: break;
+
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.sym) {
+                    case SDLK_LEFT:     m->go_west  = true; break;
+                    case SDLK_RIGHT:    m->go_east  = true; break;
+                    case SDLK_KP_PLUS:  m->zoom_in  = true; break;
+                    case SDLK_KP_MINUS: m->zoom_out = true; break;
+                }
+                break;
+            case SDL_KEYUP: 
+                switch(event.key.keysym.sym) {
+                    case SDLK_LEFT:     m->go_west  = false; break;
+                    case SDLK_RIGHT:    m->go_east  = false; break;
+                    case SDLK_KP_PLUS:  m->zoom_in  = false; break;
+                    case SDLK_KP_MINUS: m->zoom_out = false; break;
+                    case SDLK_F11: 
+                    {
+                        bool is_fullscreen = !!(SDL_GetWindowFlags(m->window) & SDL_WINDOW_FULLSCREEN);
+                        if(!is_fullscreen) {
+                            m->old_win_w = m->win_w;
+                            m->old_win_h = m->win_h;
+                            SDL_SetWindowSize(m->window, 
+                                    m->current_display_mode.w, 
+                                    m->current_display_mode.h);
+                            fate_logf_video("Now using %s mode.\n", "fullscreen");
+                        }
+                        if(SDL_SetWindowFullscreen(m->window, 
+                                (!is_fullscreen)*SDL_WINDOW_FULLSCREEN)<0) {
+                            fate_logf_video("Failed to toggle fullscreen : %s\n", SDL_GetError());
+                            break;
+                        }
+                        if(is_fullscreen) {
+                            SDL_SetWindowSize(m->window, m->old_win_w, m->old_win_h);
+                            SDL_SetWindowPosition(m->window, 
+                                    SDL_WINDOWPOS_CENTERED, 
+                                    SDL_WINDOWPOS_CENTERED);
+                            fate_logf_video("Now using %s mode.\n", "windowed");
+                        }
+                    }
+                        break;
+                }
+                break;
+            case SDL_TEXTEDITING: break;
+            case SDL_TEXTINPUT: break;
+            case SDL_MOUSEMOTION: 
+                
+                if(!m->mousein) {
+                    m->mousex = event.motion.x;
+                    m->mousey = event.motion.y;
+                    m->mousein = true;
+                }
+                if(m->mousedown) {
+                    m->h_angle += (event.motion.x - m->mousex)*M_PI/180.0f;
+                    m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
+                    if(m->v_angle >= M_PI/2)
+                        m->v_angle = M_PI/2 - M_PI/180.0f;
+                    else if(m->v_angle <= -M_PI/2)
+                        m->v_angle = -M_PI/2 + M_PI/180.0f;
+                    m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
+                    m->eye[1] =  m->distance*sinf(m->v_angle);
+                    m->eye[2] = -m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+
+                    UPDATE_VIEW();
+                    UPDATE_MVP();
+                }    
+                m->mousex = event.motion.x;
+                m->mousey = event.motion.y;
+                break;
+            case SDL_MOUSEBUTTONDOWN: 
+                m->mousedown = true;                  
+                break;
+            case SDL_MOUSEBUTTONUP: 
+                m->mousedown = false;
+                break;
+            case SDL_MOUSEWHEEL: 
+                m->distance -= event.wheel.y;
+                dirty = true;
+                break;
+            case SDL_JOYAXISMOTION: break;
+            case SDL_JOYBALLMOTION: break;
+            case SDL_JOYHATMOTION: break;
+            case SDL_JOYBUTTONDOWN: break;
+            case SDL_JOYBUTTONUP: break;
+            case SDL_JOYDEVICEADDED: break;
+            case SDL_JOYDEVICEREMOVED: break;
+            case SDL_CONTROLLERAXISMOTION: break;
+            case SDL_CONTROLLERBUTTONDOWN: break;
+            case SDL_CONTROLLERBUTTONUP: break;
+            case SDL_CONTROLLERDEVICEADDED: break;
+            case SDL_CONTROLLERDEVICEREMOVED: break;
+            case SDL_CONTROLLERDEVICEREMAPPED: break;
+            case SDL_FINGERDOWN: break;
+            case SDL_FINGERUP: break;
+            case SDL_FINGERMOTION: break;
+            case SDL_DOLLARGESTURE: break;
+            case SDL_DOLLARRECORD: break;
+            case SDL_MULTIGESTURE: break;
+            case SDL_CLIPBOARDUPDATE: break;
+            case SDL_DROPFILE: break;
+         /* case SDL_AUDIODEVICEADDED: break;
+            case SDL_AUDIODEVICEREMOVED: break; */
+            case SDL_RENDER_TARGETS_RESET: break;
+            /* case SDL_RENDER_DEVICE_RESET: break; */
+            case SDL_USEREVENT: break;
+        } /* end switch(event.type) */
+    } /* end while(PollEvent(window)) */
+
+    if(m->go_west && m->splitx > 0.0025f)
+        m->splitx -= 0.0025f;
+    if(m->go_east && m->splitx < 0.9975f)
+        m->splitx += 0.0025f;
+    if(m->R_x > 10.0f || m->R_x < -10.0f || m->R_y>10.0f || m->R_y<-10.0f) {
+        m->eye[0] += m->R_x/200.0f;
+        m->eye[1] += m->R_y/200.0f;
+        dirty = true;
+    }
+    if(m->zoom_in) {
+        m->distance -= 0.25f;
+        dirty = true;
+    } else if(m->zoom_out) {
+        m->distance += 0.25f;
+        dirty = true;
+    }
+    if(dirty) {
+        m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
+        m->eye[1] =  m->distance*sinf(m->v_angle);
+        m->eye[2] = -m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+        UPDATE_VIEW();
+        UPDATE_MVP();
+        dirty = false;
+    }
+
+    /* See http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/ */
+    current_time = SDL_GetTicks();
+    ++(m->frameno);
+    if(SDL_TICKS_PASSED(current_time, m->last_time+fps_counter_interval))
+    {
+        unsigned fps = lround(m->frameno*1000.0/fps_counter_interval);
+        fate_logf_video("%u frames under %lg milliseconds = "
+                        "%lg milliseconds/frame = "
+                        "%u FPS\n", 
+                (unsigned)m->frameno,
+                fps_counter_interval,
+                fps_counter_interval/m->frameno, 
+                fps);
+        m->frameno = 0;
+        m->last_time += fps_counter_interval;
+        if(m->framerate_limit <= 0 && fps > m->fps_ceil) {
+            const char *str;
+            if(m->current_display_mode.refresh_rate) {
+                m->framerate_limit = m->current_display_mode.refresh_rate;
+                str = "from display mode info";
+            } else {
+                m->framerate_limit = FATE_FALLBACK_REFRESH_RATE;
+                str = "fallback";
             }
+            fate_logf_video("Abnormal FPS detected (Vsync is not working). "
+                            "Now limiting FPS to %u (%s).\n", 
+                            m->framerate_limit, str);
         }
+    }
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_SCISSOR_TEST);
 
-        glScissor(0, 0, splitx*(float)win_w, win_h);
-        glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUniform1ui(ufInvertLoc, 0);
-        Cube_draw(&cube);
+    glScissor(0, 0, m->splitx*(float)m->win_w, m->win_h);
+    glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUniform1ui(m->ufInvertLoc, 0);
+    Cube_draw(&m->cube);
 
-        glScissor(splitx*(float)win_w, 0, win_w-splitx*(float)win_w, win_h);
-        glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUniform1ui(ufInvertLoc, 1);
-        Cube_draw(&cube);
-        
-        glDisable(GL_SCISSOR_TEST); 
+    glScissor(m->splitx*(float)m->win_w, 0, m->win_w-m->splitx*(float)m->win_w, m->win_h);
+    glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUniform1ui(m->ufInvertLoc, 1);
+    Cube_draw(&m->cube);
+    
+    glDisable(GL_SCISSOR_TEST); 
 
-        if(framerate_limit > 0) {
-            current_time = SDL_GetTicks();
-#define a_frame (1000/framerate_limit)
-            if(current_time-lim_last_time < a_frame)
-                SDL_Delay(a_frame-(current_time-lim_last_time));
+    if(m->framerate_limit > 0) {
+        current_time = SDL_GetTicks();
+#define a_frame (1000/m->framerate_limit)
+        if(current_time-m->lim_last_time < a_frame)
+            SDL_Delay(a_frame-(current_time-m->lim_last_time));
 #undef a_frame
-            lim_last_time = SDL_GetTicks();
-        }
+        m->lim_last_time = SDL_GetTicks();
+    }
 
-        SDL_GL_SwapWindow(window);
+    SDL_GL_SwapWindow(m->window);
+}
 
-    } /* end while(running) */
 
-    Cube_free(&cube);
-    glDeleteProgram(progid);
-    fate_globalstate_deinit(fate_gs);
-    SDL_GL_DeleteContext(ctx);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    exit(EXIT_SUCCESS);
+#ifdef FATE_WINDOWS
+#include <Windows.h>
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                   PSTR pCmdLine, int nCmdShow)
+#else
+int main(int argc, char *argv[])
+#endif
+{
+    struct cube_main m;
+    cube_main_init(&m);
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(cube_main_loop_iteration, &m, 0, true);
+#else
+    for(;;)
+        cube_main_loop_iteration(&m);
+#endif
+    return EXIT_SUCCESS;
 }
 
