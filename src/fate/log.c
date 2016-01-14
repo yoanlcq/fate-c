@@ -7,15 +7,26 @@
 void fate_fatal(const char *fmt, ...) {
     char str[BUFSIZ];
     va_list ap;
+
     va_start(ap, fmt);
     vsnprintf(str, BUFSIZ, fmt, ap);
     va_end(ap);
+
+#ifdef __EMSCRIPTEN__
+    char script[BUFSIZ];
+    sprintf(script, "alert('F.A.T.E has encountered an internal error from which it cannot recover.\n%s');", str);
+    emscripten_run_script(script);
+#endif
+
     if(!fate_logf_err)
         fate_logf_err = fate_logf_err_to_console;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
     fate_logf_err(str);
 #pragma GCC diagnostic pop
+#ifdef FATE_DEBUG
+    fate_sys_log_stacktrace(fate_logf_err);
+#endif
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
         "F.A.T.E internal error", str, NULL);
     fate_globalstate_deinit(fate_gs);

@@ -343,7 +343,12 @@ char *fate_sys_getgamepath(void) {
 
 #ifdef FATE_EMSCRIPTEN
 void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
-    /* FIXME */
+    int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
+    int  size = emscripten_get_callstack(flags, NULL, 0);
+    char *buf = malloc(size);
+    emscripten_get_callstack(flags, buf, size);
+    logfunc(buf);
+    free(buf);
 }
 #elif defined(FATE_WINDOWS)
 
