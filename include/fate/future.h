@@ -63,7 +63,7 @@ struct fate_future_file {
 
 struct fate_future_call {
     void *result;
-    void (*task)(fate_future *f, void *arg);
+    FILE (*task)(fate_future *f, void *arg);
     float progress;
 };
 
@@ -105,9 +105,11 @@ void fate_promise_file_resource(fate_future *f, const char *path, const char *mo
  * - On Emscripten, the file is loaded/stored to IndexedDB, through IDBFS
  * - Else, the file is opened just like a regular file. */
 void fate_promise_file_persistent(fate_future *f, const char *path, const char *mode);
-/* online() will always fetch a file from a url or POST it. */
+/* online() will always fetch a file from a url or POST it. 
+ * This is useful when not on Emscripten.*/
 void fate_promise_file_online(fate_future *f, const char *url, const char *mode);
-void fate_promise_call(fate_future *f, void (*task)(fate_future *f, void *arg), void *arg);
+/* the 'task' must store its result in an in-memory file (fmemopen()...) */
+void fate_promise_call(fate_future *f, FILE (*task)(fate_future *f, void *arg), void *arg);
 
 #ifdef __EMSCRIPTEN__
 #define fate_sleep_with_yield emscripten_sleep_with_yield
@@ -135,11 +137,8 @@ bool fate_future_wait(fate_future *f);
 /* Does not perform an implicit wait(). */
 const char *fate_future_geterror(fate_future *f);
 
-/* Performs an implicit wait(). Returns the result of a 'call' promise. */
-void *fate_future_getresult(fate_future *f);
-
-/* Performs an implicit wait(). Returns NULL if the promise is not a file request. */
-FILE *fate_future_fopen(fate_future *f);
+/* Performs an implicit wait(). */
+FILE *fate_future_get(fate_future *f);
 
 /* Available only to file promises. Waits until data has completely been committed. 
  * For read-only files or files that are still downloading, this is a no-op since there's nothing to do. */
