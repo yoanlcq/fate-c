@@ -2,34 +2,41 @@
  *  \brief Interface to F.A.T.E's promise subsystem.
  *
  * On startup, F.A.T.E launches a pool of N threads, where N can be changed
- * at runtime, initially being the number of CPU cores.
+ * at runtime, but initially being the number of CPU cores.
  *
- * The global state holds (doubly ?) linked lists of tasks.
- * Tasks are continuously added, waiting to be completed. No task depends on
- * the completion of another.
- * A task may be added with a priority and an estimated completion time; those
- * attributes need not be precise as they are only a hint.
+ * The global state holds (doubly ?) linked lists of tasks, called <b>Task lists</b>.<br>
+ * Tasks are continuously added, waiting to be completed. Some tasks may depend on
+ * the completion of other tasks, so it might look like a dependency graph.
  *
- * Each task list corresponds more or less to a category. Threads subscribe
- * to one or more lists depending on their privileges.
+ * As described in Intel's Dont Dread Threads, a task is the smallest unit of
+ * work in the program's pipeline.<br>
+ * That means, once selected, a task keeps its thread busy until it is completed.<br>
+ * To improve load balancing, "rather heavy tasks" should actually be split into small tasks.
+ * This way, promises are easier to cancel.
+ *
+ * For example, starting a file promise does not internally push a big "download file" task.<br>
+ * Instead, it pushes several small "download a piece of that file" tasks, each dependant from the previous.
+ *
+ * A task may be given hints, such as a priority and an estimated completion time.<br>
+ * Of course, those hints need not be precise, but they help balancing load between threads properly.
+ *
+ * Each task list plays a <b>role</b> in the program's execution. Threads subscribe
+ * to one or more lists depending on their privileges.<br>
  * (Typically, only the main thread will subscribe to the "Window Events list"
  * just like the only thread responsible for the OpenGL context will subscribe
- * to the "Video list").
- *
- * The current task lists are :
- * - <span style="color:cyan;">The Window list;</span>
- * - <span style="color:orange;">The Video list;</span>
- * - <span style="color:yellow;">The Audio list;</span>
- * - <span style="color:green;">The File IO list;</span>
- * - <span style="color:red;">The Network IO list;</span>
- * - <span style="color:blue;">The Compute list;</span>
- * - <span style="color:magenta;">The Miscellaneous list;</span>
- *
+ * to the "Video list").<br>
+ * See #fate_task_role to know more about this.
+ * 
  * Each thread's job is to :
- * - Wait until a list it subscribed to is non-empty;
- * - Pop the task with highest priority;
- * - Execute it;
- * - Go back to step 1.
+ * - Choose a non-empty list it subscribed to (waiting if necessary);
+ * - Atomically pop the task with highest priority from that list;
+ * - Execute the task;
+ * - Go back to the first step.
+ *
+ * If profiling is enabled, the thread reports statistics, such as, how much time it has spent waiting,
+ * the number of times it has waited, how much time it has spent executing each task,
+ * which role that task was in, etc.
+ *
  *
  * With Emscripten, things behave a bit differently. There is a single
  * thread, which makes asynchronous calls to simulate a multi-threaded
@@ -79,15 +86,50 @@ enum fate_promise_error {
  */
 typedef enum fate_promise_error fate_promise_error;
 
+
+/*! \brief Task categories, used for scheduling.
+ */
+enum fate_task_role {
+    FATE_TASK_MISC = 0, /*!< Miscellaneous.<br>
+    * This role's color for visual profiling is <span style="color:magenta;">Magenta</span>.<br>
+    * Any task that doesn't neatly fit the other categories should run under this one. */
+    FATE_TASK_WINDOW = 1, /*!< Only the thread(s) that can manage windows 
+    * and window events will pick tasks under that role.<br>
+    * Chances are it is the main thread.<br>
+    * This role's color for visual profiling is <span style="color:cyan;">Cyan</span>.<br>
+    */
+    FATE_TASK_VIDEO = 2, /*!< Only the thread(s) responsible for the 
+    * OpenGL (or other) rendering context(s) will pick tasks under that role.<br>
+    * This role's color for visual profiling is <span style="color:orange;">Orange</span>.<br>
+    */
+    FATE_TASK_AUDIO = 3, /*!< Only the thread(s) responsible for the 
+    * OpenAL (or other) audio context(s) will pick tasks under that role.<br>
+    * This role's color for visual profiling is <span style="color:yellow;">Yellow</span>.<br>
+    */
+    FATE_TASK_FILEIO = 4, /*!< Local file input/output.<br>
+    * This role's color for visual profiling is <span style="color:green;">Green</span>.<br>
+    * Any thread can pick tasks under that role, 
+    * with more or less probability depending on its responsibilities. */
+    FATE_TASK_NETWORKIO = 5, /*!< Network input/output.<br>
+    * This role's color for visual profiling is <span style="color:red;">Red</span>.<br>
+    * Any thread can pick tasks under that role, 
+    * with more or less probability depending on its responsibilities. */
+    FATE_TASK_COMPUTE = 6 /*!< Any thread can pick tasks under that role, 
+    * with more or less probability depending on its responsibilities.
+    * <br>This is quite like FATE_TASK_MISC, except the task is rather expected to actually be a computation.<br>
+    * This role's color for visual profiling is <span style="color:blue;">Blue</span>.<br>
+    */
+};
+/*! \brief Task categories, used for scheduling.
+ */
+typedef enum fate_task_role fate_task_role;
+
+
 /*! \brief Definition for an asynchronous task given to #fate_promise_task.
  *
- * The task must return its result as a dynamically allocated buffer (like with malloc()) and
+ * The task must return its result as a dynamically allocated buffer (like with malloc()) or NULL and
  * set the value pointed to by \p result_size to its size in bytes.
  *
- * NULL is not a legitimate return value since it is reserved to break the promise.<br>
- * If the function truly should return nothing on success, it should return a dynamically allocated
- * empty string instead, for example.
- * 
  * The task is given a #fate_future object so it can (and should) :
  * - Call #fate_promise_set_progress() on it.
  * - Call #fate_promise_set_error_str() on it (then please return NULL).
@@ -98,7 +140,7 @@ typedef enum fate_promise_error fate_promise_error;
  * \param future A #fate_future object so the task can indicate its progress or set its error.
  * \param arg A user parameter given to fate_promise_task.
  * \param result_size Must be set to indicate the returned buffer's size in bytes.
- * \return A dynamically-allocated buffer (like with malloc()).
+ * \return NULL or a dynamically-allocated buffer (like with malloc()).
  * \see fate_promise_task
  */
 typedef void* (*fate_taskfunc)(fate_future *future, void *arg, size_t *result_size);
@@ -169,6 +211,9 @@ typedef enum fate_storage fate_storage;
  *
  * A copy of \p path_or_url is kept.
  *
+ * Internally, this function adds one or more tasks to the "File IO" 
+ * or "Network IO" task lists (see #fate_task_role for more info).
+ *
  * Please refer to the links below.
  *
  * \see fate_future
@@ -201,6 +246,9 @@ void fate_promise_file(fate_future *future,
  *
  * port should be set to FATE_FTP_DEFAULT_PORT which evaluates to 21.
  *
+ * Internally, this function adds one or more tasks to the "File IO" 
+ * or "Network IO" task lists (see #fate_task_role for more info).
+ *
  * \see fate_future
  * \see fate_file_mode_string
  * \see fate_future_get_file 
@@ -220,7 +268,7 @@ void fate_promise_file_ftp(fate_future *future,
  * \see fate_future
  * \see fate_taskfunc
  */
-void fate_promise_task(fate_future *future, fate_taskfunc task, void *arg);
+void fate_promise_task(fate_future *future, fate_task_role role, fate_taskfunc task, void *arg);
 
 
 
@@ -318,19 +366,24 @@ fate_promise_error fate_future_get_error(fate_future *future);
  * If the file handle is NULL, the promise was broken, and the last error 
  * can be described by #fate_future_get_error_str().
  * 
- * Replace calls to fflush() on the file by #fate_future_file_promise_commit().<br>
- * Replace calls to fclose() on the file by #fate_future_close(). */
+ * Do not fflush() the file. Use #fate_future_file_promise_commit() instead.<br>
+ * Do not fclose() the file. Use #fate_future_close() instead. 
+ */
 FILE *fate_future_get_file(fate_future *future);
 
-/*! \brief Waits for the task future, and returns a buffer, or NULL if there was an error.
+
+
+/*! \brief Waits for the task future, and returns its buffer result.
  * 
  * The buffer's size is indicated in \p result_size.
- * 
- * If the buffer is NULL (or \p result_size points to 0), the promise was broken,
- * and the last error can be described by #fate_future_get_error_str().
+ * Since the buffer can legitimately be NULL, the true way to check for errors
+ * is to call #fate_future_get_error_str().
  *
- * Do not free() the buffer. Use #fate_future_close() instead. */
+ * Do not free() the buffer. Use #fate_future_close() instead. 
+ */
 void *fate_future_get_v(fate_future *future, size_t *result_size);
+
+
 
 /*! \brief Waits for the future, and returns an integer or boolean, less than 0 if there was an error.
  *
