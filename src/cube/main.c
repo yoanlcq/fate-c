@@ -13,6 +13,8 @@
 #endif
 #include "cube.h"
 
+#define FATE_GAME_NAME "Rainbow Dice"
+#define FATE_GAME_ID "Rainbow_Dice"
 
 struct cube_main {
     bool running;
@@ -115,7 +117,7 @@ void cube_main_init(struct cube_main *m) {
 */
     m->win_w = 640;
     m->win_h = 480;
-    m->window = SDL_CreateWindow("F.A.T.E Cube demo", 
+    m->window = SDL_CreateWindow(FATE_GAME_NAME, 
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m->win_w, m->win_h,
             SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 
