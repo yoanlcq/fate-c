@@ -17,7 +17,6 @@
 #define FATE_GAME_ID "Rainbow_Dice"
 
 struct cube_main {
-    bool running;
     SDL_Window *window;
     SDL_DisplayMode current_display_mode;
     SDL_GLContext glctx;
@@ -45,8 +44,6 @@ struct cube_main {
 };
 
 void cube_main_init(struct cube_main *m) {
-
-    m->running = true;
 
 #if SDL_MAJOR_VERSION > 2 \
  || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
@@ -294,20 +291,22 @@ void cube_main_init(struct cube_main *m) {
 }
 
 
+void cube_main_clean_then_exit(void *arg) {
+    struct cube_main *m = arg;
 
+    glDeleteProgram(m->cube.prog);
+    Cube_free(&m->cube);
+    fate_globalstate_deinit(fate_gs);
+    SDL_GL_DeleteContext(m->glctx);
+    SDL_DestroyWindow(m->window);
+    SDL_Quit();
+    exit(EXIT_SUCCESS);
+}
+
+void (*cube_main_framefuncptr)(void *arg);
 
 void cube_main_loop_iteration(void *arg) {
     struct cube_main *m = arg;
-
-    if(!m->running) {
-        glDeleteProgram(m->cube.prog);
-        Cube_free(&m->cube);
-        fate_globalstate_deinit(fate_gs);
-        SDL_GL_DeleteContext(m->glctx);
-        SDL_DestroyWindow(m->window);
-        SDL_Quit();
-        exit(EXIT_SUCCESS);
-    }
 
     uint32_t current_time;
     const double fps_counter_interval = 1000.0; /* Should be in [100, 1000] */
@@ -317,7 +316,7 @@ void cube_main_loop_iteration(void *arg) {
         switch(event.type) {
             case SDL_QUIT:
             case SDL_APP_TERMINATING: 
-                m->running = false; 
+                cube_main_framefuncptr = cube_main_clean_then_exit; 
                 break;
             case SDL_APP_LOWMEMORY: break;
             case SDL_APP_WILLENTERBACKGROUND: break;
@@ -327,7 +326,7 @@ void cube_main_loop_iteration(void *arg) {
             case SDL_WINDOWEVENT: 
                 switch (event.window.event) {
                 case SDL_WINDOWEVENT_CLOSE:
-                    m->running = false;
+                    cube_main_framefuncptr = cube_main_clean_then_exit;
                     break;
                 case SDL_WINDOWEVENT_SHOWN:break;
                 case SDL_WINDOWEVENT_HIDDEN:break;
@@ -551,11 +550,12 @@ int main(int argc, char *argv[])
 {
     struct cube_main m;
     cube_main_init(&m);
+    cube_main_framefuncptr = cube_main_loop_iteration;
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(cube_main_loop_iteration, &m, 0, true);
+    emscripten_set_main_loop_arg(cube_main_framefuncptr, &m, 0, true);
 #else
     for(;;)
-        cube_main_loop_iteration(&m);
+        cube_main_framefuncptr(&m);
 #endif
     return EXIT_SUCCESS;
 }
