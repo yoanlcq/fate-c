@@ -1,13 +1,14 @@
 Note : let the <target> variable be one of :
     linux64
     linux32
-    osx
     windows32
     windows64
+    osx
+    web
 
 
 bin/<target> :
-    The executables and .dll directory.
+    The executables and shared libraries directory.
 
 build/<target> :
     Temporary files resulting from the project's building process.
@@ -27,11 +28,14 @@ doc/ :
     Well duh.
 
 include/ :
-    All header files, including some embedded 3rd-party libraries headers.
+    All header files.
 
-lib/<target> :
-    Dynamically-loaded libraries go here, whether or not they are 3rd party.
-    Mods should, however, go under data/mods/<target>.
+include/contrib/ :
+    3rd party header files.
+    In source code, there's no need to write
+    #include <contrib/foolib.h>
+    But instead :
+    #include <foolib.h>
 
 res/ :
     Read like "resources".
@@ -40,10 +44,5 @@ res/ :
     Not to be confused with data/.
 
 src/ :
-    All source files. Also named "No header file's land".
+    All source files, Aka "No header file's land".
 
-experiments/ :
-    People could call it "spikes" or "tests". Well, it's both plus anything 
-    you want. This is where anyone can put works-in-progress or anything that 
-    might be of interest to the internal developers. There's no convention in 
-    there, and code is not really required to be well-written.

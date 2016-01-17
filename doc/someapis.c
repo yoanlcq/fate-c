@@ -255,7 +255,7 @@ void           fate_move(fate_node *src_parent, const uint8_t *src_name,
 void           fate_rename(fate_node *parent, fate_dentry *d, const uint8_t *new_name);
 /* 
  * A catch-all function similar to Linux's ioctl() system call. 
- * It may prove useful to mods, or internal work-in-progress features.
+ * It may prove useful to plugins, or internal work-in-progress features.
  */
 void           fate_node_op(fate_node *n, uint32_t op, ...);
 
@@ -264,7 +264,7 @@ void           fate_node_op(fate_node *n, uint32_t op, ...);
 
 void                 fate_ee_mask(uint32_t mask);
 uint32_t             fate_ee_get_mask(void);
-void                 fate_ee_sendto(fate_ee_mod_handle modh, const fate_ee_event *e);
+void                 fate_ee_sendto(fate_ee_plugin_handle pluginh, const fate_ee_event *e);
 fate_ee_watch_handle fate_ee_watch(const uint8_t *path_no_wilcards, uint32_t mask);
 void                 fate_ee_unwatch(fate_ee_watch_handle wh);
 
