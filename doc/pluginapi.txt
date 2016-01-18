@@ -1,0 +1,134 @@
+struct F8_version_t {
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+};
+typedef struct F8_version_t F8_version_t;
+
+/* EE stands for Engine Event. */
+
+struct F8_plugin_header {
+    F8_version_t version; /* <- Required to allow for multiple versions 
+                           *    of a plugin to be present. */
+    F8_version_t engine_version;
+    const uint8_t *name; /* <- Acts as an identifier. */
+    const uint8_t *info; /* <- Put some more info for the user. */
+    void (*ee_handler)(const F8_ee_event*);
+};
+typedef struct F8_plugin_header F8_plugin_header;
+
+
+F8_ext_<name>.dll
+
+/* Custom part */
+
+/* All functions except your event handler should be marked static. */
+
+F8_plugin_handle F8_plugin_<NAME>_handle;
+
+void handler_or_whatever(const F8_ee_event *e) {
+    switch(e->type) {
+    case F8_EE_PLUGIN_LOADED:
+        /*
+         * This event is sent to a plugin right after it is loaded.
+         *
+         * This is where it all begins, and the engine has already decided 
+         * if your plugin is compatible or not with it.
+         * See e->plugin_loaded->handle; if handle is NULL, then
+         * it is not compatible.
+         * A plugin handle may be as simple as an array index or a hash 
+         * of its name and version.
+         * 
+         * If it is not compatible, here is your opportunity to alert the user,
+         * because you will receive no more events (not even 
+         * F8_EE_PLUGIN_UNLOADED) and get unloaded right after this 
+         * function returns.
+         * 
+         * Otherwise, go on happily by initializing your plugin here, and
+         * don't forget to set its event mask.
+         * F8_ee_mask(<mask>);
+         * watch_handle = F8_ee_watch(<path_no_wildcards>, <event_mask>);
+         * F8_ee_unwatch(watch_handle);
+         * Telling the engine which events you want and don't want is important
+         * because we care about in-game performance. 
+         * By default, your event mask is only set to F8_EE_PLUGIN_UNLOAD.
+         */
+        break;
+    case F8_EE_PLUGIN_UNLOAD:
+        /*
+         * This event is sent to a plugin right before it is unloaded 
+         * (given it was compatible with the engine).
+         * Please be nice and clean-up your stuff here.
+         */
+        break;
+    case F8_EE_ALL_PLUGINS_LOADED:
+        /* 
+         * The engine is done loading all the plugins it could find. 
+         * Subscribe to this event if you want to interact with other 
+         * plugins.
+         * If the user adds new plugins to the directory at runtime, they will
+         * be loaded and this event will be sent again.
+         */
+        break;
+    case F8_EE_CUSTOM:
+        /*
+         * It is never actually sent by the engine, but it is there for events 
+         * provided by plugins themselves. That way, plugins can 
+         * communicate between them. 
+         * One should use it like so :
+         * 
+         * F8_plugin_handle receiver; <- Of course, don't let it at NULL.
+         * your_data_t your_data; <- Your own struct, for example.
+         * F8_ee_event e;
+         * e.type = F8_EE_CUSTOM;
+         * e.custom = &your_data;
+         * F8_ee_sendto(receiver, &e);
+         *
+         * Then the receiving plugin is responsible for handling the data in 
+         * e.custom. You can put anything in it, like your plugin 
+         * itself, the data's length, etc. However, it is your responsibility.
+         */
+        break;
+
+    case F8_EE_NODE_LINKED:  /* After ++links_count or creation */
+    case F8_EE_NODE_UNLINK: /* Before --links_count or deletion */
+    case F8_EE_NODE_PRE_READ:  /* Before reading */
+    case F8_EE_NODE_POST_READ:  /* After reading */
+    case F8_EE_NODE_PRE_WRITE: /* Before writing (also provides new value) */
+    case F8_EE_NODE_POST_WRITE: /* After writing (also provides old value) */
+    case F8_EE_NODE_RENAME: /* Before renaming */
+    case F8_EE_NODE_RENAMED: /* After renaming */
+    case F8_EE_NODE_MOVE: /* Before moving */
+    case F8_EE_NODE_MOVED: /* After moving */
+    /* 
+     * There is no need for more event types.
+     * Feature that the engine is ready to expose to plugins are provided 
+     * as nodes.
+     * Otherwise, the plugin's developer is responsible for implementing the
+     * needed features without disturbing the engine, which can be as
+     * inconvenient as it seems.
+     * FATE's goal being to do its best to be efficient, the line has to 
+     * be drawn somewhere.
+     *
+     * Please note that you should use nodes to be notified of video/audio
+     * backend changes. 
+     * The user's not gonna be happy if you call a GL function whereas the
+     * active video backend is Vulkan and there is no OpenGL context.
+     * In the same way, it is your responsibility to make sure that the 
+     * backend's functions you reach for are compatible with its version.
+     * (i.e Don't call glShaderBinary() while the GL's version is 1.1, 
+     * pretty please).
+     * In such cases, your plugin should just do nothing instead.
+     */
+    }
+}
+
+/* Required part */
+
+const F8_plugin_header F8_PLUGIN_<NAME> = {
+    {1,0,0},
+    {1,0,0},
+    <name>,
+    "<name>, written by <author>. More info here as you wish.",
+    &handler_or_whatever
+};
