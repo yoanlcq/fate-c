@@ -45,14 +45,11 @@ struct cube_main {
 
 void cube_main_init(struct cube_main *m) {
 
-#if SDL_MAJOR_VERSION > 2 \
- || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION>0) \
- || (SDL_MAJOR_VERSION==2 && SDL_MINOR_VERSION==0 && SDL_PATCHLEVEL>=4)
-#if defined(FATE_LINUX) || defined(FATE_FREEBSD) || defined(FATE_OSX)
+#if SDL_VERSION_ATLEAST(2, 0, 4)
     SDL_SetHintWithPriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
                             SDL_HINT_OVERRIDE);
 #endif
-#endif
+
     puts("Initializing SDL...");
     if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
         fate_fatal("SDL_Init failed: %s\n", SDL_GetError());
