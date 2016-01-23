@@ -60,10 +60,17 @@ void cube_main_init(struct cube_main *m) {
 
     fate_logf("Welcome to F.A.T.E !\n"
               "Version : %d.%d.%d (\"%s\")\n"
-              "Compiled on %s, %s.\n\n",
+              "Compiled on %s, %s.\n"
+              "Platform : %s\n\n",
               FATE_VERSION_MAJOR, FATE_VERSION_MINOR, FATE_VERSION_PATCH,
               FATE_VERSION_CODENAME,
-              __DATE__, __TIME__);
+              __DATE__, __TIME__,
+#ifdef __EMSCRIPTEN__
+              "Emscripten"
+#else
+              SDL_GetPlatform()
+#endif
+              );
 
     SDL_version compiled;
     SDL_version linked;
