@@ -1,0 +1,18 @@
+divert(`-1')dnl
+define(`path',`.')
+pushdef(`path',`.')
+define(`root',`../..')
+define(`cnt',1)
+define(`pushd',`pushdef(`path',path) pushdef(`root',../root)')
+define(`popd',`popdef(`path') popdef(`root')')
+define(`_',`
+    popdef(`path')
+    pushdef(`path',path/`$1')
+    define(`path_'cnt,path)
+    define(`root_'cnt,root)
+    define(`prev_'cnt,`path_'eval(cnt-1))
+    define(`next_'cnt,`path_'eval(cnt+1))
+    define(`cnt',eval(cnt+1))
+')
+define(`path_0',`')
+define(`end',`define(`path_'cnt,`')')
