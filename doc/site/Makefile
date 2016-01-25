@@ -2,7 +2,7 @@
 
 all: index.html
 
-contents/Makefile: content_list.m4 components/_content_list.m4 components/content_list_.m4
+contents/Makefile: contents/structure.m4 components/_content_list.m4 components/content_list_.m4
 	m4 $< > $@
 
 index.html: contents/Makefile

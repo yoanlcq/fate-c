@@ -1,0 +1,24 @@
+<link id="theme" rel="stylesheet" type="text/css" href="/css/themes/default.css">
+<link rel="alternate stylesheet" type="text/css" href="/css/themes/blue.css">
+<link rel="alternate stylesheet" type="text/css" href="/css/themes/pink.css">
+<script type="text/javascript">
+function apply_theme(filename) {
+    if(!filename)
+        filename = "default";
+    var elt = document.getElementById("theme");
+    elt.href = elt.href.slice(0, elt.href.lastIndexOf('/')+1)+filename+".css";
+}
+function save_theme(filename) { localStorage.setItem("theme", filename); }
+function load_theme()  { return localStorage.getItem("theme"); }
+function switch_theme(filename) {
+    save_theme(filename);
+    apply_theme(filename);
+}
+var stored_theme = load_theme();
+if(stored_theme)
+    apply_theme(stored_theme);
+</script>
+<form>
+    <input type="submit" onclick="switch_theme('blue'); return false;" name="theme" value="Blue Theme" id="blue">
+    <input type="submit" onclick="switch_theme('pink'); return false;" name="theme" value="Pink Theme" id="pink">
+</form>

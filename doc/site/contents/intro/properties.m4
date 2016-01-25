@@ -5,5 +5,7 @@ divert(-1)
 
 define(_`title_en',`Intro')
 define(_`title_fr',`Présentation')
+define(_`keywords_en',`None')
+define(_`keywords_fr',`None')
 
 divert`'dnl
