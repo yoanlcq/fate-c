@@ -1,0 +1,27 @@
+Distributing the engine :
+
+- Linux :
+  - Portable SDK
+  - Debian package -> Portable SDK
+- OS X :
+  - Portable SDK
+  - ? App store -> Portable SDK
+- Windows :
+  - Portable SDK
+
+Distributing games :
+- Linux :
+  - Portable game
+  - Debian package
+- OS X :
+  - Portable game
+  - App Store
+- Windows :
+  - Portable game
+- Emscripten :
+  - Portable offline/online WebApp
+- Android :
+  - Single .apk
+  - Google Play store
+- iOS :
+  - App Store

@@ -1,0 +1,28 @@
+Source: libfate1
+Priority: optional
+Section: libs
+Maintainer: Yoan Lecoq <yoanlecoq.io@gmail.com>
+Uploaders: Yoan Lecoq <yoanlecoq.io@gmail.com>>
+Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 9),
+               dh-autoreconf,
+               dpkg-dev (>= 1.16.1~),
+               libsdl2-dev
+Homepage: http://www.yoanlecoq.com/fate
+
+Package: fate1
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libudev0 [linux-any],
+         libdbus-1-3 [linux-any]
+Conflicts:
+Replaces: 
+Description: The Fight And Travel game Engine.
+ F.A.T.E is an engine entirely designed for huge open-world games which involve
+ fights.
+ This package contains the engine's shared libraries as well as the tools
+ required to develop and distribute games with it.
+
