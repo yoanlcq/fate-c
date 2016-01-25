@@ -1,0 +1,49 @@
+\hypertarget{meminfo_8c}{\section{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/gl/meminfo.c File Reference}
+\label{meminfo_8c}\index{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/gl/meminfo.\-c@{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/gl/meminfo.\-c}}
+}
+
+
+Open\-G\-L extensions wrapper for getting G\-P\-U memory info.  
+
+
+{\ttfamily \#include $<$fate/gl/defs.\-h$>$}\\*
+{\ttfamily \#include $<$fate/gl/meminfo.\-h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries H\-E\-L\-P\-E\-R}(T\-Y\-P\-E, type)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{meminfo_8c_a01e27b401570d8559e95b9a055495e3a}{void {\bfseries fate\-\_\-gl\-\_\-meminfo\-\_\-setup} (G\-Lint gl\-\_\-major, G\-Lint gl\-\_\-minor)}\label{meminfo_8c_a01e27b401570d8559e95b9a055495e3a}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{meminfo_8c_a6bd5ad2e1109b02220587ec8724b1e4b}{void($\ast$ {\bfseries fate\-\_\-gl\-\_\-meminfo\-\_\-query} )(\hyperlink{meminfo_8h_structfate__gl__meminfo}{fate\-\_\-gl\-\_\-meminfo} $\ast$m)}\label{meminfo_8c_a6bd5ad2e1109b02220587ec8724b1e4b}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Open\-G\-L extensions wrapper for getting G\-P\-U memory info. T\-O\-D\-O 
+
+\subsection{Macro Definition Documentation}
+\hypertarget{meminfo_8c_a7a8ab12f5bdce47776d05fa279042167}{\index{meminfo.\-c@{meminfo.\-c}!H\-E\-L\-P\-E\-R@{H\-E\-L\-P\-E\-R}}
+\index{H\-E\-L\-P\-E\-R@{H\-E\-L\-P\-E\-R}!meminfo.c@{meminfo.\-c}}
+\subsubsection[{H\-E\-L\-P\-E\-R}]{\setlength{\rightskip}{0pt plus 5cm}\#define H\-E\-L\-P\-E\-R(
+\begin{DoxyParamCaption}
+\item[{}]{T\-Y\-P\-E, }
+\item[{}]{type}
+\end{DoxyParamCaption}
+)}}\label{meminfo_8c_a7a8ab12f5bdce47776d05fa279042167}
+{\bfseries Value\-:}
+\begin{DoxyCode}
+glGetIntegerv(GL\_##TYPE##\_FREE\_MEMORY\_ATI, buf); \(\backslash\)
+    m->data.ati.type##\_free\_memory.total             = buf[0]; \(\backslash\)
+    m->data.ati.type##\_free\_memory.largest\_block     = buf[1]; \(\backslash\)
+    m->data.ati.type##\_free\_memory.total\_aux         = buf[2]; \(\backslash\)
+    m->data.ati.type##\_free\_memory.largest\_aux\_block = buf[3];
+\end{DoxyCode}

@@ -1,6 +1,7 @@
 bin/**
 build/**
 data/**
+doc/site/internal_doc/**
 lib/**
 res/precomp/**
 .DS_Store

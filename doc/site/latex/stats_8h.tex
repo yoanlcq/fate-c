@@ -1,0 +1,116 @@
+\hypertarget{stats_8h}{\section{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/gl/stats.h File Reference}
+\label{stats_8h}\index{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/gl/stats.\-h@{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/gl/stats.\-h}}
+}
+
+
+Open\-G\-L wrapper for getting rendering pipeline statistics.  
+
+
+{\ttfamily \#include $<$fate/gl/defs.\-h$>$}\\*
+{\ttfamily \#include $<$fate/gl/debug.\-h$>$}\\*
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{stats_8h_structfate__gl__stats}{fate\-\_\-gl\-\_\-stats}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{stats_8h_aa304096352f04fef68c6e39b0dd0030c}{\#define {\bfseries fate\-\_\-gl\-\_\-stats\-\_\-setup}()}\label{stats_8h_aa304096352f04fef68c6e39b0dd0030c}
+
+\item 
+\hypertarget{stats_8h_accacbcd3c3182da35a7c5c1266a955b7}{\#define {\bfseries fate\-\_\-gl\-\_\-stats\-\_\-cleanup}()}\label{stats_8h_accacbcd3c3182da35a7c5c1266a955b7}
+
+\item 
+\hypertarget{stats_8h_aa187e8fdb571d29723079b99f63d9bc5}{\#define {\bfseries fate\-\_\-gl\-\_\-stats\-\_\-start\-\_\-recording}()}\label{stats_8h_aa187e8fdb571d29723079b99f63d9bc5}
+
+\item 
+\hypertarget{stats_8h_a1af8237bb2cdeefd170d5ffae8c52c41}{\#define {\bfseries fate\-\_\-gl\-\_\-stats\-\_\-end\-\_\-recording}()}\label{stats_8h_a1af8237bb2cdeefd170d5ffae8c52c41}
+
+\item 
+\hypertarget{stats_8h_a1ae7418565fff17c29abb4e88e325665}{\#define {\bfseries fate\-\_\-gl\-\_\-stats\-\_\-get\-\_\-stats}(X)}\label{stats_8h_a1ae7418565fff17c29abb4e88e325665}
+
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{stats_8h_ad3ab9a2d2c0e0c3aef6c0baf96a48dcc}{typedef struct \hyperlink{stats_8h_structfate__gl__stats}{fate\-\_\-gl\-\_\-stats} {\bfseries fate\-\_\-gl\-\_\-stats}}\label{stats_8h_ad3ab9a2d2c0e0c3aef6c0baf96a48dcc}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Open\-G\-L wrapper for getting rendering pipeline statistics. T\-O\-D\-O 
+
+\subsection{Data Structure Documentation}
+\index{fate\-\_\-gl\-\_\-stats@{fate\-\_\-gl\-\_\-stats}}\label{structfate__gl__stats}
+\hypertarget{stats_8h_structfate__gl__stats}{}
+\subsubsection{struct fate\-\_\-gl\-\_\-stats}
+\begin{DoxyFields}{Data Fields}
+\hypertarget{stats_8h_a92dc021b454ddb3ea1d65571e1a36ae2}{G\-Luint}\label{stats_8h_a92dc021b454ddb3ea1d65571e1a36ae2}
+&
+clipping\-\_\-input\-\_\-primitives&
+\\
+\hline
+
+\hypertarget{stats_8h_a7e2063e38b13944e69a0bbca9246f9bc}{G\-Luint}\label{stats_8h_a7e2063e38b13944e69a0bbca9246f9bc}
+&
+clipping\-\_\-output\-\_\-primitives&
+\\
+\hline
+
+\hypertarget{stats_8h_a1b3ad186cd512357b7a1318262b1eccb}{G\-Luint}\label{stats_8h_a1b3ad186cd512357b7a1318262b1eccb}
+&
+comp\-\_\-shader\-\_\-invocations&
+\\
+\hline
+
+\hypertarget{stats_8h_a754ebcb7046582b566a373f832b0b0a1}{G\-Luint}\label{stats_8h_a754ebcb7046582b566a373f832b0b0a1}
+&
+frag\-\_\-shader\-\_\-invocations&
+\\
+\hline
+
+\hypertarget{stats_8h_add0828864704091d8bbad3cd8c23cb2a}{G\-Luint}\label{stats_8h_add0828864704091d8bbad3cd8c23cb2a}
+&
+geom\-\_\-shader\-\_\-invocations&
+\\
+\hline
+
+\hypertarget{stats_8h_a0cf5d0c12331cfcb8c3017115816785d}{G\-Luint}\label{stats_8h_a0cf5d0c12331cfcb8c3017115816785d}
+&
+geom\-\_\-shader\-\_\-primitives\-\_\-emitted&
+\\
+\hline
+
+\hypertarget{stats_8h_a19fa9439bfa51e0f0a582de1da3f4b89}{G\-Luint}\label{stats_8h_a19fa9439bfa51e0f0a582de1da3f4b89}
+&
+primitives\-\_\-submitted&
+\\
+\hline
+
+\hypertarget{stats_8h_a0b852c3354c1f0b6ea40922f2bf8153c}{G\-Luint}\label{stats_8h_a0b852c3354c1f0b6ea40922f2bf8153c}
+&
+tesc\-\_\-shader\-\_\-patches&
+\\
+\hline
+
+\hypertarget{stats_8h_ac0026e70da170a2d351dc3919712d439}{G\-Luint}\label{stats_8h_ac0026e70da170a2d351dc3919712d439}
+&
+tese\-\_\-shader\-\_\-invocations&
+\\
+\hline
+
+\hypertarget{stats_8h_ada37e801976c80225d2d0965540ed280}{G\-Luint}\label{stats_8h_ada37e801976c80225d2d0965540ed280}
+&
+vert\-\_\-shader\-\_\-invocations&
+\\
+\hline
+
+\hypertarget{stats_8h_ae4d66152196849896e4464cfbef6b6a2}{G\-Luint}\label{stats_8h_ae4d66152196849896e4464cfbef6b6a2}
+&
+vertices\-\_\-submitted&
+\\
+\hline
+
+\end{DoxyFields}

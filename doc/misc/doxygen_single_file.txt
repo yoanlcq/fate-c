@@ -1,1 +1,0 @@
-echo -e "INPUT=include/fate/future.h\nSORT_MEMBER_DOCS = NO" | doxygen -

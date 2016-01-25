@@ -1,0 +1,81 @@
+\hypertarget{log_8c}{\section{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/log.c File Reference}
+\label{log_8c}\index{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/log.\-c@{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/src/fate/log.\-c}}
+}
+
+
+The logging module's implementation.  
+
+
+{\ttfamily \#include $<$stdio.\-h$>$}\\*
+{\ttfamily \#include $<$stdarg.\-h$>$}\\*
+{\ttfamily \#include $<$S\-D\-L2/\-S\-D\-L.\-h$>$}\\*
+{\ttfamily \#include $<$fate/globalstate.\-h$>$}\\*
+{\ttfamily \#include $<$fate/log.\-h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}(\-\_\-what\-\_\-, \-\_\-constream\-\_\-)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{log_8c_a8637261d45c9e83a135ad2b84e8e5282}{void {\bfseries fate\-\_\-fatal} (const char $\ast$fmt,...)}\label{log_8c_a8637261d45c9e83a135ad2b84e8e5282}
+
+\item 
+\hypertarget{log_8c_a121c27063bb0f7428111430a92bfb68e}{void {\bfseries fate\-\_\-logf\-\_\-dummy} (const char $\ast$fmt,...)}\label{log_8c_a121c27063bb0f7428111430a92bfb68e}
+
+\item 
+\hypertarget{log_8c_aa7e899f2b063f7b6ed64214c182e0965}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f, stdout)}\label{log_8c_aa7e899f2b063f7b6ed64214c182e0965}
+
+\item 
+\hypertarget{log_8c_acbff8c22d2f974fa8dc2f8a0409ad485}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-trace, stderr)}\label{log_8c_acbff8c22d2f974fa8dc2f8a0409ad485}
+
+\item 
+\hypertarget{log_8c_a1a668977b560d7979f9b54620e67cfa4}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-err, stderr)}\label{log_8c_a1a668977b560d7979f9b54620e67cfa4}
+
+\item 
+\hypertarget{log_8c_a513237e17b9615c188450594bdc353c3}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-video, stdout)}\label{log_8c_a513237e17b9615c188450594bdc353c3}
+
+\item 
+\hypertarget{log_8c_a6763e639239390e4a4e69f3bb49f1d83}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-audio, stdout)}\label{log_8c_a6763e639239390e4a4e69f3bb49f1d83}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The logging module's implementation. T\-O\-D\-O 
+
+\subsection{Macro Definition Documentation}
+\hypertarget{log_8c_afde38e3c79cf6f86dcaeee5e9156bacb}{\index{log.\-c@{log.\-c}!F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L@{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}}
+\index{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L@{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}!log.c@{log.\-c}}
+\subsubsection[{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L(
+\begin{DoxyParamCaption}
+\item[{}]{\-\_\-what\-\_\-, }
+\item[{}]{\-\_\-constream\-\_\-}
+\end{DoxyParamCaption}
+)}}\label{log_8c_afde38e3c79cf6f86dcaeee5e9156bacb}
+{\bfseries Value\-:}
+\begin{DoxyCode}
+\textcolor{keywordtype}{void} fate\_log##\_what\_##\_to\_console(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...) \{ \(\backslash\)
+    va\_list ap; \(\backslash\)
+    va\_start(ap, fmt); \(\backslash\)
+    vfprintf(\_constream\_, fmt, ap); \(\backslash\)
+    va\_end(ap); \(\backslash\)
+\} \(\backslash\)
+void fate\_log##\_what\_##\_to\_stream(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...) \{ \(\backslash\)
+    va\_list ap; \(\backslash\)
+    va\_start(ap, fmt); \(\backslash\)
+    vfprintf(fate\_gs->log##\_what\_##\_stream, fmt, ap); \(\backslash\)
+    va\_end(ap); \(\backslash\)
+\} \(\backslash\)
+void fate\_log##\_what\_##\_to\_console\_and\_stream(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...) \{ \(\backslash\)
+    va\_list ap; \(\backslash\)
+    va\_start(ap, fmt); \(\backslash\)
+    vfprintf(\_constream\_, fmt, ap); \(\backslash\)
+    va\_end(ap); \(\backslash\)
+    va\_start(ap, fmt); \(\backslash\)
+    vfprintf(fate\_gs->log##\_what\_##\_stream, fmt, ap); \(\backslash\)
+    va\_end(ap); \(\backslash\)
+\} \(\backslash\)
+void (*fate\_log##\_what\_)(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...) = fate\_log##\_what\_##\_to\_console
+\end{DoxyCode}

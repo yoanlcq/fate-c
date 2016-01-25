@@ -1,0 +1,60 @@
+\hypertarget{log_8h}{\section{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/log.h File Reference}
+\label{log_8h}\index{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/log.\-h@{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/log.\-h}}
+}
+
+
+The logging module, multiplexing output.  
+
+
+{\ttfamily \#include $<$fate/defs\-\_\-compiler.\-h$>$}\\*
+{\ttfamily \#include $<$stdarg.\-h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}(\-\_\-what\-\_\-)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{log_8h_a8637261d45c9e83a135ad2b84e8e5282}{void {\bfseries fate\-\_\-fatal} (const char $\ast$fmt,...)}\label{log_8h_a8637261d45c9e83a135ad2b84e8e5282}
+
+\item 
+\hypertarget{log_8h_a121c27063bb0f7428111430a92bfb68e}{void {\bfseries fate\-\_\-logf\-\_\-dummy} (const char $\ast$fmt,...)}\label{log_8h_a121c27063bb0f7428111430a92bfb68e}
+
+\item 
+\hypertarget{log_8h_a1860cc7ef1898286afc6e51919881a73}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f)}\label{log_8h_a1860cc7ef1898286afc6e51919881a73}
+
+\item 
+\hypertarget{log_8h_a835e4d16d9a299bdfbef679f39bf4044}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-trace)}\label{log_8h_a835e4d16d9a299bdfbef679f39bf4044}
+
+\item 
+\hypertarget{log_8h_adf98d924bab5e2d4e3bc2fd377699fd0}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-err)}\label{log_8h_adf98d924bab5e2d4e3bc2fd377699fd0}
+
+\item 
+\hypertarget{log_8h_aa1e1d13aae1760ba37af93b719988cd1}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-video)}\label{log_8h_aa1e1d13aae1760ba37af93b719988cd1}
+
+\item 
+\hypertarget{log_8h_a2b8fc78657d4ebba2b79c2974487e323}{{\bfseries F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L} (f\-\_\-audio)}\label{log_8h_a2b8fc78657d4ebba2b79c2974487e323}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The logging module, multiplexing output. T\-O\-D\-O 
+
+\subsection{Macro Definition Documentation}
+\hypertarget{log_8h_adfac038eb485ce115473eedd05048737}{\index{log.\-h@{log.\-h}!F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L@{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}}
+\index{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L@{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}!log.h@{log.\-h}}
+\subsubsection[{F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\-A\-T\-E\-\_\-\-L\-O\-G\-F\-U\-N\-C\-D\-E\-C\-L(
+\begin{DoxyParamCaption}
+\item[{}]{\-\_\-what\-\_\-}
+\end{DoxyParamCaption}
+)}}\label{log_8h_adfac038eb485ce115473eedd05048737}
+{\bfseries Value\-:}
+\begin{DoxyCode}
+\textcolor{keywordtype}{void} fate\_log##\_what\_##\_to\_console(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...); \(\backslash\)
+    void fate\_log##\_what\_##\_to\_stream(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...); \(\backslash\)
+    void fate\_log##\_what\_##\_to\_console\_and\_stream(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...); \(\backslash\)
+    extern void (*fate\_log##\_what\_)(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *fmt, ...) \(\backslash\)
+        FATE\_PRINTF\_DECL
+\end{DoxyCode}

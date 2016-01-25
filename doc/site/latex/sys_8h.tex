@@ -1,0 +1,44 @@
+\hypertarget{sys_8h}{\section{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/sys.h File Reference}
+\label{sys_8h}\index{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/sys.\-h@{/home/yoon/git\-\_\-stuff/\-F\-A\-T\-E/include/fate/sys.\-h}}
+}
+
+
+O\-S-\/specific routines and crash handling.  
+
+
+{\ttfamily \#include $<$stdbool.\-h$>$}\\*
+{\ttfamily \#include $<$stdint.\-h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{sys_8h_aaf63f58fc54dadda0ad7024229229e9e}{\#define {\bfseries F\-A\-T\-E\-\_\-\-S\-Y\-S\-\_\-\-S\-T\-A\-C\-K\-\_\-\-L\-E\-N}~128}\label{sys_8h_aaf63f58fc54dadda0ad7024229229e9e}
+
+\item 
+\hypertarget{sys_8h_a688726d1698d516edfe40ac727448d99}{\#define {\bfseries F\-A\-T\-E\-\_\-\-S\-Y\-S\-\_\-\-M\-O\-D\-N\-A\-M\-E\-\_\-\-L\-E\-N}~256}\label{sys_8h_a688726d1698d516edfe40ac727448d99}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{sys_8h_ac3f81881c6598608e7f110425c100745}{bool {\bfseries fate\-\_\-sys\-\_\-file\-\_\-exists} (const char $\ast$path)}\label{sys_8h_ac3f81881c6598608e7f110425c100745}
+
+\item 
+\hypertarget{sys_8h_a897080d099f6ffef873533827800efbb}{uint64\-\_\-t {\bfseries fate\-\_\-sys\-\_\-get\-\_\-last\-\_\-write\-\_\-time} (const char $\ast$path)}\label{sys_8h_a897080d099f6ffef873533827800efbb}
+
+\item 
+\hypertarget{sys_8h_a9d428652bf8d052dcacf656ed31cacd6}{bool {\bfseries fate\-\_\-sys\-\_\-set\-\_\-current\-\_\-directory} (const char $\ast$path)}\label{sys_8h_a9d428652bf8d052dcacf656ed31cacd6}
+
+\item 
+\hypertarget{sys_8h_a1f5ccb5257db03d3c050092cf1ddaa05}{char $\ast$ {\bfseries fate\-\_\-sys\-\_\-getgamepath} (void)}\label{sys_8h_a1f5ccb5257db03d3c050092cf1ddaa05}
+
+\item 
+\hypertarget{sys_8h_ab8f9f08e3e45dac1cd0120072b8e2afb}{void {\bfseries fate\-\_\-sys\-\_\-crash\-\_\-handler\-\_\-setup} (void)}\label{sys_8h_ab8f9f08e3e45dac1cd0120072b8e2afb}
+
+\item 
+\hypertarget{sys_8h_af020adf58ec79e21b96c93b14b70c71c}{void {\bfseries fate\-\_\-sys\-\_\-log\-\_\-stacktrace} (void($\ast$logfunc)(const char $\ast$fmt,...))}\label{sys_8h_af020adf58ec79e21b96c93b14b70c71c}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+O\-S-\/specific routines and crash handling. T\-O\-D\-O 
