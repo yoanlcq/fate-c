@@ -27,6 +27,7 @@ INPUT                  = ../include/fate/ ../src/fate/
 RECURSIVE              = YES
 ALPHABETICAL_INDEX     = YES
 COLS_IN_ALPHA_INDEX    = 5
+GENERATE_LATEX         = NO
 GENERATE_HTML          = YES
 HTML_OUTPUT            = internal_doc
 
