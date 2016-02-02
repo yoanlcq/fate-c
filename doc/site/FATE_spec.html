@@ -326,45 +326,70 @@ MyEnode
   
 
 Separator and operators :
--&gt; The '.' symbol is the "child-of" operator.
--&gt; The '^' symbol resolves to the parent node of the previously resolved 
-      node in the path.
+-&gt; The '.' symbol is the "child-of" operator. 
+   If no name precedes it, it resolves to the root node.
+   Every '.' followed by another is just discarded.
+   Therefore, "foo.....bar" is equivalent to "foo.bar", juste like
+   "foo/////bar" is equivalent to "foo/bar" under Unix.
+   This behaviour is provided to make path concatenation an easier task
+   for users.
+-&gt; The '^' symbol is the "parent-of" operator.
+-&gt; The '^^' symbol is the "all-parents-of" operator.
+   For example, in the following tree :
+   - .
+     - Mars
+     - Earth
+       - Sea
+       - Ground
+         - Hero
+   If we are at 'Ground', the path "Hero.^^" will return "Ground", "Earth" and 
+   ".", the root node.
+-&gt; The '**' symbol is the recursive "children-of" operator.
+   Beware, "foo**" is not a valid path, nor is "foo.b**ar".
+   The correct use is "foo.**", which will resolve to every single node that
+   is under "foo" in the tree.
+   Also, "foo.**.bar" will resolve to every single node named "bar" that is
+   under "foo" in the tree.
 
 Prefixes :
 -&gt; The absence of prefix means "the current node". 
--&gt; Paths starting with '%' are relative to the Lnode (which is also 
+-&gt; Paths starting with '.' are relative to the Lnode (which is also 
    the root node).
--&gt; Paths starting with ':' are relative to the Root Vnode 
-   (it actually resolves to "%.root_vnode").
-   To remember it, think of ':' as a pair of eyes ("The view").
-   The Root Vnode is shared across the network.
--&gt; Paths starting with '&amp;' are relative to the Root Enode
-   (it actually resolves to "%.root_enode").
-   To remember it, think of '&amp;' as a weird capital 'E'.
-   The Root Enode is shared across the network.
 -&gt; Paths starting with '@' are relative to the Root Dnode
    (it actually resolves to "%.root_dnode").
    It is also referred to as the "Aether", where the Entities are loaded but 
    not yet instanciated (aka "brought to existence").
--&gt; Paths starting with '~' are relative to the executable's full path in 
-   the user's filesystem. (it actually resolves to "%.app_path").
-   The '~' character is used as a shortcut to the home directory on Linux.
 
 Wildcards :
--&gt; The '?' character is replaced at resolution-time by any 
-   alphanumerical character.
--&gt; The '*' character is replaced at resolution-time by one or more
-   alphanumerical characters.
+-&gt; The '?' character is replaced at resolution-time by any one
+   valid character.
+-&gt; The '*' character is replaced at resolution-time by zero or more
+   valid characters.
+-&gt; '[]' defines a class of characters. Best described by examples :
+   "[abc012]" matches either "a", "b", "c", "0", "1" or "2".
+   "[0-9]" matches any numerical digit between 0 and 9.
+   "[A-Z]" matches any upper-case letter between A and Z.
+   "[a-z]" matches any lower-case letter between a and z.
+   "[!a-z]" matches any character that is not a lower-case letter between 
+   a and z.
+
+Extended selectors :
+Extended selectors must be placed between parentheses. Other parentheses may 
+be added inside to isolate expressions.
+-&gt; '!' is the NOT operator.
+-&gt; '&amp;' is the AND operator.
+-&gt; '|' is the OR operator.
+Therefore :
+ - "foo.(** &amp; !qux.(baz|baf))" selects any node under foo in the tree,
+   excluding nodes named "baz" or "baf" that have "qux" as their parent.
+
 
 See examples below :
 
 -&gt; "foo" resolves to the node named "foo" that is a child of the current
-   node, as do ".foo", "..foo", "...foo" and "......foo";
--&gt; "&amp;.Earth.Continents" resolves to the node named "Continents" that is 
-   a child of the node named "Earth" that is a child of the Root Enode,
-   as do "&amp;...Earth..Continents" and "&amp;.Earth.^.Earth.Continents".
+   node;
 -&gt; "^.bar" resolves to the node named "bar" that is a child of the 
-    parent node of the current node, as do "...^..bar".
+   current node's parent.
 -&gt; "foo*bar" resolves to each node that is a child of the current node, 
     and which name starts with "foo" and ends with "bar", as do "foo**bar" 
     and "foo***bar".

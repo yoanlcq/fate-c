@@ -42,13 +42,33 @@
 
 /* Obviously, see the GCC docs. */
 #ifdef __GNUC__
-#define FATE_DEPRECATED __attribute__((deprecated))
+
+#define FATE_DEPRECATED(msg) __attribute__((deprecated(msg)))
 #define FATE_PRINTF_DECL __attribute__((format(printf, 1, 2)))
-#define fate_prefetch(addr,rw,locality) __builtin_prefetch(addr,rw,locality)
+#define FATE_NONNULL_PARAMS(arg_index,...) __attribute__((nonnull(arg_index, __VA_ARGS__)))
+#define FATE_SENTINEL(pos) __attribute__((sentinel(pos)))
+#define FATE_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#define FATE_PREFETCH(addr,rw,locality) __builtin_prefetch(addr,rw,locality)
+#define FATE_PACKED __attribute__((packed))
+#define FATE_EXPECTED(cond) __builtin_expect(!(cond),0)
+
 #else
-#define FATE_DEPRECATED
-#define FATE_PRINTF_DECL
-#define fate_prefetch(addr,rw,locality)
+
+#define FATE_DEPRECATED(msg)
+#define FATE_PRINTF_DECL 
+#define FATE_NONNULL_PARAMS(arg_index,...)
+#define FATE_SENTINEL(pos)
+#define FATE_WARN_UNUSED_RESULT
+#define FATE_PREFETCH(addr,rw,locality)
+#define FATE_PACKED
+#define FATE_EXPECTED(cond) cond
+
+#endif
+
+#ifdef _MSC_VER
+#include <sal.h>
+#undef  FATE_WARN_UNUSED_RESULT
+#define FATE_WARN_UNUSED_RESULT _Check_return_
 #endif
 
 #endif /* FATE_DEFS_COMPILER */

@@ -123,7 +123,7 @@ void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
  * glDeleteProgram(program);
  * @endcode
  */
-extern int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...);
+extern int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...) FATE_SENTINEL(0);
 
 /** @brief Clean-up function for fate_gl_mkprog().
  *

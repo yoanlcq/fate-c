@@ -96,6 +96,8 @@ SEARCHENGINE           = YES
 SERVER_BASED_SEARCH    = NO
 
 ENABLE_PREPROCESSING   = YES
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = __attribute__(x)= __declspec(x)
 INCLUDE_PATH           = include
 

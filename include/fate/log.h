@@ -29,6 +29,7 @@
 
 /*! \file fate/log.h
  *  \brief The logging module, multiplexing output.
+ *  \defgroup log Logging module
  *
  *  TODO
  */

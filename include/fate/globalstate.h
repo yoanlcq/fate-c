@@ -29,6 +29,7 @@
 
 /*! \file fate/globalstate.h
  *  \brief Definition for a Global State object.
+ *  \defgroup globalstate The Global State object
  *
  * TODO
  */

@@ -29,6 +29,7 @@
 
 /*! \file fate/future.h
  *  \brief Interface to F.A.T.E's promise subsystem.
+ *  \defgroup future Promise system
  *
  * On startup, F.A.T.E launches a pool of N threads, where N can be changed
  * at runtime, but initially being the number of CPU cores.

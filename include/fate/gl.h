@@ -29,6 +29,7 @@
 
 /*! \file fate/gl.h
  *  \brief Interface to the OpenGL rendering backend.
+ *  \defgroup gl OpenGL video backend
  *
  * TODO
  */

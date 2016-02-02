@@ -29,6 +29,7 @@
 
 /*! \file fate/sys.h
  *  \brief OS-specific routines and crash handling.
+ *  \defgroup sys OS-specific routins and crash handling
  *
  * TODO
  */

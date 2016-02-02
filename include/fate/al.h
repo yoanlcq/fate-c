@@ -29,6 +29,7 @@
 
 /*! \file fate/al.h
  *  \brief interface to the OpenAL backend.
+ *  \defgroup al OpenAL audio backend
  *
  *  TODO
  */

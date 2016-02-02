@@ -100,5 +100,30 @@ FATE_LOGFUNCDECL(f_err,stderr);
 FATE_LOGFUNCDECL(f_video,stdout);
 FATE_LOGFUNCDECL(f_audio,stdout);
 
+/*
+#ifdef FATE_ANDROID
+#include <android/log.h>
+#define  LOG_TAG    "FATE - log"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#endif
+
+INFO     green  - Supposed to be compiled in.
+WARN     yellow - Supposed to be compiled in.
+ERROR    red    - Supposed to be compiled in.
+DEBUG    blue   - Supposed to be compiled only for debug builds.
+CRITICAL red    - The user must see it by all means, no matter what, but
+                  it doesn't seem fatal. Should spawn a message box.
+
+Each module's .c file should declare :
+    static const char *TAG = "ThisModule";
+Then use :
+    fate_logv(TAG, "Blah %d\n", 12, ...);
+
+*/
+
+#define FATE_LOGD(fmt, ...) \
+        fate_logd(FATE_LOGTAG, fmt, ...)
+
 #undef FATE_LOGFUNCDECL
 

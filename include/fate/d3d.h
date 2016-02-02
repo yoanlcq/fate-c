@@ -29,6 +29,7 @@
 
 /*! \file fate/d3d.h
  *  \brief interface to the Direct3D backend.
+ *  \defgroup d3d Direct3D video backend
  *
  *  TODO
  */

@@ -29,6 +29,7 @@
 
 /*! \file fate/dpyres.h
  *  \brief Display Resolutions.
+ *  \defgroup dpyres Display resolutions table and lookup
  *
  * A list of (theoretically) all the possible display resolutions, 
  * ordered by width, then height.
