@@ -1,3 +1,4 @@
+
 - Cfg
   Reading runtime configuration files.
   Like with ./game --fate-opts @file
@@ -15,7 +16,7 @@
 - Sys
   Common abstraction for platform-specific routines, crash handling.
 
-- Threading
+- Threads
   Thread implementation selection, Deadlock detection and more.
   - Future
     Task graphs, promises, file actions (+FTP & SMTP), scheduling, 
@@ -32,6 +33,10 @@
   Virtual Filesystem, Journal, Node resolution etc.
   - DFA (Direct Field Access)
     Bypassing Node resolution for mandatory variables, such as x, y...
+  - Time travel, Snapshot, transactions, rewind, replay, deterministic shared 
+    rand()...
+  - Support for proxy nodes. That is, providing values Just In Time, or
+    computing them.
   - Engine Event
     Plugin API.
 

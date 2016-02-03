@@ -1,0 +1,10 @@
+- fate-build
+  Build the game, and the engine's modules if needed.
+  Make a static executable or not.
+  Invoked by the running game during development, if hot reloading is enabled.
+- fate-shell
+  Run a command-line client that connects to a game, allowing exploring and
+  altering its VFS.
+- fate-dist
+  Distribute the game, so players can try it.
+- fate-fst-translate
