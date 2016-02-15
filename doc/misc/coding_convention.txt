@@ -1,0 +1,162 @@
+Using C++ is okay as long as functions can be called from C code.
+In that case, use extern "C".
+In C++, using Boost and the STL are forbidden for the following
+reasons :
+- They are huge dependencies;
+- The STL is considered not to be fully portable across all platforms.
+Likewise, do not use std::thread and such. For now, we rely on the SDL2
+multithreading module.
+
+C source must be C11-compliant.
+
+Functions are in the form :
+<namespace>_<module>[[_<object or service>]_<action>]
+Example : fate_gl_setup.
+
+Compile-time and runtime
+
+Common keywords within functions.
+dummy : Functions ending with "dummy" are "no-op callbacks";
+        When we want to be able to disable functionalities at runtime,
+        we provide :
+        - "Real" callbacks, that actually implement functionalities;
+        - "Dummy" callbacks, that do nothing;
+        - Function pointers which, at startup, either point to the dummy
+          callbacks or the real callbacks. We can change our mind at runtime.
+        Other modules then only call the function pointers.
+setup : Functions ending with "setup" are functions that initialize a
+        module/service.
+        When a module/service provides such a function, it must be called once 
+        before using the module/service. 
+        Failure to do it is considered to result in undefined behaviour.
+        Depending on the module/service, calling its setup() function more 
+        than once may be either required under certain conditions, or simply 
+        discouraged. When unsure, refer to the documentation.
+cleanup : Functions ending with "cleanup" release resources associated 
+          with a module/service. However, they guarantee that it is still
+          safe to use the module/service after the call.
+turnon  : Functions ending with "turnon" enable a service/module.
+          They rarely need to be provided.
+turnoff : Functions ending with "turnoff" disable a service/module.
+          They rarely need to be provided.
+init : Functions ending with "init" are object constructors.
+       They take an uninitialized object by address, and optionally, more
+       parameters.
+       init() functions should return either void or an error code.
+       When the caller is done with the object, they should release resources
+       associated with it by calling the appropriate "deinit" function.
+       No "new" or "create" functions are provided, since they would just
+       be wrappers around init() functions on dynamically-allocated objects.
+       init() alone is enough since the caller can choose how to
+       allocate te actual object.
+       There could be rare exceptions, like, for instance, objects that need to
+       have a permanent lifetime and thus there is no point in allocating
+       them on the stack. See create().
+deinit : Functions ending with "deinit" are object destructors.
+         They take an initialized object by address.
+         deinit() functions should return void.
+create : Functions ending with "create" return dynamically-allocated 
+         initialized objects. They should only be provided when strictly 
+         necessary.
+delete : Functions ending with "delete" free the resources held by a 
+         dynamically-allocated initialized object, as well as the object 
+         itself.
+
+Not unsigned int, but unsigned.
+
+Counters should be unsigned longs, or longs if it is more convenient to
+leave them signed.
+
+Stop putting damn spaces before and after parentheses : i.e
+Not if ( foobar )
+But if(foobar)
+
+A space follows a closing parenthesis, except for function calls or 
+declarations.
+A space follows a comma.
+There is no space between a type and its pointer * specifier.
+There are no extra spaces at the end of lines.
+
+Indentation is 4 spaces.
+Fit to 80 columns.
+
+There is one space before the opening brace after flux control. i.e
+Not if(foo){}
+But if(foo) {}
+
+The Yoda notation is discouraged because it sucks. i.e
+Not if(NULL == value)
+But if(value == NULL)
+
+Booleans and pointers are never explicitly checked against literals.
+Not if(ptr == NULL)
+But if(ptr)
+Not if(cond == true)
+Buf if(cond)
+
+Putting a lot of parentheses in long logical operator sequences is okay, 
+even when they are not needed, because they improve readability.
+
+Global variables are, as-is, strictly forbidden. Here are the exceptions :
+- The Global State object, which can be thought as a _wrapper_ to global 
+  variables. Its main purpose is to provide an entry point for, say, crash
+  handling functions, which are not given parameters and can only access
+  global variables. It is also an entry point for variables that indeed
+  should be needed from anywhere.
+- Private global variables within a module are perfectly fine, as long as
+  they're declared with the static keyword.
+  A typical example is 
+  static const char *TAG="my_module";
+
+typedef-ing structs and enums.
+NEVER hide a pointer type, such as this :
+typedef void *LPVOID; /* NO ! Dammit ! */
+The caller is clever enough to manipulate pointers on their own, thanks.
+
+Brace styles :
+Both styles are okay :
+if(cond) {
+    foo();
+    bar();
+}
+And
+if(cond)
+{
+    foo();
+    bar();
+}
+
+If a control flow only takes one line, do not put the goddamn braces.
+Not :
+if(cond) {
+    foo();
+}
+But :
+if(cond)
+    foo();
+
+About gotos.
+Generally, using gotos is not okay, since a return statement usually does the 
+job.
+However, there are cases where it's acceptable, like when there is the same
+clean-up code execute before returning.
+
+Return as soon as possible !
+Not :
+if(!ok) {
+    oops();
+    something_went_wrong();
+} else {
+    everything_is_awesome();    
+    everything_is_cool();    
+}
+But :
+if(!ok) {
+    oops();
+    return im_outta_here;
+}
+everything_is_awesome();
+everything_is_cool();
+The same applies for continue and break. Use them as soon as possible !
+
+

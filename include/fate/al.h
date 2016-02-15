@@ -31,7 +31,8 @@
  *  \brief interface to the OpenAL backend.
  *  \defgroup al OpenAL audio backend
  *
- *  TODO
+ * This module is yet to be implemented.
+ * It is intended to be used by an audio backend selector module.
  */
 
 #ifndef FATE_AL_H

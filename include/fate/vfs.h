@@ -29,7 +29,7 @@
 
 /*! \file fate/vfs.h
  *  \brief Virtual File System.
- *  \defgroup vfs Virtual File System
+ *  \defgroup vfs VFS : Virtual File System.
  *
  * TODO
  */

@@ -22,7 +22,7 @@ SORT_GROUP_NAMES       = NO
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            =
+LAYOUT_FILE            = DoxygenLayout.xml
 INPUT                  = ../include/fate/ ../src/fate/
 RECURSIVE              = YES
 ALPHABETICAL_INDEX     = YES
@@ -82,9 +82,9 @@ HTML_EXTRA_STYLESHEET  =
 
 HTML_EXTRA_FILES       =
 
-HTML_COLORSTYLE_HUE    = 220
-HTML_COLORSTYLE_SAT    = 100
-HTML_COLORSTYLE_GAMMA  = 80
+HTML_COLORSTYLE_HUE    = 38
+HTML_COLORSTYLE_SAT    = 255
+HTML_COLORSTYLE_GAMMA  = 142
 HTML_TIMESTAMP         = YES
 HTML_DYNAMIC_SECTIONS  = YES
 HTML_INDEX_NUM_ENTRIES = 100
@@ -98,6 +98,9 @@ SERVER_BASED_SEARCH    = NO
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
-PREDEFINED             = __attribute__(x)= __declspec(x)
-INCLUDE_PATH           = include
+PREDEFINED             = "__DOXYGEN__=1" \
+                         "__attribute__(x)" \
+                         "__declspec(x)" \
+                         "__cplusplus"
+INCLUDE_PATH           = ../include
 

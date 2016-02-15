@@ -27,27 +27,39 @@
  *
  */
 
-/*! \file fate/fatal_alloc.h
- *  \brief Exit-on-failure dynamic memory allocaton routines.
+/*! \file fate/asm.h
+ *  \brief Architecture-specific functions (close to assembly).
+ *  \defgroup asm Asm : Architecture-specific functions (close to assembly).
  *
  * TODO
+ *
+ * @{
  */
 
 
-#ifndef FATE_FATAL_ALLOC_H
-#define FATE_FATAL_ALLOC_H
+#ifndef FATE_BITS_H
+#define FATE_BITS_H
 
-#include <stddef.h>
-#include <fate/defs.h>
-
-#ifdef FATE_DEBUG_BUILD
-extern void* fate_fatal_malloc(size_t nmemb, size_t size);
-extern void* fate_fatal_calloc(size_t nmemb, size_t size);
-extern void* fate_fatal_realloc(void *ptr, size_t nmemb, size_t size);
+#if __DOXYGEN__ || defined(__GNUC__)
+/*! \brief Prefetch data, putting it the appropriate CPU cache level.
+ *
+ * It has been reported to provide interesting performance boosts <b>when 
+ * used properly</b>. But as always, profile.
+ *
+ * The GCC manual recommends calling it early enough before the data 
+ * is actually accessed.
+ *
+ * \param addr The data's address.
+ * \param rw Compile-time boolean : "Will the data be written to ?"
+ * \param locality Compile-time integer between 0 and 3 : "For how long
+ *            should the data be kept in the cache ?"
+ */
+#define fate_bits_prefetch(addr,rw,locality) \
+        __builtin_prefetch(addr,rw,locality)
 #else
-#define fate_fatal_malloc(_nmemb_,_size_) malloc(_nmemb_*_size_)
-#define fate_fatal_calloc(_nmemb_,_size_) calloc(_nmemb_,_size_)
-#define fate_fatal_realloc(_ptr_,_nmemb_,_size_) realloc(_ptr_,_nmemb_*_size_)
+#define fate_bits_prefetch(addr,rw,locality)
 #endif
 
-#endif /* FATE_FATAL_ALLOC_H */
+/*! @} */
+
+#endif /* FATE_BITS_H */

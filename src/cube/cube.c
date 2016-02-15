@@ -65,6 +65,7 @@ void Cube_free(Cube *c) {
     glDeleteBuffers(1, &c->vbo);
     glDeleteVertexArrays(1, &c->vao);
 }
+void draw_some_image(void);
 void Cube_draw(Cube *c) {
     //glDisable(GL_CULL_FACE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
@@ -74,5 +75,20 @@ void Cube_draw(Cube *c) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     glPrimitiveRestartIndex(0xFF);
     glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_BYTE, NULL);
+    //draw_some_image();
 }
+struct 2dplane {
+    GLuint ebo, vao, vbo, prog;
+};
+typedef struct 2dplane 2dplane;
 
+void draw_some_image(2dplane *p) {
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUseProgram(p->prog);
+    glBindVertexArray(p->vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p->ebo);
+    glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_BYTE, NULL);
+    glEnable(GL_DEPTH_TEST);
+}

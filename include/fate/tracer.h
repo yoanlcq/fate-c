@@ -29,7 +29,7 @@
 
 /*! \file fate/tracer.h
  *  \brief Support for logging function calls and their parameters' value.
- *  \defgroup tracer Tracer, the runtime trace utility
+ *  \defgroup tracer Tracer : Logging function calls and parameters at runtime.
  *
  * TODO
  */

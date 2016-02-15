@@ -28,10 +28,10 @@
  */
 
 /*! \file fate/sys.h
- *  \brief OS-specific routines and crash handling.
- *  \defgroup sys OS-specific routins and crash handling
+ *  \brief Crash handling, stack traces, and more.
+ *  \defgroup sys Sys : Crash handling, stack traces, and more.
  *
- * TODO
+ * @{
  */
 
 #ifndef FATE_SYS_H
@@ -39,6 +39,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <fate/log.h>
 
 #define FATE_SYS_STACK_LEN 128
 #define FATE_SYS_MODNAME_LEN 256
@@ -48,6 +49,10 @@ uint64_t fate_sys_get_last_write_time(const char *path);
 bool fate_sys_set_current_directory(const char *path);
 char *fate_sys_getgamepath(void);
 void fate_sys_crash_handler_setup(void);
-void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...));
+/*! \brief Log a platform-specific stack trace, through the given log function.
+ *
+ */
+void fate_sys_log_stacktrace(fate_logfunc logfunc);
 
+/* @} */
 #endif /* FATE_SYS_H */

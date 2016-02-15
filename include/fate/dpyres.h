@@ -28,14 +28,26 @@
  */
 
 /*! \file fate/dpyres.h
- *  \brief Display Resolutions.
- *  \defgroup dpyres Display resolutions table and lookup
+ *  \brief Display Resolutions table.
+ *  \defgroup dpyres Dpyres : Display Resolutions table
  *
  * A list of (theoretically) all the possible display resolutions, 
- * ordered by width, then height.
- * Taken from https://upload.wikimedia.org/wikipedia/commons/0/0c/Vector_Video_Standards8.svg 
- * and Steam's 2015 Hardware Survey.
+ * ordered by width, then height.<br>
+ * Taken from <a href="https://upload.wikimedia.org/wikipedia/commons/0/0c/Vector_Video_Standards8.svg" target="_blank">This SVG file</a>
+ * and Steam's 2015 Hardware Survey.<br>
  * Last updated on July 2015.
+ *
+ * <b>Compile-time switches :</b>
+ * <table>
+ * <tr>
+ * <td>FATE_DPYRES_TRUST_STEAM_2015_SURVEY</td>
+ * <td>If defined, reduces the list's size to only the most common display
+ *     resolutions, based on Steam's 2015 Hardware Survey.<br>
+ *     #FATE_DPYRES_LEN expands to 13 instead of 50.</td>
+ * </tr>
+ * </table>
+ * 
+ * @{
  */
 
 #ifndef FATE_DPYRES_H
@@ -43,19 +55,31 @@
 
 #include <stdint.h>
 
-#define FATE_DPYRES_TRUST_STEAM_2015_SURVEY
-
+/*! \brief The #FATE_DPYRES array's length. */
 #ifdef FATE_DPYRES_TRUST_STEAM_2015_SURVEY
 #define FATE_DPYRES_LEN 13
 #else 
 #define FATE_DPYRES_LEN 50
 #endif
 
+/*! \brief The display resolutions table.
+ *
+ * It is an array of width-height pairs, ordered by width, the height.
+ */
 extern const uint16_t FATE_DPYRES[FATE_DPYRES_LEN][2];
+/*! \brief Gets the #FATE_DPYRES entry that would come right before the given 
+ *         display resolution. */
 const uint16_t *fate_dpyres_prev_in_list(uint16_t width, uint16_t height);
+/*! \brief Gets the #FATE_DPYRES entry that would come right after the given 
+ *         display resolution. */
 const uint16_t *fate_dpyres_next_in_list(uint16_t width, uint16_t height);
+/*! \brief Gets the highest #FATE_DPYRES entry that is contained in the given 
+ *         display resolution. */
 const uint16_t *fate_dpyres_prev(uint16_t width, uint16_t height);
+/*! \brief Gets the lowest #FATE_DPYRES entry that contains the given 
+ *         display resolution. */
 const uint16_t *fate_dpyres_next(uint16_t width, uint16_t height);
 
+/* @} */
 
 #endif /* FATE_DPYRES_H */

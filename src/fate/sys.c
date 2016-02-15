@@ -71,6 +71,9 @@
 #include <execinfo.h>
 #endif
 
+
+static const char *TAG = "sys";
+
 /*
  *
  *
@@ -377,17 +380,17 @@ char *fate_sys_getgamepath(void) {
 
 
 #ifdef FATE_EMSCRIPTEN
-void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
+void fate_sys_log_stacktrace(fate_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
     char *buf = malloc(size);
     emscripten_get_callstack(flags, buf, size);
-    logfunc(buf);
+    logfunc(TAG, buf);
     free(buf);
 }
 #elif defined(FATE_WINDOWS)
 
-void fate_sys_log_win32_error(void (*logfunc)(const char *fmt, ...), 
+void fate_sys_log_win32_error(fate_logfunc logfunc, 
                               const char *funcstr, DWORD error) 
 {
     LPTSTR lpMsgBuf;
@@ -402,14 +405,14 @@ void fate_sys_log_win32_error(void (*logfunc)(const char *fmt, ...),
         (LPSTR) &lpMsgBuf,
         0, NULL);
 
-    logfunc("%s failed with error %d : %s", funcstr, error, lpMsgBuf);
+    logfunc(TAG, "%s failed with error %d : %s", funcstr, error, lpMsgBuf);
 
     LocalFree(lpMsgBuf);
 }
 
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
 static void fate_sys_log_stacktrace_win32(
-                                   void (*logfunc)(const char *fmt, ...), 
+                                   fate_logfunc logfunc, 
                                    const DWORD64 *stack, 
                                    unsigned short nframes)
 {
@@ -431,7 +434,7 @@ static void fate_sys_log_stacktrace_win32(
      * allocated from the heap. */
     symbol = calloc(sizeof(SYMBOL_INFO)+256, 1);
     if(!symbol) {
-        logfunc("log_stacktrace : Could not allocate SYMBOL_INFO object.\r\n");
+        logfunc(TAG, "log_stacktrace : Could not allocate SYMBOL_INFO object.\r\n");
         SymCleanup(process);
         return;
     }
@@ -454,7 +457,7 @@ static void fate_sys_log_stacktrace_win32(
                 /* MS says that on Windows XP, the string is 
                  * not null-terminated. */
                 for(j=0 ; j<modname_len ; j++)
-                    logfunc("%c", modname[j]);
+                    logfunc(TAG, "%c", modname[j]);
             } else {
                 fate_sys_log_win32_error(logfunc, "GetModuleHandleEx",
                                          GetLastError());
@@ -466,25 +469,25 @@ static void fate_sys_log_stacktrace_win32(
         IMAGEHLP_LINE64 line;
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
         if(SymGetLineFromAddr64(process, stack[i], &col, &line))
-            logfunc("(%s:%u:%u) ", line.FileName, line.LineNumber, col);
+            logfunc(TAG, "(%s:%u:%u) ", line.FileName, line.LineNumber, col);
         else {
             DWORD err = GetLastError();
             if(err != 487)
                 fate_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
         }
 
-        logfunc("[0x%llx] ", symbol->Address);
+        logfunc(TAG, "[0x%llx] ", symbol->Address);
         if(symbol->MaxNameLen > 0)
-            logfunc("(%s)", symbol->Name);
+            logfunc(TAG, "(%s)", symbol->Name);
         if(symbol->Flags & SYMFLAG_VALUEPRESENT)
-            logfunc("(Value : 0x%llx)", symbol->Value);
-        logfunc("\r\n");
+            logfunc(TAG, "(Value : 0x%llx)", symbol->Value);
+        logfunc(TAG, "\r\n");
     }
 
     free(symbol);
     SymCleanup(process);
 }
-void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
+void fate_sys_log_stacktrace(fate_logfunc logfunc)
 {
     PVOID stack[FATE_SYS_STACK_LEN];
     DWORD64 stack_dw[FATE_SYS_STACK_LEN];
@@ -500,7 +503,7 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...))
 #else /* !FATE_WINDOWS */
 
 
-void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
+void fate_sys_log_stacktrace(fate_logfunc logfunc) {
     void *buffer[FATE_SYS_STACK_LEN];
     char **strings;
     int i, num_strings;
@@ -508,11 +511,11 @@ void fate_sys_log_stacktrace(void (*logfunc)(const char *fmt, ...)) {
     num_strings = backtrace(buffer, FATE_SYS_STACK_LEN);
     strings = backtrace_symbols(buffer, num_strings);
     if(!strings) {
-        logfunc("Could not get a stacktrace.\n");
+        logfunc(TAG, "Could not get a stacktrace.\n");
         return;
     }
     for(i=0; i<num_strings; ++i)
-        logfunc("%s\n", strings[i]);
+        logfunc(TAG, "%s\n", strings[i]);
     free(strings);
 }
 

@@ -112,7 +112,7 @@ const uint16_t FATE_DPYRES[FATE_DPYRES_LEN][2] = {
 };
 
 const uint16_t *fate_dpyres_prev_in_list(uint16_t w, uint16_t h) {
-    int hit = FATE_DPYRES_LEN-1;
+    long hit = FATE_DPYRES_LEN-1;
     const uint16_t *res = FATE_DPYRES[hit];
     while(res[0] > w && hit > 0) res = FATE_DPYRES[--hit];
     while(res[1] > h && hit > 0) res = FATE_DPYRES[--hit];
@@ -121,7 +121,7 @@ const uint16_t *fate_dpyres_prev_in_list(uint16_t w, uint16_t h) {
     return res;
 }
 const uint16_t *fate_dpyres_prev(uint16_t w, uint16_t h) {
-    int hit = FATE_DPYRES_LEN-1;
+    long hit = FATE_DPYRES_LEN-1;
     const uint16_t *res = FATE_DPYRES[hit];
     while(res[0] >= w && hit > 0) res = FATE_DPYRES[--hit]; 
     while(res[1] >= h && hit > 0) res = FATE_DPYRES[--hit];
@@ -129,7 +129,7 @@ const uint16_t *fate_dpyres_prev(uint16_t w, uint16_t h) {
 }
 
 const uint16_t *fate_dpyres_next_in_list(uint16_t w, uint16_t h) {
-    int hit = 0;
+    long hit = 0;
     const uint16_t *res = FATE_DPYRES[hit];
     while(res[0] < w && hit < FATE_DPYRES_LEN-1) res = FATE_DPYRES[++hit];
     while(res[1] < h && hit < FATE_DPYRES_LEN-1) res = FATE_DPYRES[++hit];
@@ -138,7 +138,7 @@ const uint16_t *fate_dpyres_next_in_list(uint16_t w, uint16_t h) {
     return res;
 }
 const uint16_t *fate_dpyres_next(uint16_t w, uint16_t h) {
-    int hit = 0;
+    long hit = 0;
     const uint16_t *res = FATE_DPYRES[hit];
     while(res[0] <= w && hit < FATE_DPYRES_LEN-1) res = FATE_DPYRES[++hit];
     while(res[1] <= h && hit < FATE_DPYRES_LEN-1) res = FATE_DPYRES[++hit];

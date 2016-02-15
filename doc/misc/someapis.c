@@ -1,8 +1,6 @@
-/* TODO The semantics of setup(), cleanup(), turnon() and turnoff(), init and deinit. */
 
 /* Compile-time constants that are defined by the build process */
 
-#define FATE_ENABLE_TRACING
 #define FATE_DEBUG_BUILD
 
 

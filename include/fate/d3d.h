@@ -31,7 +31,9 @@
  *  \brief interface to the Direct3D backend.
  *  \defgroup d3d Direct3D video backend
  *
- *  TODO
+ *  This module is yet to be implemented.
+ *  Direct3D support is <b>considered</b> in F.A.T.E, but OpenGL and Vulkan
+ *  support is more important.
  */
 
 #ifndef FATE_D3D_H
