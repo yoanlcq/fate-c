@@ -84,17 +84,19 @@
  *     fate_packt p;
  *     fate_packt_init(&p, 0); //The size hint is optional.
  *     fate_packt_addobj(&p, int, &val);
- *     fate_packt_addobjv(&p, char, &txt, 32);
+ *     fate_packt_addobjv(&p, char, txt, 32);
  *     fate_packt_addobjvn(&p, char, &unknown, &unknown_len);
  *     fate_packt_addobj(&p, example, &foo);
  *     fate_packt_addobj(&p, example, &bar);
  *     fate_packt_databuf(&p, &data, &data_len);
- *     fate_packt_flags(&p, FATE_PACKT_JSON | FATE_PACKT_GZIP2);
+ *     fate_packt_flags(&p, FATE_PACKT_JSON | FATE_PACKT_GZIP2
+ *          // | FATE_PACKT_MAGIC if we want a magic number.
+ *     );
  *     (sending ? fate_packt_pack : fate_packt_unpack)(&p);
  *     fate_packt_deinit(&p);
  *      
  *     if(sending) {
- *         fwrite(data, 1, data_len, stdout);
+ *         send_to_friends(data, data_len);
  *         fate_mem_free(data);
  *     } else {
  *         // You can now use 'val', 'txt', 'foo' and 'bar'.
@@ -144,7 +146,7 @@ void fate_packt_deinit(fate_packt *p);
 void fate_packt_addobjv_real(fate_packt *p, fate_packt_objdesc *d,
                              void *objarray, size_t len);
 void fate_packt_addobjvn_real(fate_packt *p, fate_packt_objdesc *d,
-                              void *objarray, size_t *len);
+                              void **ptraddr, size_t *len);
 #define fate_packt_addobjvn(packet, type, ary, len) \
         fate_packt_addobjvn_real(packet, &FATE_PACKT_GETDESC(type), ary, len)
 #define fate_packt_addobjv(packet, type, ary, len) \
