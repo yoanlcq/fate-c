@@ -73,6 +73,9 @@ typedef struct fate_mem_blockinfo fate_mem_blockinfo;
 #if __DOXYGEN__ || defined(FATE_MEM_DEBUG)
 
 /*! \brief TODO */
+#ifdef __GNUC__
+__attribute__((malloc))
+#endif
 void *fate_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
                            const char *type_str, 
                            const char *filename, unsigned lineno);
@@ -84,6 +87,9 @@ void *fate_mem_malloc_real(size_t nmemb, size_t size, const char *tag,
             fate_mem_unlock();
 
 /*! \brief TODO */
+#ifdef __GNUC__
+__attribute__((malloc))
+#endif
 void *fate_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
                            const char *type_str,
                            const char *filename, unsigned lineno);

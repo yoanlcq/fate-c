@@ -453,12 +453,20 @@ enum fate_promise_attr {
         #FATE_PROMISE_TASK_IS_TICK, after all.
         */ 
     FATE_PROMISE_TASK_IS_FRAME, /*!< u32 - Get/Set - TODO 
-    Gives a certain priority. */
+        Gives a certain priority. */
     FATE_PROMISE_TASK_IS_TICK, /*!< u32 - Get/Set - TODO */
     FATE_PROMISE_TASK_DATA, /*!< ptr - Get/Set - TODO */
     FATE_PROMISE_TASK_FUNC, /*!< ptr - Get/Set - TODO */
     FATE_STORAGE_EXTERNAL_BYTES_LEFT, /*!< u32 - Get */
     FATE_PROMISE_FILE_STORAGE, /*!< u32 - Get - TODO */
+    FATE_PROMISE_FILE_LAZY, /*!< u32 - Get/Set - TODO 
+        The default behaviour (zero) only makes the future available
+        when the file has been entirely downloaded. This behaviour should
+        be chosen for smaller files.
+        If non-zero, the future is nearly instantly available; 
+        Parts of the file are downloaded as the future is read.
+        This value sets the chunk size.
+        */
     FATE_PROMISE_FILE_URL, /*!< str - Get - TODO */
     FATE_PROMISE_FILE_OP, /*!< str - Get - TODO */
     FATE_PROMISE_FILE_SERVER_TIMEOUT, /*!< u32 - Get/Set - TODO */
@@ -681,7 +689,7 @@ void fate_future_wait(fate_promise *p);
  * Do not \c fflush() the file. Use #fate_promise_bind_fsync() instead.<br>
  * Do not \c fclose() the file. Use #fate_future_close() instead. 
  */
-FILE *fate_future_wait_file(fate_promise *future);
+SDL_RWops *fate_future_wait_file(fate_promise *future);
 
 
 
@@ -693,7 +701,7 @@ FILE *fate_future_wait_file(fate_promise *future);
  * Else, the future's resources are released.
  * (This is where free() and/or fclose() are called).
  *
- * If the promise is part of a task graph, its deletion and removel from the 
+ * If the promise is part of a task graph, its deletion and removal from the 
  * graph is deferred until all its tasks are complete.
  * The promise is also disconnected from the graph.
  * 

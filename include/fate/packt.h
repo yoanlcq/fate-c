@@ -32,7 +32,6 @@
  *  \defgroup packt Packt : DRY packets and serialization.
  *
  * This module is yet to be implemented.
- * TODO How is the behaviour defined with pointers, and arrays ?
  *
  * \c example.h
  * \code{.c}
@@ -41,7 +40,7 @@
  *
  * #include <fate/packt.h>
  *
- * FATE_PACKT_ABLE_PROTO(example);
+ * FATE_PACKTDEF_PROTO(example);
  *
  * #endif //EXAMPLE_H
  * \endcode
@@ -51,10 +50,68 @@
  * #include <fate/packt.h>
  * #include "example.h"
  *
- * FATE_PACKT_ABLE(example,
+ * FATE_PACKTDEF(
+ *     example
+ * ,
  *     const char *name;
- *     int id;
- *     example *next;
+ *     fate_allocator_id name_allocator;
+ *     int vec4[4];
+ *     example *children;
+ *     size_t num_children;
+ *     example *list;
+ *     unsigned bit0 : 1;
+ *     unsigned bit1 : 1;
+ *     const char *optional_hash;
+ *     int reserved;
+ *     example **plane;
+ *     size_t plane_w, plane_h;
+ *     example **array_of_null_terminated;
+ *     size_t arrnt_cnt;
+ *     example **list_of_arrays;
+ *     size_t loa_arraysize;
+ * ,
+ *     {
+ *         sizeof(example),
+ *         offsetof(example, name),
+ *         offsetof(example, name_allocator),
+ *         offsetof(example, vec4),
+ *         offsetof(example, children),
+ *         offsetof(example, num_children),
+ *         offsetof(example, list),
+ *         offsetof(example, bit0),
+ *         offsetof(example, bit1),
+ *         offsetof(example, optional_hash),
+ *         offsetof(example, reserved),
+ *         offsetof(example, plane),
+ *         offsetof(example, plane_w),
+ *         offsetof(example, plane_h),
+ *         offsetof(example, array_of_null_terminated),
+ *         offsetof(example, arrnt_cnt),
+ *         offsetof(example, list_of_arrays),
+ *         offsetof(example, loa_arraysize)
+ *     }
+ * ,
+ *     // Within an 'array' attribute, a dimension of size 0 means
+ *     // "This dimension is NULL-terminated".
+ *
+ *     // The following line has no identifier before the ':', which means
+ *     // it sets the default behaviour for all fields.
+ *     " : array(0) allocated(fate_mem)\n"
+ *
+ *     "name : array(0) allocated(:name_allocator)\n"
+ *
+ *     // The following line is useless in the present case, but if 'vec4'
+ *     // was declared as a pointer, pointing to static memory, then it
+ *     // would be needed.
+ *     "vec4 : array(4) allocated(static)\n"
+ *
+ *     "children : array(num_children)\n"
+ *     "list : array(0)\n"
+ *     "optional_hash : array(0) ignored_if_equals(0)\n"
+ *     "reserved : ignored\n"
+ *     "plane : array(plane_h, plane_w) allocated(std, fate_mem)\n"
+ *     "array_of_null_terminated : array(arrnt_cnt, 0) allocated(fate_mem)\n"
+ *     "list_of_arrays : array(0, loa_arraysize) allocated(static, fate_mem)\n"
  * );
  * \endcode
  *
@@ -65,45 +122,20 @@
  * #include "example.h"
  *
  * void test(bool sending) {
- *     int val;
- *     example foo, bar;
- *     char *data;
- *     char txt[32];
- *     char *unknown;
- *     size_t unknown_len;
+ *     example foo;
+ *     void *data;
  *     size_t data_len;
+ *     unsigned long flags = FATE_PACKT_JSON | FATE_PACKT_MAGIC;
  *     
  *     if(sending) {
- *         // Initialize 'val', 'txt', 'foo' and 'bar'.
- *         // Also initialise 'unknown' and 'unkown_len'.
- *         // Like unknown_len = strlen(unknown);
- *     } else {
- *         // We should have received 'data' and 'data_len'.
- *     }
- *     
- *     fate_packt p;
- *     fate_packt_init(&p, 0); //The size hint is optional.
- *     fate_packt_addobj(&p, int, &val);
- *     fate_packt_addobjv(&p, char, txt, 32);
- *     fate_packt_addobjvn(&p, char, &unknown, &unknown_len);
- *     fate_packt_addobj(&p, example, &foo);
- *     fate_packt_addobj(&p, example, &bar);
- *     fate_packt_databuf(&p, &data, &data_len);
- *     fate_packt_flags(&p, FATE_PACKT_JSON | FATE_PACKT_GZIP2
- *          // | FATE_PACKT_MAGIC if we want a magic number.
- *     );
- *     (sending ? fate_packt_pack : fate_packt_unpack)(&p);
- *     fate_packt_deinit(&p);
- *      
- *     if(sending) {
+ *         // Initialise 'foo'. Then :
+ *         fate_pack(example, &data, &data_len, &foo, flags);
  *         send_to_friends(data, data_len);
  *         fate_mem_free(data);
  *     } else {
- *         // You can now use 'val', 'txt', 'foo' and 'bar'.
- *         // Their lifetime is yours to manage.
- *         // You also have 'unknown' and 'unknown_len'.
- *         // However, you must free 'unknown' when you're done.
- *         fate_mem_free(unknown);
+ *         // We should have received 'data' and 'data_len'.
+ *         fate_unpack(example, &foo, data, data_len, flags);
+ *         // We have now received 'foo' !
  *     }
  * }
  * \endcode
@@ -119,44 +151,33 @@
 
 #include <fate/defs.h>
 
-struct fate_packt_objdesc {
+struct fate_packtdef {
     const char *name;
     const char *fields;
+    const char *attributes;
     unsigned id; /*!< For faster lookups */
 };
-typedef fate_packt_objdesc fate_packt_objdesc;
+typedef fate_packtdef fate_packtdef;
 
-#define FATE_PACKT_GETDESC(type) type##_pkt
+#define FATE_PACKT_GETDEF(type) type##_pktdef
 
-#define FATE_PACKT_ABLE_PROTO(type) \
+#define FATE_PACKTDEF_PROTO(type) \
     struct type; typedef struct type type; \
-    extern fate_packt_desc FATE_PACKT_GETDESC(type)
+    extern fate_packtdef FATE_PACKT_GETDEF(type)
 
-#define FATE_PACKT_ABLE(type, fields) \
+#define FATE_PACKTDEF(type, fields, attributes) \
     struct type { fields }; \
-    fate_packt_desc FATE_PACKT_GETDESC(type) = \
-        { XSTRINGIFY(type), XSTRINGIFY(fields), 0}
+    fate_packt_def FATE_PACKT_GETDEF(type) = \
+        { XSTRINGIFY(type), XSTRINGIFY(fields), attributes, 0}
 
-struct fate_packt {
-    /* TODO What here ? */
-};
-typedef struct fate_packt fate_packt;
-void fate_packt_init(fate_packt *p, size_t size_hint);
-void fate_packt_deinit(fate_packt *p);
-void fate_packt_addobjv_real(fate_packt *p, fate_packt_objdesc *d,
-                             void *objarray, size_t len);
-void fate_packt_addobjvn_real(fate_packt *p, fate_packt_objdesc *d,
-                              void **ptraddr, size_t *len);
-#define fate_packt_addobjvn(packet, type, ary, len) \
-        fate_packt_addobjvn_real(packet, &FATE_PACKT_GETDESC(type), ary, len)
-#define fate_packt_addobjv(packet, type, ary, len) \
-        fate_packt_addobjv_real(packet, &FATE_PACKT_GETDESC(type), ary, len)
-#define fate_packt_addobj(packet, type, ary) \
-        fate_packt_addobjv(packet, type, ary, 1)
-void fate_packt_databuf(fate_packt *p, char **data, size_t *len);
-void fate_packt_flags(fate_packt *p, unsigned long flags);
-void fate_packt_pack(fate_packt *p);
-void fate_packt_unpack(fate_packt *p);
+bool  fate_pack_real(fate_packt_def *d, void **out_mem_malloced_data,
+                     size_t *out_data_len, const void *obj, long flags);
+#define fate_pack(type, ...) \
+        fate_pack_real(FATE_PACKT_GETDEF(type), __VA_ARGS__)
+bool  fate_unpack_real(fate_packt_def *d, void *out_obj, 
+                      const void *data, size_t data_len, long flags);
+#define fate_unpack(type, ...) \
+        fate_unpack_real(FATE_PACKT_GETDEF(type), __VA_ARGS__)
 
 /* @} */
 
