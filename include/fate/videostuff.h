@@ -1,3 +1,9 @@
+/* Possible FATE 2 extensions :
+ * Well, that's equivalent to shipping Blender and GCC with the game.
+ * procedural_terrain_extension
+ * procedural_entities_extension
+ */
+
 typedef uint64_t fate_time_unit;
 typedef fate_time_unit fate_tick;
 typedef int64_t fate_space_unit;
@@ -7,6 +13,7 @@ struct fate_transform4d {
     quat rot, rot_vel, rot_accel;
     vec3 scale, scale_vel, scale_accel;
     fate_time_unit time, time_vel, time_accel;
+    float alpha, alpha_vel, alpha_accel;
 };
 
 struct fate_world {
@@ -34,7 +41,8 @@ struct fate_portal {
     float opacity;
     /* It might not be just a regular plane. 
      * Shapes need not match between portals. Passing into the
-     * other side is just defined as a position relative to centers. */
+     * other side is just defined as a position relative to centers. 
+     * The dev may want to provide collision detection volumes. */
     fate_shape2d shape;
     fate_transform4d transform;
     /* Access with a fate_face as the array index. */
@@ -47,17 +55,35 @@ struct fate_portal {
 struct fate_region_boundaries {
     fate_space_unit left, right, bottom, top, near, far;
     /* FIXME Isn't it the job of portals ? 
-     * Discussion : Yes, but for most use cases, this is easier to manage 
+     * RESOLVED : It's definitely the job of portals ! Think about how
+     * regions behave inside another. You can actually go out of a region
+     * to end up inside its parent.
+     * For the regions of the root world, just let coordinates wrap around.
+     * The dev can simply place textured walls/portals depending on the desired
+     * behaviour.
+     *
+     * Old Discussion : Yes, but for most use cases, this is easier to manage 
      * than several portals, which need to carefully match the region's faces.
      * Also, nothing prevents the recursive rendering implementation to
      * treat them as portals. */
-    unsigned wrap_left :1;
-    unsigned wrap_right :1;
-    unsigned wrap_bottom :1;
-    unsigned wrap_top :1;
-    unsigned wrap_near :1;
-    unsigned wrap_far :1;
-    unsigned reserved :2;
+    /* Wrapping is easy to understand : Unwrapped means that objects
+     * may freely go out of a region (unless it is a region of the 
+     * root world, in which case the objects are denied from going further).
+     * Wrapped means that objects attempting to go out of the region will
+     * reappear at the other side (integer coordinates just wrap around).
+     * As a desired consequence, the other side of a region is seen/heard when
+     * approaching the limits. Typical use case : Simulate a universe so huge
+     * that the player doesn't notice it wraps around.
+     */
+    /*
+    unsigned wrap_left   : 1;
+    unsigned wrap_right  : 1;
+    unsigned wrap_bottom : 1;
+    unsigned wrap_top    : 1;
+    unsigned wrap_near   : 1;
+    unsigned wrap_far    : 1;
+    unsigned reserved    : 2;
+    */
 };
 struct fate_region {
     /* Relative to the parent coords. */
@@ -78,6 +104,13 @@ struct fate_region {
      * you go further, you'll just be positioned at the other side. 
      * If you don't wish this behaviour, just put a texture plane with
      * a collision to prevent entities from moving through it. */
+    /* The three flags below indicate whether 
+     * the world should be interpreted as a symmetry. 
+     * Useful for mirror modes. */
+    unsigned flip_x : 1;
+    unsigned flip_y : 1;
+    unsigned flip_z : 1;
+    unsigned reserved : 5;
 };
 
 struct fate_view_perspective_params {
@@ -166,6 +199,12 @@ struct fate_fx2d_filter_layer {
 struct fate_fx2d {
     fate_filter_layer *filter_layers;
     fate_fx2d_crop crop;
+    fate_fx2d_symmetry symmetry;
+    /* keeps old frames in a ring buffer, and draws them with reduced 
+     * opacity. */
+    fate_fx2d_onionskin onionskin;
+    fate_fx2d_blendmode blendmode;
+    /* TODO allow clipping masks */
 };
 struct fate_renderspec {
     /* TODO allow game logic to specify a timeout for effects
