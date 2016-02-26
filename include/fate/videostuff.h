@@ -46,9 +46,11 @@ struct fate_portal {
 
 struct fate_region_boundaries {
     fate_space_unit left, right, bottom, top, near, far;
-    /* Say whether we allow wrapping around or not.
-     * Thus, we can choose to prevent objects from going outside
-     * of the region. */
+    /* FIXME Isn't it the job of portals ? 
+     * Discussion : Yes, but for most use cases, this is easier to manage 
+     * than several portals, which need to carefully match the region's faces.
+     * Also, nothing prevents the recursive rendering implementation to
+     * treat them as portals. */
     unsigned wrap_left :1;
     unsigned wrap_right :1;
     unsigned wrap_bottom :1;
@@ -73,7 +75,9 @@ struct fate_region {
     /* Another cool thing to note is that coordinates should never be
      * checked against limits, and just wrap around. Therefore, when
      * approaching a region's limit, you see the other side. And if
-     * you go further, you'll just be positioned at the other side. */
+     * you go further, you'll just be positioned at the other side. 
+     * If you don't wish this behaviour, just put a texture plane with
+     * a collision to prevent entities from moving through it. */
 };
 
 struct fate_view_perspective_params {
@@ -139,6 +143,8 @@ struct fate_fx3d {
 };
 /* Inspired by Krita's Filter Layers. */
 enum fate_fx2d_filter_type {
+    FATE_FILTER_FILL, /* Trivial to implement and crazy fast. 
+                       * Just clear the screen. */
     FATE_FILTER_LEVELS,
     FATE_FILTER_BRIGHTNESS_CONTRAST,
     FATE_FILTER_HSL_ADJUST,
@@ -162,6 +168,8 @@ struct fate_fx2d {
     fate_fx2d_crop crop;
 };
 struct fate_renderspec {
+    /* TODO allow game logic to specify a timeout for effects
+     * (so they don't depend on the tickrate) */
     fate_fx3d *fx3d;
     fate_fx2d *fx2d;
     fate_view *view;
