@@ -189,19 +189,35 @@ void fate_sh_deinit(fate_sh *s);
  */
 void        fate_sh_flags(fate_sh *s, uint32_t flags);
 uint32_t    fate_sh_get_flags(fate_sh *s);
-uint32_t    fate_sh_get_last_error(fate_sh *s);
-const char *fate_sh_get_error_str(uint32_t err);
+fate_sh_err fate_sh_get_last_error(fate_sh *s);
+const char *fate_sh_get_error_str(fate_sh_err err);
 
+enum fate_sh_err {
+    FATE_SH_ERR_NO_ERROR = 0,
+    FATE_SH_ERR_NOT_IN_TRANSACTION,
+    FATE_SH_ERR_NO_ENTRY
+};
+typedef enum fate_sh_err fate_sh_err;
+
+void fate_sh_transaction_init(fate_sh_transaction *ts, fate_sh *s);
+void fate_sh_transaction_deinit(fate_sh_transaction *ts);
+void fate_sh_transaction_make_current(fate_sh_transaction *ts);
+fate_sh_transaction* fate_sh_transaction_get_current(void);
+void fate_sh_transaction_commit(fate_sh_transaction *ts);
+void fate_sh_transaction_rollback(fate_sh_transaction *ts);
 
 /* Node API :
  *
+ * The atomicity of operations is only guaranteed by transactions.
+ * Any operation from this API will fail if there is no current transaction, and
+ * fate_sh_get_last_error() will return FATE_SH_ERR_NOT_IN_TRANSACTION.
  * To optimize caching, the caller should use sh_flags().
  * All of the functions from this API that alter the VFS require a shell object as their
  * first parameter. In cases it seems like the shell object is useless, just keep in mind
  * that at least the VFS's journal needs it.
+ * All operations overwrite existing nodes when they exist (that means unlink() is called if needed).
  * When we want to prevent operations from overwriting exisiting nodes, we just check for the node's
  * existence with fate_sh_resolve() and then make decisions.
- * All operations overwrite existing nodes when they exist (that means unlink() is called if needed).
  * Please don't make assumptions based on their similarities with OS-specific file APIs/utilities.
  *
  * serialization formats for (de)serialize:
@@ -265,21 +281,17 @@ const char *fate_sh_get_error_str(uint32_t err);
  * Done !
  */
 
-
+/* Move to another version of the VFS. */
+void           fate_sh_timetravel(fate_sh *s, fate_tick t);
 /* As you would expect, it sets the current working node, returning its dentry for convenience. 
- * 'path' may be NULL. In that case, the shell's default directory is used. */
+ * 'path' may be NULL. In that case, the shell's default directory is used. 
+ * The path's existence should be tested with fate_resolve(). */
 fate_dentry*   fate_sh_chdir(fate_sh *s, const uint8_t *path);
 /* 
- * Returns the absolute path to the current working node, into a dynamically-allocated string.
- * Rationale for returning a dynamically-allocated string :
- *     Getting the CWN must be an atomic operation.
- *     dentries in the CWN stack might be altered by other running shells.
- *     So we can't reliably return a 'length' for the path without forcing the
- *     caller to manually lock the CWN stack.
- *     Since only the shell object is responsible for the CWN stack, we can only
- *     return atomically the path as it is at the time of the call.
+ * Old rationale made obsolete by transactions.
  */
-uint8_t*       fate_sh_getcwn(fate_sh *s);
+void           fate_sh_getcwdlen(fate_sh *s, size_t *bufsize);
+void           fate_sh_getcwd(fate_sh *s, uint8_t *path, size_t bufsize);
 /* pushd() is a convenience function which should not be used extensively.
  * It actually pushes the string returned by getcwn() on a stack held by the shell,
  * before returning setcwn(shell, path). The semantics are the same.
@@ -334,13 +346,7 @@ fate_dentry**  fate_sh_select(fate_sh *s, const uint8_t *path_pattern, size_t *c
  * - FATE_CHKPATH_SELECT_PATH the path is valid for select(), but neither 
  *                            expand() nor resolve().
  */
-uint32_t       fate_check_path(const uint8_t *path, size_t *begin_index, size_t *end_index);
-/* (de)serialize's result must be fate_free()'d by the caller. 
- * The returned byte array is NULL-terminated, just like a string. 
- * It should hold magic numbers and version information. */
-uint8_t*       fate_serialize(const fate_dentry *n, fate_serialization_format fmt, fate_compression_format c);
-/* 'data' must point to a byte array as returned by fate_serialize(). */
-fate_dentry*   fate_deserialize(const uint8_t *data);
+uint32_t       fate_sh_check_path(const uint8_t *path, size_t *begin_index, size_t *end_index);
 void           fate_sh_link(fate_sh *s, fate_node *src, fate_node *dst_parent, const uint8_t *dst_name);
 void           fate_sh_unlink(fate_sh *s, fate_node *parent, const uint8_t *name);
 /*
@@ -351,7 +357,7 @@ void           fate_sh_unlink(fate_sh *s, fate_node *parent, const uint8_t *name
  */
 void           fate_sh_create(fate_sh *s, const fate_node *src, fate_node *parent, const uint8_t *name);
 void           fate_sh_symlink(fate_sh *s, fate_node *parent, const uint8_t *name, const uint8_t *target);
-/* Returns a dynamic copy of a Symlink's target, or NULL if the node is not a symlink. */
+/* Old rationale made obsolete by transactions. Returns directly the field's value. */
 const uint8_t* fate_sh_readlink(fate_sh *s, const fate_node *lnk);
 /* copy() is different from link() because it also _copies_ children recursively. 
  * Also, unlike with create(), the source node is assumed to already exist in the VFS. */
@@ -379,7 +385,11 @@ void           fate_sh_rename(fate_sh *s, fate_node *parent, fate_dentry *d, con
 /* A catch-all function similar to Linux's ioctl() system call. 
  * Internal work-in-progress features or plugins could expose their own ioctls.
  */
-void*          fate_sh_ioctl(fate_sh *s, fate_node *n, uint32_t op, void *arg);
+int            fate_sh_ioctl(fate_sh *s, fate_node *n, uint32_t op, void *arg);
+/* Rationale for not using pointers : Think about proxy nodes. */
+void           fate_sh_write_u32(fate_sh *s, fate_node *n, uint32_t val);
+uint32_t       fate_sh_read_u32(fate_sh *s, fate_node *n);
+/*........*/
 
 
 /* Engine Event API : */

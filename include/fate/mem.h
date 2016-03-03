@@ -307,7 +307,8 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * alloca(size);
  * \endcode
  *
- * \param size Requested memory size in bytes. 0 is fine, but in 
+ * \param size Requested memory size in bytes. 0 is fine 
+ *             (for testing the returned value in \p left), but in 
  *             such a case, for obvious reasons, you must <b>not</b> attempt 
  *             to access the returned memory.
  * \param left <b>Optional</b> output parameter indicating how many bytes were 
@@ -319,10 +320,10 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  *             In both cases you can be certain that #fate_mem_stackalloc() will
  *             fall back to \c malloc().
  * \return Pointer to \p size uninitialized bytes that may be used to store 
- *         data within the current functions scope, or NULL on failure.
+ *         data within the current function's scope, or NULL on failure.
  * \see fate_mem_stackfree
  */
-void *fate_mem_stackalloc(size_t size, long *left);
+void *fate_mem_stackalloc(size_t size, size_t *left);
 
 /*! \brief Atomically frees memory returned by a call to
  *         #fate_mem_stackalloc(), in case the memory was allocated on the 
