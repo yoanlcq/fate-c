@@ -37,8 +37,8 @@
  */
 
 
-#ifndef FATE_BITS_H
-#define FATE_BITS_H
+#ifndef FATE_ASM_H
+#define FATE_ASM_H
 
 #if __DOXYGEN__ || defined(__GNUC__)
 /*! \brief Prefetch data, putting it the appropriate CPU cache level.
@@ -54,12 +54,25 @@
  * \param locality Compile-time integer between 0 and 3 : "For how long
  *            should the data be kept in the cache ?"
  */
-#define fate_bits_prefetch(addr,rw,locality) \
-        __builtin_prefetch(addr,rw,locality)
+#define fate_asm_prefetch(addr,rw,locality) \
+       __builtin_prefetch(addr,rw,locality)
+/*! \brief Provides branch prediction information to the compiler. 
+ *
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define fate_asm_likely(cond)   __builtin_expect(!(cond),0)
+/*! \brief Provides branch prediction information to the compiler. 
+ *
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define fate_asm_unlikely(cond) __builtin_expect((cond),0)
+
 #else
-#define fate_bits_prefetch(addr,rw,locality)
+#define fate_asm_prefetch(addr,rw,locality)
+#define fate_asm_likely(cond)
+#define fate_asm_unlikely(cond)
 #endif
 
 /*! @} */
 
-#endif /* FATE_BITS_H */
+#endif /* FATE_ASM_H */

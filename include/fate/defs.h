@@ -306,11 +306,6 @@
  * This macro expands to nothing if the compiler is not GCC.
  */
 #define FATE_PACKED_STRUCT __attribute__((packed))
-/*! \brief Provides branch prediction information to the compiler. 
- *
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FATE_EXPECTED(cond) __builtin_expect(!(cond),0)
 
 #else /* ifdef __GNUC__ */
 
@@ -321,7 +316,6 @@
 #define FATE_SENTINEL(pos) 
 #define FATE_WARN_UNUSED_RESULT 
 #define FATE_PACKED_STRUCT
-#define FATE_EXPECTED(cond) cond
 
 #endif /* ifdef __GNUC_ */
 
