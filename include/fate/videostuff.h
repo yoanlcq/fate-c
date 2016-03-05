@@ -4,16 +4,12 @@
  * procedural_entities_extension
  */
 
-typedef uint64_t fate_time_unit;
-typedef fate_time_unit fate_tick;
-typedef int64_t fate_space_unit;
-
 struct fate_transform4d {
-    fate_space_vec3 pos, vel, accel;
-    quat rot, rot_vel, rot_accel;
-    vec3 scale, scale_vel, scale_accel;
+    spacevec3 pos, vel, accel;
+    spacequat rot, rot_vel, rot_accel;
+    spacevec3 scale, scale_vel, scale_accel;
     fate_time_unit time, time_vel, time_accel;
-    float alpha, alpha_vel, alpha_accel;
+    alpha_unit alpha, alpha_vel, alpha_accel;
 };
 
 struct fate_world {
@@ -38,7 +34,6 @@ struct fate_portal_dest {
     fate_face face;
 };
 struct fate_portal {
-    float opacity;
     /* It might not be just a regular plane. 
      * Shapes need not match between portals. Passing into the
      * other side is just defined as a position relative to centers. 
@@ -212,6 +207,7 @@ struct fate_renderspec {
     fate_fx3d *fx3d;
     fate_fx2d *fx2d;
     fate_view *view;
+    fate_videobackend *vb;
 };
 
 struct fate_window {
@@ -222,7 +218,6 @@ struct fate_window {
 struct fate_viewport {
     /* Decoupled since it may be used to render to textures. */
     fate_renderspec renderspec;
-    fate_videobackend *vb;
     /* Viewport rect, in window coordinates. */
     uvec2 pos, size;
     float alpha;

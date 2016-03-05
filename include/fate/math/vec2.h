@@ -65,7 +65,10 @@
 #include <stdint.h>
 #include <math.h>
 
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * vec2
+ */
 typedef float vec2[2];
 
 /*! \brief TODO */

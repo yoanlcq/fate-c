@@ -65,7 +65,10 @@
 #include <stdint.h>
 #include <math.h>
 #include <fate/units.h>
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * spacevec4
+ */
 typedef fate_space_unit spacevec4[4];
 
 /*! \brief TODO */
