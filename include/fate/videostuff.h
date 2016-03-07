@@ -1,13 +1,51 @@
-/* Possible FATE 2 extensions :
+/* 
+ * This file is part of F.A.T.E - the Fight And Travel game Engine.
+ * Copyright (c) 2015-2016 Yoan Lecoq (yoanlecoq.io at gmail.com)
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from the
+ * use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 
+ * 1. The origin of this software must not be misrepresented;
+ *    you must not claim that you wrote the original software. 
+ *    If you use this software in a product, an acknowledgment in the product
+ *    documentation would be appreciated but is not required.
+ * 
+ * 2. Altered source versions must be plainly marked as such, 
+ *    and must not be misrepresented as being the original software.
+ *
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ *
+ * Contributors :
+ * - Please make sure your indentation is set to 4 spaces;
+ * - Please avoid exceeding 80 character columns.
+ *
+ */
+
+/*! \file fate/videostuff.h
+ *  \brief TODO
+ *  \defgroup videostuff Videostuff : TODO
+ *
+ * TODO
+ * Possible FATE 2 extensions :
  * Well, that's equivalent to shipping Blender and GCC with the game.
  * procedural_terrain_extension
  * procedural_entities_extension
+ *
+ * @{
  */
 
-typedef uint64_t fate_time_unit;
-typedef fate_time_unit fate_tick;
-typedef int64_t fate_space_unit;
 
+
+#ifndef FATE_VIDEOSTUFF_H
+#define FATE_VIDEOSTUFF_H
+
+/*!\brief TODO  */
 struct fate_transform4d {
     fate_space_vec3 pos, vel, accel;
     quat rot, rot_vel, rot_accel;
@@ -16,6 +54,7 @@ struct fate_transform4d {
     float alpha, alpha_vel, alpha_accel;
 };
 
+/*!\brief TODO  */
 struct fate_world {
     fate_time_unit time, time_vel, time_accel;
     fate_region **regions;
@@ -23,20 +62,24 @@ struct fate_world {
     fate_entity **entities;
     fate_view   **views;
 };
+/*!\brief TODO  */
 struct fate_rootworld {
     fate_time_unit time, time_vel, time_accel;
     fate_region **regions; /* There can be only regions in the root world. */
 };
 
+/*!\brief TODO  */
 enum fate_face {
     FATE_FACE_FRONT = 0,
     FATE_FACE_BACK  = 1
 };
 typedef enum fate_face fate_face;
+/*!\brief TODO  */
 struct fate_portal_dest {
     fate_portal *portal;
     fate_face face;
 };
+/*!\brief TODO  */
 struct fate_portal {
     float opacity;
     /* It might not be just a regular plane. 
@@ -52,6 +95,7 @@ struct fate_portal {
 /* TODO be able to render to textures, using renderspecs.
  * This would give us the ability to simulate screens. */
 
+/*!\brief TODO  */
 struct fate_region_boundaries {
     fate_space_unit left, right, bottom, top, near, far;
     /* FIXME Isn't it the job of portals ? 
@@ -85,6 +129,7 @@ struct fate_region_boundaries {
     unsigned reserved    : 2;
     */
 };
+/*!\brief TODO  */
 struct fate_region {
     /* Relative to the parent coords. */
     fate_space_unit half_edge_size;
@@ -113,29 +158,36 @@ struct fate_region {
     unsigned reserved : 5;
 };
 
+/*!\brief TODO  */
 struct fate_view_perspective_params {
     float fov_y, ratio, near, far;
 };
+/*!\brief TODO  */
 struct fate_view_ortho_params {
     float left, right, bottom, top, near, far;
 };
+/*!\brief TODO  */
 struct fate_view_frustum_params {
     float left, right, bottom, top, near, far;
 };
+/*!\brief TODO  */
 enum fate_view_mode {
     FATE_VIEW_MODE_PERSPECTIVE = 1,
     FATE_VIEW_MODE_ORTHO = 2,
     FATE_VIEW_MODE_FRUSTUM = 3
 };
+/*!\brief TODO  */
 union fate_view_mode_params {
     struct fate_view_perspective_params perspective;
     struct fate_view_ortho_params ortho;
     struct fate_view_frustum_params frustum;
 };
+/*!\brief TODO  */
 enum fate_lodset_testfunc {
      FATE_LODSET_LESS,     /* Keep only the lower lods. This is the default. */
      FATE_LODSET_GREATER /* Keep only the greater lods. */
 };
+/*!\brief TODO  */
 struct fate_view {
     /* FEATURE : ability to focus on a very far location 
      * (both in visibility and audibility). */
@@ -163,6 +215,7 @@ struct fate_view {
 };
 
 /* Works on the 3D view of the world. */
+/*!\brief TODO  */
 struct fate_fx3d {
     float fanciness_hint; /* Mind-blowing graphics or not ? */
     fate_fx3d_fog fog;
@@ -175,6 +228,7 @@ struct fate_fx3d {
      * Clipping mask support would be cool. */
 };
 /* Inspired by Krita's Filter Layers. */
+/*!\brief TODO  */
 enum fate_fx2d_filter_type {
     FATE_FILTER_FILL, /* Trivial to implement and crazy fast. 
                        * Just clear the screen. */
@@ -190,12 +244,14 @@ enum fate_fx2d_filter_type {
     FATE_FILTER_COLOR_TO_ALPHA,
     FATE_FILTER_NORMALIZE
 };
+/*!\brief TODO  */
 struct fate_fx2d_filter_layer {
     float alpha;
     enum fate_fx2d_filter_type type;
     union fate_fx2d_filter_union un;
 };
 /* Works on the 2d rendered image. */
+/*!\brief TODO  */
 struct fate_fx2d {
     fate_filter_layer *filter_layers;
     fate_fx2d_crop crop;
@@ -206,6 +262,7 @@ struct fate_fx2d {
     fate_fx2d_blendmode blendmode;
     /* TODO allow clipping masks */
 };
+/*!\brief TODO  */
 struct fate_renderspec {
     /* TODO allow game logic to specify a timeout for effects
      * (so they don't depend on the tickrate) */
@@ -214,11 +271,13 @@ struct fate_renderspec {
     fate_view *view;
 };
 
+/*!\brief TODO  */
 struct fate_window {
     SDL_window *win;
     /* Other cached data, maybe even supported video backends... */
 };
 
+/*!\brief TODO  */
 struct fate_viewport {
     /* Decoupled since it may be used to render to textures. */
     fate_renderspec renderspec;
@@ -237,14 +296,16 @@ struct fate_viewport {
     size_t num_windows;
 };
 
-struct fate_viewport_linkedlist {
-    fate_viewport *vp, *next;
-};
-
 /* Everything needed to give a result to the user. */
+/*!\brief TODO  */
 struct fate_userdevice_feedback {
-    fate_viewport_linkedlist *viewport_list; /* sorted by z-index. */
+    fate_viewport *viewport_list; /* sorted by z-index. */
     fate_hapticbackend *haptic;
     fate_audiobackend *audio;
 };
+/*!\brief TODO  */
 struct fate_videobackend_hub {};
+
+#endif /* FATE_VIDEOSTUFF_H */
+
+/* @} */
