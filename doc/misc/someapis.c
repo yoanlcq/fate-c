@@ -392,11 +392,3 @@ uint32_t       fate_sh_read_u32(fate_sh *s, fate_node *n);
 /*........*/
 
 
-/* Engine Event API : */
-
-void                 fate_ee_mask(uint32_t mask);
-uint32_t             fate_ee_get_mask(void);
-void                 fate_ee_sendto(fate_ee_plugin_handle pluginh, const fate_ee_event *e);
-fate_ee_watch_handle fate_ee_watch(const uint8_t *path_no_wilcards, uint32_t mask);
-void                 fate_ee_unwatch(fate_ee_watch_handle wh);
-
