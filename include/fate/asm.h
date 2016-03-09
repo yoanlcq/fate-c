@@ -41,8 +41,10 @@
 #define FATE_ASM_H
 
 #if __DOXYGEN__ || defined(__GNUC__)
-/*! \brief Prefetch data, putting it the appropriate CPU cache level.
+/*! \brief Prefetch data, placing it in the appropriate CPU cache level.
  *
+ * This macro expands to \p addr is the compiler does not support
+ * \c __builtin_prefetch().
  * It has been reported to provide interesting performance boosts <b>when 
  * used properly</b>. But as always, profile.
  *
@@ -51,26 +53,42 @@
  *
  * \param addr The data's address.
  * \param rw Compile-time boolean : "Will the data be written to ?"
- * \param locality Compile-time integer between 0 and 3 : "For how long
- *            should the data be kept in the cache ?"
+ * \param locality Compile-time integer between 0 and 3 : "How often would
+ *        the data be accessed ?"
  */
 #define fate_asm_prefetch(addr,rw,locality) \
        __builtin_prefetch(addr,rw,locality)
 /*! \brief Provides branch prediction information to the compiler. 
  *
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define fate_asm_likely(cond)   __builtin_expect(!(cond),0)
-/*! \brief Provides branch prediction information to the compiler. 
+ * This macro expands to \p cond if the compiler does not support 
+ * \c __builtin_expect().
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * Use it when you expect \c cond to be very often non-zero.
+ *
+ * Please be careful using this macro. 
+ * \c __builtin_expect() has been reported to provide only small
+ * performance boosts when used correctly, but potentially huge performance
+ * drops otherwise.
  */
-#define fate_asm_unlikely(cond) __builtin_expect((cond),0)
+#define fate_asm_likely(cond)   __builtin_expect(!!(cond),1)
+/*! \brief Provides branch prediction information to the compiler. 
+ * This macro expands to \p cond if the compiler does not support 
+ * \c __builtin_expect().
+ *
+ * Use it when you expect \c cond to be very often zero.
+ *
+ * Please be careful using this macro. 
+ * \c __builtin_expect() has been reported to provide only small
+ * performance boosts when used correctly, but potentially huge performance
+ * drops otherwise.
+ */
+#define fate_asm_unlikely(cond) __builtin_expect(cond,0)
 
 #else
-#define fate_asm_prefetch(addr,rw,locality)
-#define fate_asm_likely(cond)
-#define fate_asm_unlikely(cond)
+/* Evaluate addr anyway, in case it has side effects. */
+#define fate_asm_prefetch(addr,rw,locality) (addr)
+#define fate_asm_likely(cond) (cond)
+#define fate_asm_unlikely(cond) (cond)
 #endif
 
 /*! @} */

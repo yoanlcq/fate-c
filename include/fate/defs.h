@@ -64,10 +64,8 @@
  */
 #define FATE_VERSION_PRERELEASE_STR
 #define FATE_VERSION_MAJOR 0
-#define FATE_VERSION_MINOR 2
+#define FATE_VERSION_MINOR 1
 #define FATE_VERSION_PATCH 0
-#define FATE_VERSION_AS_ARGS \
-            FATE_VERSION_MAJOR, FATE_VERSION_MINOR, FATE_VERSION_PATCH
 /*! \brief The current F.A.T.E version's build metadata, conforming to 
  *         point 10 of
  *         <a href="http://semver.org/spec/v2.0.0.html" target="_blank">
