@@ -46,13 +46,20 @@
 #define FATE_VIDEOSTUFF_H
 
 /*!\brief TODO  */
-struct fate_transform4d {
-    fate_space_vec3 pos, vel, accel;
-    quat rot, rot_vel, rot_accel;
-    vec3 scale, scale_vel, scale_accel;
+struct fate_transform5d {
+    spacevec3 pos, vel, accel;
+    spacequat rot, rot_vel, rot_accel;
+    spacevec3 scale, scale_vel, scale_accel;
     fate_time_unit time, time_vel, time_accel;
     float alpha, alpha_vel, alpha_accel;
 };
+struct fate_transform4d {
+    spacevec3 pos, vel, accel;
+    spacequat rot, rot_vel, rot_accel;
+    spacevec3 scale, scale_vel, scale_accel;
+    fate_time_unit time, time_vel, time_accel;
+};
+
 
 /*!\brief TODO  */
 struct fate_world {
@@ -75,6 +82,13 @@ enum fate_face {
 };
 typedef enum fate_face fate_face;
 /*!\brief TODO  */
+enum fate_face_bitfield {
+    FATE_FACE_FRONT_BIT = 1,
+    FATE_FACE_BACK_BIT  = 2
+};
+typedef enum fate_face_bitfield fate_face_bitfield;
+
+/*!\brief TODO  */
 struct fate_portal_dest {
     fate_portal *portal;
     fate_face face;
@@ -87,9 +101,22 @@ struct fate_portal {
      * other side is just defined as a position relative to centers. 
      * The dev may want to provide collision detection volumes. */
     fate_shape2d shape;
-    fate_transform4d transform;
+    fate_transform5d transform;
     /* Access with a fate_face as the array index. */
     fate_portal_dest destinations[2];
+};
+
+struct fate_entity_data {
+    fate_collision_data collisions;
+    fate_texture texture; /* fate_texture must support video. */
+};
+
+struct fate_entity_instance {
+    fate_entity_data data;
+    fate_transform5d transform;
+    fate_face_bitfield visible_sides : 2;
+    fate_entity_fx fx;
+    /* TODO view-specific fx */
 };
 
 /* TODO be able to render to textures, using renderspecs.
@@ -160,15 +187,15 @@ struct fate_region {
 
 /*!\brief TODO  */
 struct fate_view_perspective_params {
-    float fov_y, ratio, near, far;
+    fate_space_unit fov_y, ratio, near, far;
 };
 /*!\brief TODO  */
 struct fate_view_ortho_params {
-    float left, right, bottom, top, near, far;
+    fate_space_unit left, right, bottom, top, near, far;
 };
 /*!\brief TODO  */
 struct fate_view_frustum_params {
-    float left, right, bottom, top, near, far;
+    fate_space_unit left, right, bottom, top, near, far;
 };
 /*!\brief TODO  */
 enum fate_view_mode {
@@ -184,7 +211,7 @@ union fate_view_mode_params {
 };
 /*!\brief TODO  */
 enum fate_lodset_testfunc {
-     FATE_LODSET_LESS,     /* Keep only the lower lods. This is the default. */
+     FATE_LODSET_LESS,   /* Keep only the lower lods. This is the default. */
      FATE_LODSET_GREATER /* Keep only the greater lods. */
 };
 /*!\brief TODO  */
@@ -216,20 +243,20 @@ struct fate_view {
 
 /* Works on the 3D view of the world. */
 /*!\brief TODO  */
-struct fate_fx3d {
+struct fate_view_3dfx {
     float fanciness_hint; /* Mind-blowing graphics or not ? */
-    fate_fx3d_fog fog;
-    fate_fx3d_dof depth_of_field;
-    fate_fx3d_3dvision stereoscopy;
-    fate_fx3d_bokeh bokeh;
-    fate_fx3d_lensflare lensflare;
-    fate_fx3d_taa temporal_anti_aliasing;
+    fate_view_3dfx_fog fog;
+    fate_view_3dfx_dof depth_of_field;
+    fate_view_3dfx_3dvision stereoscopy;
+    fate_view_3dfx_bokeh bokeh;
+    fate_view_3dfx_lensflare lensflare;
+    fate_view_3dfx_taa temporal_anti_aliasing;
     /* FEATURE : support entity-level FX ?
      * Clipping mask support would be cool. */
 };
 /* Inspired by Krita's Filter Layers. */
 /*!\brief TODO  */
-enum fate_fx2d_filter_type {
+enum fate_view_2dfx_filter_type {
     FATE_FILTER_FILL, /* Trivial to implement and crazy fast. 
                        * Just clear the screen. */
     FATE_FILTER_LEVELS,
@@ -245,29 +272,29 @@ enum fate_fx2d_filter_type {
     FATE_FILTER_NORMALIZE
 };
 /*!\brief TODO  */
-struct fate_fx2d_filter_layer {
+struct fate_view_2dfx_filter_layer {
     float alpha;
-    enum fate_fx2d_filter_type type;
-    union fate_fx2d_filter_union un;
+    enum fate_view_2dfx_filter_type type;
+    union fate_view_2dfx_filter_union un;
 };
 /* Works on the 2d rendered image. */
 /*!\brief TODO  */
-struct fate_fx2d {
+struct fate_view_2dfx {
     fate_filter_layer *filter_layers;
-    fate_fx2d_crop crop;
-    fate_fx2d_symmetry symmetry;
+    fate_view_2dfx_crop crop;
+    fate_view_2dfx_symmetry symmetry;
     /* keeps old frames in a ring buffer, and draws them with reduced 
      * opacity. */
-    fate_fx2d_onionskin onionskin;
-    fate_fx2d_blendmode blendmode;
+    fate_view_2dfx_onionskin onionskin;
+    fate_view_2dfx_blendmode blendmode;
     /* TODO allow clipping masks */
 };
 /*!\brief TODO  */
 struct fate_renderspec {
     /* TODO allow game logic to specify a timeout for effects
      * (so they don't depend on the tickrate) */
-    fate_fx3d *fx3d;
-    fate_fx2d *fx2d;
+    fate_view_3dfx *fx3d;
+    fate_view_2dfx *fx2d;
     fate_view *view;
 };
 
