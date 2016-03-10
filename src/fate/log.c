@@ -39,7 +39,41 @@
 #include <fate/globalstate.h>
 #include <fate/log.h>
 
-void fate_fatal(const char *fmt, ...) {
+/*
+#ifdef FATE_ANDROID
+#include <android/log.h>
+#define  LOG_TAG    "log"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#endif
+
+INFO     green  - Supposed to be compiled in.
+WARN     yellow - Supposed to be compiled in.
+ERROR    red    - Supposed to be compiled in.
+DEBUG    blue   - Supposed to be compiled only for debug builds.
+CRITICAL red    - The user must see it by all means, no matter what, but
+                  it doesn't seem fatal. Should spawn a message box.
+
+Each module's .c file should declare :
+    static const char *TAG = "ThisModule";
+Then use :
+    fate_logv(TAG, "Blah %d\n", 12, ...);
+
+*/
+
+void fate_log_setup(void) {}
+void fate_log_cleanup(void) {}
+void fate_log_flags(unsigned long flags) {}
+unsigned long fate_log_getflags(void) {}
+void fate_log_multiplex(const char *tag, fate_log_severity sev,
+                        FILE* streams[], size_t streams_count) {}
+void fate_logi(const char *tag, const char *fmt, ...) {}
+void fate_logw(const char *tag, const char *fmt, ...) {}
+void fate_loge(const char *tag, const char *fmt, ...) {}
+void fate_logd(const char *tag, const char *fmt, ...) {}
+void fate_logv(const char *tag, const char *fmt, ...) {}
+void fate_logc(const char *tag, const char *fmt, ...) {}
+void fate_fatal(const char *tag, const char *fmt, ...) {
     char str[BUFSIZ];
     va_list ap;
 
@@ -68,62 +102,4 @@ void fate_fatal(const char *fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-void fate_logf_dummy(const char *fmt, ...) {}
-
-#define FATE_LOGFUNCDECL(_what_,_constream_) \
-void fate_log##_what_##_to_console(const char *fmt, ...) { \
-    va_list ap; \
-    va_start(ap, fmt); \
-    vfprintf(_constream_, fmt, ap); \
-    va_end(ap); \
-} \
-void fate_log##_what_##_to_stream(const char *fmt, ...) { \
-    va_list ap; \
-    va_start(ap, fmt); \
-    vfprintf(fate_gs->log##_what_##_stream, fmt, ap); \
-    va_end(ap); \
-} \
-void fate_log##_what_##_to_console_and_stream(const char *fmt, ...) { \
-    va_list ap; \
-    va_start(ap, fmt); \
-    vfprintf(_constream_, fmt, ap); \
-    va_end(ap); \
-    va_start(ap, fmt); \
-    vfprintf(fate_gs->log##_what_##_stream, fmt, ap); \
-    va_end(ap); \
-} \
-void (*fate_log##_what_)(const char *fmt, ...) = fate_log##_what_##_to_console
-
-FATE_LOGFUNCDECL(f,stdout);
-FATE_LOGFUNCDECL(f_trace,stderr);
-FATE_LOGFUNCDECL(f_err,stderr);
-FATE_LOGFUNCDECL(f_video,stdout);
-FATE_LOGFUNCDECL(f_audio,stdout);
-
-/*
-#ifdef FATE_ANDROID
-#include <android/log.h>
-#define  LOG_TAG    "FATE - log"
-#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
-#endif
-
-INFO     green  - Supposed to be compiled in.
-WARN     yellow - Supposed to be compiled in.
-ERROR    red    - Supposed to be compiled in.
-DEBUG    blue   - Supposed to be compiled only for debug builds.
-CRITICAL red    - The user must see it by all means, no matter what, but
-                  it doesn't seem fatal. Should spawn a message box.
-
-Each module's .c file should declare :
-    static const char *TAG = "ThisModule";
-Then use :
-    fate_logv(TAG, "Blah %d\n", 12, ...);
-
-*/
-
-#define FATE_LOGD(fmt, ...) \
-        fate_logd(FATE_LOGTAG, fmt, ...)
-
-#undef FATE_LOGFUNCDECL
 

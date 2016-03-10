@@ -86,6 +86,12 @@ typedef void (*fate_logfunc)(const char *tag, const char *fmt, ...);
  */
 void fate_log_setup(void);
 
+/*! \brief Clean-up this module.
+ * 
+ */
+void fate_log_cleanup(void);
+
+
 /*! \brief Flags to be given to #fate_log_flags.
  *
  */
@@ -128,11 +134,65 @@ void fate_log_flags(unsigned long flags);
  */
 unsigned long fate_log_getflags(void);
 
+/*! \brief Enumeration of log sevreities for #fate_log_multiplex().
+ *
+ */
+enum fate_log_severity {
+    FATE_LOG_ALL      = 0,
+    FATE_LOG_INFO     = 1,
+    FATE_LOG_WARN     = 2,
+    FATE_LOG_ERROR    = 3,
+    FATE_LOG_DEBUG    = 4,
+    FATE_LOG_VERBOSE  = 5,
+    FATE_LOG_CRITICAL = 6
+};
+typedef enum fate_log_severity fate_log_severity;
+
+
+/*! \brief Atomically multiplexes logs to one or more files at tag-level.
+ *
+ * Specifies which files the logging functions will write to, for a
+ * particular tag.\n
+ * As long as this function is not called for a particular tag, then
+ * the files used for logging with the tag will be the default ones,
+ * that is : \c stdout and \c stderr (\c Logcat on Android).
+ *
+ * Files given in \p streams <b>must not be closed</b>. They must be treated
+ * as "given away" and must be forgotten after the call.\n
+ * They are internally reference-counted and are closed when their reference
+ * count reaches 0 (exceptions to this rule are \c stdout and \c stderr).
+ * One of the following actions causes such reference counts to be decremented :
+ * - Calling #fate_log_multiplex() with different files;
+ * - Calling #fate_log_cleanup().
+ * 
+ * By the way, it is safe to provide the same file pointers
+ * for different tags and severities.
+ *
+ * Support for logging to generic I/O streams such as online files and sockets
+ * has been considered. However, there's no apparent use case for such a
+ * feature, and it just seems overkill. In practice we'll mostly log to the
+ * console to get immediate feedback from the app's execution, and at 
+ * worst save logs to local files so users can send them back to us.
+ *
+ * \param tag The tag to multiplex. If NULL, then this sets the default
+ *        multiplex files for all tags.
+ * \param sev The severity to multiplex, given \p tag. If #FATE_LOG_ALL,
+ *        all severities are affected.
+ * \param streams Array of extra opened files to use for logging. It can be NULL
+ *        as long as \p streams_count is set to zero.
+ * \param streams_count Number of elements in \p streams.
+ */
+void fate_log_multiplex(const char *tag, fate_log_severity sev,
+                        FILE* streams[], size_t streams_count);
+
 /*! \brief Log Infos.
  *
  * This function is for logging regular messages that the user may want to see.
  * <br>
  * The "Info" log is addressed to both developers and end users.
+ *
+ * The default output stream is \c stdout.\n
+ * The default color is green.
  */
 void fate_logi(const char *tag, const char *fmt, ...);
 
@@ -141,6 +201,9 @@ void fate_logi(const char *tag, const char *fmt, ...);
  * Logs a warning, that is, a message describing a potential cause of errors 
  * or undefined behaviour.<br>
  * The "Warning" log is addressed to both developers and end users.
+ *
+ * The default output stream is \c stderr.\n
+ * The default color is yellow.
  */
 void fate_logw(const char *tag, const char *fmt, ...);
 
@@ -149,6 +212,9 @@ void fate_logw(const char *tag, const char *fmt, ...);
  * Logs an error, that is, a message describing causes of a situation in which
  * a module (or the app) cannot keep running correctly.<br>
  * The "Error" log is addressed to both developers and end users.
+ *
+ * The default output stream is \c stderr.\n
+ * The default color is red.
  */
 void fate_loge(const char *tag, const char *fmt, ...);
 
@@ -158,8 +224,13 @@ void fate_loge(const char *tag, const char *fmt, ...);
  * builds of the app.<br>
  * The "Debug" log is addressed to anyone running a debug build.
  * Calls to this function are compiled out for non-debug builds.
+ *
+ * The default output stream is \c stdout.\n
+ * The default color is cyan.
  */
-void fate_logd(const char *tag, const char *fmt, ...);
+#define fate_logd(tag, fmt, ...) \
+            fate_log_android(ANDROID_LOG_DEBUG, tag, fmt, __VA_ARGS__); \
+            fate_log(tag, FATE_LOG_DEBUG, fmt, __VA_ARGS__);
 
 #ifndef FATE_DEBUG_BUILD
 /*! \brief Dummy macro to compile out calls to #fate_logd() when not in a debug 
@@ -173,8 +244,14 @@ void fate_logd(const char *tag, const char *fmt, ...);
  * The "Verbose" log is addressed to anyone wanting extremely detailed
  * descriptions of what's happening. It is intended to be disabled most of the
  * time, and especially on release builds.
+ *
+ * The default output stream is \c stdout.\n
+ * The default color is blue.
  */
-void fate_logv(const char *tag, const char *fmt, ...);
+#define fate_logv(tag, fmt, ...) \
+            fate_log_android(ANDROID_LOG_VERBOSE, tag, fmt, __VA_ARGS__); \
+            fate_log(tag, FATE_LOG_VERBOSE, fmt, __VA_ARGS__);
+
 #ifndef FATE_LOG_USE_VERBOSE
 /*! \brief Dummy macro to compile out calls to #fate_logv() when the 
  *         compile-time switch FATE_LOG_USE_VERBOSE is not defined.
@@ -196,9 +273,14 @@ void fate_logv(const char *tag, const char *fmt, ...);
  * through games themselves, so they have complete control of what is 
  * displayed to the user and how it is displayed.
  *
+ * The default output stream is \c stderr (not counting the pop-up window).\n
+ * The default color is red.
+ *
  * \see fate_fatal
  */
-void fate_logc(const char *tag, const char *fmt, ...);
+#define fate_logc(tag, fmt, ...) \
+            (fate_log_android(ANDROID_LOG_ERROR, tag, fmt, __VA_ARGS__), \
+            fate_log(tag, FATE_LOG_CRITICAL, fmt, __VA_ARGS__))
 
 /*! \brief Abort on a fatal error.
  *
@@ -211,13 +293,11 @@ void fate_logc(const char *tag, const char *fmt, ...);
  *
  * An alternative name would be "fate_panic".
  */
-void fate_fatal(const char *tag, const char *fmt, ...);
+#define fate_fatal(tag, fmt, ...) \
+            (fate_logc(tag, fmt, __VA_ARGS__), \
+             fate_fatal_real(tag, fmt, __VA_ARGS__))
 
-/*! \brief Advanced log function.
- *
- */
-unsigned fate_log(unsigned *out_entry_id, fate_log_severity sev, 
-                  const char *tag, const char *fmt, ...);
+
 
 /*! @} */
 #endif /* FATE_LOG_H */
