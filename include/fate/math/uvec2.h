@@ -65,7 +65,10 @@
 #include <stdint.h>
 #include <math.h>
 
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * uvec2
+ */
 typedef uint32_t uvec2[2];
 
 /*! \brief TODO */

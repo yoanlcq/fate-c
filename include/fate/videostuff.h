@@ -40,18 +40,25 @@
  * @{
  */
 
+<<<<<<< HEAD
+=======
 
 
 #ifndef FATE_VIDEOSTUFF_H
 #define FATE_VIDEOSTUFF_H
 
 /*!\brief TODO  */
+<<<<<<< HEAD
 struct fate_transform5d {
+=======
+>>>>>>> 586f46a2093c5f79edcce7ba0e57cd9f07932e9c
+struct fate_transform4d {
+>>>>>>> 92f48c2903c6f25f8445b477efe00f073d59b757
     spacevec3 pos, vel, accel;
     spacequat rot, rot_vel, rot_accel;
     spacevec3 scale, scale_vel, scale_accel;
     fate_time_unit time, time_vel, time_accel;
-    float alpha, alpha_vel, alpha_accel;
+    alpha_unit alpha, alpha_vel, alpha_accel;
 };
 struct fate_transform4d {
     spacevec3 pos, vel, accel;
@@ -95,7 +102,6 @@ struct fate_portal_dest {
 };
 /*!\brief TODO  */
 struct fate_portal {
-    float opacity;
     /* It might not be just a regular plane. 
      * Shapes need not match between portals. Passing into the
      * other side is just defined as a position relative to centers. 
@@ -296,6 +302,7 @@ struct fate_renderspec {
     fate_view_3dfx *fx3d;
     fate_view_2dfx *fx2d;
     fate_view *view;
+    fate_videobackend *vb;
 };
 
 /*!\brief TODO  */
@@ -308,7 +315,6 @@ struct fate_window {
 struct fate_viewport {
     /* Decoupled since it may be used to render to textures. */
     fate_renderspec renderspec;
-    fate_videobackend *vb;
     /* Viewport rect, in window coordinates. */
     uvec2 pos, size;
     float alpha;

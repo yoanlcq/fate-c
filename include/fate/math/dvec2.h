@@ -65,7 +65,10 @@
 #include <stdint.h>
 #include <math.h>
 
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * dvec2
+ */
 typedef double dvec2[2];
 
 /*! \brief TODO */

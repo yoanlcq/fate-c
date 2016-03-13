@@ -65,7 +65,10 @@
 #include <stdint.h>
 #include <math.h>
 
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * ivec3
+ */
 typedef int32_t ivec3[3];
 
 /*! \brief TODO */

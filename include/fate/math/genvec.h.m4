@@ -67,7 +67,10 @@ dnl
 #include <stdint.h>
 #include <math.h>
 ifelse(type,fate_space_unit,#include <fate/units.h>)
-/*! \brief TODO */
+/*! \brief TODO 
+ *
+ * vec
+ */
 typedef type vec[dim];
 
 /*! \brief TODO */
