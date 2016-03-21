@@ -1,0 +1,64 @@
+/* 
+ Should start with small games. Hovercraft is a good example.
+- Components must be pure data.
+- Components could be added/removed at runtime. 
+- Systems operate on *related groups* of components.
+- Finite state machine ? interaction transactions ?
+*/
+
+transform3d
+transform3d_motion (velocity, accel, jerk...)
+transform2d
+transform2d_motion
+time
+time_travel (going back to a previous state though remember() and forget())
+time_stretch (vel, accel, jerk... a negative vel requires time_travel.)
+
+input_mouse
+input_keyboard
+input_controller
+input_window
+input_AI
+
+haptic
+audio
+audio_reverse (preparing some audio to play backwards)
+audio_stretch (time stretch. Negative stretch requires audio_reverse.)
+audio_fx_stack ??
+audio_midi_player ???
+text2d
+terrain ??
+mesh
+mesh_animation
+material
+sprite
+sprite_animation
+shape2d
+alpha
+alpha_motion
+postfx_stack
+postfx_stack_per_view
+
+tangible (uses collision data)
+hit_receiver (same)
+hit_sender (same)
+
+portal
+region
+
+view
+view_fx3d
+render_window (a window also has a set of viewports, each associated with a 
+               view. There's only one "master" video backend used.
+               To render with several video backends, each should render to
+               a texture, that the "master" will later display.)
+render_texture (a render texture also has a set of viewports, each associated
+                with a view. Only one video backend does the rendering.)
+video_backend_access
+audio_backend_access
+
+
+cj_speech_synthesizer
+gr_speech_synthesizer
+steam_achievements
+steam_matchmaking
