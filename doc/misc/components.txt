@@ -6,18 +6,43 @@
 - Finite state machine ? interaction transactions ?
 */
 
-transform3d
-transform3d_motion (velocity, accel, jerk...)
-transform2d
-transform2d_motion
-time
-time_travel (going back to a previous state though remember() and forget())
-time_stretch (vel, accel, jerk... a negative vel requires time_travel.)
+schema
+= Baked data providing reflection information on a given type.
+  Typically contains type names, field offsets, etc.
 
-input_mouse
-input_keyboard
-input_controller
-input_window
+3d_transform
+= {spacevec3 translation, spacequat rotation, spacevec3 scale}
+- add_derivative(3d_transform) for velocity, accel, jerk, etc.
+- set_parent(3d_transform) to say who is relative to who.
+2d_transform
+- pretty much the same.
+time
+= Time, in ticks, since entity creation.
+time_traveller
+- requires : 'time', and 'schema' to save the _whole_ state.
+- remember(time) Stores the current state in the slot given by 'time'.
+  Remembering the future is useless, unless you want general-purpose storage.
+- forget(time) Deletes the state in the slot given by 'time'.
+- time_travel(time) Loads the state from the slot given by 'time'.
+  Actually, at each new tick, systems call time_travel(tick+1) which updates
+  the entity for the next tick.
+  So calling time_travel(tick+N) causes the entity to be updated N times.
+  Travelling to a forgotten past is an error, because by definition, the
+  past has already been computed and supposedly kept in memory.
+time_stretcher
+- requires : 'time_traveller', to use the time_travel() call to interpolate
+  between states.
+- derivate_traveller(time_traveller) this time_stretcher is a velocity.
+- derivate_stretcher(time_stretcher) for acceleration, jerk, etc.
+- time_stretch(value) Sets the stretch value.
+  You're responsible for remember()ing enough state when using negative values.
+  There will never be premade mechanisms for this. You're supposed to know
+  exactly what you're doing.
+
+mouse_state
+keyboard_state
+controller_state
+window_state
 input_AI
 
 haptic
