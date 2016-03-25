@@ -1,17 +1,125 @@
 /* 
  Should start with small games. Hovercraft is a good example.
 - Components must be pure data.
-- Components could be added/removed at runtime. 
 - Systems operate on *related groups* of components.
-- Finite state machine ? interaction transactions ?
+- Finite state machine ? 
 */
 
-transform3d
-transform3d_motion (velocity, accel, jerk...)
-transform2d
-transform2d_motion
-time
-time_travel (going back to a previous state though remember() and forget())
+runtime_component_table
+transaction /* Uses tsx if available, or regular mutexes.
+               Say we have hit_senders and hit_receivers.
+               Every hit_receiver should have a 'transaction' component.
+               For each receiver R, hit_senders use R's transaction
+               component to ensure atomic writes. 
+               It's still not deterministic as long as entities are
+               not processed in a deterministic order.
+               Solutions were given, one being : stack up the transactions, 
+               sort them, then commit them.
+               We might need another component for this. */
+/* Consider this : We could make a fighter component :
+deterministic_fighter {
+    hit_receiver
+    hit_sender
+    health
+    poisoned
+    ....
+}
+cyberzard {
+    deterministic_fighter    
+}
+
+And say :
+    "deterministic_fighters only write to other deterministic_fighters.
+     We can force the deterministic_fighter_system to sort fighters
+     and run the update on a single thread. The other threads must not
+     access the deterministic_fighters, but it's no big deal since we do :
+         - multithreaded fighter write-to-self update
+         - barrier
+         - multithreaded _sorted_ hit_receivers/hit_senders update
+           (see which fighters pass the test)
+         - barrier
+         /* Way 1 : very scalable (~8 cores)
+         - multithreaded fighter filtered read-anyone update
+           (only for those that passed the test. 
+            Each fighter reads others into tmp variables (and/or tmp state 
+            function pointers! "I want you to be in the shocked_state which
+            I defined"). Values can be averaged.)
+         - barrier
+         - multithreaded fighter write-to-self update
+           (Each fighter commits its own tmp variables to its actual state.
+            Behaviour has to be deduced from tmp variables.)
+         - barrier
+         */
+         /* Way 2 :
+         - single-threaded sorted filtered fighter writes (write to others'
+           state pointers)"
+         - multithreaded fighter write-to-self update (apply new state)
+         */
+
+Here is the solution I provide ATM :
+New components :
+- fsm_serial
+- fsm_parallel
+- fsm_parallel_lockless
+
+The 'fsm_serial' component guarantees, during the entity's state
+execution, that no other thread is writing to any other entity's data.
+As such, it SAFE to read from and write to ANY entity at that moment.
+Certainly the easiest approch for game logic code, acknowledging that most
+often, it won't be the game's performance bottleneck. Keep in mind that 
+the engine itself still takes advantage of multithreading.
+
+The 'fsm_parallel' is a component that allows the state execution update
+to use multiple threads. It's then your job to ensure atomicity of 
+concurrent writes using either :
+- Mutexes
+- TSX mutexes (transactional memory)
+- Spinlocks
+- Atomic adds, etc
+Rule of thumb : Use a sync primitive for every single COMPONENT that might be 
+accessed concurrently simultaneously - NOT for multiple components at once,
+because if entities are allowed to have identic component ids, several threads
+might write to them at the same time without knowing it.
+To prevent deadlocks, just ensure you acquire only one lock at a time.
+Nested locks are where it all starts.
+
+On the other hand, all 'fsm_parallel_lockless' components may be updated by 
+multiple threads. Generally, mutexes would be used to ensure atomicity of
+concurrent writes to entities, but this component provides a more clever
+solution, which involves you.
+The 'fsm_parallel_lockless' system runs three batch updates sequentially, 
+which are called "Prepare", "Gather" and "Commit". 
+Each one stresses rules which you are responsible for following :
+- "Prepare" - You can only : 
+  - Read and write to your own data (ACTUAL or TMP);
+- "Gather" - You can only : 
+  - Read any entity's ACTUAL data (remember, "any" includes yourself!);
+  - Write to your TMP data (try to ensure it is deterministic and common to all 
+                            clients);
+- "Commit" - You can only :
+  - Read your TMP data;
+  - Write to your ACTUAL data;
+It's up to you, as the entity designer, to define which part of the entities'
+data is ACTUAL and which part is TMP.
+The only thing that matters is that they must be separate.
+
+The 'fsm_parallel_lockless' component effectively prevents any
+form of locking while also solving
+the "Two fighters punching each other at the same time" problem. 
+The price to pay :
+- Each of the three updates restart at the beginning of the array. 
+  If the number of entities using this component if too high, the cache
+  will be wasted.
+- Each entity maintains three state pointers instead of one. It might be
+  inconvenient besides taking a bit more memory.
+- Each entity still has to have TMP data, which takes more memory and might
+  be boring to set up. However it is a sane way of addressing the 
+  "Tech hit" problem.
+*/
+
+transform3d (position, velocity, accel, jerk...)
+time (Keep track of time since creation. Absolute time is given by the root.)
+time_travel (going back to a previous state with remember() and forget())
 time_stretch (vel, accel, jerk... a negative vel requires time_travel.)
 
 input_mouse
@@ -28,14 +136,13 @@ audio_fx_stack ??
 audio_midi_player ???
 text2d
 terrain ??
-mesh
-mesh_animation
+meshpack
+meshpack_animation
 material
-sprite
-sprite_animation
+spritepack
+spritepack_animation
 shape2d
-alpha
-alpha_motion
+alpha (+velocity, accel, ...)
 postfx_stack
 postfx_stack_per_view
 
