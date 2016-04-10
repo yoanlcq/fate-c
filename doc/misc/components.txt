@@ -1,10 +1,20 @@
 /* 
  Should start with small games. Hovercraft is a good example.
-- Components must be pure data.
+- Components must be raw data or POD.
 - Systems operate on *related groups* of components.
-- Finite state machine ? 
 */
 
+Subsystems :
+- Multihreading
+- Async IO
+- Sockets (+ websocket server)
+- Hot-reloading
+- i18n
+- log
+- mem
+
+serializable
+deterministic
 runtime_component_table
 transaction /* Uses tsx if available, or regular mutexes.
                Say we have hit_senders and hit_receivers.
