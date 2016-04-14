@@ -39,6 +39,7 @@
 #include <fate/sys.h>
 #include <fate/log.h>
 #include <fate/globalstate.h>
+#include <fate/i18n.h>
 
 fate_globalstate fate_gs_;
 fate_globalstate *fate_gs = &fate_gs_;
@@ -47,9 +48,11 @@ fate_globalstate *fate_gs = &fate_gs_;
 
 void fate_globalstate_init(fate_globalstate *gs) {
     fate_log_setup();
+    fate_i18n_setup();
     char *game_path = fate_sys_getgamepath();
     if(!game_path)
-        fate_fatal("Couldn't find the game's path.\nSorry.\n");
+        fate_fatal("globalstate", 
+                   _("Couldn't find the game's path.\nSorry.\n"));
     fate_sys_set_current_directory(game_path);
     free(game_path);
 

@@ -97,10 +97,8 @@
 #ifndef FATE_I18N_H
 #define FATE_I18N_H
 
-#ifdef FATE_I18N
 #include <libintl.h>
 #include <locale.h>
-#endif
 
 #ifndef FATE_NO_I18N
 /*! \brief Helper macro expanding to \c gettext(), or its own argument if

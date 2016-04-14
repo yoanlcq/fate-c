@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <SDL2/SDL.h>
 #include <fate/globalstate.h>
+#include <fate/i18n.h>
 #include <fate/log.h>
 
 /*
@@ -70,36 +71,29 @@ void fate_log_multiplex(const char *tag, fate_log_severity sev,
 void fate_logi(const char *tag, const char *fmt, ...) {}
 void fate_logw(const char *tag, const char *fmt, ...) {}
 void fate_loge(const char *tag, const char *fmt, ...) {}
+#ifndef FATE_DEBUG_BUILD
 void fate_logd(const char *tag, const char *fmt, ...) {}
+#endif
+#ifdef FATE_LOG_USE_VERBOSE
 void fate_logv(const char *tag, const char *fmt, ...) {}
-void fate_logc(const char *tag, const char *fmt, ...) {}
-void fate_fatal(const char *tag, const char *fmt, ...) {
-    char str[BUFSIZ];
+#endif
+void fate_logc(const char *tag, const char *fmt, ...) {
+    char message[4096*4];
     va_list ap;
 
     va_start(ap, fmt);
-    vsnprintf(str, BUFSIZ, fmt, ap);
+    vsnprintf(message, sizeof(message), fmt, ap);
     va_end(ap);
 
 #ifdef __EMSCRIPTEN__
-    char script[BUFSIZ];
-    sprintf(script, "alert('F.A.T.E has encountered an internal error from which it cannot recover.\n%s');", str);
+    const char *errstr = _("F.A.T.E has encountered an error "
+                           "from which it cannot recover.");
+    assert((strlen(errstr)+12) < 512);
+    char script[512+sizeof(message)];
+    snprintf(script, sizeof(script), "alert('%s\n%s');", errstr, message);
     emscripten_run_script(script);
-#endif
-
-    if(!fate_logf_err)
-        fate_logf_err = fate_logf_err_to_console;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-security"
-    fate_logf_err(str);
-#pragma GCC diagnostic pop
-#ifdef FATE_DEBUG
-    fate_sys_log_stacktrace(fate_logf_err);
-#endif
+#else
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        "F.A.T.E internal error", str, NULL);
-    fate_globalstate_deinit(fate_gs);
-    exit(EXIT_FAILURE);
+        _("F.A.T.E internal error"), message, NULL);
+#endif
 }
-
-

@@ -228,15 +228,9 @@ void fate_loge(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is cyan.
  */
-#define fate_logd(tag, fmt, ...) \
-            fate_log_android(ANDROID_LOG_DEBUG, tag, fmt, __VA_ARGS__); \
-            fate_log(tag, FATE_LOG_DEBUG, fmt, __VA_ARGS__);
-
-#ifndef FATE_DEBUG_BUILD
-/*! \brief Dummy macro to compile out calls to #fate_logd() when not in a debug 
- *         build.
- */
-#define fate_logd(tag,fmt) 
+void fate_logd(const char *tag, const char *fmt, ...);
+#ifdef FATE_DEBUG_BUILD
+#define fate_logd(tag, fmt, ...) 
 #endif
 
 /*! \brief Log Verbose.
@@ -248,15 +242,13 @@ void fate_loge(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is blue.
  */
-#define fate_logv(tag, fmt, ...) \
-            fate_log_android(ANDROID_LOG_VERBOSE, tag, fmt, __VA_ARGS__); \
-            fate_log(tag, FATE_LOG_VERBOSE, fmt, __VA_ARGS__);
+void fate_logv(const char *tag, const char *fmt, ...);
 
 #ifndef FATE_LOG_USE_VERBOSE
 /*! \brief Dummy macro to compile out calls to #fate_logv() when the 
  *         compile-time switch FATE_LOG_USE_VERBOSE is not defined.
  */
-#define fate_logv(tag,fmt) 
+#define fate_logv(tag, fmt, ...) 
 #endif
 
 /*! \brief Log Critical.
@@ -278,9 +270,7 @@ void fate_loge(const char *tag, const char *fmt, ...);
  *
  * \see fate_fatal
  */
-#define fate_logc(tag, fmt, ...) \
-            (fate_log_android(ANDROID_LOG_ERROR, tag, fmt, __VA_ARGS__), \
-            fate_log(tag, FATE_LOG_CRITICAL, fmt, __VA_ARGS__))
+void fate_logc(const char *tag, const char *fmt, ...);
 
 /*! \brief Abort on a fatal error.
  *
@@ -293,10 +283,12 @@ void fate_loge(const char *tag, const char *fmt, ...);
  *
  * An alternative name would be "fate_panic".
  */
-#define fate_fatal(tag, fmt, ...) \
-            (fate_logc(tag, fmt, __VA_ARGS__), \
-             fate_fatal_real(tag, fmt, __VA_ARGS__))
-
+void fate_fatal(const char *tag, const char *fmt, ...);
+#define fate_fatal(tag, ...) \
+    do { fate_sys_log_stacktrace(fate_loge); \
+    fate_logc(tag, __VA_ARGS__); \
+    fate_globalstate_deinit(fate_gs); \
+    exit(EXIT_FAILURE); } while(0)
 
 
 /*! @} */
