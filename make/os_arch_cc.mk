@@ -5,7 +5,7 @@ OS, ARCH and CC are not defined.
 Please set them on the command line when calling make,
 each with one of the following values :
 
-OS = windows | linux | osx | web
+OS = windows | linux | osx
 ARCH = 32 | 64 (don't specify for osx)
 CC = gcc | cl | clang | emcc
 
@@ -40,9 +40,7 @@ else
 ifneq ($(OS),windows)
 ifneq ($(OS),linux)
 ifneq ($(OS),osx)
-ifneq ($(OS),web)
 $(error $(call OS_ERROR))
-endif
 endif
 endif
 endif
@@ -52,8 +50,8 @@ ifndef CC
 $(error $(call OS_ARCH_CC_ERROR))
 else
 ifneq ($(CC),gcc)
-ifneq ($(CC),cl)
 ifneq ($(CC),clang)
+ifneq ($(CC),cl)
 ifneq ($(CC),emcc)
 $(error $(call CC_ERROR))
 endif
@@ -64,7 +62,7 @@ endif
 
 
 ifneq ($(OS),osx)
-ifneq ($(OS),web)
+ifneq ($(CC),emcc)
 ifndef ARCH
 $(error $(call OS_ARCH_CC_ERROR))
 else
@@ -88,15 +86,15 @@ else
 WINDRES_TARGET=pe-x86-64
 endif
 
-MKDIR_P = mkdir
 ifeq ($(OS),windows)
+	MKDIR_P = if not exist $(subst /,\\,$(1)) ( mkdir $(subst /,\\,$(1)) )
 	PATHSEP=\\
 	EXE_EXTENSION=.exe
 	DLL_PREFIX=
 	DLL_EXTENSION=.dll
 	LIBGL=opengl32
 else
-	MKDIR_P += -p
+	MKDIR_P = mkdir -p $(1)
 	PATHSEP=/
 	EXE_EXTENSION=
 	DLL_PREFIX=lib
@@ -109,31 +107,29 @@ ifeq ($(CC),cl)
 else
 	OBJ_EXTENSION=.o
 endif
+
+OSARCH=$(OS)$(ARCH)
 ifeq ($(CC),emcc)
 	OBJ_EXTENSION=.bc
 	EXE_EXTENSION=.html
+	OSARCH=web
 endif
 MOVEPDB=
 
-BUILDDIR = build$(PATHSEP)$(OS)$(ARCH)
-BINDIR = bin$(PATHSEP)$(OS)$(ARCH)
+%/:
+	$(call MKDIR_P,$@)
+
+BUILDDIR = build/$(OSARCH)
+BINDIR = bin/$(OSARCH)
 DATADIR = data
 
 .PHONY: dirs
-dirs: | $(DATADIR) $(BINDIR) $(BUILDDIR)
-
-$(DATADIR):
-	$(MKDIR_P) $@
-$(BINDIR):
-	$(MKDIR_P) $@
-$(BUILDDIR):
-	$(MKDIR_P) $@
-
+dirs: | $(DATADIR)\/ $(BINDIR)\/ $(BUILDDIR)\/
 
 ifeq ($(OS),windows)
-CLEANCMD = IF exist $(BUILDDIR) ( rmdir /Q /S $(BUILDDIR) && mkdir $(BUILDDIR) )
+CLEANCMD = if exist $(subst /,\\,$(BUILDDIR)) ( rmdir /Q /S $(subst /,\\,$(BUILDDIR)) )
 else
-CLEANCMD = rm -rf $(BUILDDIR)/*
+CLEANCMD = rm -rf $(BUILDDIR)
 endif
 
 .PHONY: clean mrproper re

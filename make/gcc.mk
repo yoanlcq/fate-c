@@ -1,17 +1,18 @@
 CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE
+ifneq ($(ARCH),)
+CCFLAGS += -m$(ARCH) 
+endif
 CCDEBUGFLAGS = $(CCFLAGS) -g -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING
 CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG
 GLEWFLAGS = -O0 -DGLEW_STATIC -DGLEW_NO_GLU
 CCOBJ = -c
-CCOUT_OBJ = -o
-CCOUT_EXE = -o
+CCOUT_OBJ = -o 
+CCOUT_EXE = -o 
 
+ifeq ($(CC),gcc) #Can happen if we're coming from make/clang.mk.
 ifeq ($(OS),linux)
 CCDEBUGFLAGS += -Og -rdynamic
 endif
-
-ifneq ($(ARCH),)
-CCFLAGS += -m$(ARCH) 
 endif
 
 ifeq ($(OS),osx)

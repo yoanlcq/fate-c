@@ -5,9 +5,10 @@ include make/os_arch_cc.mk
 include make/$(CC).mk
 include make/fate.mk
 
-GAME = cube
-include make/game.mk
+#We don't support having multiple games with this.
 GAME = toast
+include make/game.mk
+GAME = cube
 include make/game.mk
 
 games: $(GAMES) 

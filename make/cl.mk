@@ -9,4 +9,4 @@ CCOBJ = /c
 CCOUT_OBJ = /Fo
 CCOUT_EXE = /Fe
 
-MOVEPDB = && move *.pdb $(BINDIR)
+MOVEPDB = move *.pdb $(BINDIR)

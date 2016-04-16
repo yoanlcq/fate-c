@@ -1,1 +1,1 @@
-include gcc.mk
+include make/gcc.mk
