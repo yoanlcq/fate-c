@@ -37,7 +37,7 @@ struct CJ_CBZARD_S CJ_CBZARD_S_I;
 
 
 /* cj_cbzard.api.h (generated) */
-/* #include "cj_cbzard.priv.h" */
+/* #include <cj/cbzard.priv.h> */
 typedef uint16_t cj_cbzard;
 size_t cj_cbzard_chunkfunc(size_t n);
 #define cj_cbzard__x(_id) (CJ_CBZARD_S_I.pod_0[_id])
@@ -48,21 +48,36 @@ size_t cj_cbzard_chunkfunc(size_t n);
 #define cj_cbzard__mana(_id)  (CJ_CBZARD_S_I.pod_3[_id].pod_1)
 
 
-/* cj_cbzard.h (Hand-written) */
-/* #include <cj_cbzard.api.h> */
-void cj_cbzard_mysharedfunc(cj_cbzard self);
+/* cj_cbzard.reloadable.h */
+/* #include <cj/cbzard.api.h> */
+extern void (*cj_cbzard_mysharedfunc)(cj_cbzard self);
+void cj_cbzard_hotreload(fe_hr_dll dll); /* Registered for hot-reloading */
+
+
+/* cj_cbzard.reloadable.c */
+/* #include <cj/cbzard.reloadable.h> */
+void (*cj_cbzard_mysharedfunc)(cj_cbzard self);
+void cj_cbzard_hotreload(fe_hr_dll dll) {
+    cj_cbzard_mysharedfunc = fe_hr_getsym(dll, "cj_cbzard_mysharedfunc");
+}
+
+
+/* cj_cbzard.h (Generated from cj/cbzard.c) */
+/* #include <fate.h> */
+/* #include <cj/cbzard.api.h> */
+FE_RELOADABLE void cj_cbzard_mysharedfunc(cj_cbzard self);
 
 
 /* cj_cbzard.c (Hand-written) */
-/* #include "cj_cbzard.h" */
-FE_RELOADABLE size_t cj_cbzard_chunkfunc(size_t n) {
+/* #include <cj/cbzard.h> */
+size_t cj_cbzard_chunkfunc(size_t n) {
     /* 32 Cyberzards at first, increase by 16 as needed */
     return n ? 16 : 32;
 }
 static void cj_cbzard_kill(cj_cbzard self) {
     cj_cbzard__life(self) = 0;
 }
-FE_RELOADABLE void cj_cbzard_mysharedfunc(cj_cbzard self) {
+void cj_cbzard_mysharedfunc(cj_cbzard self) {
     cj_cbzard_kill(self);
 }
 
