@@ -1,9 +1,5 @@
-#include <stdint.h>
-
-#define FE_RELOADABLE
-
 /* When designing the Cyberzard entity, I specified what follows :
- * - I'm using my game's namespace ('cj_');
+ * - I'm using my game's namespace ('cj');
  * - The index type name is 'cbzard', it uses 16 bits;
  * - For some reason, a cyberzard contains 6 integers : 
  *   32 bits : x, y, z;
@@ -19,6 +15,7 @@
  */
 
 /* cj_cbzard.priv.h (generated) */
+#include <stdint.h>
 #define CJ_CBZARD_TYPEID 0x5245 /* The user can see it */
 #define CJ_CBZARD_S cj_0x5245_S /* S stands for Structure */
 #define CJ_CBZARD_S_I cj_0x5245 /* S_I stands for Structure Instance */
@@ -40,8 +37,10 @@ struct CJ_CBZARD_S CJ_CBZARD_S_I;
 /* #include <cj/cbzard.priv.h> */
 typedef uint16_t cj_cbzard;
 size_t cj_cbzard_chunkfunc(size_t n);
-void cj_cbzard___take(cj_cbzard array[], cj_cbzard count);
-void cj_cbzard___give(cj_cbzard array[], cj_cbzard count);
+void cj_cbzard___allocv(cj_cbzard array[], cj_cbzard count);
+cj_cbzard cj_cbzard___alloc(void);
+void cj_cbzard___deallocv(cj_cbzard array[], cj_cbzard count);
+void cj_cbzard___dealloc(cj_cbzard self);
 #define cj_cbzard__x(_id) (CJ_CBZARD_S_I.pod_0[_id])
 #define cj_cbzard__y(_id) (CJ_CBZARD_S_I.pod_1[_id])
 #define cj_cbzard__z(_id) (CJ_CBZARD_S_I.pod_2[_id])
