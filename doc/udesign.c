@@ -40,6 +40,8 @@ struct CJ_CBZARD_S CJ_CBZARD_S_I;
 /* #include <cj/cbzard.priv.h> */
 typedef uint16_t cj_cbzard;
 size_t cj_cbzard_chunkfunc(size_t n);
+void cj_cbzard___take(cj_cbzard array[], cj_cbzard count);
+void cj_cbzard___give(cj_cbzard array[], cj_cbzard count);
 #define cj_cbzard__x(_id) (CJ_CBZARD_S_I.pod_0[_id])
 #define cj_cbzard__y(_id) (CJ_CBZARD_S_I.pod_1[_id])
 #define cj_cbzard__z(_id) (CJ_CBZARD_S_I.pod_2[_id])
@@ -47,25 +49,26 @@ size_t cj_cbzard_chunkfunc(size_t n);
 #define cj_cbzard__power(_id) (CJ_CBZARD_S_I.pod_3[_id].pod_0[1])
 #define cj_cbzard__mana(_id)  (CJ_CBZARD_S_I.pod_3[_id].pod_1)
 
-
-/* cj_cbzard.reloadable.h */
+/* cj_cbzard.h (Generated from cj/cbzard.c) */
+/* #include <fate.h> */
 /* #include <cj/cbzard.api.h> */
+#if FE_STATIC_BUILD /* Everything is compiled together. */
+void cj_cbzard_mysharedfunc(cj_cbzard self);
+#elif FE_DYNAMIC_BUILD /* The game is built to be hot-reloadable. */
 extern void (*cj_cbzard_mysharedfunc)(cj_cbzard self);
+#elif FE_DLL_BUILD /* We are a DLL to be used by the hot-reloadable build */
+FE_EXPORT void cj_cbzard_mysharedfunc(cj_cbzard self);
+#endif
+#if FE_DYNAMIC_BUILD
 void cj_cbzard_hotreload(fe_hr_dll dll); /* Registered for hot-reloading */
+#endif
 
 
-/* cj_cbzard.reloadable.c */
-/* #include <cj/cbzard.reloadable.h> */
+/* cj_cbzard.reloadable.c (only if FE_DYNAMIC_BUILD) */
 void (*cj_cbzard_mysharedfunc)(cj_cbzard self);
 void cj_cbzard_hotreload(fe_hr_dll dll) {
     cj_cbzard_mysharedfunc = fe_hr_getsym(dll, "cj_cbzard_mysharedfunc");
 }
-
-
-/* cj_cbzard.h (Generated from cj/cbzard.c) */
-/* #include <fate.h> */
-/* #include <cj/cbzard.api.h> */
-FE_RELOADABLE void cj_cbzard_mysharedfunc(cj_cbzard self);
 
 
 /* cj_cbzard.c (Hand-written) */
@@ -79,6 +82,15 @@ static void cj_cbzard_kill(cj_cbzard self) {
 }
 void cj_cbzard_mysharedfunc(cj_cbzard self) {
     cj_cbzard_kill(self);
+}
+
+
+/* cj_boss.c (Hand-written) */
+/* #include <cj/boss.h> */
+/* #include <cj/cbzard.h> */
+/* Our DLL here is linked against the cbzard DLL. */
+void cj_boss_killcbzard(cj_boss self, cj_cbzard target) {
+    cj_cbzard_mysharedfunc(target);
 }
 
 int main(int argc, char *argv[]) {
