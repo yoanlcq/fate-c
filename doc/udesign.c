@@ -96,3 +96,72 @@ int main(int argc, char *argv[]) {
     cj_cbzard_kill(0);
     return 0;
 }
+
+
+
+/* Here is the directory layout of the FATE SDK, as downloaded :
+ *
+ * FATE_<version>_<dev_platform>/
+ * `- bin/
+ *    `- fate.exe (The editor)
+ *    `- ld_deps
+ *    `- (Other tools here)
+ * `- (Other data here. shared libs ?)
+ *
+ * FATE_build/ (specified by user)
+ * `- (all .o files for FATE here)
+ *
+ * multiverses_build/ (specified by user)
+ * `- Cybernetic_Jurassic/
+ *    `- (all .o files for CJ here)
+ *
+ * multiverses/ (specified by user)
+ * `- Grisui/
+ * `- Cybernetic_Jurassic/
+ *    `- fate/
+ *       `- settings.cfg (Picked-up by the engine)
+ *       `- (All files required to display enity schemas to the user, etc.)
+ *    `- src/
+ *       `- cj/
+ *          `- cbzard.c
+ *    `- gen/ (Read-only ! The engine rebuilds its content as needed.)
+ *       `- cj/
+ *          `- cbzard.h
+ *    `- art/
+ *       `- all/
+ *          `- (This is the artist's corner. Put content here as you wish,
+ *              but you should keep it tidy by making subdirectories.
+ *              Basically any content you put here is picked up on-the-fly 
+ *              by the engine - baked data is created from it, placed in your
+ *              game's asset directory, and immediately usable from your
+ *              code.
+ *              This 'all/' subdirectory is where the engine looks for 
+ *              nonlocalized assets. Localized assets should be put in the 
+ *              appropriate directory, such as 'fr_FR' or 'en_EN'.
+ *              The engine reloads data on-the-fly as the locale
+ *              is changed within the game.
+ *              Within your code, you have nothing to change - When you
+ *              say "load(hero.obj)", the engine looks for 'hero.obj'
+ *              within 'all/' and the subfolder matching the current locale.
+ *              As the locale changes, data is reloaded.
+ *              This way, you can achieve localization late in your project.
+ *              Example content :
+ *                Fonts, images, 3D models, musics, sounds, text files).
+ *       `- fr_FR/
+ *    `- res/
+ *       `- (This folder is where mandatory resources are placed - they
+ *           are well-known, required, localized, and separated from regular
+ *           assets.
+ *           Example content :
+ *             Copyright info, company name, icons for Android, 
+ *             Splash Screen for iOS, and more).
+ *
+ * dist/ (specified by user)
+ * `- Cybernetic_Jurassic_<version>.deb
+ * `- Cybernetic_Jurassic_<version>_<platform>_dynamic/
+ * `- Cybernetic_Jurassic_<version>_<platform>/
+ *    `- (Binaries, DLLs, and baked resources here.
+ *        The user can choose whether they should be jammed together
+ *        or arranged within directories. The engine can be instructed
+ *        to includes sources.);
+ */
