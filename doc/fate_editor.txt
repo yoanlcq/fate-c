@@ -1,0 +1,66 @@
+# FATE Editor functionality
+- Set FATE build/ directory location
+- Set multiverses build/ directory location
+- Set multiverses directory location
+- Create multiverses from a template (there's an empty one)
+- Delete multiverses
+- Edit a multiverse (effectively running it)
+
+# FATE Multiverse functionality
+- Manage mandatory resources
+  All of this info is dynamically "compiled" to a header file
+  that the user can use within the code at all times.
+--- Set Company name
+--- Set Creation time (?)
+--- Set Multiverse Title
+--- Set Multiverse ascii-friendly title
+--- Set Multiverse namespace (Used in folders. ex. cj)
+--- Set Multiverse prefix (Used in code. ex. cj_)
+--- Set Android icons
+--- Set iOS info
+- Distribute game
+  Most of the settings allow the user to specify how files
+  are arranged within the game's folder.
+  It's possible to force packing everything in a single
+  executable, to include sources with the game, etc.
+  Also, the user can choose the release mode : debug or release.
+  But he can also create new release modes.
+--- Android settings
+--- iOS settings
+--- OS X settings
+--- Linux/Debian/Ubuntu/FreeBSD settings
+--- Windows Desktop settings
+--- Windows Store settings
+--- Emscripten settings
+- Manage transactions
+--- View transactions tree (highlighting current transaction)
+--- Create a transaction
+--- Delete a transaction
+--- Merge a transaction
+- Manage prefabs
+--- Create prefabs
+--- Delete prefabs
+--- Search prefabs
+--- Search components
+----- See info or documentation for the component
+--- Edit a prefab. Whenever an action increments its version,
+    an empty function that converts an instance from the
+    previous version to the next is added within code, and it
+    is up to the user to fill it.
+----- Add components (Increments minor version)
+----- Remove components (Increments major version)
+----- Change memory layout of its components (Increments patch version)
+----- Rename its components (Increments patch version)
+----- Change its handle type (ex. uint16_t)
+----- Edit its code (does it count as an edit ?)
+----- Set chunk assignment function
+- Display perf graphs
+--- Display real-time task graph
+--- Search for user perf counters
+--- Search for engine perf counters
+--- Display one or more user perf counters
+--- Display video backend perf stats
+--- Display thread activity history
+- Set tickrate
+- Configure backends (which ones are used, etc)
+- Set the main() callback
