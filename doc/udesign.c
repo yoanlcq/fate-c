@@ -128,26 +128,29 @@ int main(int argc, char *argv[]) {
  *       `- cj/
  *          `- cbzard.h
  *    `- art/
- *       `- all/
- *          `- (This is the artist's corner. Put content here as you wish,
- *              but you should keep it tidy by making subdirectories.
- *              Basically any content you put here is picked up on-the-fly 
- *              by the engine - baked data is created from it, placed in your
- *              game's asset directory, and immediately usable from your
- *              code.
- *              This 'all/' subdirectory is where the engine looks for 
- *              nonlocalized assets. Localized assets should be put in the 
- *              appropriate directory, such as 'fr_FR' or 'en_EN'.
- *              The engine reloads data on-the-fly as the locale
- *              is changed within the game.
- *              Within your code, you have nothing to change - When you
- *              say "load(hero.obj)", the engine looks for 'hero.obj'
- *              within 'all/' and the subfolder matching the current locale.
- *              As the locale changes, data is reloaded.
- *              This way, you can achieve localization late in your project.
- *              Example content :
- *                Fonts, images, 3D models, musics, sounds, text files).
- *       `- fr_FR/
+ *       `- (This is the artist's corner. Put content here as you wish,
+ *           but you should keep it tidy by making subdirectories.
+ *           Basically any content you put here is picked up on-the-fly 
+ *           by the engine - baked data is created from it, placed in your
+ *           game's asset directory, and immediately usable from your
+ *           code.
+ *
+ *           The engine reloads data on-the-fly as the locale
+ *           is changed within the game.
+ *
+ *           What problems must this solve ?
+ *           - It should be fast to add l10n late to the project.
+ *           - Changing the locale should reload the appropriate version
+ *             of the necessary entities.
+ *           - It should still be left to the user to decide how l10n takes
+ *             place.
+ *           Solution :
+ *           fe_load_l10n("%/hero.%.obj");
+ *           If desired, write a macro :
+ *           #define cj_load(str) fe_load_l10n("%/" str)
+ *
+ *           Example content :
+ *             Fonts, images, 3D models, musics, sounds, text files).
  *    `- res/
  *       `- (This folder is where mandatory resources are placed - they
  *           are well-known, required, localized, and separated from regular
