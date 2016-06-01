@@ -1,5 +1,5 @@
 Subsystems :
-- Multihreading
+- Multithreading
 - Async IO
 - Sockets (+ websocket server)
 - Hot-reloading
@@ -27,28 +27,38 @@ fe_haptic
 
 -- Here are the components :
 
+---- Input
+fe_input_seq_watcher
 
 ---- Behavioural
 fe_transaction
 fe_shapeshifter
 
-
 ---- Views, render targets
-fe_view
-fe_view_fx3d
+fe_view3d
+fe_view3d_fx
 fe_viewport
-fe_render_window (a window also has a set of viewports, each associated with a 
+fe_window (a window also has a set of viewports, each associated with a 
                view. There's only one "master" video backend used.
                To render with several video backends, each should render to
-               a texture, that the "master" will later display.)
-fe_render_texture (a render texture also has a set of viewports, each associated
-                with a view. Only one video backend does the rendering.)
+               a texture, that the "master" will later display.
+               To render from several backends, each one must render to a
+               texture it owns, then displayed by the "master" as textured 
+               quads.)
+fe_tex2d
+fe_tex3d
 
 ---- Space and Time
 fe_transform3d
-fe_translation3d
+fe_pos3d
+fe_vel3d
+fe_accel3d
 fe_rotation3d
+fe_angular_vel3d
+fe_angular_accel3d
 fe_scale3d
+fe_scalar_vel3d
+fe_scalar_accel3d
 fe_time
 fe_time_traveller
 fe_time_stretcher
@@ -68,7 +78,9 @@ fe_mesh3d_data
 fe_material
 fe_spritepack
 fe_shape2d
-fe_alpha (+velocity, accel, ...)
+fe_opacity //Maybe merge later into fe_material.
+fe_opacity_vel
+fe_opacity_accel
 fe_postfx_stack
 fe_postfx_stack_per_view
 

@@ -5,6 +5,18 @@ transform in global coordinates.
 It draws its data from local transform components such as fe_translation3d,
 fe_rotation3d and fe_scale3d, and recomputes as needed.
 
+
+What problems must this solve ?
+- The user must be able to specify derivatives (velocity and acceleration) for
+  the three kinds of local transforms.
+- The data must exist in one place only.
+- Only required data should be provided (i.e if an entity is known to never
+  rotate, there's no need for a local rotation).
+- This is game logic data - therefore, enough info should be given so that
+  animations are smooth.
+
+
+
 /* Given a frozen transform F and a defrozen one D, 
  * if you set D as F's parent, expecting F to follow D as it moves,
  * you'll have to explicitly defreeze F. Otherwise F will just stand there.
