@@ -1,0 +1,9 @@
+- requires : 'time_traveller', to use the time_travel() call to interpolate
+  between states.
+- derivate_traveller(time_traveller) this time_stretcher is a velocity.
+- derivate_stretcher(time_stretcher) for acceleration, jerk, etc.
+- time_stretch(value) Sets the stretch value.
+  You're responsible for remember()ing enough state when using negative values.
+  There will never be premade mechanisms for this. You're supposed to know
+  exactly what you're doing.
+

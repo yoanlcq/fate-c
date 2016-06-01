@@ -1,0 +1,8 @@
+Abstracts a fe_spacevec3, representing a position transform in the 3D space.
+
+Methods:
+
+- fe_translation3d_derivate(fe_translation3d velocity, fe_translation3d position)
+- fe_translation3d_underivate(fe_translation3d velocity, fe_translation3d position)
+- fe_translation3d_set(fe_spacevec3 vec)
+- fe_translation3d_add(fe_spacevec3 vec)

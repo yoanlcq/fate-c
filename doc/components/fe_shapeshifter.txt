@@ -1,0 +1,3 @@
+The fe_shapeshifter component allows an entity to add or remove components
+from itself dynamically.
+This may be implemented as a table.

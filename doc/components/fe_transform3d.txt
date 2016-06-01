@@ -1,0 +1,71 @@
+A fe_transform3d allows an entity to exist in the 3D space.
+It is normally implemented by a 4x4 matrix representing the entity's
+transform in global coordinates.
+
+It draws its data from local transform components such as fe_translation3d,
+fe_rotation3d and fe_scale3d, and recomputes as needed.
+
+/* Given a frozen transform F and a defrozen one D, 
+ * if you set D as F's parent, expecting F to follow D as it moves,
+ * you'll have to explicitly defreeze F. Otherwise F will just stand there.
+ *
+ * What happens to frozen transforms is that, while their local transform
+ * can still change, the computation of their global transform is skipped,
+ * so it has no effect. Thus, upon defreezing, you'll see your changes
+ * take effect immediately.
+ *
+ * Freezing is an optimization feature, but nothing prevents the game
+ * mechanics from taking advantage of it.
+ * You should always freeze transforms which you know will not change.
+ */
+#define fate_xform3d_root() 0
+void fate_xform3d_parent(fate_xform3d id, fate_xform3d p);
+fate_xform3d fate_xform3d_get_parent(fate_xform3d id);
+/* You are responsible for calling it. Neither freeze() nor defreeze() do
+ * the check, but they assert() on it. */
+bool fate_xform3d_is_frozen(fate_xform3d id);
+void fate_xform3d_freeze(fate_xform3d id);
+/* defreezing() is a costly operation, and there's a priori no reason to
+ * use it. Don't call it just because you character will idle for some time. */
+void fate_xform3d_defreeze(fate_xform3d id);
+/* reset() does not call freeze() not defreeze(). It just zeroes the local
+ * transform. */
+void fate_xform3d_reset(fate_xform3d id);
+fate_spacevec3* fate_xform3d_get_translation(fate_xform3d id);
+fate_spacequat* fate_xform3d_get_rotation(fate_xform3d id);
+fate_spacevec3* fate_xform3d_get_scaling(fate_xform3d id);
+/* Should not be used extensively. */
+fate_spacemat4* fate_xform3d_get_global_xform(fate_xform3d id);
+void fate_xform3d_translate(fate_xform3d id, spacevec3 translation);
+void fate_xform3d_rotate(fate_xform3d id, spacevec3 euler_angles);
+void fate_xform3d_orbit(fate_xform3d id, spacevec3 center, vec3 axis, 
+                        fate_space_unit angle);
+void fate_xform3d_scale(fate_xform3d id, spacevec3 scale);
+/* use the current translation as the 'eye' parameter. */
+void fate_xform3d_lookat(fate_xform3d id, spacevec3 center, spacevec3 up);
+
+/* Underlying system */
+/*
+ * I noticed that, very often, transforms were either set once and never updated
+ * (e.g rocks) or changed every tick (e.g actors).
+ * In the same way, in 99% of cases, parenting one transform to another only 
+ * happens once (at child creation time), while updating the hierarchy happens
+ * every tick. Therefore, we don't care if parenting is slow as long as it
+ * makes update() faster thanks to better layed-out input.
+ *
+ * The implementation, as such, has these concepts :
+ * - Frozen transforms are assumed to NEVER change.
+ *   Their respective global transforms must be computed only once;
+ * - Defrozen transforms are assumed to ALWAYS change.
+ *   Their respective global transforms must be computed each tick;
+ * - Frozen transforms that have their parent defrozen remain frozen;
+ * - The root transform (which is private) is frozen by definition.
+ * Considering there is no use case for an intermediate state between 
+ * frozen and defrozen, we get the following benefits :
+ * - For both cases, no need to check for dirty flags. Users don't need to set
+ *   them either;
+ * - Defrozen transforms are in their own sorted pool, which the system 
+ *   directly updates without thinking (i.e no branches).
+ *
+ */
+

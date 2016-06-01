@@ -1,0 +1,9 @@
+A fe_transaction is an abstraction for a hardware memory transaction.
+It is an alternative to mutexes where memory writes are a concern. 
+
+If necessary, it fallbacks to a either a software transactional memory 
+implementation or a lightweight mutex.
+
+Unlike mutexes, they do not guarantee that two threads won't be executing
+the same code at the same time, so it can't be used reliably to, say,
+ensure mutual exclusion between Vulkan API calls.

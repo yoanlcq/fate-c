@@ -1,0 +1,11 @@
+- requires : 'time', and 'schema' to save the _whole_ state.
+- remember(time) Stores the current state in the slot given by 'time'.
+  Remembering the future is useless, unless you want general-purpose storage.
+- forget(time) Deletes the state in the slot given by 'time'.
+- time_travel(time) Loads the state from the slot given by 'time'.
+  Actually, at each new tick, systems call time_travel(tick+1) which updates
+  the entity for the next tick.
+  So calling time_travel(tick+N) causes the entity to be updated N times.
+  Travelling to a forgotten past is an error, because by definition, the
+  past has already been computed and supposedly kept in memory.
+

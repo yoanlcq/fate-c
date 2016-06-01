@@ -1,0 +1,91 @@
+Subsystems :
+- Multihreading
+- Async IO
+- Sockets (+ websocket server)
+- Hot-reloading
+- i18n
+- log
+- mem
+- perf
+
+
+-- These are functionalities, but NOT components :
+
+- schema
+- serializable
+- deterministic
+- fsm (serial vs parallel, execution order)
+
+
+-- Global components :
+fe_input_mouse_state
+fe_input_keyboard_state
+fe_input_joy_state
+fe_input_ai
+fe_haptic
+
+
+-- Here are the components :
+
+
+---- Behavioural
+fe_transaction
+fe_shapeshifter
+
+
+---- Views, render targets
+fe_view
+fe_view_fx3d
+fe_viewport
+fe_render_window (a window also has a set of viewports, each associated with a 
+               view. There's only one "master" video backend used.
+               To render with several video backends, each should render to
+               a texture, that the "master" will later display.)
+fe_render_texture (a render texture also has a set of viewports, each associated
+                with a view. Only one video backend does the rendering.)
+
+---- Space and Time
+fe_transform3d
+fe_translation3d
+fe_rotation3d
+fe_scale3d
+fe_time
+fe_time_traveller
+fe_time_stretcher
+
+---- Output
+fe_audio
+fe_audio_reverse (preparing some audio to play backwards)
+fe_audio_stretch (time stretch. Negative stretch requires audio_reverse.)
+fe_audio_fx_stack ??
+fe_audio_midi_player ???
+
+---- Graphics
+fe_text2d
+fe_terrain3d ??
+fe_mesh3d
+fe_mesh3d_data
+fe_material
+fe_spritepack
+fe_shape2d
+fe_alpha (+velocity, accel, ...)
+fe_postfx_stack
+fe_postfx_stack_per_view
+
+---- Deterministic Physics
+fe_collision_data
+fe_tangible (uses collision data)
+fe_hit_receiver (same)
+fe_hit_sender (same)
+
+---- Space Continuum
+fe_portal
+fe_region
+
+---- Experimental
+video_backend_access
+audio_backend_access
+cj_speech_synthesizer
+gr_speech_synthesizer
+steam_achievements
+steam_matchmaking
