@@ -3,12 +3,11 @@ void cb_camera_init(size_t ths) {
     cam....alloc_members();
 
     cam..view..reset();
-    cam..view..transform = ....alloc();
-
-    cam..view..transform..rotation = ....alloc();
+    cam..view..transform <= ....alloc();
+    cam..view..transform..rotation <= ....alloc(1);
     cam..view..transform..rotation..reset();
-    cam..view..transform..translation = ....alloc();
-    cam..view..transform..translation..wvec3 = (fe_wvec3){0, 0, -1000};
+    cam..view..transform..translation <= ....alloc(1);
+    cam..view..transform..translation..wvec3..fill(0,0,-1000);
 
     cam..vel..derivate(cam..view..transform..translation);
     cam..angular_vel..derivate(cam..view..transform..rotation);
@@ -28,7 +27,8 @@ void cb_cube_init(size_t cube, size_t cubedata) {
 
 void cb_demos_update(void *data) {
     /* update all demos, call deinit() if we're quitting, then close. */
-    cb_demo demo = demo....start();
+
+    cb_demo demo = ....start();
     if(demo..window..closing) {
         demo..deinit();
         demo....dealloc();
@@ -54,14 +54,14 @@ void cb_demo_init(size_t demo) {
     demo..cube..init(demo..cubedata);
 
     demo..window..reset();
-    demo..window..size = (fe_uvec2){800, 600};
+    demo..window..size..fill(800, 600);
     demo..window..icon = CB_RES_ICON;
     demo..window..title = CB_RES_TITLE;
     demo..window..center();
     demo..window..enable_gl();
 
     demo..viewport..window = demo..window;
-    demo..viewport..insets = (fe_vec4){0.f, 0.f, 0.f, 0.f};
+    demo..viewport..insets..fill(0.f, 0.f, 0.f, 0.f);
     demo..viewport..view = demo..camera..view;
 
     fe_tasknode mytask, tsk = ..get_game_update();
