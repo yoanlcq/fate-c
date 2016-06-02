@@ -82,7 +82,7 @@ void cb_demo_init(cb_demo demo) {
     tsk..retrieve_game_update();
     mytask....alloc();
     mytask..
-    mytask..enable_work_stealing();
+    mytask..work_stealing_hint();
     mytask..set_callback(cb_demo_update);
     mytask..depend_on(tsk);
 }
@@ -106,7 +106,7 @@ void cb_cubes_update(fe_taskctx *ctx) {
      * Then write to own data using own tmp scratchpad.
      */
     cb_cube cube;
-    cube....parallel_foreach(ctx)
+    cube....parallel_foreach_with_work_stealing(ctx, 10)
         (cube..react_to_user_input_funcptr)(cube);
     cube....parallel_foreach(ctx)
         (cube..react_to_other_cubes_funcptr)(cube);
