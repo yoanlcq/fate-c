@@ -34,25 +34,25 @@
  * @{
  */
 
-#ifndef FATE_SYS_H
-#define FATE_SYS_H
+#ifndef FE_SYS_H
+#define FE_SYS_H
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <fate/log.h>
 
-#define FATE_SYS_STACK_LEN 128
-#define FATE_SYS_MODNAME_LEN 256
+#define FE_SYS_STACK_LEN 128
+#define FE_SYS_MODNAME_LEN 256
 
-bool fate_sys_file_exists(const char *path);
-uint64_t fate_sys_get_last_write_time(const char *path);
-bool fate_sys_set_current_directory(const char *path);
-char *fate_sys_getgamepath(void);
-void fate_sys_crash_handler_setup(void);
+bool fe_sys_file_exists(const char *path);
+uint64_t fe_sys_get_last_write_time(const char *path);
+bool fe_sys_set_current_directory(const char *path);
+char *fe_sys_getgamepath(void);
+void fe_sys_crash_handler_setup(void);
 /*! \brief Log a platform-specific stack trace, through the given log function.
  *
  */
-void fate_sys_log_stacktrace(fate_logfunc logfunc);
+void fe_sys_log_stacktrace(fe_logfunc logfunc);
 
 /* @} */
-#endif /* FATE_SYS_H */
+#endif /* FE_SYS_H */

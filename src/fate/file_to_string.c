@@ -43,7 +43,7 @@
 #include <fate/fatal_alloc.h>
 #include <fate/file_to_string.h>
 
-char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
+char **fe_file_to_string_array(FILE *file, size_t *num_strings) {
 
     /* The weirdest thing in history. Without the following line, 
      * subsequent fread() calls return -1 with EINVAL if the file had been
@@ -59,11 +59,11 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
 
     *num_strings = 0;
 
-    char **strings = fate_fatal_malloc(((filesize/BUFSIZ)+1), sizeof(char*));
+    char **strings = fe_fatal_malloc(((filesize/BUFSIZ)+1), sizeof(char*));
     long i; /* Keep it signed. */
     size_t bytes_read;
     for(i=0 ; i<filesize/BUFSIZ ; ++i) {
-        strings[i] = fate_fatal_malloc(BUFSIZ+1, 1);
+        strings[i] = fe_fatal_malloc(BUFSIZ+1, 1);
         bytes_read = fread(strings[i], 1, BUFSIZ, file);
         if(bytes_read <= 0) {
             /* Something's not right if we're here. */
@@ -78,7 +78,7 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
         ++(*num_strings);
     }
 
-    strings[i] = fate_fatal_malloc(filesize-(i*BUFSIZ)+1, 1);
+    strings[i] = fe_fatal_malloc(filesize-(i*BUFSIZ)+1, 1);
     bytes_read = fread(strings[i], 1, BUFSIZ, file);
     strings[i][bytes_read] = '\0';
     ++(*num_strings);
@@ -88,7 +88,7 @@ char **fate_file_to_string_array(FILE *file, size_t *num_strings) {
     return strings;
 }
 
-char *fate_file_to_string(FILE *file, uint64_t *length) {
+char *fe_file_to_string(FILE *file, uint64_t *length) {
 
     long oldpos = ftell(file);
     char *buf, tmp_buf[BUFSIZ];
@@ -100,7 +100,7 @@ char *fate_file_to_string(FILE *file, uint64_t *length) {
         bytes_read = fread(tmp_buf, 1, BUFSIZ, file);
         if(bytes_read <= 0)
             break;
-        buf = fate_fatal_realloc(buf, buf_len+bytes_read+1, 1);
+        buf = fe_fatal_realloc(buf, buf_len+bytes_read+1, 1);
         memcpy(buf+buf_len, tmp_buf, bytes_read);
         buf_len += bytes_read;
     }

@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FATE_MATH_VEXT_VEC2_H
-#define FATE_MATH_VEXT_VEC2_H
+#ifndef FE_MATH_VEXT_VEC2_H
+#define FE_MATH_VEXT_VEC2_H
 
 /* Feature test section */
 
@@ -113,4 +113,4 @@ static inline void vec2p_reflect(vec2 *r, const vec2 v, const vec2 n) {
     *r = v-p*n;
 }
 
-#endif /* FATE_MATH_VEXT_VEC2_H */
+#endif /* FE_MATH_VEXT_VEC2_H */

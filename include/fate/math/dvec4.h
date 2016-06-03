@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_DVEC4_H
-#define FATE_MATH_DVEC4_H
+#ifndef FE_MATH_DVEC4_H
+#define FE_MATH_DVEC4_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef double dvec4[4];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT dvec4_color {
+struct FE_PACKED_STRUCT dvec4_color {
     double r;
     double g;
     double b;
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT dvec4_color {
 typedef struct dvec4_color dvec4_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT dvec4_coord {
+struct FE_PACKED_STRUCT dvec4_coord {
     double x;
     double y;
     double z;
@@ -153,6 +153,6 @@ static inline void dvec4_reflect(dvec4 r, const dvec4 v, const dvec4 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_DVEC4_H */
+#endif /* FE_MATH_DVEC4_H */
 
 /* @} */

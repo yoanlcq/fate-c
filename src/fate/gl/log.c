@@ -40,8 +40,8 @@
 #include <fate/gl/defs.h>
 #include <fate/gl/log.h>
 
-void fate_gl_log_error(GLenum err, bool even_no_error) {
-#define HELPER(C,X) case X: C fate_logf_video("%d (%s)", X, #X); break
+void fe_gl_log_error(GLenum err, bool even_no_error) {
+#define HELPER(C,X) case X: C fe_logf_video("%d (%s)", X, #X); break
     switch(err) {
     HELPER(,GL_INVALID_ENUM);
     HELPER(,GL_INVALID_VALUE);
@@ -55,16 +55,16 @@ void fate_gl_log_error(GLenum err, bool even_no_error) {
 #undef HELPER
 }
 
-void fate_gl_log_all_errors(void) {
+void fe_gl_log_all_errors(void) {
     GLenum err;
     for(err = glGetError() ; err != GL_NO_ERROR ; err = glGetError()) {
-        fate_logf_video("glGetError() returned ");
-        fate_gl_log_error(err, false);
-        fate_logf_video("\n");
+        fe_logf_video("glGetError() returned ");
+        fe_gl_log_error(err, false);
+        fe_logf_video("\n");
     }
 }
 
-void fate_gl_log_shader_info(GLuint shader) {
+void fe_gl_log_shader_info(GLuint shader) {
     GLchar *err;
     GLint errlen;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &errlen);
@@ -73,12 +73,12 @@ void fate_gl_log_shader_info(GLuint shader) {
     err[errlen] = '\0';
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
-    fate_logf_video(err);
+    fe_logf_video(err);
 #pragma GCC diagnostic pop
     free(err);
 }
 
-void fate_gl_log_program_info(GLuint program) {
+void fe_gl_log_program_info(GLuint program) {
     GLchar *err;
     GLsizei errlen;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
@@ -87,7 +87,7 @@ void fate_gl_log_program_info(GLuint program) {
     err[errlen] = '\0';
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
-    fate_logf_video(err);
+    fe_logf_video(err);
 #pragma GCC diagnostic pop
     free(err);
 }

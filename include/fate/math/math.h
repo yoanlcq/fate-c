@@ -36,9 +36,9 @@
  * @{
  */
 
-#ifndef FATE_MATH_H
-#define FATE_MATH_H
+#ifndef FE_MATH_H
+#define FE_MATH_H
 
-#endif /* FATE_MATH_H */
+#endif /* FE_MATH_H */
 
 /*! @} */

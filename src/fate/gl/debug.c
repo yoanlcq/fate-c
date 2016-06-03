@@ -39,21 +39,21 @@
 #include <fate/gl/defs.h>
 #include <fate/gl/debug.h>
 
-#ifdef FATE_GL_DEBUG
+#ifdef FE_GL_DEBUG
 
-static void GLAPIENTRY fate_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
+static void GLAPIENTRY fe_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
                                        const void *userParam) {}
-PFNGLDEBUGMESSAGECALLBACKPROC fate_glDebugMessageCallback = 
-                              fate_glDebugMessageCallback_dummy;
+PFNGLDEBUGMESSAGECALLBACKPROC fe_glDebugMessageCallback = 
+                              fe_glDebugMessageCallback_dummy;
 
-static void GLAPIENTRY fate_glDebugMessageControl_dummy(GLenum source, GLenum type, 
+static void GLAPIENTRY fe_glDebugMessageControl_dummy(GLenum source, GLenum type, 
                                       GLenum severity, GLsizei count, 
                                       const GLuint *ids, 
                                       GLboolean enabled) {}
-PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl =
-                             fate_glDebugMessageControl_dummy;
+PFNGLDEBUGMESSAGECONTROLPROC fe_glDebugMessageControl =
+                             fe_glDebugMessageControl_dummy;
 
-static void GLAPIENTRY fate_glDebugMessageInsertAMD(GLenum source, GLenum type, 
+static void GLAPIENTRY fe_glDebugMessageInsertAMD(GLenum source, GLenum type, 
                                     GLuint id, GLenum severity, GLsizei length, 
                                     const char *message) 
 {
@@ -94,49 +94,49 @@ static void GLAPIENTRY fate_glDebugMessageInsertAMD(GLenum source, GLenum type,
 
     glDebugMessageInsertAMD(category, severity, id, length, message);
 }
-static void GLAPIENTRY fate_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
+static void GLAPIENTRY fe_glDebugMessageInsert_dummy(GLenum source, GLenum type, GLuint id, 
                                     GLenum severity, GLsizei length, 
                                     const char *message) {}
-PFNGLDEBUGMESSAGEINSERTPROC fate_glDebugMessageInsert =
-                            fate_glDebugMessageInsert_dummy;
+PFNGLDEBUGMESSAGEINSERTPROC fe_glDebugMessageInsert =
+                            fe_glDebugMessageInsert_dummy;
 
-static GLuint GLAPIENTRY fate_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
+static GLuint GLAPIENTRY fe_glGetDebugMessageLog_dummy(GLuint count, GLsizei bufSize, 
                                      GLenum *sources, GLenum *types, 
                                      GLuint *ids, GLenum *severities,
                                      GLsizei *lengths, 
                                      GLchar *messageLog) { return 0; }
-PFNGLGETDEBUGMESSAGELOGPROC fate_glGetDebugMessageLog =
-                            fate_glGetDebugMessageLog_dummy;
+PFNGLGETDEBUGMESSAGELOGPROC fe_glGetDebugMessageLog =
+                            fe_glGetDebugMessageLog_dummy;
 
-static void GLAPIENTRY fate_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
+static void GLAPIENTRY fe_glPushDebugGroup_dummy(GLenum source, GLuint id, GLsizei length, 
                                 const char *message) {}
-PFNGLPUSHDEBUGGROUPPROC fate_glPushDebugGroup =
-                        fate_glPushDebugGroup_dummy;
+PFNGLPUSHDEBUGGROUPPROC fe_glPushDebugGroup =
+                        fe_glPushDebugGroup_dummy;
 
-static void GLAPIENTRY fate_glPopDebugGroup_dummy(void) {}
-PFNGLPOPDEBUGGROUPPROC fate_glPopDebugGroup =
-                       fate_glPopDebugGroup_dummy;
+static void GLAPIENTRY fe_glPopDebugGroup_dummy(void) {}
+PFNGLPOPDEBUGGROUPPROC fe_glPopDebugGroup =
+                       fe_glPopDebugGroup_dummy;
 
-static void GLAPIENTRY fate_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
+static void GLAPIENTRY fe_glObjectLabel_dummy(GLenum identifier, GLuint name, GLsizei length, 
                              const char *label) {}
-PFNGLOBJECTLABELPROC fate_glObjectLabel =
-                     fate_glObjectLabel_dummy;
+PFNGLOBJECTLABELPROC fe_glObjectLabel =
+                     fe_glObjectLabel_dummy;
 
-static void GLAPIENTRY fate_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
+static void GLAPIENTRY fe_glObjectPtrLabel_dummy(const void *ptr, GLsizei length, 
                                 const GLchar *label) {}
-PFNGLOBJECTPTRLABELPROC fate_glObjectPtrLabel =
-                        fate_glObjectPtrLabel_dummy;
+PFNGLOBJECTPTRLABELPROC fe_glObjectPtrLabel =
+                        fe_glObjectPtrLabel_dummy;
 
-static void GLAPIENTRY fate_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
+static void GLAPIENTRY fe_glGetObjectLabel_dummy(GLenum identifier, GLuint name, 
                                 GLsizei bufSize,
                                 GLsizei *length, char *label) {}
-PFNGLGETOBJECTLABELPROC fate_glGetObjectLabel =
-                        fate_glGetObjectLabel_dummy;
+PFNGLGETOBJECTLABELPROC fe_glGetObjectLabel =
+                        fe_glGetObjectLabel_dummy;
 
-static void GLAPIENTRY fate_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
+static void GLAPIENTRY fe_glGetObjectPtrLabel_dummy(const void *ptr, GLsizei bufSize, 
                                    GLsizei *length, char *label) {}
-PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel =
-                           fate_glGetObjectPtrLabel_dummy;
+PFNGLGETOBJECTPTRLABELPROC fe_glGetObjectPtrLabel =
+                           fe_glGetObjectPtrLabel_dummy;
 
 
 /* The good news is that the ARB constants have the same value as their
@@ -146,7 +146,7 @@ PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel =
  * However we still get to write another version of this callback for
  * the AMD setup.
  */
-void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type, 
+void GLAPIENTRY fe_gl_debug_msg_callback(GLenum source, GLenum type, 
                                 GLuint id, GLenum severity, 
                                 GLsizei length, const GLchar* message, 
                                 const void* userParam)
@@ -195,13 +195,13 @@ void GLAPIENTRY fate_gl_debug_msg_callback(GLenum source, GLenum type,
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_str = "Info"; break;
     }
 
-    fate_logf_video("OpenGL debug message "
+    fe_logf_video("OpenGL debug message "
                     "(severity:%s, type:%s, source:%s, id:%#08X) :\n"
                     "\t%s\n---\n",
                     severity_str, type_str, source_str, id, message);
 }
 
-void GLAPIENTRY fate_gl_debug_msg_callback_amd(GLuint id, GLenum category,
+void GLAPIENTRY fe_gl_debug_msg_callback_amd(GLuint id, GLenum category,
                                 GLenum severity, 
                                 GLsizei length, const GLchar* message, 
                                 void* userParam)
@@ -240,7 +240,7 @@ void GLAPIENTRY fate_gl_debug_msg_callback_amd(GLuint id, GLenum category,
     case GL_DEBUG_SEVERITY_LOW_AMD:    severity_str = "Low"; break;
     }
 
-    fate_logf_video("OpenGL debug message "
+    fe_logf_video("OpenGL debug message "
                     "(severity:%s, category:%s, id:%#08X) :\n"
                     "\t%s\n---\n",
                     severity_str, category_str, id, message);
@@ -275,7 +275,7 @@ static const fgl_ign_message_amd fgl_ign_messages_amd[] = {
 
 static void fgl_debug_reset_funcs(void) {
 #define HELPER(_name_) \
-    fate_##_name_ = fate_##_name_##_dummy
+    fe_##_name_ = fe_##_name_##_dummy
     HELPER(glDebugMessageCallback); 
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert); 
@@ -301,7 +301,7 @@ static void fgl_debug_setup_khr(bool enable) {
     
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(fate_gl_debug_msg_callback, NULL);
+    glDebugMessageCallback(fe_gl_debug_msg_callback, NULL);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
     for(ignmsg = fgl_ign_messages ; ignmsg->id ; ++ignmsg) {
@@ -309,7 +309,7 @@ static void fgl_debug_setup_khr(bool enable) {
                               1, &(ignmsg->id), GL_FALSE);
     }
 #define HELPER(_name_) \
-    fate_##_name_ = _name_
+    fe_##_name_ = _name_
     HELPER(glDebugMessageCallback);
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert);
@@ -333,7 +333,7 @@ static void fgl_debug_setup_arb(bool enable) {
     const fgl_ign_message *ignmsg;
     
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-    glDebugMessageCallbackARB(fate_gl_debug_msg_callback, NULL);
+    glDebugMessageCallbackARB(fe_gl_debug_msg_callback, NULL);
     glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 
                           0, NULL, GL_TRUE);
     for(ignmsg = fgl_ign_messages ; ignmsg->id ; ++ignmsg) {
@@ -341,21 +341,21 @@ static void fgl_debug_setup_arb(bool enable) {
                               1, &(ignmsg->id), GL_FALSE);
     }
 #define HELPER(_name_) \
-    fate_##_name_ = _name_##ARB
+    fe_##_name_ = _name_##ARB
     HELPER(glDebugMessageCallback);
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert);
     HELPER(glGetDebugMessageLog);
 #undef HELPER
     if(GLEW_EXT_debug_label) {
-        fate_glObjectLabel = glLabelObjectEXT;
-        fate_glGetObjectLabel = glGetObjectLabelEXT;
+        fe_glObjectLabel = glLabelObjectEXT;
+        fe_glGetObjectLabel = glGetObjectLabelEXT;
     } else {
-        fate_glObjectLabel = fate_glObjectLabel_dummy;
-        fate_glGetObjectLabel = fate_glGetObjectLabel_dummy;
+        fe_glObjectLabel = fe_glObjectLabel_dummy;
+        fe_glGetObjectLabel = fe_glGetObjectLabel_dummy;
     }
 #define HELPER(_name_) \
-    fate_##_name_ = fate_##_name_##_dummy
+    fe_##_name_ = fe_##_name_##_dummy
     HELPER(glPushDebugGroup);
     HELPER(glPopDebugGroup);
     HELPER(glObjectPtrLabel);
@@ -372,17 +372,17 @@ static void fgl_debug_setup_amd(bool enable) {
 
     const fgl_ign_message_amd *ignmsg;
 
-    glDebugMessageCallbackAMD(fate_gl_debug_msg_callback_amd, NULL);
+    glDebugMessageCallbackAMD(fe_gl_debug_msg_callback_amd, NULL);
     glDebugMessageEnableAMD(0, 0, 0, NULL, GL_TRUE);
     
     for(ignmsg = fgl_ign_messages_amd ; ignmsg->id ; ++ignmsg)
         glDebugMessageEnableAMD(ignmsg->category,0, 1, &(ignmsg->id),GL_FALSE);
     
-    fate_glDebugMessageInsert = fate_glDebugMessageInsertAMD;
+    fe_glDebugMessageInsert = fe_glDebugMessageInsertAMD;
     
     if(GLEW_EXT_debug_label) {
-        fate_glObjectLabel = glLabelObjectEXT;
-        fate_glGetObjectLabel = glGetObjectLabelEXT;
+        fe_glObjectLabel = glLabelObjectEXT;
+        fe_glGetObjectLabel = glGetObjectLabelEXT;
     }
 }
 
@@ -394,14 +394,14 @@ static void fgl_debug_insert_marker_gremedy(const char *string) {
     glStringMarkerGREMEDY(0, string);
 }
 
-void (*fate_gl_debug_insert_marker)(const char *string);
+void (*fe_gl_debug_insert_marker)(const char *string);
 
-#endif /* FATE_GL_DEBUG */
+#endif /* FE_GL_DEBUG */
 
 
-void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
+void fe_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
 
-#ifdef FATE_GL_DEBUG
+#ifdef FE_GL_DEBUG
     if((gl_major>4 || (gl_major==4 && gl_minor>=3)) || GLEW_KHR_debug)
         fgl_debug_setup_khr(enable);
     else {
@@ -412,14 +412,14 @@ void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable) {
         else enable = false;
     }
     if(GLEW_EXT_debug_marker)
-        fate_gl_debug_insert_marker = fgl_debug_insert_marker_ext;
+        fe_gl_debug_insert_marker = fgl_debug_insert_marker_ext;
     else if(GLEW_GREMEDY_string_marker)
-        fate_gl_debug_insert_marker = fgl_debug_insert_marker_gremedy;
+        fe_gl_debug_insert_marker = fgl_debug_insert_marker_gremedy;
     else
-        fate_gl_debug_insert_marker = fgl_debug_insert_marker_dummy;
+        fe_gl_debug_insert_marker = fgl_debug_insert_marker_dummy;
 #else
     enable = false;
 #endif
-    fate_logf_video("OpenGL debug is %s.\n", enable ? "enabled" : "disabled");
+    fe_logf_video("OpenGL debug is %s.\n", enable ? "enabled" : "disabled");
 }
 

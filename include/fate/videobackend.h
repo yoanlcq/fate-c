@@ -37,26 +37,26 @@
  */
 
 
-#ifndef FATE_VIDEOBACKEND_H
-#define FATE_VIDEOBACKEND_H
+#ifndef FE_VIDEOBACKEND_H
+#define FE_VIDEOBACKEND_H
 
 /*! \brief TODO*/
-enum fate_videobackend_api {
-    FATE_VIDEOBACKEND_DUMMY     = 0,
-    FATE_VIDEOBACKEND_OPENGL    = 1,
-    FATE_VIDEOBACKEND_OPENGLES  = 2,
-    FATE_VIDEOBACKEND_VULKAN    = 3,
-    FATE_VIDEOBACKEND_DIRECT3D  = 4,
-    FATE_VIDEOBACKEND_MANTLE    = 5,
-    FATE_VIDEOBACKEND_METAL     = 6,
-    FATE_VIDEOBACKEND_GLIDE     = 7,
-    FATE_VIDEOBACKEND_RENDERMAN = 8
+enum fe_videobackend_api {
+    FE_VIDEOBACKEND_DUMMY     = 0,
+    FE_VIDEOBACKEND_OPENGL    = 1,
+    FE_VIDEOBACKEND_OPENGLES  = 2,
+    FE_VIDEOBACKEND_VULKAN    = 3,
+    FE_VIDEOBACKEND_DIRECT3D  = 4,
+    FE_VIDEOBACKEND_MANTLE    = 5,
+    FE_VIDEOBACKEND_METAL     = 6,
+    FE_VIDEOBACKEND_GLIDE     = 7,
+    FE_VIDEOBACKEND_RENDERMAN = 8
 };
-typedef enum fate_videobackend_api fate_videobackend_api;
+typedef enum fe_videobackend_api fe_videobackend_api;
 
 /*! \brief TODO*/
-struct fate_gl_videobackend {
-    fate_videobackend_api api;
+struct fe_gl_videobackend {
+    fe_videobackend_api api;
     SDL_GL_context ctx;
     unsigned software      : 1; //Use Mesa ?
     unsigned major_version : 4;
@@ -77,25 +77,25 @@ struct fate_gl_videobackend {
     uint8_t  accum_blue_bits;
     uint8_t  accum_alpha_bits;
 };
-typedef struct fate_gl_videobackend fate_gl_videobackend;
+typedef struct fe_gl_videobackend fe_gl_videobackend;
 
 
 /*! \brief TODO*/
-void fate_videobackend_get_default(fate_videobackend *out);
+void fe_videobackend_get_default(fe_videobackend *out);
 /*! \brief TODO
  * 
  * When it fails or is NIY, the obtained backend is Dummy. */
-void fate_videobackend_create(const fate_videobackend *requested,             
-                                    fate_videobackend *obtained);
+void fe_videobackend_create(const fe_videobackend *requested,             
+                                    fe_videobackend *obtained);
 /*! \brief TODO*/
-void fate_videobackend_delete(fate_videobackend *videobackend);
+void fe_videobackend_delete(fe_videobackend *videobackend);
 /*! \brief TODO*/
-void fate_videobackend_use(fate_videobackend *videobackend);
+void fe_videobackend_use(fe_videobackend *videobackend);
 /*! \brief TODO*/
-void fate_videobackend_copy(fate_videobackend *to,
-                            const fate_videobackend *from);
+void fe_videobackend_copy(fe_videobackend *to,
+                            const fe_videobackend *from);
 
 
-#endif  /* FATE_VIDEOBACKEND_H */
+#endif  /* FE_VIDEOBACKEND_H */
 
 /* @} */

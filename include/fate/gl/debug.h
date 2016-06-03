@@ -34,46 +34,46 @@
  *  TODO
  */
 
-#ifndef FATE_GL_DEBUG_H
-#define FATE_GL_DEBUG_H
+#ifndef FE_GL_DEBUG_H
+#define FE_GL_DEBUG_H
 
 #include <fate/gl/defs.h>
 #include <stdbool.h>
 
-void fate_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
+void fe_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
 
-#ifdef FATE_DEBUG_BUILD
-#define FATE_GL_DEBUG
+#ifdef FE_DEBUG_BUILD
+#define FE_GL_DEBUG
 #endif
 
-#ifdef FATE_GL_DEBUG
+#ifdef FE_GL_DEBUG
 
-extern void (*fate_gl_debug_insert_marker)(const char *string);
-extern PFNGLDEBUGMESSAGECALLBACKPROC fate_glDebugMessageCallback;
-extern PFNGLDEBUGMESSAGECONTROLPROC fate_glDebugMessageControl;
-extern PFNGLDEBUGMESSAGEINSERTPROC fate_glDebugMessageInsert;
-extern PFNGLGETDEBUGMESSAGELOGPROC fate_glGetDebugMessageLog;
-extern PFNGLPUSHDEBUGGROUPPROC fate_glPushDebugGroup;
-extern PFNGLPOPDEBUGGROUPPROC fate_glPopDebugGroup;
-extern PFNGLOBJECTLABELPROC fate_glObjectLabel;
-extern PFNGLOBJECTPTRLABELPROC fate_glObjectPtrLabel;
-extern PFNGLGETOBJECTLABELPROC fate_glGetObjectLabel;
-extern PFNGLGETOBJECTPTRLABELPROC fate_glGetObjectPtrLabel;
+extern void (*fe_gl_debug_insert_marker)(const char *string);
+extern PFNGLDEBUGMESSAGECALLBACKPROC fe_glDebugMessageCallback;
+extern PFNGLDEBUGMESSAGECONTROLPROC fe_glDebugMessageControl;
+extern PFNGLDEBUGMESSAGEINSERTPROC fe_glDebugMessageInsert;
+extern PFNGLGETDEBUGMESSAGELOGPROC fe_glGetDebugMessageLog;
+extern PFNGLPUSHDEBUGGROUPPROC fe_glPushDebugGroup;
+extern PFNGLPOPDEBUGGROUPPROC fe_glPopDebugGroup;
+extern PFNGLOBJECTLABELPROC fe_glObjectLabel;
+extern PFNGLOBJECTPTRLABELPROC fe_glObjectPtrLabel;
+extern PFNGLGETOBJECTLABELPROC fe_glGetObjectLabel;
+extern PFNGLGETOBJECTPTRLABELPROC fe_glGetObjectPtrLabel;
 
-#else /* FATE_GL_DEBUG */
+#else /* FE_GL_DEBUG */
 
-#define fate_gl_debug_insert_marker(...)
-#define fate_glDebugMessageCallback(...)
-#define fate_glDebugMessageControl(...)
-#define fate_glDebugMessageInsert(...)
-#define fate_glGetDebugMessageLog(...)
-#define fate_glPushDebugGroup(...)
-#define fate_glPopDebugGroup()
-#define fate_glObjectLabel(...)
-#define fate_glObjectPtrLabel(...)
-#define fate_glGetObjectLabel(...)
-#define fate_glGetObjectPtrLabel(...)
+#define fe_gl_debug_insert_marker(...)
+#define fe_glDebugMessageCallback(...)
+#define fe_glDebugMessageControl(...)
+#define fe_glDebugMessageInsert(...)
+#define fe_glGetDebugMessageLog(...)
+#define fe_glPushDebugGroup(...)
+#define fe_glPopDebugGroup()
+#define fe_glObjectLabel(...)
+#define fe_glObjectPtrLabel(...)
+#define fe_glGetObjectLabel(...)
+#define fe_glGetObjectPtrLabel(...)
 
-#endif /* FATE_DEBUG_BUILD */
+#endif /* FE_DEBUG_BUILD */
 
-#endif /* FATE_GL_DEBUG_H */
+#endif /* FE_GL_DEBUG_H */

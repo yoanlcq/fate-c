@@ -36,9 +36,9 @@
  *  support is more important.
  */
 
-#ifndef FATE_D3D_H
-#define FATE_D3D_H
+#ifndef FE_D3D_H
+#define FE_D3D_H
 
 #include <fate/d3d/defs.h>
 
-#endif /* FATE_D3D_H */
+#endif /* FE_D3D_H */

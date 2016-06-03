@@ -42,24 +42,24 @@
 #include <fate/sys.h>
 #include <fate/log.h>
 
-#if defined(FATE_WINDOWS)
+#if defined(FE_WINDOWS)
 #include <Windows.h>
 #include <DbgHelp.h>
-#elif defined(FATE_LINUX)
+#elif defined(FE_LINUX)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FATE_FREEBSD)
+#elif defined(FE_FREEBSD)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FATE_OSX)
+#elif defined(FE_OSX)
 #include <stdint.h>
 #include <limits.h>
 #include <signal.h>
@@ -82,7 +82,7 @@ static const char *TAG = "sys";
  *
  *
  *
- *    fate_sys_file_exists()
+ *    fe_sys_file_exists()
  *
  *
  *
@@ -92,20 +92,20 @@ static const char *TAG = "sys";
  *
  */
 
-#if defined(FATE_EMSCRIPTEN)
-inline bool fate_sys_file_exists(const char *path) {
+#if defined(FE_EMSCRIPTEN)
+inline bool fe_sys_file_exists(const char *path) {
     FILE *file = fopen(path, "r");
     if(!file)
         return false;
     fclose(file);
     return true;
 }
-#elif defined(FATE_WINDOWS)
-inline bool fate_sys_file_exists(const char *path) {
+#elif defined(FE_WINDOWS)
+inline bool fe_sys_file_exists(const char *path) {
     return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
 }
 #else
-inline bool fate_sys_file_exists(const char *path) {
+inline bool fe_sys_file_exists(const char *path) {
     return !access(path, F_OK);
 }
 #endif
@@ -119,7 +119,7 @@ inline bool fate_sys_file_exists(const char *path) {
  *
  *
  *
- *    fate_sys_get_last_write_time()
+ *    fe_sys_get_last_write_time()
  *
  *
  *
@@ -130,18 +130,18 @@ inline bool fate_sys_file_exists(const char *path) {
  */
 
 
-#if defined(FATE_EMSCRIPTEN)
-uint64_t fate_sys_get_last_write_time(const char *path) {
+#if defined(FE_EMSCRIPTEN)
+uint64_t fe_sys_get_last_write_time(const char *path) {
     return 0; /* FIXME */
 }
-#elif defined(FATE_WINDOWS)
-uint64_t fate_sys_get_last_write_time(const char *path) {
+#elif defined(FE_WINDOWS)
+uint64_t fe_sys_get_last_write_time(const char *path) {
     FILETIME ft;
     HANDLE fh;
     fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(fh==INVALID_HANDLE_VALUE) {
-        fate_logf_err("Could not stat \"%s\".\n", path);
+        fe_logf_err("Could not stat \"%s\".\n", path);
         return 0;
     }
     GetFileTime(fh, NULL, NULL, &ft);
@@ -149,10 +149,10 @@ uint64_t fate_sys_get_last_write_time(const char *path) {
     return (((uint64_t)ft.dwHighDateTime)<<32)+(uint64_t)ft.dwLowDateTime;
 }
 #else
-inline uint64_t fate_sys_get_last_write_time(const char *path) {
+inline uint64_t fe_sys_get_last_write_time(const char *path) {
     struct stat st;
     if(stat(path, &st)) {
-        fate_logf_err("Could not stat \"%s\".\n", path);
+        fe_logf_err("Could not stat \"%s\".\n", path);
         return 0;
     }
     return st.st_mtime;
@@ -167,7 +167,7 @@ inline uint64_t fate_sys_get_last_write_time(const char *path) {
  *
  *
  *
- *    fate_set_current_directory()
+ *    fe_set_current_directory()
  *
  *
  *
@@ -178,19 +178,19 @@ inline uint64_t fate_sys_get_last_write_time(const char *path) {
  */
 
 
-#if defined(FATE_EMSCRIPTEN)
-inline bool fate_sys_set_current_directory(const char *path) {
+#if defined(FE_EMSCRIPTEN)
+inline bool fe_sys_set_current_directory(const char *path) {
     return false; /* TODO */
 }
-#elif defined(FATE_WINDOWS)
+#elif defined(FE_WINDOWS)
 #if !(_MSC_VER && !__INTEL_COMPILER)
 inline 
 #endif 
-bool fate_sys_set_current_directory(const char *path) {
+bool fe_sys_set_current_directory(const char *path) {
     return SetCurrentDirectory(path);
 }
 #else
-inline bool fate_sys_set_current_directory(const char *path) {
+inline bool fe_sys_set_current_directory(const char *path) {
     return !chdir(path);
 }
 #endif
@@ -205,7 +205,7 @@ inline bool fate_sys_set_current_directory(const char *path) {
  *
  *
  *
- *    fate_sys_getgamepath()
+ *    fe_sys_getgamepath()
  *
  *
  *
@@ -216,11 +216,11 @@ inline bool fate_sys_set_current_directory(const char *path) {
  */
 
 
-#if defined(FATE_EMSCRIPTEN)
-char *fate_sys_getgamepath(void) {
+#if defined(FE_EMSCRIPTEN)
+char *fe_sys_getgamepath(void) {
     return ""; /* FIXME */
 }
-#elif defined(FATE_LINUX)
+#elif defined(FE_LINUX)
 
 #if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
  || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
@@ -260,7 +260,7 @@ static char *get_executable_path(void) {
     return NULL;
 }
 
-#elif defined(FATE_FREEBSD)
+#elif defined(FE_FREEBSD)
 
 static char *get_executable_path(void) {
     static char appdir[PATH_MAX];
@@ -290,7 +290,7 @@ static char *get_executable_path(void) {
 }
 
 
-#elif defined(FATE_OSX)
+#elif defined(FE_OSX)
 
 static char *get_executable_path(void) {
     static char appdir[MAXPATHLEN];
@@ -305,15 +305,15 @@ static char *get_executable_path(void) {
     return str2;
 }
 
-#elif defined(FATE_WINDOWS)
+#elif defined(FE_WINDOWS)
 static char *get_executable_path(void) {
     return strdup(_pgmptr);
 }
 #endif
 
-#ifndef FATE_EMSCRIPTEN
+#ifndef FE_EMSCRIPTEN
 
-#if defined(FATE_WINDOWS)
+#if defined(FE_WINDOWS)
 #define PATHSEP "\\"
 #else
 #define PATHSEP "/"
@@ -328,7 +328,7 @@ static bool remove_last_path_component(char *path) {
     return false;
 }
 
-char *fate_sys_getgamepath(void) {
+char *fe_sys_getgamepath(void) {
     char *expath = get_executable_path();
     if(!expath)
         return NULL;
@@ -344,7 +344,7 @@ char *fate_sys_getgamepath(void) {
         strcat(res,  PATHSEP"res");
         strcpy(data, expath);
         strcat(data, PATHSEP"data");
-        if(fate_sys_file_exists(res) && fate_sys_file_exists(data)) {
+        if(fe_sys_file_exists(res) && fe_sys_file_exists(data)) {
             free(res);
             free(data);
             return expath;
@@ -352,7 +352,7 @@ char *fate_sys_getgamepath(void) {
     }
     free(res);
     free(data);
-    fate_logf_err("Could not find res/ and data/ directories.\n");
+    fe_logf_err("Could not find res/ and data/ directories.\n");
     return NULL;
 }
 
@@ -368,7 +368,7 @@ char *fate_sys_getgamepath(void) {
  *
  *
  *
- *    fate_sys_log_stacktrace()
+ *    fe_sys_log_stacktrace()
  *
  *
  *
@@ -379,8 +379,8 @@ char *fate_sys_getgamepath(void) {
  */
 
 
-#ifdef FATE_EMSCRIPTEN
-void fate_sys_log_stacktrace(fate_logfunc logfunc) {
+#ifdef FE_EMSCRIPTEN
+void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
     char *buf = malloc(size);
@@ -388,9 +388,9 @@ void fate_sys_log_stacktrace(fate_logfunc logfunc) {
     logfunc(TAG, buf);
     free(buf);
 }
-#elif defined(FATE_WINDOWS)
+#elif defined(FE_WINDOWS)
 
-void fate_sys_log_win32_error(fate_logfunc logfunc, 
+void fe_sys_log_win32_error(fe_logfunc logfunc, 
                               const char *funcstr, DWORD error) 
 {
     LPTSTR lpMsgBuf;
@@ -411,13 +411,13 @@ void fate_sys_log_win32_error(fate_logfunc logfunc,
 }
 
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
-static void fate_sys_log_stacktrace_win32(
-                                   fate_logfunc logfunc, 
+static void fe_sys_log_stacktrace_win32(
+                                   fe_logfunc logfunc, 
                                    const DWORD64 *stack, 
                                    unsigned short nframes)
 {
     unsigned i, j;
-    TCHAR modname[FATE_SYS_MODNAME_LEN];
+    TCHAR modname[FE_SYS_MODNAME_LEN];
     DWORD modname_len;
     SYMBOL_INFO *symbol;
     HANDLE process;
@@ -426,7 +426,7 @@ static void fate_sys_log_stacktrace_win32(
 
     process = GetCurrentProcess();
     if(!SymInitialize(process, NULL, TRUE)) {
-        fate_sys_log_win32_error(logfunc, "SymInitialize", GetLastError());
+        fe_sys_log_win32_error(logfunc, "SymInitialize", GetLastError());
         return;
     }
 
@@ -443,7 +443,7 @@ static void fate_sys_log_stacktrace_win32(
 
     for(i=0 ; i<nframes ; ++i) {
         if(!SymFromAddr(process, stack[i], 0, symbol)) {
-            fate_sys_log_win32_error(logfunc, "SymFromAddr", GetLastError());
+            fe_sys_log_win32_error(logfunc, "SymFromAddr", GetLastError());
             continue;
         }
 #if _WIN32_WINNT >= 0x0501
@@ -453,13 +453,13 @@ static void fate_sys_log_stacktrace_win32(
                                  &modhandle)) 
             {
                 modname_len = GetModuleFileName(modhandle, modname, 
-                                  FATE_SYS_MODNAME_LEN);
+                                  FE_SYS_MODNAME_LEN);
                 /* MS says that on Windows XP, the string is 
                  * not null-terminated. */
                 for(j=0 ; j<modname_len ; j++)
                     logfunc(TAG, "%c", modname[j]);
             } else {
-                fate_sys_log_win32_error(logfunc, "GetModuleHandleEx",
+                fe_sys_log_win32_error(logfunc, "GetModuleHandleEx",
                                          GetLastError());
             }
         }
@@ -473,7 +473,7 @@ static void fate_sys_log_stacktrace_win32(
         else {
             DWORD err = GetLastError();
             if(err != 487)
-                fate_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
+                fe_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
         }
 
         logfunc(TAG, "[0x%llx] ", symbol->Address);
@@ -487,28 +487,28 @@ static void fate_sys_log_stacktrace_win32(
     free(symbol);
     SymCleanup(process);
 }
-void fate_sys_log_stacktrace(fate_logfunc logfunc)
+void fe_sys_log_stacktrace(fe_logfunc logfunc)
 {
-    PVOID stack[FATE_SYS_STACK_LEN];
-    DWORD64 stack_dw[FATE_SYS_STACK_LEN];
+    PVOID stack[FE_SYS_STACK_LEN];
+    DWORD64 stack_dw[FE_SYS_STACK_LEN];
 
     unsigned short i, nframes;
-    nframes = CaptureStackBackTrace(0, FATE_SYS_STACK_LEN,
+    nframes = CaptureStackBackTrace(0, FE_SYS_STACK_LEN,
                                     stack, NULL);
     for(i=0 ; i<nframes ; ++i)
         stack_dw[i] = (DWORD64)(uintptr_t)stack[i];
-    fate_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
+    fe_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
 }
 
-#else /* !FATE_WINDOWS */
+#else /* !FE_WINDOWS */
 
 
-void fate_sys_log_stacktrace(fate_logfunc logfunc) {
-    void *buffer[FATE_SYS_STACK_LEN];
+void fe_sys_log_stacktrace(fe_logfunc logfunc) {
+    void *buffer[FE_SYS_STACK_LEN];
     char **strings;
     int i, num_strings;
 
-    num_strings = backtrace(buffer, FATE_SYS_STACK_LEN);
+    num_strings = backtrace(buffer, FE_SYS_STACK_LEN);
     strings = backtrace_symbols(buffer, num_strings);
     if(!strings) {
         logfunc(TAG, "Could not get a stacktrace.\n");
@@ -519,7 +519,7 @@ void fate_sys_log_stacktrace(fate_logfunc logfunc) {
     free(strings);
 }
 
-#endif /* FATE_WINDOWS */
+#endif /* FE_WINDOWS */
 
 
 /*
@@ -530,7 +530,7 @@ void fate_sys_log_stacktrace(fate_logfunc logfunc) {
  *
  *
  *
- *    fate_sys_crash_handler_setup()
+ *    fe_sys_crash_handler_setup()
  *
  *
  *
@@ -540,20 +540,20 @@ void fate_sys_log_stacktrace(fate_logfunc logfunc) {
  *
  */
 
-#ifdef FATE_EMSCRIPTEN
-void fate_sys_crash_handler_setup(void) {
+#ifdef FE_EMSCRIPTEN
+void fe_sys_crash_handler_setup(void) {
     /* FIXME */
 }
-#elif defined(FATE_WINDOWS)
+#elif defined(FE_WINDOWS)
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
-LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
+LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
 {
-    fate_logf_err("Process received ");
+    fe_logf_err("Process received ");
 #define HELPER(_S) \
-    case _S: fate_logf_err(#_S); break
+    case _S: fe_logf_err(#_S); break
 #define DEFAULT \
-    default: fate_logf_err("Unrecognized exception"); break
+    default: fe_logf_err("Unrecognized exception"); break
     switch(ep->ExceptionRecord->ExceptionCode) {
     HELPER(EXCEPTION_ACCESS_VIOLATION);
     HELPER(EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
@@ -579,32 +579,32 @@ LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
     }
 #undef HELPER
 #undef DEFAULT
-    fate_logf_err(" (%scontinuable, at %p).\r\n", 
+    fe_logf_err(" (%scontinuable, at %p).\r\n", 
                   ep->ExceptionRecord->ExceptionFlags ? "non" : "",
                   ep->ExceptionRecord->ExceptionAddress
                   );
 
     if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
     || ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
-        fate_logf_err("(Thread ");
+        fe_logf_err("(Thread ");
         if(ep->ExceptionRecord->ExceptionInformation[0] == 8)
-            fate_logf_err("caused a user-mode data execution "
+            fe_logf_err("caused a user-mode data execution "
                           "prevention violation ");
         else
-            fate_logf_err("attempted to %s inacessible data ",
+            fe_logf_err("attempted to %s inacessible data ",
                           ep->ExceptionRecord->ExceptionInformation[0]
                               ? "write to" : "read");
-        fate_logf_err("at %p", 
+        fe_logf_err("at %p", 
                       ep->ExceptionRecord->ExceptionInformation[1]);
         if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
-            fate_logf_err(", NTSTATUS code is %p", 
+            fe_logf_err(", NTSTATUS code is %p", 
                           ep->ExceptionRecord->ExceptionInformation[2]);
-        fate_logf_err(")\r\n");
+        fe_logf_err(")\r\n");
     }
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
 
-        DWORD64 stack[FATE_SYS_STACK_LEN];
+        DWORD64 stack[FE_SYS_STACK_LEN];
         unsigned short nframes;
         // StackWalk64() may modify context record passed to it, so we will
         // use a copy.
@@ -637,22 +637,22 @@ LONG CALLBACK fate_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
                            &SymFunctionTableAccess64,
                            &SymGetModuleBase64,
                            NULL) 
-                && nframes < FATE_SYS_STACK_LEN) {
+                && nframes < FE_SYS_STACK_LEN) {
             stack[nframes++] = stack_frame.AddrPC.Offset;
         }
 
-        fate_sys_log_stacktrace_win32(fate_logf_err, stack, nframes);
+        fe_sys_log_stacktrace_win32(fe_logf_err, stack, nframes);
     }
 
-    fate_globalstate_deinit(fate_gs);
+    fe_globalstate_deinit(fe_gs);
     exit(EXIT_FAILURE); /* Not abort(). */
 
     return EXCEPTION_CONTINUE_SEARCH;
 }
  
-void fate_sys_crash_handler_setup(void) {
-    /* SetUnhandledExceptionFilter(fate_sys_win32_exception_handler); */
-    AddVectoredExceptionHandler(1, fate_sys_win32_exception_handler);
+void fe_sys_crash_handler_setup(void) {
+    /* SetUnhandledExceptionFilter(fe_sys_win32_exception_handler); */
+    AddVectoredExceptionHandler(1, fe_sys_win32_exception_handler);
 }
 
 #else /* Unices */
@@ -660,25 +660,25 @@ void fate_sys_crash_handler_setup(void) {
 #if !(_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE)
 
 /* Very unlikely, but since it is most often compiled out, it causes no harm. */
-void fate_sys_crash_handler_setup(void) {
-    fate_logf_err("The POSIX signal handler was not available "
+void fe_sys_crash_handler_setup(void) {
+    fe_logf_err("The POSIX signal handler was not available "
                   "at compilation.\n");
 }
 
 #else  /* _POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE */
 
 #if _POSIX_C_SOURCE >= 199309L
-void fate_sys_sigaction(int signum, siginfo_t *siginfo, void *ucontext)
+void fe_sys_sigaction(int signum, siginfo_t *siginfo, void *ucontext)
 #else
-void fate_sys_sighandler(int signum)
+void fe_sys_sighandler(int signum)
 #endif
 {
     int btrace, fatal;
 
-    fate_logf_err("Process received ");
+    fe_logf_err("Process received ");
 
 #define HELPER(S_, A_, B_, C_) \
-    case S_: fate_logf_err(#S_ ": " A_); B_; C_; break
+    case S_: fe_logf_err(#S_ ": " A_); B_; C_; break
     switch(signum) {
     HELPER(SIGHUP,  "death of controlling process",  btrace=0, fatal=0);
     HELPER(SIGINT,  "interrupt from keyboard",       btrace=0, fatal=1);
@@ -689,16 +689,16 @@ void fate_sys_sighandler(int signum)
     HELPER(SIGBUS,  "bus error (bad memory access)", btrace=1, fatal=1);
     HELPER(SIGSEGV, "invalid memory reference",      btrace=1, fatal=1);
     HELPER(SIGABRT, "abort",                         btrace=1, fatal=1);
-    default: fate_logf_err("signal #%d", signum);    btrace=1, fatal=0; break;
+    default: fe_logf_err("signal #%d", signum);    btrace=1, fatal=0; break;
     }
 #undef HELPER
 
 #if _POSIX_C_SOURCE >= 199309L
 
 #define HELPER(S_, A_, B_, C_) \
-    case S_: fate_logf_err(" (%s%s%s)", A_, B_, C_); break
+    case S_: fe_logf_err(" (%s%s%s)", A_, B_, C_); break
 #define DEFAULT \
-    default: fate_logf_err(" (siginfo->si_code = %d)", siginfo->si_code); break
+    default: fe_logf_err(" (siginfo->si_code = %d)", siginfo->si_code); break
 
     /* Below, the strings are separated into keywords so the compiler reuses
      * them instead of storing, each time, a long string. See GCC's manual. */
@@ -745,17 +745,17 @@ void fate_sys_sighandler(int signum)
 #undef DEFAULT
 #endif /* _POSIX_C_SOURCE >= 199309L */
 
-    fate_logf_err(".\n");
+    fe_logf_err(".\n");
     if(btrace)
-        fate_sys_log_stacktrace(fate_logf_err);
+        fe_sys_log_stacktrace(fe_logf_err);
 
-    fate_globalstate_deinit(fate_gs);
+    fe_globalstate_deinit(fe_gs);
 
     if(fatal)
          exit(EXIT_FAILURE); /* Not abort(). It will send a signal too. */
 }
 
-void fate_sys_crash_handler_setup(void) {
+void fe_sys_crash_handler_setup(void) {
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(struct sigaction));
@@ -763,9 +763,9 @@ void fate_sys_crash_handler_setup(void) {
     sa.sa_flags = SA_RESTART;
 #if _POSIX_C_SOURCE >= 199309L
     sa.sa_flags |= SA_SIGINFO;
-    sa.sa_sigaction = &fate_sys_sigaction;
+    sa.sa_sigaction = &fe_sys_sigaction;
 #else
-    sa.sa_handler = &fate_sys_sighandler;
+    sa.sa_handler = &fe_sys_sighandler;
 #endif
     sigaction(SIGHUP,  &sa, NULL);
     sigaction(SIGINT,  &sa, NULL);
@@ -788,17 +788,17 @@ void fate_sys_crash_handler_setup(void) {
 
 unsigned recursive(unsigned d) {
     if(d==1) {
-        fate_logf_err("--- Early stack trace ---\n");
-        fate_sys_log_stacktrace(&fate_logf_err);
-        fate_logf_err("--- Stack trace ---\n");
+        fe_logf_err("--- Early stack trace ---\n");
+        fe_sys_log_stacktrace(&fe_logf_err);
+        fe_logf_err("--- Stack trace ---\n");
     }
     unsigned foo = 100/(d--);
     return recursive(d);
 }
 
 int main(void) {
-    fate_sys_crash_handler_setup();
-    fate_logf_err("%u\n", recursive(4));
+    fe_sys_crash_handler_setup();
+    fe_logf_err("%u\n", recursive(4));
     return 0;
 }
 */

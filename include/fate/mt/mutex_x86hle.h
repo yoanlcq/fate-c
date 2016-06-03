@@ -1,18 +1,18 @@
     typedef union {
         SDL_mutex *sdl_mutex;
-    #ifdef FATE_MT_MUTEX_CHECK_DEADLOCKS
+    #ifdef FE_MT_MUTEX_CHECK_DEADLOCKS
         long       id;
     #endif
         long       hle_lock;
-    } fate_mt_mutex;
+    } fe_mt_mutex;
 #else
-    #ifdef FATE_MT_MUTEX_CHECK_DEADLOCKS
+    #ifdef FE_MT_MUTEX_CHECK_DEADLOCKS
         typedef struct {
             SDL_mutex *sdl_mutex;
             long id;
-        } fate_mt_mutex;
+        } fe_mt_mutex;
     #else
-        typedef SDL_mutex fate_mt_mutex;
+        typedef SDL_mutex fe_mt_mutex;
     #endif
 #endif
 
@@ -20,10 +20,10 @@
 #pragma intrinsic(_InterlockedCompareExchange, _InterlockedExchange)
 #endif
 
-void (*fate_mt_mutex_lock_x86hle)(fate_mt_mutex *mutex);
-void fate_mt_mutex_lock_x86hle_real(fate_mt_mutex *mutex) {
-#ifdef FATE_MT_MUTEX_CHECK_DEADLOCKS
-    fate_mt_mutex_check_lockable(mutex);
+void (*fe_mt_mutex_lock_x86hle)(fe_mt_mutex *mutex);
+void fe_mt_mutex_lock_x86hle_real(fe_mt_mutex *mutex) {
+#ifdef FE_MT_MUTEX_CHECK_DEADLOCKS
+    fe_mt_mutex_check_lockable(mutex);
 #endif
 #ifdef _MSVC_VER
     /* See https://msdn.microsoft.com/en-us/library/ttk2z1ws.aspx
@@ -38,14 +38,14 @@ void fate_mt_mutex_lock_x86hle_real(fate_mt_mutex *mutex) {
 #endif
 }
 
-void (*fate_mt_mutex_unlock_x86hle)(fate_mt_mutex *mutex);
-void fate_mt_mutex_unlock_x86hle_real(fate_mt_mutex *mutex) {
+void (*fe_mt_mutex_unlock_x86hle)(fe_mt_mutex *mutex);
+void fe_mt_mutex_unlock_x86hle_real(fe_mt_mutex *mutex) {
 #ifdef _MSVC_VER
     _InterlockedExchange(&(mutex->hle_lock), 0);
 #else
     __atomic_store_n(&(mutex->hle_lock), 0, __ATOMIC_RELEASE 
                                           | __ATOMIC_HLE_RELEASE);
-#ifdef FATE_MT_MUTEX_CHECK_DEADLOCKS
-    fate_mt_mutex_check_unlockable(mutex);
+#ifdef FE_MT_MUTEX_CHECK_DEADLOCKS
+    fe_mt_mutex_check_unlockable(mutex);
 #endif
 }

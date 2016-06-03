@@ -54,7 +54,7 @@
  * in-game dialogs, etc). Both approaches are acceptable as each has its
  * share of pros and cons.
  *
- * Selfish developers may choose to define \c FATE_NO_I18N if \c gettext() is
+ * Selfish developers may choose to define \c FE_NO_I18N if \c gettext() is
  * too much overhead for them, or they don't feel like having all those
  * '.mo' files and stuff to manage.<br>
  * As about anything in F.A.T.E, support for selfish developers is always 
@@ -62,14 +62,14 @@
  *
  * <b>Compile-time switches :</b>
  * <table>
- * <tr><td>FATE_NO_I18N</td>
+ * <tr><td>FE_NO_I18N</td>
  * <td>If defined, this module's functionalities are compiled out. Mais bon, 
  *     c'est dommage de faire ça.</td>
  * </tr>
  * </table>
  *
  * <b>Module dependencies :</b>
- * - fate_log
+ * - fe_log
  *
  * Example : Print "Hello world!", then its french translation.<br>
  * Requires that the .mo file under \c res/locale/fr/LC_MESSAGES/fate.mo is 
@@ -81,12 +81,12 @@
  * static const char *TAG="i18n example";
  *
  * int main(int argc, char *argv[]) {
- *     fate_log_setup();
- *     fate_i18n_setup();
- *     fate_i18n_switchlang("en");
- *     fate_logi(TAG, _("Hello world!\n"));
- *     fate_i18n_switchlang("fr");
- *     fate_logi(TAG, _("Hello world!\n"));
+ *     fe_log_setup();
+ *     fe_i18n_setup();
+ *     fe_i18n_switchlang("en");
+ *     fe_logi(TAG, _("Hello world!\n"));
+ *     fe_i18n_switchlang("fr");
+ *     fe_logi(TAG, _("Hello world!\n"));
  *     return 0;
  * }
  * \endcode
@@ -94,18 +94,18 @@
  * @{
  */
 
-#ifndef FATE_I18N_H
-#define FATE_I18N_H
+#ifndef FE_I18N_H
+#define FE_I18N_H
 
 #include <libintl.h>
 #include <locale.h>
 
-#ifndef FATE_NO_I18N
+#ifndef FE_NO_I18N
 /*! \brief Helper macro expanding to \c gettext(), or its own argument if
- *         FATE_NO_I18N is defined. */
+ *         FE_NO_I18N is defined. */
 #define _(X) gettext(X)
 /*! \brief Helper macro expanding to \c ngettext(), or a simple ternary
- *         operator call if FATE_NO_I18N is defined. */
+ *         operator call if FE_NO_I18N is defined. */
 #define PLURAL(X,Y,N) ngettext(X,Y,N)
 #else
 #define _(X) (X)
@@ -114,13 +114,13 @@
 
 /*! \brief Call this once to setup the i18n module. 
  *
- * It does <i>not</i> call #fate_i18n_switchlang().
+ * It does <i>not</i> call #fe_i18n_switchlang().
  * The caller is still invited to at least call 
- * #fate_i18n_switchlang("en") right after.
+ * #fe_i18n_switchlang("en") right after.
  *
  * Calling it more than once should cause no harm but it is discouraged.
  */
-void fate_i18n_setup(void);
+void fe_i18n_setup(void);
 
 /*! \brief Changes the language, affecting calls to \c gettext() and 
  *         \c ngettext().
@@ -131,8 +131,8 @@ void fate_i18n_setup(void);
  * <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php" 
  * target="_blank">the ISO 639-1 codes list</a> (2nd column).
  */
-void fate_i18n_switchlang(const char *lang);
+void fe_i18n_switchlang(const char *lang);
 
 /*! @} */
 
-#endif /* FATE_I18N_H */
+#endif /* FE_I18N_H */

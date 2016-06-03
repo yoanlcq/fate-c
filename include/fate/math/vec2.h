@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_VEC2_H
-#define FATE_MATH_VEC2_H
+#ifndef FE_MATH_VEC2_H
+#define FE_MATH_VEC2_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef float vec2[2];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec2_color {
+struct FE_PACKED_STRUCT vec2_color {
     float r;
     float g;
     /* No blue component. */
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT vec2_color {
 typedef struct vec2_color vec2_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec2_coord {
+struct FE_PACKED_STRUCT vec2_coord {
     float x;
     float y;
     /* No z component. */
@@ -145,6 +145,6 @@ static inline void vec2_reflect(vec2 r, const vec2 v, const vec2 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_VEC2_H */
+#endif /* FE_MATH_VEC2_H */
 
 /* @} */

@@ -35,65 +35,65 @@
  */
 
 
-#ifndef FATE_TRACER_H
-#define FATE_TRACER_H
+#ifndef FE_TRACER_H
+#define FE_TRACER_H
 
 #include <fate/defs.h>
 
-#ifndef FATE_ENABLE_TRACING
+#ifndef FE_ENABLE_TRACING
 
-    #define  FATE_TRACE_0(T,X) \
+    #define  FE_TRACE_0(T,X) \
                           T=X()
-    #define  FATE_TRACE_1(T,X,A) \
+    #define  FE_TRACE_1(T,X,A) \
                           T=X(A)
-    #define  FATE_TRACE_2(T,X,A,B) \
+    #define  FE_TRACE_2(T,X,A,B) \
                           T=X(A,B)
-    #define  FATE_TRACE_3(T,X,A,B,C) \
+    #define  FE_TRACE_3(T,X,A,B,C) \
                           T=X(A,B,C)
-    #define  FATE_TRACE_4(T,X,A,B,C,D) \
+    #define  FE_TRACE_4(T,X,A,B,C,D) \
                           T=X(A,B,C,D)
-    #define  FATE_TRACE_5(T,X,A,B,C,D,E) \
+    #define  FE_TRACE_5(T,X,A,B,C,D,E) \
                           T=X(A,B,C,D,E)
-    #define  FATE_TRACE_6(T,X,A,B,C,D,E,F) \
+    #define  FE_TRACE_6(T,X,A,B,C,D,E,F) \
                           T=X(A,B,C,D,E,F)
-    #define  FATE_TRACE_7(T,X,A,B,C,D,E,F,G) \
+    #define  FE_TRACE_7(T,X,A,B,C,D,E,F,G) \
                           T=X(A,B,C,D,E,F,G)
-    #define  FATE_TRACE_8(T,X,A,B,C,D,E,F,G,H) \
+    #define  FE_TRACE_8(T,X,A,B,C,D,E,F,G,H) \
                           T=X(A,B,C,D,E,F,G,H)
-    #define  FATE_TRACE_9(T,X,A,B,C,D,E,F,G,H,I) \
+    #define  FE_TRACE_9(T,X,A,B,C,D,E,F,G,H,I) \
                           T=X(A,B,C,D,E,F,G,H,I)
-    #define FATE_TRACE_10(T,X,A,B,C,D,E,F,G,H,I,J) \
+    #define FE_TRACE_10(T,X,A,B,C,D,E,F,G,H,I,J) \
                           T=X(A,B,C,D,E,F,G,H,I,J)
-    #define FATE_TRACE_11(T,X,A,B,C,D,E,F,G,H,I,J,K) \
+    #define FE_TRACE_11(T,X,A,B,C,D,E,F,G,H,I,J,K) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K)
-    #define FATE_TRACE_12(T,X,A,B,C,D,E,F,G,H,I,J,K,L) \
+    #define FE_TRACE_12(T,X,A,B,C,D,E,F,G,H,I,J,K,L) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L)
-    #define FATE_TRACE_13(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M) \
+    #define FE_TRACE_13(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M)
-    #define FATE_TRACE_14(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N) \
+    #define FE_TRACE_14(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N)
-    #define FATE_TRACE_15(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O) \
+    #define FE_TRACE_15(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O)
-    #define FATE_TRACE_16(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P) \
+    #define FE_TRACE_16(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P)
-    #define FATE_TRACE_17(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q) \
+    #define FE_TRACE_17(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q)
-    #define FATE_TRACE_18(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) \
+    #define FE_TRACE_18(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
-    #define FATE_TRACE_19(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S) \
+    #define FE_TRACE_19(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S)
-    #define FATE_TRACE_20(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U) \
+    #define FE_TRACE_20(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U)
-    #define FATE_TRACE_21(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V) \
+    #define FE_TRACE_21(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V)
-    #define FATE_TRACE_22(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W) \
+    #define FE_TRACE_22(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W)
-    #define FATE_TRACE_23(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y) \
+    #define FE_TRACE_23(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y)
-    #define FATE_TRACE_24(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z) \
+    #define FE_TRACE_24(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z) \
                           T=X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z)
 
-#else /* FATE_ENABLE_TRACING defined */
+#else /* FE_ENABLE_TRACING defined */
 
     #if __STDC_VERSION__ < 199901L
         #if defined(_MSC_VER) && !__INTEL_COMPILER
@@ -110,1009 +110,1009 @@
             #warning Tracing needs _Generic, which is only available with C11. \
                 Parameters given to functions will NOT be displayed.
         #endif
-        #define FATE_TRACE_GENERIC(X) fate_logf_trace("??")
+        #define FE_TRACE_GENERIC(X) fe_logf_trace("??")
     #else
 /*
  * This macro lists all types in a paranoid way. As of today, it is sadly
  * necessary because of various reasons, including compiler quirks.
  */
-        #define FATE_TRACE_GENERIC(X) \
+        #define FE_TRACE_GENERIC(X) \
             _Generic((X), \
-            signed char:              fate_trace_sc, \
-            const signed char:        fate_trace_sc, \
-            unsigned char:            fate_trace_sc, \
-            const unsigned char:      fate_trace_sc, \
+            signed char:              fe_trace_sc, \
+            const signed char:        fe_trace_sc, \
+            unsigned char:            fe_trace_sc, \
+            const unsigned char:      fe_trace_sc, \
             \
-            signed short:             fate_trace_ss, \
-            const signed short:       fate_trace_ss, \
-            unsigned short:           fate_trace_us, \
-            const unsigned short:     fate_trace_us, \
+            signed short:             fe_trace_ss, \
+            const signed short:       fe_trace_ss, \
+            unsigned short:           fe_trace_us, \
+            const unsigned short:     fe_trace_us, \
             \
-            signed int:               fate_trace_s, \
-            const signed int:         fate_trace_s, \
-            unsigned int:             fate_trace_u, \
-            const unsigned int:       fate_trace_u, \
+            signed int:               fe_trace_s, \
+            const signed int:         fe_trace_s, \
+            unsigned int:             fe_trace_u, \
+            const unsigned int:       fe_trace_u, \
             \
-            signed long:              fate_trace_sl, \
-            const signed long:        fate_trace_sl, \
-            unsigned long:            fate_trace_ul, \
-            const unsigned long:      fate_trace_ul, \
+            signed long:              fe_trace_sl, \
+            const signed long:        fe_trace_sl, \
+            unsigned long:            fe_trace_ul, \
+            const unsigned long:      fe_trace_ul, \
             \
-            signed long long:         fate_trace_sll, \
-            const signed long long:   fate_trace_sll, \
-            unsigned long long:       fate_trace_ull, \
-            const unsigned long long: fate_trace_ull, \
+            signed long long:         fe_trace_sll, \
+            const signed long long:   fe_trace_sll, \
+            unsigned long long:       fe_trace_ull, \
+            const unsigned long long: fe_trace_ull, \
             \
-            float:                    fate_trace_f, \
-            const float:              fate_trace_f, \
-            double:                   fate_trace_d, \
-            const double:             fate_trace_d, \
-            long double:              fate_trace_ld, \
-            const long double:        fate_trace_ld, \
+            float:                    fe_trace_f, \
+            const float:              fe_trace_f, \
+            double:                   fe_trace_d, \
+            const double:             fe_trace_d, \
+            long double:              fe_trace_ld, \
+            const long double:        fe_trace_ld, \
             \
-            const char*:              fate_trace_str, \
-            char*:                    fate_trace_str, \
-            const signed char*:       fate_trace_str, \
-            signed char*:             fate_trace_str, \
-            const unsigned char*:     fate_trace_str, \
-            unsigned char*:           fate_trace_str, \
+            const char*:              fe_trace_str, \
+            char*:                    fe_trace_str, \
+            const signed char*:       fe_trace_str, \
+            signed char*:             fe_trace_str, \
+            const unsigned char*:     fe_trace_str, \
+            unsigned char*:           fe_trace_str, \
             \
-            void*:                    fate_trace_voidp, \
-            default:                  fate_trace_default \
+            void*:                    fe_trace_voidp, \
+            default:                  fe_trace_default \
             )(X)
 
 
-void fate_trace_chr(const int c);
-void fate_trace_sc(const signed char c);
-void fate_trace_str(const signed char *str);
-void fate_trace_ss(const signed short c);
-void fate_trace_us(const unsigned short c);
-void fate_trace_s(const signed int c);
-void fate_trace_u(const unsigned int c);
-void fate_trace_sl(const signed long c);
-void fate_trace_ul(const unsigned long c);
-void fate_trace_sll(const signed long long c);
-void fate_trace_ull(const unsigned long long c);
-void fate_trace_f(const float c);
-void fate_trace_d(const double c);
-void fate_trace_ld(const long double c);
-void fate_trace_default(const void *p);
-void fate_trace_voidp(const void *p);
+void fe_trace_chr(const int c);
+void fe_trace_sc(const signed char c);
+void fe_trace_str(const signed char *str);
+void fe_trace_ss(const signed short c);
+void fe_trace_us(const unsigned short c);
+void fe_trace_s(const signed int c);
+void fe_trace_u(const unsigned int c);
+void fe_trace_sl(const signed long c);
+void fe_trace_ul(const unsigned long c);
+void fe_trace_sll(const signed long long c);
+void fe_trace_ull(const unsigned long long c);
+void fe_trace_f(const float c);
+void fe_trace_d(const double c);
+void fe_trace_ld(const long double c);
+void fe_trace_default(const void *p);
+void fe_trace_voidp(const void *p);
 
     #endif /* _Generic support */
 
-/* So that those which include tracer also include fate_logf_trace(). */
+/* So that those which include tracer also include fe_logf_trace(). */
 #include <fate/log.h> 
 
-extern unsigned fate_tracer_level; 
+extern unsigned fe_tracer_level; 
 
-    #define FATE_TRACE_0(T,X) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_0(T,X) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        fe_logf_trace(")\n"); \
         T = X(); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_1(T,X,A) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_1(T,X,A) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(")\n"); \
         T = X(A); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_2(T,X,A,B) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_2(T,X,A,B) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(")\n"); \
         T = X(A,B); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_3(T,X,A,B,C) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_3(T,X,A,B,C) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_4(T,X,A,B,C,D) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_4(T,X,A,B,C,D) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_5(T,X,A,B,C,D,E) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_5(T,X,A,B,C,D,E) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_6(T,X,A,B,C,D,E,F) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_6(T,X,A,B,C,D,E,F) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_7(T,X,A,B,C,D,E,F,G) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_7(T,X,A,B,C,D,E,F,G) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_8(T,X,A,B,C,D,E,F,G,H) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_8(T,X,A,B,C,D,E,F,G,H) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_9(T,X,A,B,C,D,E,F,G,H,I) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_9(T,X,A,B,C,D,E,F,G,H,I) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_10(T,X,A,B,C,D,E,F,G,H,I,J) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_10(T,X,A,B,C,D,E,F,G,H,I,J) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_11(T,X,A,B,C,D,E,F,G,H,I,J,K) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_11(T,X,A,B,C,D,E,F,G,H,I,J,K) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_12(T,X,A,B,C,D,E,F,G,H,I,J,K,L) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_12(T,X,A,B,C,D,E,F,G,H,I,J,K,L) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_13(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_13(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_14(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_14(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_15(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_15(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_16(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_16(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_17(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_17(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_18(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_18(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_19(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_19(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_20(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_20(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(U); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(U); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_21(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_21(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(U); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(V); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(U); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(V); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_22(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_22(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(U); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(V); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(W); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(U); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(V); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(W); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_23(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_23(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(U); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(V); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(W); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Y); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(U); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(V); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(W); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Y); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
-    #define FATE_TRACE_24(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z) \
-        ++fate_tracer_level; \
-        fate_logf_trace( \
+    #define FE_TRACE_24(T,X,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z) \
+        ++fe_tracer_level; \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s ==> %s(", \
-            fate_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
-        FATE_TRACE_GENERIC(A); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(B); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(C); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(D); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(E); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(F); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(G); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(H); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(I); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(J); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(K); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(L); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(M); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(N); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(O); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(P); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Q); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(R); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(S); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(U); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(V); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(W); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Y); \
-        fate_logf_trace(", "); \
-        FATE_TRACE_GENERIC(Z); \
-        fate_logf_trace(")\n"); \
+            fe_tracer_level, __FILE__, __LINE__, __func__, XSTRINGIFY(X)); \
+        FE_TRACE_GENERIC(A); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(B); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(C); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(D); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(E); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(F); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(G); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(H); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(I); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(J); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(K); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(L); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(M); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(N); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(O); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(P); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Q); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(R); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(S); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(U); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(V); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(W); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Y); \
+        fe_logf_trace(", "); \
+        FE_TRACE_GENERIC(Z); \
+        fe_logf_trace(")\n"); \
         T = X(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,U,V,W,Y,Z); \
-        fate_logf_trace( \
+        fe_logf_trace( \
             "~> [%3u] %s:%5u: %s <== ", \
-            fate_tracer_level, __FILE__, __LINE__, __func__); \
-        FATE_TRACE_GENERIC(T); \
-        fate_logf_trace("\n"); \
-        --fate_tracer_level
+            fe_tracer_level, __FILE__, __LINE__, __func__); \
+        FE_TRACE_GENERIC(T); \
+        fe_logf_trace("\n"); \
+        --fe_tracer_level
 
 
-#endif /* FATE_ENABLE_TRACING */
+#endif /* FE_ENABLE_TRACING */
 
-#endif /* FATE_TRACER_H */
+#endif /* FE_TRACER_H */

@@ -56,27 +56,27 @@
  * @{
  */
 
-#ifndef FATE_UNITS_H
-#define FATE_UNITS_H
+#ifndef FE_UNITS_H
+#define FE_UNITS_H
 
 #include <stdint.h>
 
 /*! \brief Type representing a space unit. Must be a signed integer type. */
-typedef  int64_t fate_space_unit;
+typedef  int64_t fe_space_unit;
 
 /*! \brief Type representing a time unit. Must be an unsigned integer type. 
  *
- * Don't subtract two unsigned types. Use #fate_uint_diff instead.
+ * Don't subtract two unsigned types. Use #fe_uint_diff instead.
  * \endcode
  */
-typedef uint64_t fate_time_unit;
+typedef uint64_t fe_time_unit;
 
 /*! \brief Type representing an opacity unit. Must be an unsigned integer type. 
  *
- * Don't subtract two unsigned types. Use #fate_uint_diff instead.
+ * Don't subtract two unsigned types. Use #fe_uint_diff instead.
  * \endcode
  */
-typedef uint8_t fate_alpha_unit;
+typedef uint8_t fe_alpha_unit;
 
 /*! \brief Compute properly the difference between two unsigned 
  *         integers of any size.
@@ -86,8 +86,8 @@ typedef uint8_t fate_alpha_unit;
  * as negative.\n
  * When the result is zero, the said flag is guaranteed not to be raised.
  *
- * There's no typo in the function's name. It's indeed #fate_uint_diff
- * (for unsigned integer) instead of \c fate_unit_diff.
+ * There's no typo in the function's name. It's indeed #fe_uint_diff
+ * (for unsigned integer) instead of \c fe_unit_diff.
  *
  * \param diff Address of an unsigned integer where to store the absolute value 
  *             of the difference between \p a and \p b.
@@ -95,8 +95,8 @@ typedef uint8_t fate_alpha_unit;
  * \param b Unsigned right-hand operand.
  * \return Is the difference negative ?
  */
-#define fate_uint_diff(diff,a,b) (a>=b ? (*diff=a-b, 0) : (*diff=b-a, 1))
+#define fe_uint_diff(diff,a,b) (a>=b ? (*diff=a-b, 0) : (*diff=b-a, 1))
 
-#endif /* FATE_UNITS_H */
+#endif /* FE_UNITS_H */
 
 /* @} */

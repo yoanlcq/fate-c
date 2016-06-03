@@ -35,8 +35,8 @@
  * It is intended to be used by an audio backend selector module.
  */
 
-#ifndef FATE_AL_H
-#define FATE_AL_H
+#ifndef FE_AL_H
+#define FE_AL_H
 
 
-#endif /* FATE_AL_H */
+#endif /* FE_AL_H */

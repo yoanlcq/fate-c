@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_VEC4_H
-#define FATE_MATH_VEC4_H
+#ifndef FE_MATH_VEC4_H
+#define FE_MATH_VEC4_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef float vec4[4];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec4_color {
+struct FE_PACKED_STRUCT vec4_color {
     float r;
     float g;
     float b;
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT vec4_color {
 typedef struct vec4_color vec4_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec4_coord {
+struct FE_PACKED_STRUCT vec4_coord {
     float x;
     float y;
     float z;
@@ -153,6 +153,6 @@ static inline void vec4_reflect(vec4 r, const vec4 v, const vec4 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_VEC4_H */
+#endif /* FE_MATH_VEC4_H */
 
 /* @} */

@@ -34,8 +34,8 @@
  * This module is yet to be implemented.
  */
 
-#ifndef FATE_STEAM_H
-#define FATE_STEAM_H
+#ifndef FE_STEAM_H
+#define FE_STEAM_H
 
 
-#endif /* FATE_STEAM_H */
+#endif /* FE_STEAM_H */

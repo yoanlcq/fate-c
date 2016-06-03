@@ -38,18 +38,18 @@
  * regular mutexes, if compiled with the appropriate compile-time switches.
  *
  * This module can also detect deadlocks, if compiled with
- * \c FATE_MT_MUTEX_CHECK_DEADLOCKS.<br>
+ * \c FE_MT_MUTEX_CHECK_DEADLOCKS.<br>
  * In that case, deadlock detection takes place no matter the mutex 
  * implementation (even with Transactional Memory).
  *
  * <b>Compile-time switches :</b>
  * <table>
- * <tr><td>FATE_NO_MT</td>
+ * <tr><td>FE_NO_MT</td>
  *     <td>If defined, guarantees a single threaded program, even preventing
  *         creation of other threads at runtime.<br>
  *         Most functionalities provided by this module then become macros that 
  *         expand to nothing, but behaviour is kept consistent.<br>
- *         For instance, #fate_mt_get_num_threads() will expand to 1, as 
+ *         For instance, #fe_mt_get_num_threads() will expand to 1, as 
  *         expected.<br>
  *         We may want this in case the overhead of having multiple threads
  *         is comparable to the game's workload itself.<br>
@@ -60,24 +60,24 @@
  *         to be performed asynchronously, but this is not exactly the same 
  *         thing.
  *         </td></tr>
- * <tr><td>FATE_MT_MUTEX_CHECK_DEADLOCKS</td>
+ * <tr><td>FE_MT_MUTEX_CHECK_DEADLOCKS</td>
  *     <td>Check for deadlocks, regardless of the actual mutex implementation.
  *     </td></tr>
- * <tr><td>FATE_MT_MUTEX_USE_GNUTM</td>
+ * <tr><td>FE_MT_MUTEX_USE_GNUTM</td>
  *     <td>Compile on GCC with \c -fgnu-tm. The program then depends on
  *         a GCC runtime library called \c libitm.<br>
  *         GNU Transactional Memory is by far the most portable and safe 
  *         choice, but since it may be implemented as regular library calls, 
  *         it is perhaps not more efficient than direct RTM/HLE instructions 
  *         on x86.</td></tr>
- * <tr><td>FATE_MT_MUTEX_TRY_X86HLE</td>
+ * <tr><td>FE_MT_MUTEX_TRY_X86HLE</td>
  *     <td>Compile on GCC with \c -mhle. Has no effect if the target is
  *         not an x86.<br>
  *         HLE (Hardware Lock Elision) is a CPU feature, so support for it
  *         is not known until runtime, hence the \c TRY.<br>
  *         If the target is x86, but HLE is not supported, then
  *         the mutex implementation falls back to SDL2's.</td></tr>
- * <tr><td>FATE_MT_MUTEX_TRY_X86RTM</td>
+ * <tr><td>FE_MT_MUTEX_TRY_X86RTM</td>
  *     <td>Compile on GCC with \c -mrtm. Has no effect if the target is
  *         not an x86.<br>
  *         RTM (Restricted Transactional Memory) is a CPU feature, so 
@@ -122,57 +122,57 @@
  * @{
  */
 
-#ifndef FATE_MT_H
-#define FATE_MT_H
+#ifndef FE_MT_H
+#define FE_MT_H
 
 #include <fate/defs.h>
 
-#ifdef FATE_EMSCRIPTEN
+#ifdef FE_EMSCRIPTEN
 /* It's not like we had the choice anyway. */
-#define FATE_NO_MT
+#define FE_NO_MT
 #endif
 
-#ifdef FATE_NO_MT
+#ifdef FE_NO_MT
 #endif
 
-void fate_mt_setup(void);
-unsigned fate_mt_get_num_threads(void);
-fate_mt_thread* fate_mt_thread_create(int (*func)(void*), const char *name);
-void fate_mt_thread_detach(fate_mt_thread *t);
-int fate_mt_thread_getid(fate_mt_thread *t);
-const char *fate_mt_thread_getname(fate_mt_thread *t);
-void fate_mt_thread_setpriority(float priority);
-void fate_mt_thread_wait(fate_mt_thread *t);
+void fe_mt_setup(void);
+unsigned fe_mt_get_num_threads(void);
+fe_mt_thread* fe_mt_thread_create(int (*func)(void*), const char *name);
+void fe_mt_thread_detach(fe_mt_thread *t);
+int fe_mt_thread_getid(fe_mt_thread *t);
+const char *fe_mt_thread_getname(fe_mt_thread *t);
+void fe_mt_thread_setpriority(float priority);
+void fe_mt_thread_wait(fe_mt_thread *t);
 
-void fate_mutex_setup(void);
-#define FATE_MUTEX_DECL(name) something... 
-void fate_mutex_init(fate_mt_mutex *mutex);
-void fate_mutex_deinit(fate_mt_mutex *mutex);
-void fate_mutex_lock(fate_mt_mutex *mutex);
-void fate_mutex_unlock(fate_mt_mutex *mutex);
+void fe_mutex_setup(void);
+#define FE_MUTEX_DECL(name) something... 
+void fe_mutex_init(fe_mt_mutex *mutex);
+void fe_mutex_deinit(fe_mt_mutex *mutex);
+void fe_mutex_lock(fe_mt_mutex *mutex);
+void fe_mutex_unlock(fe_mt_mutex *mutex);
 
 
 
 #ifndef __GNUC__
     #define NOPE
 #else
-    #if FATE_VERCMP_LT(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__,4,8,0)
+    #if FE_VERCMP_LT(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__,4,8,0)
         #define NOPE
     #endif
 #endif
 
 #ifdef NOPE
-    #ifdef FATE_MT_MUTEX_USE_GNUTM
-    #undef FATE_MT_MUTEX_USE_GNUTM
+    #ifdef FE_MT_MUTEX_USE_GNUTM
+    #undef FE_MT_MUTEX_USE_GNUTM
     #endif
-    #ifdef FATE_MT_MUTEX_TRY_X86RTM
-    #undef FATE_MT_MUTEX_TRY_X86RTM
+    #ifdef FE_MT_MUTEX_TRY_X86RTM
+    #undef FE_MT_MUTEX_TRY_X86RTM
     #endif
-    #ifdef FATE_MT_MUTEX_TRY_X86HLE
-    #undef FATE_MT_MUTEX_TRY_X86HLE
+    #ifdef FE_MT_MUTEX_TRY_X86HLE
+    #undef FE_MT_MUTEX_TRY_X86HLE
     #endif
-    #ifndef FATE_MT_MUTEX_USE_SDL2
-    #define FATE_MT_MUTEX_USE_SDL2
+    #ifndef FE_MT_MUTEX_USE_SDL2
+    #define FE_MT_MUTEX_USE_SDL2
     #endif
 #endif
 
@@ -180,39 +180,39 @@ void fate_mutex_unlock(fate_mt_mutex *mutex);
 
 
 /* Can we use x86 builtins at all ? */
-#ifndef FATE_X86
-    #ifdef FATE_MT_MUTEX_TRY_X86RTM
-    #undef FATE_MT_MUTEX_TRY_X86RTM
+#ifndef FE_X86
+    #ifdef FE_MT_MUTEX_TRY_X86RTM
+    #undef FE_MT_MUTEX_TRY_X86RTM
     #endif
-    #ifdef FATE_MT_MUTEX_TRY_X86HLE
-    #undef FATE_MT_MUTEX_TRY_X86HLE
+    #ifdef FE_MT_MUTEX_TRY_X86HLE
+    #undef FE_MT_MUTEX_TRY_X86HLE
     #endif
-    #ifndef FATE_MT_MUTEX_USE_SDL2
-    #define FATE_MT_MUTEX_USE_SDL2
+    #ifndef FE_MT_MUTEX_USE_SDL2
+    #define FE_MT_MUTEX_USE_SDL2
     #endif
 #endif
 
 
 /* Implementation time ! */
 
-#ifdef FATE_NO_MT
+#ifdef FE_NO_MT
 
-    #define FATE_MT_MUTEX_DECL(name) 
-    #define fate_mt_mutex_init(mutex)
-    #define fate_mt_mutex_deinit(mutex)
-    #define fate_mt_mutex_lock(mutex)
-    #define fate_mt_mutex_unlock(mutex)
+    #define FE_MT_MUTEX_DECL(name) 
+    #define fe_mt_mutex_init(mutex)
+    #define fe_mt_mutex_deinit(mutex)
+    #define fe_mt_mutex_lock(mutex)
+    #define fe_mt_mutex_unlock(mutex)
 
-#elif defined(FATE_MT_MUTEX_USE_GNUTM)
+#elif defined(FE_MT_MUTEX_USE_GNUTM)
 #include "mutex_gnutm.h"
-#elif defined(FATE_MT_MUTEX_USE_SDL2)
+#elif defined(FE_MT_MUTEX_USE_SDL2)
 #include "mutex_sdl2.h"
 #endif
 
 /* Nice documentation for x86 intrinsics : 
  * https://software.intel.com/sites/landingpage/IntrinsicsGuide */
 
-#if defined(FATE_MT_MUTEX_TRY_X86HLE) || defined(FATE_MT_MUTEX_TRY_X86RTM)
+#if defined(FE_MT_MUTEX_TRY_X86HLE) || defined(FE_MT_MUTEX_TRY_X86RTM)
     #ifdef _MSVC_VER
         #include <intrin.h>
     #else
@@ -220,14 +220,14 @@ void fate_mutex_unlock(fate_mt_mutex *mutex);
     #endif
 #endif
 
-#ifdef FATE_MT_MUTEX_TRY_X86HLE
+#ifdef FE_MT_MUTEX_TRY_X86HLE
 #include "mutex_x86hle.h"
 #endif
 
-#ifdef FATE_MT_MUTEX_TRY_X86RTM
+#ifdef FE_MT_MUTEX_TRY_X86RTM
 #include "mutex_x86rtm.h"
 #endif
 
 /*! @} */
 
-#endif /* FATE_MT_H */
+#endif /* FE_MT_H */

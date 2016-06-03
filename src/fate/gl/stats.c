@@ -38,7 +38,7 @@
 #include <fate/gl/debug.h>
 #include <fate/gl/stats.h>
 
-#ifdef FATE_GL_DEBUG
+#ifdef FE_GL_DEBUG
 
 struct fgl_stats_soa {
     GLenum targets[11];
@@ -81,10 +81,10 @@ static void fgl_stats_end_recording(void) {
                             fgl_stats.results + i);
 }
 
-static void fgl_stats_get_stats_dummy(fate_gl_stats *res) {
-    memset(res, 0, sizeof(fate_gl_stats));
+static void fgl_stats_get_stats_dummy(fe_gl_stats *res) {
+    memset(res, 0, sizeof(fe_gl_stats));
 }
-static void fgl_stats_get_stats(fate_gl_stats *res) {
+static void fgl_stats_get_stats(fe_gl_stats *res) {
     res->vertices_submitted             = fgl_stats.results[0];
     res->primitives_submitted           = fgl_stats.results[1];
     res->vert_shader_invocations        = fgl_stats.results[2];
@@ -98,29 +98,29 @@ static void fgl_stats_get_stats(fate_gl_stats *res) {
     res->clipping_output_primitives     = fgl_stats.results[10];
 }
 
-void (*fate_gl_stats_start_recording)(void) = fgl_stats_dummy;
-void (*fate_gl_stats_end_recording)(void) = fgl_stats_dummy;
-void (*fate_gl_stats_get_stats)(fate_gl_stats *s) = fgl_stats_get_stats_dummy;
+void (*fe_gl_stats_start_recording)(void) = fgl_stats_dummy;
+void (*fe_gl_stats_end_recording)(void) = fgl_stats_dummy;
+void (*fe_gl_stats_get_stats)(fe_gl_stats *s) = fgl_stats_get_stats_dummy;
 
-void fate_gl_stats_setup(void) {
+void fe_gl_stats_setup(void) {
     unsigned i;
     if(GLEW_ARB_pipeline_statistics_query) {
         glGenQueries(11, fgl_stats.names);
         for(i=0 ; i<11 ; ++i)
             glGetQueryiv(fgl_stats.targets[i], GL_QUERY_COUNTER_BITS, 
                          fgl_stats.bits + i);
-        fate_gl_stats_start_recording = fgl_stats_start_recording;
-        fate_gl_stats_end_recording = fgl_stats_end_recording;
-        fate_gl_stats_get_stats = fgl_stats_get_stats;
+        fe_gl_stats_start_recording = fgl_stats_start_recording;
+        fe_gl_stats_end_recording = fgl_stats_end_recording;
+        fe_gl_stats_get_stats = fgl_stats_get_stats;
     } else {
         memset(fgl_stats.names, 0, 11*sizeof(GLuint));
-        fate_gl_stats_start_recording = fgl_stats_dummy;
-        fate_gl_stats_end_recording = fgl_stats_dummy;
-        fate_gl_stats_get_stats = fgl_stats_get_stats_dummy;
+        fe_gl_stats_start_recording = fgl_stats_dummy;
+        fe_gl_stats_end_recording = fgl_stats_dummy;
+        fe_gl_stats_get_stats = fgl_stats_get_stats_dummy;
     }
 }
 
-void fate_gl_stats_cleanup(void) {
+void fe_gl_stats_cleanup(void) {
     glDeleteQueries(11, fgl_stats.names);
 }
 

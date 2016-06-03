@@ -34,26 +34,26 @@
  * TODO
  */
 
-#ifndef FATE_GLOBALSTATE_H
-#define FATE_GLOBALSTATE_H
+#ifndef FE_GLOBALSTATE_H
+#define FE_GLOBALSTATE_H
 
 #include <fate/defs.h>
 
-struct fate_globalstate {
+struct fe_globalstate {
     FILE *logf_stream;
     FILE *logf_trace_stream;
     FILE *logf_err_stream;
     FILE *logf_video_stream;
     FILE *logf_audio_stream;
-    /* fate_vfs vfs; */
+    /* fe_vfs vfs; */
 };
-typedef struct fate_globalstate fate_globalstate;
+typedef struct fe_globalstate fe_globalstate;
 
-extern fate_globalstate  fate_gs_;
-extern fate_globalstate *fate_gs;
+extern fe_globalstate  fe_gs_;
+extern fe_globalstate *fe_gs;
 
-void fate_globalstate_init(fate_globalstate *gs);
-void fate_globalstate_deinit(fate_globalstate *gs);
+void fe_globalstate_init(fe_globalstate *gs);
+void fe_globalstate_deinit(fe_globalstate *gs);
 
 
-#endif /* FATE_GLOBALSTATE_H */
+#endif /* FE_GLOBALSTATE_H */

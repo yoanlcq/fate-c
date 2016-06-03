@@ -41,7 +41,7 @@
 #include <fate/log.h>
 
 /*
-#ifdef FATE_ANDROID
+#ifdef FE_ANDROID
 #include <android/log.h>
 #define  LOG_TAG    "log"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
@@ -58,26 +58,26 @@ CRITICAL red    - The user must see it by all means, no matter what, but
 Each module's .c file should declare :
     static const char *TAG = "ThisModule";
 Then use :
-    fate_logv(TAG, "Blah %d\n", 12, ...);
+    fe_logv(TAG, "Blah %d\n", 12, ...);
 
 */
 
-void fate_log_setup(void) {}
-void fate_log_cleanup(void) {}
-void fate_log_flags(unsigned long flags) {}
-unsigned long fate_log_getflags(void) {}
-void fate_log_multiplex(const char *tag, fate_log_severity sev,
+void fe_log_setup(void) {}
+void fe_log_cleanup(void) {}
+void fe_log_flags(unsigned long flags) {}
+unsigned long fe_log_getflags(void) {}
+void fe_log_multiplex(const char *tag, fe_log_severity sev,
                         FILE* streams[], size_t streams_count) {}
-void fate_logi(const char *tag, const char *fmt, ...) {}
-void fate_logw(const char *tag, const char *fmt, ...) {}
-void fate_loge(const char *tag, const char *fmt, ...) {}
-#ifndef FATE_DEBUG_BUILD
-void fate_logd(const char *tag, const char *fmt, ...) {}
+void fe_logi(const char *tag, const char *fmt, ...) {}
+void fe_logw(const char *tag, const char *fmt, ...) {}
+void fe_loge(const char *tag, const char *fmt, ...) {}
+#ifndef FE_DEBUG_BUILD
+void fe_logd(const char *tag, const char *fmt, ...) {}
 #endif
-#ifdef FATE_LOG_USE_VERBOSE
-void fate_logv(const char *tag, const char *fmt, ...) {}
+#ifdef FE_LOG_USE_VERBOSE
+void fe_logv(const char *tag, const char *fmt, ...) {}
 #endif
-void fate_logc(const char *tag, const char *fmt, ...) {
+void fe_logc(const char *tag, const char *fmt, ...) {
     char message[4096*4];
     va_list ap;
 

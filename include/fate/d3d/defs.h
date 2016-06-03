@@ -33,8 +33,8 @@
  *  TODO
  */
 
-#ifndef FATE_D3D_DEFS_H
-#define FATE_D3D_DEFS_H
+#ifndef FE_D3D_DEFS_H
+#define FE_D3D_DEFS_H
 
 /*
  * This would only be necessary if we didn't link with 'dxguid.lib'.
@@ -49,4 +49,4 @@
 #define DXCALLV(_OBJ_, _METHOD_, ...) \
         _OBJ_->lpVtbl->_METHOD_(_OBJ_, __VA_ARGS__)
 
-#endif /* FATE_D3D_DEFS_H */
+#endif /* FE_D3D_DEFS_H */

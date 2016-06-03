@@ -37,8 +37,8 @@
  */
 
 
-#ifndef FATE_ASM_H
-#define FATE_ASM_H
+#ifndef FE_ASM_H
+#define FE_ASM_H
 
 #if __DOXYGEN__ || defined(__GNUC__)
 /*! \brief Prefetch data, placing it in the appropriate CPU cache level.
@@ -56,7 +56,7 @@
  * \param locality Compile-time integer between 0 and 3 : "How often would
  *        the data be accessed ?"
  */
-#define fate_asm_prefetch(addr,rw,locality) \
+#define fe_asm_prefetch(addr,rw,locality) \
        __builtin_prefetch(addr,rw,locality)
 /*! \brief Provides branch prediction information to the compiler. 
  *
@@ -70,7 +70,7 @@
  * performance boosts when used correctly, but potentially huge performance
  * drops otherwise.
  */
-#define fate_asm_likely(cond)   __builtin_expect(!!(cond),1)
+#define fe_asm_likely(cond)   __builtin_expect(!!(cond),1)
 /*! \brief Provides branch prediction information to the compiler. 
  * This macro expands to \p cond if the compiler does not support 
  * \c __builtin_expect().
@@ -82,15 +82,15 @@
  * performance boosts when used correctly, but potentially huge performance
  * drops otherwise.
  */
-#define fate_asm_unlikely(cond) __builtin_expect(cond,0)
+#define fe_asm_unlikely(cond) __builtin_expect(cond,0)
 
 #else
 /* Evaluate addr anyway, in case it has side effects. */
-#define fate_asm_prefetch(addr,rw,locality) (addr)
-#define fate_asm_likely(cond) (cond)
-#define fate_asm_unlikely(cond) (cond)
+#define fe_asm_prefetch(addr,rw,locality) (addr)
+#define fe_asm_likely(cond) (cond)
+#define fe_asm_unlikely(cond) (cond)
 #endif
 
 /*! @} */
 
-#endif /* FATE_ASM_H */
+#endif /* FE_ASM_H */

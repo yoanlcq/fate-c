@@ -28,8 +28,8 @@
  */
 
 
-#ifndef FATE_H
-#define FATE_H
+#ifndef FE_H
+#define FE_H
 
 /*! \file fate.h
  *  \brief A single file for including all of F.A.T.E's interfaces.
@@ -40,7 +40,7 @@
 #include <fate/defs.h>
 #include <fate/al.h>
 #include <fate/gl.h>
-#ifdef FATE_WINDOWS
+#ifdef FE_WINDOWS
 #include <fate/d3d.h>
 #endif
 #include <fate/file_to_string.h>
@@ -51,4 +51,4 @@
 #include <fate/tracer.h>
 #include <fate/vfs.h>
 
-#endif /* FATE_H */
+#endif /* FE_H */

@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FATE_MATH_VEXT_IVEC2_H
-#define FATE_MATH_VEXT_IVEC2_H
+#ifndef FE_MATH_VEXT_IVEC2_H
+#define FE_MATH_VEXT_IVEC2_H
 
 /* Feature test section */
 
@@ -113,4 +113,4 @@ static inline void ivec2p_reflect(ivec2 *r, const ivec2 v, const ivec2 n) {
     *r = v-p*n;
 }
 
-#endif /* FATE_MATH_VEXT_IVEC2_H */
+#endif /* FE_MATH_VEXT_IVEC2_H */

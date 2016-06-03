@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_UVEC2_H
-#define FATE_MATH_UVEC2_H
+#ifndef FE_MATH_UVEC2_H
+#define FE_MATH_UVEC2_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef uint32_t uvec2[2];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT uvec2_color {
+struct FE_PACKED_STRUCT uvec2_color {
     uint32_t r;
     uint32_t g;
     /* No blue component. */
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT uvec2_color {
 typedef struct uvec2_color uvec2_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT uvec2_coord {
+struct FE_PACKED_STRUCT uvec2_coord {
     uint32_t x;
     uint32_t y;
     /* No z component. */
@@ -145,6 +145,6 @@ static inline void uvec2_reflect(uvec2 r, const uvec2 v, const uvec2 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_UVEC2_H */
+#endif /* FE_MATH_UVEC2_H */
 
 /* @} */

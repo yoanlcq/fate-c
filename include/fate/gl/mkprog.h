@@ -34,21 +34,21 @@
  * “Sometimes, the elegant implementation is just a function. Not a method. Not a class. Not a framework. Just a function.” – John Carmack
  */
 
-#ifndef FATE_GL_MKPROG_H
-#define FATE_GL_MKPROG_H
+#ifndef FE_GL_MKPROG_H
+#define FE_GL_MKPROG_H
 
 #include <stdint.h>
 #include <stdarg.h>
 #include <fate/gl/defs.h>
 
-void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
+void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
 
 /**
  * @brief A helper function to create OpenGL programs, in a 'make' fashion.
  *
- * fate_gl_mkprog() is intended as an efficient way to build OpenGL programs 
+ * fe_gl_mkprog() is intended as an efficient way to build OpenGL programs 
  * at run-time, quite like the well-known 'make' utility.
- * fate_gl_mkprog() builds a program binary file if at least one of the
+ * fe_gl_mkprog() builds a program binary file if at least one of the
  * following conditions are met :
  *  -> It doesn't exist;
  *  -> It is incompatible;
@@ -57,23 +57,23 @@ void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
  * takes place.
  * Shader objects compiled in the process are stored in a table with their
  * hashed filename as a key, and reused when needed for next calls to
- * fate_gl_mkprog().
+ * fe_gl_mkprog().
  * The program object is then linked.
  *
  * It is the caller's responsibility to :
  * -> Create the program object via glCreateProgram();
  * -> Set any pre-linking parameters to the program object before calling 
- *    fate_gl_mkprog();
+ *    fe_gl_mkprog();
  * -> Delete the program object via glDeleteProgram();
- * -> Clean-up resources by calling fate_gl_mkprog_cleanup().
+ * -> Clean-up resources by calling fe_gl_mkprog_cleanup().
  *
  *
  * Useful link : https://www.opengl.org/wiki/Shader_Compilation
  *
  *
- * fate_gl_mkprog()'s prototype must be considered as follows :
+ * fe_gl_mkprog()'s prototype must be considered as follows :
  *
- * int fate_gl_mkprog(unsigned flags, GLuint program, 
+ * int fe_gl_mkprog(unsigned flags, GLuint program, 
  *     const char *program_binary_save_path, 
  *     const char *shader_path_1,
  *     const char *shader_path_2,
@@ -103,35 +103,35 @@ void fate_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
  *     The shader's type is determined by the file extension, which can be 
  *     one of ".vert", ".frag", ".geom", ".tesc", ".tese", and ".comp". 
  *     If the shader's type could not be determined or the compilation has 
- *     failed, a detailed error message is issued and fate_gl_mkprog()'s 
+ *     failed, a detailed error message is issued and fe_gl_mkprog()'s 
  *     return value is set to 0.
  *
  * @p program is then linked against its shaders, and then its shaders are
  * detached from it.
  *
- * fate_gl_mkprog() returns 0 in case of a fatal error, and 1 otherwise.
+ * fe_gl_mkprog() returns 0 in case of a fatal error, and 1 otherwise.
  *
  * Basic usage :
  * @code
- * fate_gl_mkprog_setup(gl_major, gl_minor);
+ * fe_gl_mkprog_setup(gl_major, gl_minor);
  * GLuint program = glCreateProgram();
  * //Set any pre-linking parameters here.
- * fate_gl_mkprog(program, "cube.bin", "cube.vert", "cube.frag", NULL);
- * fate_gl_mkprog_cleanup();
+ * fe_gl_mkprog(program, "cube.bin", "cube.vert", "cube.frag", NULL);
+ * fe_gl_mkprog_cleanup();
  * glUseProgram(program);
  * ...
  * glDeleteProgram(program);
  * @endcode
  */
-extern int (*fate_gl_mkprog)(GLuint program, const char *save_path, ...) FATE_SENTINEL(0);
+extern int (*fe_gl_mkprog)(GLuint program, const char *save_path, ...) FE_SENTINEL(0);
 
-/** @brief Clean-up function for fate_gl_mkprog().
+/** @brief Clean-up function for fe_gl_mkprog().
  *
- * fate_gl_mkprog_cleanup() calls glDeleteShader() on each shader object stored 
- * previously by fate_gl_mkprog(), and then empties the table. 
+ * fe_gl_mkprog_cleanup() calls glDeleteShader() on each shader object stored 
+ * previously by fe_gl_mkprog(), and then empties the table. 
  * It is safe to call even if the table is already empty, and does not cause 
- * harm to future calls to fate_gl_mkprog() either.
+ * harm to future calls to fe_gl_mkprog() either.
  */
-extern void (*fate_gl_mkprog_cleanup)(void);
+extern void (*fe_gl_mkprog_cleanup)(void);
 
-#endif /* FATE_GL_MKPROG_H */ 
+#endif /* FE_GL_MKPROG_H */ 

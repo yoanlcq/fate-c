@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FATE_MATH_VEXT_SPACEVEC4_H
-#define FATE_MATH_VEXT_SPACEVEC4_H
+#ifndef FE_MATH_VEXT_SPACEVEC4_H
+#define FE_MATH_VEXT_SPACEVEC4_H
 
 /* Feature test section */
 
@@ -52,7 +52,7 @@
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define SPACEVEC4_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(fate_space_unit))))
+    #define SPACEVEC4_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(fe_space_unit))))
     #define SPACEVEC4_PACKED_ATTR  __attribute__((__packed__))
     #define spacevec4_shuffle(v,m)    __builtin_shuffle(v,m)
     #define spacevec4_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
@@ -70,22 +70,22 @@
 #include <math.h>
 #include <fate/units.h>
 #include <fate/math/vext/uvec4.h> /* Needed for __builtin_shuffle() */
-typedef fate_space_unit spacevec4 SPACEVEC4_SIZE_ATTR(4);
+typedef fe_space_unit spacevec4 SPACEVEC4_SIZE_ATTR(4);
 
 
 struct SPACEVEC4_PACKED_ATTR spacevec4_color {
-    fate_space_unit r;
-    fate_space_unit g;
-    fate_space_unit b;
-    fate_space_unit a;
+    fe_space_unit r;
+    fe_space_unit g;
+    fe_space_unit b;
+    fe_space_unit a;
 };
 typedef struct spacevec4_color spacevec4_color;
 
 struct SPACEVEC4_PACKED_ATTR spacevec4_coord {
-    fate_space_unit x;
-    fate_space_unit y;
-    fate_space_unit z;
-    fate_space_unit w;
+    fe_space_unit x;
+    fe_space_unit y;
+    fe_space_unit z;
+    fe_space_unit w;
 };
 typedef struct spacevec4_coord spacevec4_coord;
 
@@ -97,7 +97,7 @@ typedef struct spacevec4_coord spacevec4_coord;
 #define spacevec4_sub(s,a,b)   ((s)=(a)-(b))
 #define spacevec4_scale(r,v,s) ((r)=(v)*(s))
 #define spacevec4_dot(a,b) spacevec4_mul_inner(a,b)
-static inline fate_space_unit spacevec4_mul_inner(const spacevec4 a, const spacevec4 b) {
+static inline fe_space_unit spacevec4_mul_inner(const spacevec4 a, const spacevec4 b) {
     spacevec4 v = a*b;
     return v[0]+v[1]+v[2]+v[3];
 }
@@ -130,8 +130,8 @@ static inline void spacevec4p_mul_cross_naive(spacevec4 *r, const spacevec4 a, c
 
 #define spacevec4_reflect(r,v,n) spacevec4p_reflect(&r,v,n)
 static inline void spacevec4p_reflect(spacevec4 *r, const spacevec4 v, const spacevec4 n) {
-    const fate_space_unit p = 2*spacevec4_mul_inner(v, n);
+    const fe_space_unit p = 2*spacevec4_mul_inner(v, n);
     *r = v-p*n;
 }
 
-#endif /* FATE_MATH_VEXT_SPACEVEC4_H */
+#endif /* FE_MATH_VEXT_SPACEVEC4_H */

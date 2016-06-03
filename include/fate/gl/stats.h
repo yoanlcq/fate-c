@@ -33,13 +33,13 @@
  *  TODO
  */
 
-#ifndef FATE_GL_STATS_H
-#define FATE_GL_STATS_H
+#ifndef FE_GL_STATS_H
+#define FE_GL_STATS_H
 
 #include <fate/gl/defs.h>
 #include <fate/gl/debug.h>
 
-struct fate_gl_stats {
+struct fe_gl_stats {
     GLuint vertices_submitted;
     GLuint primitives_submitted;
     GLuint vert_shader_invocations;
@@ -52,20 +52,20 @@ struct fate_gl_stats {
     GLuint clipping_input_primitives;
     GLuint clipping_output_primitives;
 };
-typedef struct fate_gl_stats fate_gl_stats;
+typedef struct fe_gl_stats fe_gl_stats;
 
-#ifdef FATE_GL_DEBUG
-void fate_gl_stats_setup(void);
-void fate_gl_stats_cleanup(void);
-extern void (*fate_gl_stats_start_recording)(void);
-extern void (*fate_gl_stats_end_recording)(void);
-extern void (*fate_gl_stats_get_stats)(fate_gl_stats*);
+#ifdef FE_GL_DEBUG
+void fe_gl_stats_setup(void);
+void fe_gl_stats_cleanup(void);
+extern void (*fe_gl_stats_start_recording)(void);
+extern void (*fe_gl_stats_end_recording)(void);
+extern void (*fe_gl_stats_get_stats)(fe_gl_stats*);
 #else
-#define fate_gl_stats_setup() 
-#define fate_gl_stats_cleanup() 
-#define fate_gl_stats_start_recording() 
-#define fate_gl_stats_end_recording() 
-#define fate_gl_stats_get_stats(X) 
-#endif /* FATE_GL_DEBUG */
+#define fe_gl_stats_setup() 
+#define fe_gl_stats_cleanup() 
+#define fe_gl_stats_start_recording() 
+#define fe_gl_stats_end_recording() 
+#define fe_gl_stats_get_stats(X) 
+#endif /* FE_GL_DEBUG */
 
-#endif /* FATE_GL_STATS_H */
+#endif /* FE_GL_STATS_H */

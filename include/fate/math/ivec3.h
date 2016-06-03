@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_IVEC3_H
-#define FATE_MATH_IVEC3_H
+#ifndef FE_MATH_IVEC3_H
+#define FE_MATH_IVEC3_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef int32_t ivec3[3];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT ivec3_color {
+struct FE_PACKED_STRUCT ivec3_color {
     int32_t r;
     int32_t g;
     int32_t b;
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT ivec3_color {
 typedef struct ivec3_color ivec3_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT ivec3_coord {
+struct FE_PACKED_STRUCT ivec3_coord {
     int32_t x;
     int32_t y;
     int32_t z;
@@ -153,6 +153,6 @@ static inline void ivec3_reflect(ivec3 r, const ivec3 v, const ivec3 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_IVEC3_H */
+#endif /* FE_MATH_IVEC3_H */
 
 /* @} */

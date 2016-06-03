@@ -1,8 +1,8 @@
 
 #include <cpuid.h>
-#define FATE_ASM_HLE_BIT bit_HLE //(1<<4)
-#define FATE_ASM_RTM_BIT bit_RTM //(1<<11)
-inline unsigned fate_asm_cpuid(void) {
+#define FE_ASM_HLE_BIT bit_HLE //(1<<4)
+#define FE_ASM_RTM_BIT bit_RTM //(1<<11)
+inline unsigned fe_asm_cpuid(void) {
     unsigned a, b, c, d;
     if(__get_cpuid_max(0, NULL) < 7) 
         return false;
@@ -22,7 +22,7 @@ inline unsigned fate_asm_cpuid(void) {
  || defined(__amd64__) \
  || defined(_M_AMD64) \
  || defined(_M_X64)
-#define FATE_X86 1
+#define FE_X86 1
 #endif
 
 

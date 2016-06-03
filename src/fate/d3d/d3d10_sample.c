@@ -41,7 +41,7 @@
 #include <fate/defs.h>
 #include <fate/d3d/defs.h>
 
-#ifdef FATE_WINDOWS
+#ifdef FE_WINDOWS
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    PSTR pCmdLine, int nCmdShow)
 #else

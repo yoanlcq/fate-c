@@ -40,8 +40,8 @@
  * @{
  */
 
-#ifndef FATE_DEFS_H
-#define FATE_DEFS_H
+#ifndef FE_DEFS_H
+#define FE_DEFS_H
 
 /*! \brief Stringify the expansion of the given expression. */
 #define XSTRINGIFY(X) STRINGIFY(X)
@@ -53,7 +53,7 @@
  *
  * It serves no other purpose than being a fun way of identifying a version. 
  */
-#define FATE_VERSION_CODENAME "Bookkeeper"
+#define FE_VERSION_CODENAME "Bookkeeper"
 /*! \brief The current F.A.T.E version's prerelease string, conforming to 
  *         point 9 of
  *         <a href="http://semver.org/spec/v2.0.0.html" target="_blank">
@@ -62,10 +62,10 @@
  * Define it to something like "-alpha", "-beta",
  * or define it to the empty string.
  */
-#define FATE_VERSION_PRERELEASE_STR
-#define FATE_VERSION_MAJOR 0
-#define FATE_VERSION_MINOR 1
-#define FATE_VERSION_PATCH 0
+#define FE_VERSION_PRERELEASE_STR
+#define FE_VERSION_MAJOR 0
+#define FE_VERSION_MINOR 1
+#define FE_VERSION_PATCH 0
 /*! \brief The current F.A.T.E version's build metadata, conforming to 
  *         point 10 of
  *         <a href="http://semver.org/spec/v2.0.0.html" target="_blank">
@@ -77,66 +77,66 @@
  * It must start with a '+', and may be, for instance, a date in this format :
  * \c "YYYYMMDDHHMMSS". Example : \c "+20130313144700".
  */
-#ifndef FATE_VERSION_BUILD_METADATA
-#define FATE_VERSION_BUILD_METADATA
+#ifndef FE_VERSION_BUILD_METADATA
+#define FE_VERSION_BUILD_METADATA
 #endif
 
 /*! \brief The complete string identifying F.A.T.E's current version. */
-#define FATE_VERSION \
-    XSTRINGIFY(FATE_VERSION_MAJOR) "." XSTRINGIFY(FATE_VERSION_MINOR) "." \
-    XSTRINGIFY(FATE_VERSION_PATCH) FATE_VERSION_PRERELEASE_STR \
-    FATE_VERSION_BUILD_METADATA
+#define FE_VERSION \
+    XSTRINGIFY(FE_VERSION_MAJOR) "." XSTRINGIFY(FE_VERSION_MINOR) "." \
+    XSTRINGIFY(FE_VERSION_PATCH) FE_VERSION_PRERELEASE_STR \
+    FE_VERSION_BUILD_METADATA
 
 
 /*! \brief Compiler/platform-specific "__declspec(dllexport)". */
-#define FATE_EXPORT
+#define FE_EXPORT
 
 #if __DOXYGEN__
 /*! \brief Defined only if the target is Windows. */
-#define FATE_TARGET_WINDOWS 1
+#define FE_TARGET_WINDOWS 1
 /*! \brief Defined only if the target is Linux. */
-#define FATE_TARGET_LINUX 1
+#define FE_TARGET_LINUX 1
 /*! \brief Defined only if the target is Mac OS X. */
-#define FATE_TARGET_OSX 1
+#define FE_TARGET_OSX 1
 /*! \brief Defined only if the target is FreeBSD. */
-#define FATE_TARGET_FREEBSD 1
+#define FE_TARGET_FREEBSD 1
 /*! \brief Defined only if the target is Android. */
-#define FATE_TARGET_ANDROID 1
+#define FE_TARGET_ANDROID 1
 /*! \brief Defined only if the target is the iOS Simulator. */
-#define FATE_TARGET_IOS_SIMULATOR 1
+#define FE_TARGET_IOS_SIMULATOR 1
 /*! \brief Defined only if the target is either iOS or the iOS Simulator. */
-#define FATE_TARGET_IOS 1
+#define FE_TARGET_IOS 1
 /*! \brief Defined only if the target is Emscripten. */
-#define FATE_TARGET_EMSCRIPTEN 1
+#define FE_TARGET_EMSCRIPTEN 1
 #endif
 
 #if defined(_WIN32) || defined(__WIN32__)
-    #define FATE_TARGET_WINDOWS 1
+    #define FE_TARGET_WINDOWS 1
 #elif defined(linux) || defined(__linux)
-    #define FATE_TARGET_LINUX 1
+    #define FE_TARGET_LINUX 1
 /*
 #elif defined(__APPLE__) || defined(MACOSX) || defined(macintosh) \
       || defined(Macintosh)
-    #define FATE_OSX
+    #define FE_OSX
 */
 #elif __APPLE__
     #include "TargetConditionals.h"
     #if TARGET_IPHONE_SIMULATOR
-        #define FATE_TARGET_IOS_SIMULATOR 1
-        #define FATE_TARGET_IOS 1
+        #define FE_TARGET_IOS_SIMULATOR 1
+        #define FE_TARGET_IOS 1
     #elif TARGET_OS_IPHONE
-        #define FATE_TARGET_IOS 1
+        #define FE_TARGET_IOS 1
     #elif TARGET_OS_MAC
-        #define FATE_TARGET_OSX 1
+        #define FE_TARGET_OSX 1
     #else
         #error "Unknown Apple platform."
     #endif
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-    #define FATE_TARGET_FREEBSD 1
+    #define FE_TARGET_FREEBSD 1
 #elif defined(__EMSCRIPTEN__)
-    #define FATE_TARGET_EMSCRIPTEN 1
+    #define FE_TARGET_EMSCRIPTEN 1
 #elif defined(__ANDROID__)
-    #define FATE_TARGET_ANDROID 1
+    #define FE_TARGET_ANDROID 1
 #else
     #error This platform is not supported by F.A.T.E.
 #endif
@@ -145,7 +145,7 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
-#if FATE_TARGET_WINDOWS
+#if FE_TARGET_WINDOWS
     #ifdef _WIN32_WINNT
         #if _WIN32_WINNT < 0x0600
             #undef _WIN32_WINNT
@@ -171,11 +171,11 @@
 
 
 /*! \brief Compare two versions for equality. */
-#define FATE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1) \
+#define FE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1) \
             ((maj0)==(maj1) && (min0)==(min1) && (pat0)==(pat1))
 
 /*! \brief "Greater Than" version comparison. */
-#define FATE_VERCMP_GT(maj0, min0, pat0, maj1, min1, pat1) \
+#define FE_VERCMP_GT(maj0, min0, pat0, maj1, min1, pat1) \
            ((maj0)>(maj1) \
             || ((maj0)==(maj1) \
                 && ((min0)>(min1) \
@@ -187,18 +187,18 @@
            )
 
 /*! \brief "Greater or Equal" version comparison. */
-#define FATE_VERCMP_GE(maj0, min0, pat0, maj1, min1, pat1) \
-       (FATE_VERCMP_GT(maj0, min0, pat0, maj1, min1, pat1) \
-     || FATE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
+#define FE_VERCMP_GE(maj0, min0, pat0, maj1, min1, pat1) \
+       (FE_VERCMP_GT(maj0, min0, pat0, maj1, min1, pat1) \
+     || FE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
 
 /*! \brief "Less Than" version comparison. */
-#define FATE_VERCMP_LT(maj0, min0, pat0, maj1, min1, pat1) \
-      (!FATE_VERCMP_GE(maj0, min0, pat0, maj1, min1, pat1))
+#define FE_VERCMP_LT(maj0, min0, pat0, maj1, min1, pat1) \
+      (!FE_VERCMP_GE(maj0, min0, pat0, maj1, min1, pat1))
 
 /*! \brief "Less or Equal" version comparison. */
-#define FATE_VERCMP_LE(maj0, min0, pat0, maj1, min1, pat1) \
-       (FATE_VERCMP_LT(maj0, min0, pat0, maj1, min1, pat1) \
-     || FATE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
+#define FE_VERCMP_LE(maj0, min0, pat0, maj1, min1, pat1) \
+       (FE_VERCMP_LT(maj0, min0, pat0, maj1, min1, pat1) \
+     || FE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
 
 
 
@@ -259,7 +259,7 @@
  *         message.
  *
  * This macro expands to nothing if the compiler is not GCC. */
-#define FATE_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#define FE_DEPRECATED(msg) __attribute__((deprecated(msg)))
 /*! \brief Marks a function as printf-like.
  *
  * This gives to the compiler the ability to check formats given to the marked
@@ -270,7 +270,7 @@
  * \param fmt_index The index of the "format" parameter.
  * \param args_index The index of the "..." parameter.
  */
-#define FATE_PRINTF_DECL(fmt_index, args_index) \
+#define FE_PRINTF_DECL(fmt_index, args_index) \
             __attribute__((format(printf, fmt_index, args_index)))
 /*! \brief Instructs the compiler that some arguments to a function cannot be 
  *         NULL. 
@@ -280,7 +280,7 @@
  * This macro takes a variable arguments list of indices which should indicate
  * which parameters are to be non-NULL.
  */
-#define FATE_NONNULL_PARAMS(arg_index,...) \
+#define FE_NONNULL_PARAMS(arg_index,...) \
             __attribute__((nonnull(arg_index, __VA_ARGS__)))
 
 /*! \brief Instructs the compiler that the variable arguments given to a 
@@ -290,37 +290,37 @@
  *
  * \param pos Where must the sentinel be located, counting backwards from the 
  *            end of the arguments list ? */
-#define FATE_SENTINEL(pos) __attribute__((sentinel(pos)))
+#define FE_SENTINEL(pos) __attribute__((sentinel(pos)))
 /*! \brief Instructs the compiler that the function's result should not be
  *         ignored. 
  *
  * This macro includes \c sal.h and expands to \c _Check_return_ if the
  * compiler is MSVC.
  */
-#define FATE_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#define FE_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 /*! \brief Asks the compiler to reduce the size taken by instances of the
  *         marked struct as much as possible. 
  *
  * This macro expands to nothing if the compiler is not GCC.
  */
-#define FATE_PACKED_STRUCT __attribute__((packed))
+#define FE_PACKED_STRUCT __attribute__((packed))
 
 #else /* ifdef __GNUC__ */
 
 #define MUST_BE_ARRAY(a) 0
-#define FATE_DEPRECATED(msg) 
-#define FATE_PRINTF_DECL(fmt_index, args_index) 
-#define FATE_NONNULL_PARAMS(arg_index,...) 
-#define FATE_SENTINEL(pos) 
-#define FATE_WARN_UNUSED_RESULT 
-#define FATE_PACKED_STRUCT
+#define FE_DEPRECATED(msg) 
+#define FE_PRINTF_DECL(fmt_index, args_index) 
+#define FE_NONNULL_PARAMS(arg_index,...) 
+#define FE_SENTINEL(pos) 
+#define FE_WARN_UNUSED_RESULT 
+#define FE_PACKED_STRUCT
 
 #endif /* ifdef __GNUC_ */
 
 #ifdef _MSC_VER
 #include <sal.h>
-#undef  FATE_WARN_UNUSED_RESULT
-#define FATE_WARN_UNUSED_RESULT _Check_return_
+#undef  FE_WARN_UNUSED_RESULT
+#define FE_WARN_UNUSED_RESULT _Check_return_
 #endif
 
 
@@ -333,4 +333,4 @@
 
 /*! @} */
 
-#endif /* FATE_DEFS_H */
+#endif /* FE_DEFS_H */

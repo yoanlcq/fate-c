@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_VEC3_H
-#define FATE_MATH_VEC3_H
+#ifndef FE_MATH_VEC3_H
+#define FE_MATH_VEC3_H
 
 
 #ifdef __clang__
@@ -72,7 +72,7 @@
 typedef float vec3[3];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec3_color {
+struct FE_PACKED_STRUCT vec3_color {
     float r;
     float g;
     float b;
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT vec3_color {
 typedef struct vec3_color vec3_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec3_coord {
+struct FE_PACKED_STRUCT vec3_coord {
     float x;
     float y;
     float z;
@@ -153,6 +153,6 @@ static inline void vec3_reflect(vec3 r, const vec3 v, const vec3 n) {
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_VEC3_H */
+#endif /* FE_MATH_VEC3_H */
 
 /* @} */

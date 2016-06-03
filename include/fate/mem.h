@@ -33,7 +33,7 @@
  *
  * <b>Compile-time switches :</b>
  * <table>
- * <tr><td>FATE_MEM_DEBUG</td><td>If not defined, heap allocator 
+ * <tr><td>FE_MEM_DEBUG</td><td>If not defined, heap allocator 
  *  macros expand to regular stdlib calls, and debug/profiling-related
  *  functionalities are compiled out, simply replaced by assignment 
  *  operators when is makes sense.</td></tr>
@@ -43,19 +43,19 @@
  */
 
 
-#ifndef FATE_MEM_H
-#define FATE_MEM_H
+#ifndef FE_MEM_H
+#define FE_MEM_H
 
 #include <stddef.h>
 #include <stdbool.h>
 #include <fate/defs.h>
 
 /*! \brief TODO */
-void fate_mem_setup(void);
+void fe_mem_setup(void);
 
-/*! \brief Heap block info, as stored by calls to #fate_mem_malloc() and 
+/*! \brief Heap block info, as stored by calls to #fe_mem_malloc() and 
  *         friends. */
-struct fate_mem_blockinfo {
+struct fe_mem_blockinfo {
     void *start;  /*!< Base address to allocated memory within this block. */
     size_t memb_size; /*!< Size of each member. */
     size_t nmemb; /*!< Number of members. */
@@ -67,69 +67,69 @@ struct fate_mem_blockinfo {
                           allocation took place. */
 };
 /*! \brief TODO */
-typedef struct fate_mem_blockinfo fate_mem_blockinfo;
+typedef struct fe_mem_blockinfo fe_mem_blockinfo;
 
 
-#if __DOXYGEN__ || defined(FATE_MEM_DEBUG)
+#if __DOXYGEN__ || defined(FE_MEM_DEBUG)
 
 /*! \brief TODO */
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-void *fate_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
+void *fe_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
                            const char *type_str, 
                            const char *filename, unsigned lineno);
 /*! \brief TODO */
-#define fate_mem_malloc(nmemb, type, tag) \
-            fate_mem_lock(); \
-            fate_mem_malloc_real(nmemb, sizeof(type), \
+#define fe_mem_malloc(nmemb, type, tag) \
+            fe_mem_lock(); \
+            fe_mem_malloc_real(nmemb, sizeof(type), \
                                  tag, #type, __FILE__, __LINE__); \
-            fate_mem_unlock();
+            fe_mem_unlock();
 
 /*! \brief TODO */
 #ifdef __GNUC__
 __attribute__((malloc))
 #endif
-void *fate_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
+void *fe_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
                            const char *type_str,
                            const char *filename, unsigned lineno);
 /*! \brief TODO */
-#define fate_mem_calloc(nmemb, type, tag) \
-            fate_mem_lock(); \
-            fate_mem_calloc_real(nmemb, sizeof(type), \
+#define fe_mem_calloc(nmemb, type, tag) \
+            fe_mem_lock(); \
+            fe_mem_calloc_real(nmemb, sizeof(type), \
                                  tag, #type, __FILE__, __LINE__); \
-            fate_mem_unlock();
+            fe_mem_unlock();
 
 /*! \brief TODO */
-void *fate_mem_realloc_real(void *ptr, 
+void *fe_mem_realloc_real(void *ptr, 
                             size_t nmemb, size_t size, const char *tag, 
                             const char *type_str,
                             const char *filename, unsigned lineno);
 /*! \brief TODO */
-#define fate_mem_realloc(ptr, nmemb, type, tag) \
-            fate_mem_lock(); \
-            fate_mem_realloc_real(ptr, nmemb, sizeof(type), \
+#define fe_mem_realloc(ptr, nmemb, type, tag) \
+            fe_mem_lock(); \
+            fe_mem_realloc_real(ptr, nmemb, sizeof(type), \
                                   tag, #type, __FILE__, __LINE__); \
-            fate_mem_unlock();
+            fe_mem_unlock();
 
 /*! \brief TODO */
-void fate_mem_free_real(void *ptr);
+void fe_mem_free_real(void *ptr);
 /*! \brief TODO */
-#define fate_mem_free(ptr) \
-            fate_mem_lock(); \
-            fate_mem_free_real(ptr); \
-            fate_mem_unlock(); \
+#define fe_mem_free(ptr) \
+            fe_mem_lock(); \
+            fe_mem_free_real(ptr); \
+            fe_mem_unlock(); \
 
 /*! \brief TODO */
-void fate_mem_lock(void);
+void fe_mem_lock(void);
 
 /*! \brief TODO */
-void fate_mem_unlock(void);
+void fe_mem_unlock(void);
 
 /*! \brief Get blocks info.
  *
  * The caller <b>must</b> wrap their code in a 
- * #fate_mem_lock()/#fate_mem_unlock() scope 
+ * #fe_mem_lock()/#fe_mem_unlock() scope 
  * for as long as they intend to use the returned blocks, in order to prevent 
  * other threads from allocating/freeing blocks, thus potentially invalidating 
  * them.
@@ -137,32 +137,32 @@ void fate_mem_unlock(void);
  * \param index Requested block index, starting at 0.
  * \param nblocks Requested number of blocks.
  * \param blocks An array where to store the requested blocks. It should be
- *               large enough to hold at least \p nblocks #fate_mem_blockinfo 
+ *               large enough to hold at least \p nblocks #fe_mem_blockinfo 
  *               records.
  * \return The actual number of blocks stored in \p blocks, never greater than
  *         \p nblocks.
- * \see fate_mem_getblockindex
+ * \see fe_mem_getblockindex
  */
-unsigned long fate_mem_getblocksinfo(unsigned long index, 
+unsigned long fe_mem_getblocksinfo(unsigned long index, 
                                      unsigned long nblocks,          
-                                     fate_mem_blockinfo *blocks);
+                                     fe_mem_blockinfo *blocks);
 
 /*! \brief Get a block index, given an arbitrary address. 
  *
  * \param addr An arbitrary address.
  * \param index If \p addr is within a block's allocated memory, the 
  *              block's index is stored here.
- *              It may then be used for calls to #fate_mem_getblocksinfo().
+ *              It may then be used for calls to #fe_mem_getblocksinfo().
  * \return Is \p addr indeed within a block ? 
- * \see fate_mem_getblocksinfo */
-bool fate_mem_getblockindex(void *addr, unsigned long *index);
+ * \see fe_mem_getblocksinfo */
+bool fe_mem_getblockindex(void *addr, unsigned long *index);
 
 /*! \brief Atomically simulates limits on the memory allocated 
- *         by #fate_mem_malloc() and friends.
+ *         by #fe_mem_malloc() and friends.
  *
  * Limits are disabled by default.
  *
- * When profiling, #fate_mem_malloc() and friends check if they can allocate
+ * When profiling, #fe_mem_malloc() and friends check if they can allocate
  * memory without breaking those virtual limits. If not, they fail by
  * returning NULL.
  *
@@ -171,7 +171,7 @@ bool fate_mem_getblockindex(void *addr, unsigned long *index);
  *
  * \param total_nbytes Set it to 0 to remove this limit. 
  *           Limits how many bytes, in total, can be allocated via
- *           #fate_mem_malloc and friends.
+ *           #fe_mem_malloc and friends.
  * \param heap_size Set it to 0 to remove this limit. 
  *           Limits the imaginary heap's size in bytes. 
  *           Therefore, it takes memory fragmentation into account.
@@ -179,34 +179,34 @@ bool fate_mem_getblockindex(void *addr, unsigned long *index);
  *         2 If the \p heap_size limit is already broken,
  *         3 If both limits are already broken, and
  *         0 Otherwise.
- * \see fate_mem_getlimits
+ * \see fe_mem_getlimits
  */
-unsigned fate_mem_limits(unsigned long total_nbytes, unsigned long heap_size);
+unsigned fe_mem_limits(unsigned long total_nbytes, unsigned long heap_size);
 
 /*! \brief Atomically gets the values set by the last call to 
- *         #fate_mem_limits().
+ *         #fe_mem_limits().
  *
- * \see fate_mem_limits
+ * \see fe_mem_limits
  */
-void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
+void fe_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
 
-#else /* ifdef FATE_MEM_DEBUG */
+#else /* ifdef FE_MEM_DEBUG */
 
 #include <stdlib.h>
-#define fate_mem_lock() 
-#define fate_mem_unlock() 
-#define fate_mem_malloc(nmemb, type, tag) malloc((nmemb)*sizeof(type))
-#define fate_mem_calloc(nmemb, type, tag) calloc(nmemb, sizeof(type))
-#define fate_mem_realloc(ptr, nmemb, type, tag) \
+#define fe_mem_lock() 
+#define fe_mem_unlock() 
+#define fe_mem_malloc(nmemb, type, tag) malloc((nmemb)*sizeof(type))
+#define fe_mem_calloc(nmemb, type, tag) calloc(nmemb, sizeof(type))
+#define fe_mem_realloc(ptr, nmemb, type, tag) \
             realloc(ptr, (nmemb)*sizeof(type))
-#define fate_mem_free(ptr) free(ptr)
-#define fate_mem_getblocksinfo(index, nblocks, blocks) 0
-#define fate_mem_getblockindex(addr, index) false
-#define fate_mem_limits(total_nbytes, heap_size)
-#define fate_mem_getlimits(total_nbytes, heap_size) \
+#define fe_mem_free(ptr) free(ptr)
+#define fe_mem_getblocksinfo(index, nblocks, blocks) 0
+#define fe_mem_getblockindex(addr, index) false
+#define fe_mem_limits(total_nbytes, heap_size)
+#define fe_mem_getlimits(total_nbytes, heap_size) \
             (*(total_nbytes)=*(heap_size)=0)
 
-#endif /* ifdef FATE_MEM_DEBUG */
+#endif /* ifdef FE_MEM_DEBUG */
 
 /*! \brief Atomically allocates memory on the stack, optionally getting how 
  *         many bytes were available.
@@ -231,14 +231,14 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * - The above conditions are not met, and it is known that the allocation
  *   would cause a stack overflow.
  *
- * #fate_mem_stackfree() is provided because of such potential fallbacks.<br>
+ * #fe_mem_stackfree() is provided because of such potential fallbacks.<br>
  * The caller must use it when they are done with the allocated memory.<br>
  * It will be a no-op if the memory has indeed been allocated from the 
  * stack, or a call to \c free() otherwise.
  *
- * <b>Implementation detail</b> : If required, #fate_mem_stackalloc() may 
+ * <b>Implementation detail</b> : If required, #fe_mem_stackalloc() may 
  * allocate an <b>extra byte</b> right before the returned address.
- * The said byte would be used internally by #fate_mem_stackfree() so it 
+ * The said byte would be used internally by #fe_mem_stackfree() so it 
  * can take the appropriate decision.<br>
  * Please take this into account when estimating whether there is enough stack 
  * space left, but <b>never</b> rely on its actual presence.
@@ -255,14 +255,14 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * 
  * void fill(void) {
  *     unsigned long i;
- *     stored = fate_mem_stackalloc(LEN*sizeof(*stored), NULL);
+ *     stored = fe_mem_stackalloc(LEN*sizeof(*stored), NULL);
  *     if(!stored)
- *         fate_fatal(TAG, "Oops\n");
+ *         fe_fatal(TAG, "Oops\n");
  *     for(i=0 ; i<LEN ; ++i)
- *         fate_logi(TAG, "%d\n", stored[i]);
+ *         fe_logi(TAG, "%d\n", stored[i]);
  *
  *     // The mistake is right here :
- *     // 1. Failure to call fate_mem_stackfree();
+ *     // 1. Failure to call fe_mem_stackfree();
  *     // 2. 'stored' is invalid as soon as this function returns, and thus 
  *     //    must not be accessed outside of this function's scope.
  * }
@@ -270,13 +270,13 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * void display(void) {
  *     unsigned long i;
  *     for(i=0 ; i<LEN ; ++i) // *Undefined behaviour intensifies*
- *         fate_logi(TAG, "%d\n", stored[i]); 
- *     fate_logi(TAG, "\n");
+ *         fe_logi(TAG, "%d\n", stored[i]); 
+ *     fe_logi(TAG, "\n");
  * }
  * 
  * int main(int argc, char *argv[]) {
- *     fate_log_setup();
- *     fate_mem_setup();
+ *     fe_log_setup();
+ *     fe_mem_setup();
  *     fill();
  *     display();
  *     return 0;
@@ -286,10 +286,10 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * Better usage example :
  * \code{.c}
  * void this_function_is_kind(void) {
- *     int *values = fate_mem_stackalloc(2*sizeof(int), NULL);
+ *     int *values = fe_mem_stackalloc(2*sizeof(int), NULL);
  *     // Check here if 'values' is NULL, and handle the error too;
  *     // Do your stuff with it otherwise;
- *     fate_mem_stackfree(values); //Then don't forget.
+ *     fe_mem_stackfree(values); //Then don't forget.
  * }
  * \endcode
  * 
@@ -317,23 +317,23 @@ void fate_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  *             -1 if there is no underlying stack allocator available;<br>
  *             -2 if a stack allocator is available, but the stack size 
  *             and/or stack pointer cannot be determined.<br>
- *             In both cases you can be certain that #fate_mem_stackalloc() will
+ *             In both cases you can be certain that #fe_mem_stackalloc() will
  *             fall back to \c malloc().
  * \return Pointer to \p size uninitialized bytes that may be used to store 
  *         data within the current function's scope, or NULL on failure.
- * \see fate_mem_stackfree
+ * \see fe_mem_stackfree
  */
-void *fate_mem_stackalloc(size_t size, size_t *left);
+void *fe_mem_stackalloc(size_t size, size_t *left);
 
 /*! \brief Atomically frees memory returned by a call to
- *         #fate_mem_stackalloc(), in case the memory was allocated on the 
+ *         #fe_mem_stackalloc(), in case the memory was allocated on the 
  *         heap instead of the stack.
  *
  * Just like \c free(), it's a no-op if \p ptr is NULL.
- * \see fate_mem_stackalloc
+ * \see fe_mem_stackalloc
  */
-void fate_mem_stackfree(void *ptr);
+void fe_mem_stackfree(void *ptr);
 
 /*! @} */
 
-#endif /* FATE_MEM_H */
+#endif /* FE_MEM_H */

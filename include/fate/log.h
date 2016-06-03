@@ -48,14 +48,14 @@
  * flexible.<br>
  * The log functions actually translate to calls like fprintf() or 
  * platform-specific alternatives.
- * #fate_logc may use SDL_ShowSimpleMessageBox() or a Javascript alert().
+ * #fe_logc may use SDL_ShowSimpleMessageBox() or a Javascript alert().
  * 
  * Each other module is encouraged to declare a private string which they
  * should pass as the log functions' first parameter, like so :
  * \code{.c}
  * static const char *TAG = "Module name";
  * ...
- * fate_logi(TAG, _("The answer is %u\n"), 42);
+ * fe_logi(TAG, _("The answer is %u\n"), 42);
  * \endcode
  *
  * In each of the log functions, the "tag" parameter may never be NULL.
@@ -64,8 +64,8 @@
  * @{
  */
 
-#ifndef FATE_LOG_H
-#define FATE_LOG_H
+#ifndef FE_LOG_H
+#define FE_LOG_H
 
 #include <fate/defs.h>
 #include <stdarg.h>
@@ -75,41 +75,41 @@
  * This is intended for use by other modules, which would like to expose
  * functions taking a log function as a parameter.
  */
-typedef void (*fate_logfunc)(const char *tag, const char *fmt, ...);
+typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...);
 
 /*! \brief Setup this module.
  * 
  * This function should be called once to initialize this module.
  * Calling it more than once causes no harm but it is discouraged.
  *
- * This function also calls #fate_log_flags, with #FATE_LOG_COLORED and #FATE_LOG_TAG.
+ * This function also calls #fe_log_flags, with #FE_LOG_COLORED and #FE_LOG_TAG.
  */
-void fate_log_setup(void);
+void fe_log_setup(void);
 
 /*! \brief Clean-up this module.
  * 
  */
-void fate_log_cleanup(void);
+void fe_log_cleanup(void);
 
 
-/*! \brief Flags to be given to #fate_log_flags.
+/*! \brief Flags to be given to #fe_log_flags.
  *
  */
-enum fate_log_flag {
-    FATE_LOG_COLORED  = 1,    /*!< When logging to consoles, attempt to 
+enum fe_log_flag {
+    FE_LOG_COLORED  = 1,    /*!< When logging to consoles, attempt to 
         color the output based on the severity (enabled by default). */
-    FATE_LOG_DATE     = 1<<1, /*!< Display the date, as defined by the locale.*/
-    FATE_LOG_TIME     = 1<<2, /*!< Display the time since the log module was
+    FE_LOG_DATE     = 1<<1, /*!< Display the date, as defined by the locale.*/
+    FE_LOG_TIME     = 1<<2, /*!< Display the time since the log module was
         set up. */
-    FATE_LOG_PID      = 1<<3, /*!< Display the app's processus ID. */
-    FATE_LOG_TID      = 1<<4, /*!< Display the current thread ID. */
-    FATE_LOG_TICKNO   = 1<<5, /*!< Display the current tick number. */
-    FATE_LOG_FRAMENO  = 1<<6, /*!< Display the current frame number.  */
-    FATE_LOG_TAG      = 1<<7, /*!< Display the tag (enabled by default).*/
-    FATE_LOG_SEVERITY = 1<<8  /*!< Display the severity. Should not be needed 
-        if #FATE_LOG_COLORED is raised. */
+    FE_LOG_PID      = 1<<3, /*!< Display the app's processus ID. */
+    FE_LOG_TID      = 1<<4, /*!< Display the current thread ID. */
+    FE_LOG_TICKNO   = 1<<5, /*!< Display the current tick number. */
+    FE_LOG_FRAMENO  = 1<<6, /*!< Display the current frame number.  */
+    FE_LOG_TAG      = 1<<7, /*!< Display the tag (enabled by default).*/
+    FE_LOG_SEVERITY = 1<<8  /*!< Display the severity. Should not be needed 
+        if #FE_LOG_COLORED is raised. */
 };
-typedef enum fate_log_flag fate_log_flag;
+typedef enum fe_log_flag fe_log_flag;
 
 /*! \brief Atomically set the log module's flags, mostly to display 
  * extra columns.
@@ -121,32 +121,32 @@ typedef enum fate_log_flag fate_log_flag;
  * interact with it. However the flags do have an effect when logging to 
  * files on the device.
  *
- * \param flags Bitwise OR combination of one or more flags, as defined in #fate_log_flag.
- * \see enum fate_log_flag
+ * \param flags Bitwise OR combination of one or more flags, as defined in #fe_log_flag.
+ * \see enum fe_log_flag
  */
-void fate_log_flags(unsigned long flags);
+void fe_log_flags(unsigned long flags);
 
 /*! \brief Atomically get the log module's current flags. 
  *
  * \return The log module's current flags.
- * \see fate_log_flags
- * \see fate_log_flag 
+ * \see fe_log_flags
+ * \see fe_log_flag 
  */
-unsigned long fate_log_getflags(void);
+unsigned long fe_log_getflags(void);
 
-/*! \brief Enumeration of log sevreities for #fate_log_multiplex().
+/*! \brief Enumeration of log sevreities for #fe_log_multiplex().
  *
  */
-enum fate_log_severity {
-    FATE_LOG_ALL      = 0,
-    FATE_LOG_INFO     = 1,
-    FATE_LOG_WARN     = 2,
-    FATE_LOG_ERROR    = 3,
-    FATE_LOG_DEBUG    = 4,
-    FATE_LOG_VERBOSE  = 5,
-    FATE_LOG_CRITICAL = 6
+enum fe_log_severity {
+    FE_LOG_ALL      = 0,
+    FE_LOG_INFO     = 1,
+    FE_LOG_WARN     = 2,
+    FE_LOG_ERROR    = 3,
+    FE_LOG_DEBUG    = 4,
+    FE_LOG_VERBOSE  = 5,
+    FE_LOG_CRITICAL = 6
 };
-typedef enum fate_log_severity fate_log_severity;
+typedef enum fe_log_severity fe_log_severity;
 
 
 /*! \brief Atomically multiplexes logs to one or more files at tag-level.
@@ -162,8 +162,8 @@ typedef enum fate_log_severity fate_log_severity;
  * They are internally reference-counted and are closed when their reference
  * count reaches 0 (exceptions to this rule are \c stdout and \c stderr).
  * One of the following actions causes such reference counts to be decremented :
- * - Calling #fate_log_multiplex() with different files;
- * - Calling #fate_log_cleanup().
+ * - Calling #fe_log_multiplex() with different files;
+ * - Calling #fe_log_cleanup().
  * 
  * By the way, it is safe to provide the same file pointers
  * for different tags and severities.
@@ -176,13 +176,13 @@ typedef enum fate_log_severity fate_log_severity;
  *
  * \param tag The tag to multiplex. If NULL, then this sets the default
  *        multiplex files for all tags.
- * \param sev The severity to multiplex, given \p tag. If #FATE_LOG_ALL,
+ * \param sev The severity to multiplex, given \p tag. If #FE_LOG_ALL,
  *        all severities are affected.
  * \param streams Array of extra opened files to use for logging. It can be NULL
  *        as long as \p streams_count is set to zero.
  * \param streams_count Number of elements in \p streams.
  */
-void fate_log_multiplex(const char *tag, fate_log_severity sev,
+void fe_log_multiplex(const char *tag, fe_log_severity sev,
                         FILE* streams[], size_t streams_count);
 
 /*! \brief Log Infos.
@@ -194,7 +194,7 @@ void fate_log_multiplex(const char *tag, fate_log_severity sev,
  * The default output stream is \c stdout.\n
  * The default color is green.
  */
-void fate_logi(const char *tag, const char *fmt, ...);
+void fe_logi(const char *tag, const char *fmt, ...);
 
 /*! \brief Log Warnings.
  *
@@ -205,7 +205,7 @@ void fate_logi(const char *tag, const char *fmt, ...);
  * The default output stream is \c stderr.\n
  * The default color is yellow.
  */
-void fate_logw(const char *tag, const char *fmt, ...);
+void fe_logw(const char *tag, const char *fmt, ...);
 
 /*! \brief Log Errors.
  *
@@ -216,7 +216,7 @@ void fate_logw(const char *tag, const char *fmt, ...);
  * The default output stream is \c stderr.\n
  * The default color is red.
  */
-void fate_loge(const char *tag, const char *fmt, ...);
+void fe_loge(const char *tag, const char *fmt, ...);
 
 /*! \brief Log Debug.
  *
@@ -228,9 +228,9 @@ void fate_loge(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is cyan.
  */
-void fate_logd(const char *tag, const char *fmt, ...);
-#ifdef FATE_DEBUG_BUILD
-#define fate_logd(tag, fmt, ...) 
+void fe_logd(const char *tag, const char *fmt, ...);
+#ifdef FE_DEBUG_BUILD
+#define fe_logd(tag, fmt, ...) 
 #endif
 
 /*! \brief Log Verbose.
@@ -242,13 +242,13 @@ void fate_logd(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is blue.
  */
-void fate_logv(const char *tag, const char *fmt, ...);
+void fe_logv(const char *tag, const char *fmt, ...);
 
-#ifndef FATE_LOG_USE_VERBOSE
-/*! \brief Dummy macro to compile out calls to #fate_logv() when the 
- *         compile-time switch FATE_LOG_USE_VERBOSE is not defined.
+#ifndef FE_LOG_USE_VERBOSE
+/*! \brief Dummy macro to compile out calls to #fe_logv() when the 
+ *         compile-time switch FE_LOG_USE_VERBOSE is not defined.
  */
-#define fate_logv(tag, fmt, ...) 
+#define fe_logv(tag, fmt, ...) 
 #endif
 
 /*! \brief Log Critical.
@@ -268,28 +268,28 @@ void fate_logv(const char *tag, const char *fmt, ...);
  * The default output stream is \c stderr (not counting the pop-up window).\n
  * The default color is red.
  *
- * \see fate_fatal
+ * \see fe_fatal
  */
-void fate_logc(const char *tag, const char *fmt, ...);
+void fe_logc(const char *tag, const char *fmt, ...);
 
 /*! \brief Abort on a fatal error.
  *
  * This is a convenience function, since it is roughly equivalent to using
- * #fate_logc, then #fate_sys_log_stacktrace, then freeing resources (the Global
+ * #fe_logc, then #fe_sys_log_stacktrace, then freeing resources (the Global
  * State holds references to those) and finally exitting with an error code.
  *
  * However, this is the recommended function to call in extreme cases where
  * there would be no point in leaving the app running anymore.
  *
- * An alternative name would be "fate_panic".
+ * An alternative name would be "fe_panic".
  */
-void fate_fatal(const char *tag, const char *fmt, ...);
-#define fate_fatal(tag, ...) \
-    do { fate_sys_log_stacktrace(fate_loge); \
-    fate_logc(tag, __VA_ARGS__); \
-    fate_globalstate_deinit(fate_gs); \
+void fe_fatal(const char *tag, const char *fmt, ...);
+#define fe_fatal(tag, ...) \
+    do { fe_sys_log_stacktrace(fe_loge); \
+    fe_logc(tag, __VA_ARGS__); \
+    fe_globalstate_deinit(fe_gs); \
     exit(EXIT_FAILURE); } while(0)
 
 
 /*! @} */
-#endif /* FATE_LOG_H */
+#endif /* FE_LOG_H */

@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_SPACEVEC4_H
-#define FATE_MATH_SPACEVEC4_H
+#ifndef FE_MATH_SPACEVEC4_H
+#define FE_MATH_SPACEVEC4_H
 
 
 #ifdef __clang__
@@ -69,23 +69,23 @@
  *
  * spacevec4
  */
-typedef fate_space_unit spacevec4[4];
+typedef fe_space_unit spacevec4[4];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT spacevec4_color {
-    fate_space_unit r;
-    fate_space_unit g;
-    fate_space_unit b;
-    fate_space_unit a;
+struct FE_PACKED_STRUCT spacevec4_color {
+    fe_space_unit r;
+    fe_space_unit g;
+    fe_space_unit b;
+    fe_space_unit a;
 };
 typedef struct spacevec4_color spacevec4_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT spacevec4_coord {
-    fate_space_unit x;
-    fate_space_unit y;
-    fate_space_unit z;
-    fate_space_unit w;
+struct FE_PACKED_STRUCT spacevec4_coord {
+    fe_space_unit x;
+    fe_space_unit y;
+    fe_space_unit z;
+    fe_space_unit w;
 };
 typedef struct spacevec4_coord spacevec4_coord;
 
@@ -109,7 +109,7 @@ static inline void spacevec4_sub(spacevec4 r, const spacevec4 a, const spacevec4
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void spacevec4_scale(spacevec4 r, const spacevec4 v, const fate_space_unit s) {
+static inline void spacevec4_scale(spacevec4 r, const spacevec4 v, const fe_space_unit s) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = v[i] * s;
@@ -118,8 +118,8 @@ static inline void spacevec4_scale(spacevec4 r, const spacevec4 v, const fate_sp
 /*! \brief TODO */
 #define spacevec4_dot(a,b) spacevec4_mul_inner(a,b)
 /*! \brief TODO */
-static inline fate_space_unit spacevec4_mul_inner(const spacevec4 a, const spacevec4 b) {
-	fate_space_unit p;
+static inline fe_space_unit spacevec4_mul_inner(const spacevec4 a, const spacevec4 b) {
+	fe_space_unit p;
 	size_t i;
 	for(p=i=0; i<4; ++i)
 		p += b[i]*a[i];
@@ -145,7 +145,7 @@ static inline void spacevec4_mul_cross(spacevec4 r, const spacevec4 a, const spa
 
 /*! \brief TODO */
 static inline void spacevec4_reflect(spacevec4 r, const spacevec4 v, const spacevec4 n) {
-	const fate_space_unit p = 2*spacevec4_mul_inner(v, n);
+	const fe_space_unit p = 2*spacevec4_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<4 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +153,6 @@ static inline void spacevec4_reflect(spacevec4 r, const spacevec4 v, const space
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_SPACEVEC4_H */
+#endif /* FE_MATH_SPACEVEC4_H */
 
 /* @} */

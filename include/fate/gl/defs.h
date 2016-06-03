@@ -33,8 +33,8 @@
  *  TODO
  */
 
-#ifndef FATE_GL_DEFS
-#define FATE_GL_DEFS
+#ifndef FE_GL_DEFS
+#define FE_GL_DEFS
 
 #include <fate/defs.h>
 
@@ -43,4 +43,4 @@
 #include <SDL2/SDL_opengl.h>
 #define BUFFER_OFFSET(_i_) ((void*)_i_)
 
-#endif /* FATE_GL_DEFS */
+#endif /* FE_GL_DEFS */

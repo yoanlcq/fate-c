@@ -44,8 +44,8 @@
  * @{
  */
 
-#ifndef FATE_MATH_SPACEVEC2_H
-#define FATE_MATH_SPACEVEC2_H
+#ifndef FE_MATH_SPACEVEC2_H
+#define FE_MATH_SPACEVEC2_H
 
 
 #ifdef __clang__
@@ -69,21 +69,21 @@
  *
  * spacevec2
  */
-typedef fate_space_unit spacevec2[2];
+typedef fe_space_unit spacevec2[2];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT spacevec2_color {
-    fate_space_unit r;
-    fate_space_unit g;
+struct FE_PACKED_STRUCT spacevec2_color {
+    fe_space_unit r;
+    fe_space_unit g;
     /* No blue component. */
     /* No alpha component. */
 };
 typedef struct spacevec2_color spacevec2_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT spacevec2_coord {
-    fate_space_unit x;
-    fate_space_unit y;
+struct FE_PACKED_STRUCT spacevec2_coord {
+    fe_space_unit x;
+    fe_space_unit y;
     /* No z component. */
     /* No w component. */
 };
@@ -109,7 +109,7 @@ static inline void spacevec2_sub(spacevec2 r, const spacevec2 a, const spacevec2
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void spacevec2_scale(spacevec2 r, const spacevec2 v, const fate_space_unit s) {
+static inline void spacevec2_scale(spacevec2 r, const spacevec2 v, const fe_space_unit s) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = v[i] * s;
@@ -118,8 +118,8 @@ static inline void spacevec2_scale(spacevec2 r, const spacevec2 v, const fate_sp
 /*! \brief TODO */
 #define spacevec2_dot(a,b) spacevec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline fate_space_unit spacevec2_mul_inner(const spacevec2 a, const spacevec2 b) {
-	fate_space_unit p;
+static inline fe_space_unit spacevec2_mul_inner(const spacevec2 a, const spacevec2 b) {
+	fe_space_unit p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
 		p += b[i]*a[i];
@@ -137,7 +137,7 @@ static inline fate_space_unit spacevec2_mul_inner(const spacevec2 a, const space
 
 /*! \brief TODO */
 static inline void spacevec2_reflect(spacevec2 r, const spacevec2 v, const spacevec2 n) {
-	const fate_space_unit p = 2*spacevec2_mul_inner(v, n);
+	const fe_space_unit p = 2*spacevec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -145,6 +145,6 @@ static inline void spacevec2_reflect(spacevec2 r, const spacevec2 v, const space
 
 #endif /* Naive */
 
-#endif /* FATE_MATH_SPACEVEC2_H */
+#endif /* FE_MATH_SPACEVEC2_H */
 
 /* @} */

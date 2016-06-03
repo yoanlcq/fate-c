@@ -41,22 +41,22 @@
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
 
-fate_globalstate fate_gs_;
-fate_globalstate *fate_gs = &fate_gs_;
+fe_globalstate fe_gs_;
+fe_globalstate *fe_gs = &fe_gs_;
 
 /* See https://kripken.github.io/emscripten-site/docs/api_reference/emscripten.h.html#emscripten-asynchronous-indexeddb-api */
 
-void fate_globalstate_init(fate_globalstate *gs) {
-    fate_log_setup();
-    fate_i18n_setup();
-    char *game_path = fate_sys_getgamepath();
+void fe_globalstate_init(fe_globalstate *gs) {
+    fe_log_setup();
+    fe_i18n_setup();
+    char *game_path = fe_sys_getgamepath();
     if(!game_path)
-        fate_fatal("globalstate", 
+        fe_fatal("globalstate", 
                    _("Couldn't find the game's path.\nSorry.\n"));
-    fate_sys_set_current_directory(game_path);
+    fe_sys_set_current_directory(game_path);
     free(game_path);
 
-    fate_sys_crash_handler_setup();
+    fe_sys_crash_handler_setup();
 }
-void fate_globalstate_deinit(fate_globalstate *gs) {
+void fe_globalstate_deinit(fe_globalstate *gs) {
 }

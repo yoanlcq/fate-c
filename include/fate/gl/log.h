@@ -33,8 +33,8 @@
  *  TODO
  */
 
-#ifndef FATE_GL_LOG
-#define FATE_GL_LOG
+#ifndef FE_GL_LOG
+#define FE_GL_LOG
 
 #include <stdbool.h>
 #include <fate/gl/defs.h>
@@ -45,9 +45,9 @@
 #define GL_CHECK_ERR()
 #endif
 
-void fate_gl_log_error(GLenum err, bool even_no_error);
-void fate_gl_log_all_errors(void);
-void fate_gl_log_program_info(GLuint program);
-void fate_gl_log_shader_info(GLuint shader);
+void fe_gl_log_error(GLenum err, bool even_no_error);
+void fe_gl_log_all_errors(void);
+void fe_gl_log_program_info(GLuint program);
+void fe_gl_log_shader_info(GLuint shader);
 
-#endif /* FATE_GL_LOG */
+#endif /* FE_GL_LOG */

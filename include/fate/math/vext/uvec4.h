@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FATE_MATH_VEXT_UVEC4_H
-#define FATE_MATH_VEXT_UVEC4_H
+#ifndef FE_MATH_VEXT_UVEC4_H
+#define FE_MATH_VEXT_UVEC4_H
 
 /* Feature test section */
 
@@ -134,4 +134,4 @@ static inline void uvec4p_reflect(uvec4 *r, const uvec4 v, const uvec4 n) {
     *r = v-p*n;
 }
 
-#endif /* FATE_MATH_VEXT_UVEC4_H */
+#endif /* FE_MATH_VEXT_UVEC4_H */

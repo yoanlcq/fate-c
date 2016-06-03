@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FATE_MATH_VEXT_DVEC4_H
-#define FATE_MATH_VEXT_DVEC4_H
+#ifndef FE_MATH_VEXT_DVEC4_H
+#define FE_MATH_VEXT_DVEC4_H
 
 /* Feature test section */
 
@@ -134,4 +134,4 @@ static inline void dvec4p_reflect(dvec4 *r, const dvec4 v, const dvec4 n) {
     *r = v-p*n;
 }
 
-#endif /* FATE_MATH_VEXT_DVEC4_H */
+#endif /* FE_MATH_VEXT_DVEC4_H */
