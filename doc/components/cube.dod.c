@@ -20,7 +20,7 @@ void cb_camera_init(cb_camera ths) {
     cam..view..transform..rotation....alloc();
     cam..view..transform..rotation..reset();
     cam..view..transform..translation....alloc();
-    cam..view..transform..translation..wvec3..fill(0,0,-1000);
+    cam..view..transform..translation..xvec3..fill(0,0,-1000);
 
     cam..vel..derivate(cam..view..transform..translation);
     cam..angular_vel..derivate(cam..view..transform..rotation);
@@ -79,9 +79,8 @@ void cb_demo_init(cb_demo demo) {
     demo..viewport..view = demo..camera..view;
 
     fe_tasknode mytask, tsk;
-    tsk..retrieve_game_update();
+    tsk..retrieve_ontick();
     mytask....alloc();
-    mytask..
     mytask..work_stealing_hint();
     mytask..set_callback(cb_demo_update);
     mytask..depend_on(tsk);
