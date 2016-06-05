@@ -2,6 +2,8 @@ struct cb_cube {
     GLuint ebo, vao, vbo;
 };
 
+size_t cb_cube_chunkfunc(size_t round) { return 1; }
+
 void cb_cube_init(cb_cube c, GLuint prog) {
     GLbyte vertices[24] = { 
          127, -127, -127,
@@ -29,56 +31,66 @@ void cb_cube_init(cb_cube c, GLuint prog) {
         5, 3, 7, 1, 6, 0, 4, 2
     };
 
-    c..prog = prog;
-    glUseProgram(c..prog);
+    glUseProgram(prog);
 
-    fe_glCreateBuffers(1, &c..ebo); //glGenBuffers(1, &c..ebo);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c..ebo);
-    fe_glObjectLabel(GL_BUFFER, c..ebo, -1, "\"cb_cube EBO\"");
-    fe_glNamedBufferData(c..ebo, GL_ELEMENT_ARRAY_BUFFER, 
-                         sizeof(indices), indices, GL_STATIC_DRAW);
+    fe_gl_dsa_glGenBuffers(1, &c..ebo);
+    fe_gl_dsa_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c..ebo);
+    fe_gl_dbg_glObjectLabel(GL_BUFFER, c..ebo, -1, "\"cb_cube EBO\"");
+    fe_gl_dsa_glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+                           sizeof(indices), indices, GL_STATIC_DRAW);
  
-    fe_glCreateBuffers(1, &c..vbo); //glGenBuffers(1, &c..vbo);
-    //glBindBuffer(GL_ARRAY_BUFFER, c..vbo);
-    fe_glObjectLabel(GL_BUFFER, c..vbo, -1, "\"cb_cube VBO\"");
-    fe_glNamedBufferData(c..vbo, GL_ARRAY_BUFFER, 
-                         sizeof(vertices)+sizeof(colors), 
-                         NULL, GL_STATIC_DRAW);
-    fe_glNamedBufferSubData(c..vbo, GL_ARRAY_BUFFER, 0, 
-                            sizeof(vertices), vertices);
-    fe_glNamedBufferSubData(c..vbo, GL_ARRAY_BUFFER, 
-                            sizeof(vertices), sizeof(colors), colors);
+    fe_gl_dsa_glGenBuffers(1, &c..vbo);
+    fe_gl_dsa_glBindBuffer(GL_ARRAY_BUFFER, c..vbo);
+    fe_gl_dbg_glObjectLabel(GL_BUFFER, c..vbo, -1, "\"cb_cube VBO\"");
+    fe_gl_dsa_glBufferData(GL_ARRAY_BUFFER, 
+                           sizeof(vertices)+sizeof(colors), 
+                           NULL, GL_STATIC_DRAW);
+    fe_gl_dsa_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+    fe_gl_dsa_glBufferSubData(GL_ARRAY_BUFFER, 
+                              sizeof(vertices), sizeof(colors), colors);
 
-    fe_glCreateVertexArrays(1, &c..vao); //glGenVertexArrays(1, &c..vao);
-    //glBindVertexArray(c..vao);
-    fe_glObjectLabel(GL_VERTEX_ARRAY, c..vao, -1, "\"cb_cube VAO\"");
-    fe_glEnableVertexArrayAttrib(c..vao, 0); //glEnableVertexAttribArray(0);
-    fe_glEnableVertexArrayAttrib(c..vao, 1); //glEnableVertexAttribArray(1);
-    fe_glVertexArrayVertexBuffer(c..vao, 0, c..vbo, 0, 0);
-    fe_glVertexArrayAttribFormat(c..vao, 0, 3, GL_BYTE, GL_TRUE, 0);
-    fe_glVertexArrayAttribFormat(c..vao, 1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 
-                                 BUFFER_OFFSET(sizeof(vertices)));
-    /*
-    glVertexAttribPointer(0, 3, GL_BYTE, GL_TRUE, 0, NULL);
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 
-                          BUFFER_OFFSET(sizeof(vertices)));
-    */
-    fe_glVertexArrayAttribBinding(c..vao, 0, 0);
-    fe_glVertexArrayAttribBinding(c..vao, 1, 1);
-    fe_glVertexArrayElementBuffer(c..vao, c..ebo);
+    fe_gl_dsa_glGenVertexArrays(1, &c..vao);
+    fe_gl_dsa_glBindVertexArray(c..vao);
+    fe_gl_dbg_glObjectLabel(GL_VERTEX_ARRAY, c..vao, -1, "\"cb_cube VAO\"");
+    fe_gl_dsa_glVertexAttribPointer(0, 3, GL_BYTE, GL_TRUE, 0, NULL);
+    fe_gl_dsa_glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 
+                                    BUFFER_OFFSET(sizeof(vertices)));
+    fe_gl_dsa_glEnableVertexAttribArray(0);
+    fe_gl_dsa_glEnableVertexAttribArray(1);
 }
 void cb_cube_deinit(cb_cube c) {
-    fe_glDisableVertexArrayAttrib(c..vao, 0); //glDisableVertexAttribArray(0);
-    fe_glDisableVertexArrayAttrib(c..vao, 1); //glDisableVertexAttribArray(1);
+    fe_gl_dsa_glBindVertexArray(c..vao);
+    fe_gl_dsa_glDisableVertexAttribArray(0);
+    fe_gl_dsa_glDisableVertexAttribArray(1);
+
+    /* Expands to :
+     *
+     * { //Unextended GL
+     *     glBindVertexArray(dsa_name);
+     *     glDisableVertexAttribArray(0);
+     *     glDisableVertexAttribArray(1);
+     * };
+     * { //EXT DSA
+     *     fe_gl_dsa_state.vao = c..vao; //Not a macro - done by bind().
+     *     glDisableVertexArrayAttribEXT(fe_gl_dsa_state.vao, 0);
+     *     glDisableVertexArrayAttribEXT(fe_gl_dsa_state.vao, 1);
+     * };
+     * { //Core ARB DSA
+     *     fe_gl_dsa_state.vao = c..vao; //Not a macro - done by bind().
+     *     glDisableVertexArrayAttrib(fe_gl_dsa_state.vao, 0);
+     *     glDisableVertexArrayAttrib(fe_gl_dsa_state.vao, 1);
+     * };
+     */
+
     glDeleteBuffers(1, &c..ebo);
     glDeleteBuffers(1, &c..vbo);
     glDeleteVertexArrays(1, &c..vao);
 }
-void cb_cube_draw(cb_cube c) {
+void cb_cube_draw(cb_cube c, GLuint prog) {
     //glDisable(GL_CULL_FACE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
     glCullFace(GL_FRONT);
-    glUseProgram(c..prog);
+    glUseProgram(prog);
     glBindVertexArray(c..vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c..ebo); //useless ??
     glPrimitiveRestartIndex(0xFF);
@@ -86,6 +98,7 @@ void cb_cube_draw(cb_cube c) {
     glDrawElements(GL_TRIANGLE_STRIP, 8+8+1, GL_UNSIGNED_BYTE, NULL);
 }
 
+size_t cb_demo_chunkfunc(size_t round) { return 1; }
 
 struct cb_demo {
     fe_window window;
@@ -253,8 +266,8 @@ void cb_demo_init(cb_demo demo) {
     demo..window..center();
     demo..window..allow_highdpi();
     demo..window..master_gl();
-    demo..window..disable_d3d();
-    demo..window..disable_vk();
+    demo..window..disallow_d3d();
+    demo..window..disallow_vk();
     demo..window..gl..requested..accelerated_visual = true;
     demo..window..gl..requested..double_buffering = true;
     demo..window..gl..requested..depth_bits = 24;
