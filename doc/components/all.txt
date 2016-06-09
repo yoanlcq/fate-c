@@ -12,6 +12,7 @@ Subsystems :
 -- These are functionalities, but NOT components :
 
 - schema
+- inspector
 - serializable
 - deterministic
 - fsm (serial vs parallel, execution order)
