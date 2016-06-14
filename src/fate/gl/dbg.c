@@ -40,9 +40,9 @@
 
 
 
+#ifdef FE_GL_DBG
 static const char *TAG = "fe_gl_dbg";
 
-#ifdef FE_GL_DBG
 
 static void GLAPIENTRY fe_gl_dbg_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
                                        const void *userParam) {}

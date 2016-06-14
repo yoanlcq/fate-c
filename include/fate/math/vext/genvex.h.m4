@@ -48,17 +48,17 @@ dnl
  && __has_builtin(__builtin_shufflevector)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
-    #define ns`'vec`'_shuffle(v,m) \
-                __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define ns`'vec`'_shuffle2(u,v,m) \
-                __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
+    #define ns`'vec`'_shuffle(v,a,b,c,d) \
+                __builtin_shufflevector(v,v,a,b,c,d)
+    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) \
+                __builtin_shufflevector(u,v,a,b,c,d)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(type))))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
-    #define ns`'vec`'_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define ns`'vec`'_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define ns`'vec`'_shuffle(v,a,b,c,d)    __builtin_shuffle(v,(ns`'mask){a,b,c,d})
+    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) __builtin_shuffle(u,v,(ns`'mask){a,b,c,d})
 #endif
 #endif
 
@@ -129,13 +129,10 @@ ifelse(eval(dim>=3),1,
 #define ns`'vec`'_mul_cross(r,a,b) ns`'vec`'p_mul_cross(&(r),a,b)
 #define ns`'vec`'_cross(r,a,b)     ns`'vec`'_mul_cross(r,a,b)
 static inline void ns`'vec`'p_mul_cross(ns`'vec *r, const ns`'vec a, const ns`'vec b) {
-dnl Needs to quote this part because of the commas not inside parentheses.
-`    const ns`'mask s1 = {1, 2, 0, 0};
-    const ns`'mask s2 = {2, 0, 1, 0};'
-    const ns`'vec la = ns`'vec`'_shuffle(a, s1);
-    const ns`'vec lb = ns`'vec`'_shuffle(b, s2);
-    const ns`'vec ra = ns`'vec`'_shuffle(a, s2);
-    const ns`'vec rb = ns`'vec`'_shuffle(b, s1);
+    const ns`'vec la = ns`'vec`'_shuffle(a, 1, 2, 0, 0);
+    const ns`'vec rb = ns`'vec`'_shuffle(b, 1, 2, 0, 0);
+    const ns`'vec lb = ns`'vec`'_shuffle(b, 2, 0, 1, 0);
+    const ns`'vec ra = ns`'vec`'_shuffle(a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     ifelse(eval(dim==4),1,(*r)[3] = 1;)
 }

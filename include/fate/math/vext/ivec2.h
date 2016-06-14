@@ -45,17 +45,17 @@
  && __has_builtin(__builtin_shufflevector)
     #define FE_IVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define FE_IVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_ivec2_shuffle(v,m) \
-                __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define fe_ivec2_shuffle2(u,v,m) \
-                __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
+    #define fe_ivec2_shuffle(v,a,b,c,d) \
+                __builtin_shufflevector(v,v,a,b,c,d)
+    #define fe_ivec2_shuffle2(u,v,a,b,c,d) \
+                __builtin_shufflevector(u,v,a,b,c,d)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define FE_IVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(int32_t))))
     #define FE_IVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_ivec2_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define fe_ivec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define fe_ivec2_shuffle(v,a,b,c,d)    __builtin_shuffle(v,(fe_mask){a,b,c,d})
+    #define fe_ivec2_shuffle2(u,v,a,b,c,d) __builtin_shuffle(u,v,(fe_mask){a,b,c,d})
 #endif
 #endif
 

@@ -332,13 +332,20 @@
  * This macro expands to nothing if the compiler is not GCC.
  */
 #define FE_NIY __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
+#ifdef __clang__
+#undef FE_NIY
+#define FE_NIY
+#endif
 /*! \brief Marks a function as "WORK IN PROGRESS"
  *
  * Use this for functions that are at least 50% finished.
  * This macro expands to nothing if the compiler is not GCC.
  */
 #define FE_WIP __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
-
+#ifdef __clang__
+#undef FE_WIP
+#define FE_WIP
+#endif
 
 
 #else /* ifdef __GNUC__ */

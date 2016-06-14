@@ -45,17 +45,17 @@
  && __has_builtin(__builtin_shufflevector)
     #define FE_DVEC3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define FE_DVEC3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec3_shuffle(v,m) \
-                __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define fe_dvec3_shuffle2(u,v,m) \
-                __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
+    #define fe_dvec3_shuffle(v,a,b,c,d) \
+                __builtin_shufflevector(v,v,a,b,c,d)
+    #define fe_dvec3_shuffle2(u,v,a,b,c,d) \
+                __builtin_shufflevector(u,v,a,b,c,d)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define FE_DVEC3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(double))))
     #define FE_DVEC3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec3_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define fe_dvec3_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define fe_dvec3_shuffle(v,a,b,c,d)    __builtin_shuffle(v,(fe_ullvec4){a,b,c,d})
+    #define fe_dvec3_shuffle2(u,v,a,b,c,d) __builtin_shuffle(u,v,(fe_ullvec4){a,b,c,d})
 #endif
 #endif
 
@@ -110,12 +110,10 @@ static inline double fe_dvec3_mul_inner(const fe_dvec3 a, const fe_dvec3 b) {
 #define fe_dvec3_mul_cross(r,a,b) fe_dvec3p_mul_cross(&(r),a,b)
 #define fe_dvec3_cross(r,a,b)     fe_dvec3_mul_cross(r,a,b)
 static inline void fe_dvec3p_mul_cross(fe_dvec3 *r, const fe_dvec3 a, const fe_dvec3 b) {
-    const fe_ullvec4 s1 = {1, 2, 0, 0};
-    const fe_ullvec4 s2 = {2, 0, 1, 0};
-    const fe_dvec3 la = fe_dvec3_shuffle(a, s1);
-    const fe_dvec3 lb = fe_dvec3_shuffle(b, s2);
-    const fe_dvec3 ra = fe_dvec3_shuffle(a, s2);
-    const fe_dvec3 rb = fe_dvec3_shuffle(b, s1);
+    const fe_dvec3 la = fe_dvec3_shuffle(a, 1, 2, 0, 0);
+    const fe_dvec3 rb = fe_dvec3_shuffle(b, 1, 2, 0, 0);
+    const fe_dvec3 lb = fe_dvec3_shuffle(b, 2, 0, 1, 0);
+    const fe_dvec3 ra = fe_dvec3_shuffle(a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     
 }
