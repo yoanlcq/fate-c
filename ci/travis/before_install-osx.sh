@@ -16,4 +16,4 @@ hdiutil unmount /Volumes/SDL2/
 popd
 rm -rf tmp
 brew install gettext
-brew link gettext
+brew link --force gettext
