@@ -95,7 +95,7 @@ void cube_main_init(struct cube_main *m) {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
                         0//SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
-#ifdef FE_GL_DEBUG
+#ifdef FE_GL_DBG
                        |SDL_GL_CONTEXT_DEBUG_FLAG
 #endif
                         );

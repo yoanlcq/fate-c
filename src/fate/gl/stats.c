@@ -36,7 +36,7 @@
 #include <string.h>
 #include <fate/gl.h>
 
-#ifdef FE_GL_DEBUG
+#ifdef FE_GL_DBG
 
 struct fgl_stats_soa {
     GLenum targets[11];

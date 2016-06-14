@@ -59,7 +59,7 @@ struct fe_gl_stats {
 /*! \brief TODO */
 typedef struct fe_gl_stats fe_gl_stats;
 
-#ifdef FE_GL_DEBUG || defined(__DOXYGEN__)
+#if defined(FE_GL_DBG) || defined(__DOXYGEN__)
 /*! \brief TODO */
 void fe_gl_stats_setup(void);
 /*! \brief TODO */
@@ -76,7 +76,7 @@ extern void (*fe_gl_stats_get_stats)(fe_gl_stats*);
 #define fe_gl_stats_start_recording() 
 #define fe_gl_stats_end_recording() 
 #define fe_gl_stats_get_stats(X) 
-#endif /* FE_GL_DEBUG */
+#endif /* FE_GL_DBG */
 
 /*! @} */
 #endif /* FE_GL_STATS_H */

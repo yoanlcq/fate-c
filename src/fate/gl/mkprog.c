@@ -364,7 +364,7 @@ static bool fe_gl_mkprog_2_0_real(GLuint program, const char *save_path,
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if(status == GL_TRUE) {
         fe_logv(TAG, "Successfully linked \"%s\".\n", save_path);
-#ifdef FE_GL_DEBUG
+#ifdef FE_GL_DBG
         glValidateProgram(program);
         glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
         fe_logv(TAG, "\"%s\" is %svalid. ", 
