@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/ivec2.h
+ *  \brief ivec2
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/ivec2.h
- *  \brief ivec2
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * ivec2
+ * fe_ivec2
  */
-typedef int32_t ivec2[2];
+typedef int32_t fe_ivec2[2];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ivec2_color {
+struct FATE_PACKED_STRUCT fe_ivec2_color {
     int32_t r;
     int32_t g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct ivec2_color ivec2_color;
+typedef struct fe_ivec2_color fe_ivec2_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ivec2_coord {
+struct FATE_PACKED_STRUCT fe_ivec2_coord {
     int32_t x;
     int32_t y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct ivec2_coord ivec2_coord;
+typedef struct fe_ivec2_coord fe_ivec2_coord;
 
 /*! \brief TODO */
-#define ivec2_as_array(v) (v)
+#define fe_ivec2_as_array(v) (v)
 /*! \brief TODO */
-#define ivec2_as_color(v) ((ivec2_color*)ivec2_as_array(v))
+#define fe_ivec2_as_color(v) ((fe_ivec2_color*)fe_ivec2_as_array(v))
 /*! \brief TODO */
-#define ivec2_as_coord(v) ((ivec2_coord*)ivec2_as_array(v))
+#define fe_ivec2_as_coord(v) ((fe_ivec2_coord*)fe_ivec2_as_array(v))
 
 /*! \brief TODO */
-static inline void ivec2_add(ivec2 r, const ivec2 a, const ivec2 b) {
+static inline void fe_ivec2_add(fe_ivec2 r, const fe_ivec2 a, const fe_ivec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void ivec2_sub(ivec2 r, const ivec2 a, const ivec2 b) {
+static inline void fe_ivec2_sub(fe_ivec2 r, const fe_ivec2 a, const fe_ivec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void ivec2_scale(ivec2 r, const ivec2 v, const int32_t s) {
+static inline void fe_ivec2_scale(fe_ivec2 r, const fe_ivec2 v, const int32_t s) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define ivec2_dot(a,b) ivec2_mul_inner(a,b)
+#define fe_ivec2_dot(a,b) fe_ivec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline int32_t ivec2_mul_inner(const ivec2 a, const ivec2 b) {
+static inline int32_t fe_ivec2_mul_inner(const fe_ivec2 a, const fe_ivec2 b) {
 	int32_t p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
@@ -127,17 +124,17 @@ static inline int32_t ivec2_mul_inner(const ivec2 a, const ivec2 b) {
 }
 
 /*! \brief TODO */
-#define ivec2_len(v)  sqrt(ivec2_mul_inner(v, v))
+#define fe_ivec2_len(v)  sqrt(fe_ivec2_mul_inner(v, v))
 /*! \brief TODO */
-#define ivec2_lenf(v) sqrtf(ivec2_mul_inner(v, v))
+#define fe_ivec2_lenf(v) sqrtf(fe_ivec2_mul_inner(v, v))
 /*! \brief TODO */
-#define ivec2_norm(r,v) ivec2_scale(r, v, 1./ivec2_len(v))
+#define fe_ivec2_norm(r,v) fe_ivec2_scale(r, v, 1./fe_ivec2_len(v))
 
-/* No cross product for ivec2. */
+/* No cross product for fe_ivec2. */
 
 /*! \brief TODO */
-static inline void ivec2_reflect(ivec2 r, const ivec2 v, const ivec2 n) {
-	const int32_t p = 2*ivec2_mul_inner(v, n);
+static inline void fe_ivec2_reflect(fe_ivec2 r, const fe_ivec2 v, const fe_ivec2 n) {
+	const int32_t p = 2*fe_ivec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -145,6 +142,5 @@ static inline void ivec2_reflect(ivec2 r, const ivec2 v, const ivec2 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_IVEC2_H */
-
 /* @} */
+#endif /* FE_MATH_IVEC2_H */

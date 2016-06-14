@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <fate/sys.h>
 #include <fate/log.h>
+#include <fate/fs.h>
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
 

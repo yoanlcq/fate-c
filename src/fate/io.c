@@ -7,10 +7,10 @@
 void fe_io___zallocv(fe_io *s, size_t cnt) {}
 void fe_io___deallocv(fe_io *s, size_t cnt) {}
 void fe_io_open_mmap(fe_io io, const char *filename, fe_io_file_flags flags) {}
-fe_loader fe_io_load_file(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
-fe_loader fe_io_load_wget(fe_io io, const char *url) {return 0;}
-fe_loader fe_io_load_res(fe_io io, const char *url, const char *file, fe_io_file_flags flags) {return 0;}
-fe_loader fe_io_load_userdata(fe_io io, const char *file, fe_io_file_flags flags) {return 0;}
+fe_promise fe_io_load_file(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
+fe_promise fe_io_load_wget(fe_io io, const char *url) {return 0;}
+fe_promise fe_io_load_res(fe_io io, const char *url, const char *file, fe_io_file_flags flags) {return 0;}
+fe_promise fe_io_load_userdata(fe_io io, const char *file, fe_io_file_flags flags) {return 0;}
 void fe_io_name(fe_io io, const char *name) {}
 const char *fe_io_get_name(fe_io io) {return NULL;}
 
@@ -33,7 +33,7 @@ void fe_io_puts(fe_io io, const char *str) {}
 void fe_io_printf(fe_io io, const char *fmt, ...) {}
 /* Completely overwrites a file. Very few use cases, since it is 
  * neither userdata nor res. */
-fe_loader fe_io_sync_file(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
+fe_promise fe_io_sync_file(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
 /* Completely overwrites a userdata file. */
-fe_loader fe_io_sync_userdata(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
+fe_promise fe_io_sync_userdata(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
 

@@ -157,6 +157,23 @@
 #endif
 
 
+/* See http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros#x86andx8664 */
+#if __DOXYGEN__ \
+ || defined(i386) \
+ || defined(__i386) \
+ || defined(__i386__) \
+ || defined(_M_IX86) \
+ || defined(_X86_) \
+ || defined(__x86_64) \
+ || defined(__x86_64__) \
+ || defined(__amd64) \
+ || defined(__amd64__) \
+ || defined(_M_AMD64) \
+ || defined(_M_X64)
+/*! \brief Defined only if we're compiling for x86 hardware. */
+#define FE_HW_X86 1
+#endif
+
 
 /*
  *
@@ -309,6 +326,20 @@
  * This macro expands to nothing if the compiler is not GCC.
  */
 #define FE_PACKED_STRUCT __attribute__((packed))
+/*! \brief Marks a function as "NOT IMPLEMENTED YET"
+ *
+ * Use this for functions that are at most 50% finished.
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define FE_NIY __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
+/*! \brief Marks a function as "WORK IN PROGRESS"
+ *
+ * Use this for functions that are at least 50% finished.
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define FE_WIP __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
+
+
 
 #else /* ifdef __GNUC__ */
 
@@ -320,6 +351,8 @@
 #define FE_SENTINEL(pos) 
 #define FE_WARN_UNUSED_RESULT 
 #define FE_PACKED_STRUCT
+#define FE_NIY
+#define FE_WIP
 
 #endif /* ifdef __GNUC_ */
 

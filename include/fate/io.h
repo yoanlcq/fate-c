@@ -48,7 +48,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <fate/loader.h>
+#include <fate/promise.h>
 
 /*! \brief TODO
  * 
@@ -70,69 +70,78 @@ enum fe_io_file_flags {
 /*! \brief TODO*/
 typedef enum fe_io_file_flags fe_io_file_flags;
 
-/*! \brief TODO*/
-void fe_io___zallocv(fe_io *s, size_t cnt);
-/*! \brief TODO*/
-void fe_io___deallocv(fe_io *s, size_t cnt);
+/*! \brief TODO  */
+FE_NIY void fe_io___zallocv(fe_io *s, size_t cnt);
+/*! \brief TODO  */
+FE_NIY void fe_io___deallocv(fe_io *s, size_t cnt);
 /*! \brief Reads a full file into memory using mmap() or MapViewOfFile().
- * Falls back to #fe_io_open_file() if required. */
-void fe_io_open_mmap(fe_io io, const char *filename, fe_io_file_flags flags);
+ * Falls back to #fe_io_open_file() if required. 
+ *
+ *  */
+FE_NIY void fe_io_open_mmap(fe_io io, const char *filename, fe_io_file_flags flags);
 /*! \brief Reads a full file into memory, the closes it. On Emscripten, it uses MEMFS.
- * For the game dev, its use is discouraged in favor of fe_io_open_res(). */
-fe_loader fe_io_load_file(fe_io io, const char *filename, fe_io_file_flags flags);
-/*! \brief Downloads a file, no matter the platform, opening then closing the connection. */
-fe_loader fe_io_load_wget(fe_io io, const char *url);
+ * For the game dev, its use is discouraged in favor of fe_io_open_res(). 
+ *  */
+FE_NIY fe_promise fe_io_load_file(fe_io io, const char *filename, fe_io_file_flags flags);
+/*! \brief Downloads a file, no matter the platform, opening then closing the connection. 
+ *  */
+FE_NIY fe_promise fe_io_load_wget(fe_io io, const char *url);
 /*! \brief Either opens a file or downloads it depending if we are on Emscripten 
- * or not. */
-fe_loader fe_io_load_res(fe_io io, const char *url, const char *file, fe_io_file_flags flags);
+ * or not. 
+ *  */
+FE_NIY fe_promise fe_io_load_res(fe_io io, const char *url, const char *file, fe_io_file_flags flags);
 /*! \brief Either opens a file or an IndexedDB entry depending if we are on Emscripten 
- * or not. */
-fe_loader fe_io_load_userdata(fe_io io, const char *file, fe_io_file_flags flags);
+ * or not. 
+ *  */
+FE_NIY fe_promise fe_io_load_userdata(fe_io io, const char *file, fe_io_file_flags flags);
 /*! \brief This is just because it's handy for logging info. If you know you're reading
  * a single file, you could put that file's name in it.
  * The string is duplicated on purpose, so there's no need to worry about its lifetime. 
- * It is free()'d at each next call to fe_io_name(). */
-void fe_io_name(fe_io io, const char *name);
-/*! \brief TODO*/
-const char *fe_io_get_name(fe_io io);
+ * It is free()'d at each next call to fe_io_name(). 
+ *  */
+FE_NIY void fe_io_name(fe_io io, const char *name);
+/*! \brief TODO  */
+FE_NIY const char *fe_io_get_name(fe_io io);
 
 /* The following calls wait for the data to be ready : */
-/*! \brief TODO*/
-void *fe_io_getdata(fe_io io);
-/*! \brief TODO*/
-size_t fe_io_get_bytes_received(fe_io io);
-/*! \brief TODO*/
-size_t fe_io_get_bytes_total(fe_io io);
-/*! \brief TODO*/
+/*! \brief TODO */
+FE_NIY void *fe_io_getdata(fe_io io);
+/*! \brief TODO */
+FE_NIY size_t fe_io_get_bytes_received(fe_io io);
+/*! \brief TODO */
+FE_NIY size_t fe_io_get_bytes_total(fe_io io);
+/*! \brief TODO */
 #define fe_io_getsize(s) fe_io_get_bytes_total(s)
-/*! \brief TODO*/
-bool fe_io_ok(fe_io io);
+/*! \brief TODO */
+FE_NIY bool fe_io_ok(fe_io io);
 
-/*! \brief TODO*/
+/*! \brief TODO  */
 typedef int fe_io_status;
-/*! \brief TODO*/
-fe_io_status fe_io_get_status(fe_io io);
-/*! \brief TODO*/
-const char *fe_io_status_str(fe_io_status status);
+/*! \brief TODO  */
+FE_NIY fe_io_status fe_io_get_status(fe_io io);
+/*! \brief TODO  */
+FE_NIY const char *fe_io_status_str(fe_io_status status);
 
-/*! \brief TODO Actually just frees the memory. */
-void fe_io_close(fe_io io);
-/*! \brief TODO Changes the 'allocated_size' member. */
-void fe_io_resize(fe_io io, size_t new_size);
+/*! \brief TODO  Actually just frees the memory. */
+FE_NIY void fe_io_close(fe_io io);
+/*! \brief TODO  Changes the 'allocated_size' member. */
+FE_NIY void fe_io_resize(fe_io io, size_t new_size);
 /* No read(), gets() or scanf() functions are provided, since you can get a pointer on the data. */
-/*! \brief TODO*/
-void fe_io_write(fe_io io, const void *data, size_t size);
-/*! \brief TODO*/
-void fe_io_putc(fe_io io, char c);
-/*! \brief TODO*/
-void fe_io_puts(fe_io io, const char *str);
-/*! \brief TODO*/
-void fe_io_printf(fe_io io, const char *fmt, ...);
+/*! \brief TODO */
+FE_NIY void fe_io_write(fe_io io, const void *data, size_t size);
+/*! \brief TODO */
+FE_NIY void fe_io_putc(fe_io io, char c);
+/*! \brief TODO */
+FE_NIY void fe_io_puts(fe_io io, const char *str);
+/*! \brief TODO */
+FE_NIY void fe_io_printf(fe_io io, const char *fmt, ...);
 /*! \brief Completely overwrites a file. Very few use cases, since it is 
- * neither userdata nor res. */
-fe_loader fe_io_sync_file(fe_io io, const char *filename, fe_io_file_flags flags);
-/*! \brief Completely overwrites a userdata file. */
-fe_loader fe_io_sync_userdata(fe_io io, const char *filename, fe_io_file_flags flags);
+ * neither userdata nor res. 
+ *   */
+FE_NIY fe_promise fe_io_sync_file(fe_io io, const char *filename, fe_io_file_flags flags);
+/*! \brief Completely overwrites a userdata file.  
+ *  */
+FE_NIY fe_promise fe_io_sync_userdata(fe_io io, const char *filename, fe_io_file_flags flags);
 
 /*! @} */
 #endif /* FE_IO_H */

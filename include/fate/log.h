@@ -84,12 +84,12 @@ typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...) FE_PRINTF_DECL
  *
  * This function also calls #fe_log_flags, with #FE_LOG_COLORED and #FE_LOG_TAG.
  */
-void fe_log_setup(void);
+FE_NIY void fe_log_setup(void);
 
 /*! \brief Clean-up this module.
  * 
  */
-void fe_log_cleanup(void);
+FE_NIY void fe_log_cleanup(void);
 
 
 /*! \brief Flags to be given to #fe_log_flags.
@@ -124,7 +124,7 @@ typedef enum fe_log_flag fe_log_flag;
  * \param flags Bitwise OR combination of one or more flags, as defined in #fe_log_flag.
  * \see enum fe_log_flag
  */
-void fe_log_flags(unsigned long flags);
+FE_NIY void fe_log_flags(unsigned long flags);
 
 /*! \brief Atomically get the log module's current flags. 
  *
@@ -132,7 +132,7 @@ void fe_log_flags(unsigned long flags);
  * \see fe_log_flags
  * \see fe_log_flag 
  */
-unsigned long fe_log_getflags(void);
+FE_NIY unsigned long fe_log_getflags(void);
 
 /*! \brief Enumeration of log severities for #fe_log_multiplex().
  *
@@ -151,19 +151,19 @@ typedef enum fe_log_severity fe_log_severity;
 /*! \brief Prevents messages having the given tag from being displayed to the 
  *         console.
  */
-void fe_log_no_console(const char *tag);
+FE_NIY void fe_log_no_console(const char *tag);
 /*! \brief Requests that messages having the given tag be displayed to the 
  *         console (using stdout, stderr or Android's Logcat depending 
  *         on cases).
  */
-void fe_log_on_console(const char *tag);
+FE_NIY void fe_log_on_console(const char *tag);
 /*! \brief Requests that messages having the given tag be also displayed to 
  *         a file.
  *
  * Files are reference_counted within the \c fe_log module, so that no file
  * is fopen()-ed more than once.
  */
-void fe_log_file(const char *tag, const char *filename);
+FE_NIY void fe_log_file(const char *tag, const char *filename);
 
 /*! \brief Log Infos.
  *
@@ -215,7 +215,7 @@ void fe_logd(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
  * parameter.
  */
 void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
-#ifdef FE_DEBUG_BUILD
+#ifndef FE_DEBUG_BUILD
 #define fe_logd(tag, fmt, ...) 
 #endif
 

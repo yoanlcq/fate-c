@@ -27,32 +27,33 @@
  *
  */
 
-/*! \file fate/loader.h
- *  \brief Loaders.
- *  \defgroup loader Loader
+/*! \file fate/promise.h
+ *  \brief Promises.
+ *  \defgroup promise Promises
  *
  * @{
  */
 
-#ifndef FE_LOADER_H
-#define FE_LOADER_H
+#ifndef FE_PROMISE_H
+#define FE_PROMISE_H
 
+#include <fate/defs.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 /*! \brief TODO*/
-typedef struct fe_loader_callback_data fe_loader_callback_data;
+typedef struct fe_promise_callback_data fe_promise_callback_data;
 /*! \brief TODO*/
-typedef void (*fe_loader_callback)(const fe_loader_callback_data *data);
+typedef void (*fe_promise_callback)(const fe_promise_callback_data *data);
 /*! \brief TODO*/
-typedef uint32_t fe_loader;
+typedef uint32_t fe_promise;
 /*! \brief TODO*/
-bool fe_loader_wait(fe_loader l);
+FE_NIY bool fe_promise_wait(fe_promise l);
 /*! \brief TODO*/
-bool fe_loader_is_ready(fe_loader l);
+FE_NIY bool fe_promise_is_ready(fe_promise l);
 /*! \brief TODO*/
-void fe_loader_set_callback(fe_loader l, fe_loader_callback func, void *userdata);
+FE_NIY void fe_promise_set_callback(fe_promise l, fe_promise_callback func, void *userdata);
 
 
 /*! @} */
-#endif /* FE_LOADER_H */
+#endif /* FE_PROMISE_H */

@@ -160,6 +160,7 @@ bool fe_ipv6_hub_test_udp6(fe_ipv6_hub *s, fe_udp6 *sock);
 /*! \brief TODO */
 bool fe_ipv6_hub_test_tcp6(fe_ipv6_hub *s, fe_tcp6 *sock);
 
+/* @} */
 
 /* End of API */
 #define fe_ipv6_peer_from_tcp6_self fe_ipv6_peer_from_udp6
@@ -181,5 +182,4 @@ void fe_ipv6_peer_get_host(const fe_ipv6_peer *p,
 #define fe_ipv6_hub_rm_tcp6 fe_ipv6_hub_rm_udp6
 #define fe_ipv6_hub_test_tcp6 fe_ipv6_hub_test_udp6
 
-/* @} */
 #endif /* FE_IPV6_H */

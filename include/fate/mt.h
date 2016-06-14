@@ -137,21 +137,21 @@
 
 typedef int fe_mt_thread;
 typedef int fe_mt_mutex;
-void fe_mt_setup(void);
-unsigned fe_mt_get_num_threads(void);
-fe_mt_thread* fe_mt_thread_create(int (*func)(void*), const char *name);
-void fe_mt_thread_detach(fe_mt_thread *t);
-int fe_mt_thread_getid(fe_mt_thread *t);
-const char *fe_mt_thread_getname(fe_mt_thread *t);
-void fe_mt_thread_setpriority(float priority);
-void fe_mt_thread_wait(fe_mt_thread *t);
+FE_NIY void fe_mt_setup(void);
+FE_NIY size_t fe_mt_get_num_threads(void);
+FE_NIY fe_mt_thread* fe_mt_thread_create(int (*func)(void*), const char *name);
+FE_NIY void fe_mt_thread_detach(fe_mt_thread *t);
+FE_NIY int fe_mt_thread_getid(fe_mt_thread *t);
+FE_NIY const char *fe_mt_thread_getname(fe_mt_thread *t);
+FE_NIY void fe_mt_thread_setpriority(float priority);
+FE_NIY void fe_mt_thread_wait(fe_mt_thread *t);
 
-void fe_mutex_setup(void);
+FE_NIY void fe_mutex_setup(void);
 #define FE_MUTEX_DECL(name) something... 
-void fe_mutex_init(fe_mt_mutex *mutex);
-void fe_mutex_deinit(fe_mt_mutex *mutex);
-void fe_mutex_lock(fe_mt_mutex *mutex);
-void fe_mutex_unlock(fe_mt_mutex *mutex);
+FE_NIY void fe_mutex_init(fe_mt_mutex *mutex);
+FE_NIY void fe_mutex_deinit(fe_mt_mutex *mutex);
+FE_NIY void fe_mutex_lock(fe_mt_mutex *mutex);
+FE_NIY void fe_mutex_unlock(fe_mt_mutex *mutex);
 
 
 

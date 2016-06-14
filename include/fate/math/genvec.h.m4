@@ -27,27 +27,25 @@
  *
  */
 changecom()
-/* This file was generated automagically from generator, using Make and 
- * GNU M4. Therefore, it's pointless to edit it. Edit generator instead. 
- *
- * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
- * license, which was used as a reference to implement this file's 
- * functionalities.
- */
-
 define(`VEC',translit(vec, `a-z', `A-Z'))dnl
+define(`NS',translit(ns, `a-z', `A-Z'))dnl
 dnl
 /*! \file dir/vec.h
  *  \brief vec
  *  \ingroup math
  * 
- * TODO
+ * This file was generated automagically from generator, using Make and 
+ * GNU M4. Therefore, it's pointless to edit it. Edit generator instead. 
+ *
+ * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
+ * license, which was used as a reference to implement this file's 
+ * functionalities.
  *
  * @{
  */
 
-#ifndef prefix`'VEC`'suffix`'_H
-#define prefix`'VEC`'suffix`'_H
+#ifndef PREFIX`'VEC`'_H
+#define PREFIX`'VEC`'_H
 
 
 #ifdef __clang__
@@ -66,61 +64,61 @@ dnl
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-ifelse(type,fate_space_unit,#include <fate/units.h>)
+ifelse(type,fe_space_unit,#include <fate/units.h>)
 /*! \brief TODO 
  *
- * vec
+ * ns`'vec
  */
-typedef type vec[dim];
+typedef type ns`'vec[dim];
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec`'_color {
+struct FATE_PACKED_STRUCT ns`'vec`'_color {
     type r;
     type g;
     ifelse(eval(dim>=3),1,type b;,/* No blue component. */)
     ifelse(eval(dim>=4),1,type a;,/* No alpha component. */)
 };
-typedef struct vec`'_color vec`'_color;
+typedef struct ns`'vec`'_color ns`'vec`'_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT vec`'_coord {
+struct FATE_PACKED_STRUCT ns`'vec`'_coord {
     type x;
     type y;
     ifelse(eval(dim>=3),1,type z;,/* No z component. */)
     ifelse(eval(dim>=4),1,type w;,/* No w component. */)
 };
-typedef struct vec`'_coord vec`'_coord;
+typedef struct ns`'vec`'_coord ns`'vec`'_coord;
 
 /*! \brief TODO */
-#define vec`'_as_array(v) (v)
+#define ns`'vec`'_as_array(v) (v)
 /*! \brief TODO */
-#define vec`'_as_color(v) ((vec`'_color*)vec`'_as_array(v))
+#define ns`'vec`'_as_color(v) ((ns`'vec`'_color*)ns`'vec`'_as_array(v))
 /*! \brief TODO */
-#define vec`'_as_coord(v) ((vec`'_coord*)vec`'_as_array(v))
+#define ns`'vec`'_as_coord(v) ((ns`'vec`'_coord*)ns`'vec`'_as_array(v))
 
 /*! \brief TODO */
-static inline void vec`'_add(vec r, const vec a, const vec b) {
+static inline void ns`'vec`'_add(ns`'vec r, const ns`'vec a, const ns`'vec b) {
 	size_t i;
 	for(i=0; i<dim; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void vec`'_sub(vec r, const vec a, const vec b) {
+static inline void ns`'vec`'_sub(ns`'vec r, const ns`'vec a, const ns`'vec b) {
 	size_t i;
 	for(i=0; i<dim; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void vec`'_scale(vec r, const vec v, const type s) {
+static inline void ns`'vec`'_scale(ns`'vec r, const ns`'vec v, const type s) {
 	size_t i;
 	for(i=0; i<dim; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define vec`'_dot(a,b) vec`'_mul_inner(a,b)
+#define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
 /*! \brief TODO */
-static inline type vec`'_mul_inner(const vec a, const vec b) {
+static inline type ns`'vec`'_mul_inner(const ns`'vec a, const ns`'vec b) {
 	type p;
 	size_t i;
 	for(p=i=0; i<dim; ++i)
@@ -129,28 +127,28 @@ static inline type vec`'_mul_inner(const vec a, const vec b) {
 }
 
 /*! \brief TODO */
-#define vec`'_len(v)  sqrt(vec`'_mul_inner(v, v))
+#define ns`'vec`'_len(v)  sqrt(ns`'vec`'_mul_inner(v, v))
 /*! \brief TODO */
-#define vec`'_lenf(v) sqrtf(vec`'_mul_inner(v, v))
+#define ns`'vec`'_lenf(v) sqrtf(ns`'vec`'_mul_inner(v, v))
 /*! \brief TODO */
-#define vec`'_norm(r,v) vec`'_scale(r, v, 1./vec`'_len(v))
+#define ns`'vec`'_norm(r,v) ns`'vec`'_scale(r, v, 1./ns`'vec`'_len(v))
 
 ifelse(eval(dim>=3),1,
 /*! \brief TODO */
-#define vec`'_cross(r,a,b) vec`'_mul_cross(r,a,b)
+#define ns`'vec`'_cross(r,a,b) ns`'vec`'_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void vec`'_mul_cross(vec r, const vec a, const vec b) {
+static inline void ns`'vec`'_mul_cross(ns`'vec r, const ns`'vec a, const ns`'vec b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
 	ifelse(eval(dim>=4),1,r[3] = 1.f;)
 }
-,/* No cross product for vec. */
+,/* No cross product for ns`'vec. */
 )dnl
 
 /*! \brief TODO */
-static inline void vec`'_reflect(vec r, const vec v, const vec n) {
-	const type p = 2*vec`'_mul_inner(v, n);
+static inline void ns`'vec`'_reflect(ns`'vec r, const ns`'vec v, const ns`'vec n) {
+	const type p = 2*ns`'vec`'_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<dim ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -158,6 +156,5 @@ static inline void vec`'_reflect(vec r, const vec v, const vec n) {
 
 #endif /* Naive */
 
-#endif /* prefix`'VEC`'suffix`'_H */
-
 /* @} */
+#endif /* PREFIX`'VEC`'_H */

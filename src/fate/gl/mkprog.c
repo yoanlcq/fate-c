@@ -317,7 +317,7 @@ static void fgm_program_to_binary(GLuint program, fe_io binfile, const char *bin
     glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
     fe_io_write(binfile, &binfmt, sizeof(GLenum));
     fe_io_write(binfile, bin, binlen);
-    fe_loader_wait(fe_io_sync_userdata(binfile, binfile_path, 0));
+    fe_promise_wait(fe_io_sync_userdata(binfile, binfile_path, 0));
     fe_logv(TAG, "Saved binary with format 0x%x.\n", binfmt);
 }
 
@@ -415,7 +415,7 @@ static bool fe_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
         if(!success)
             return false;
         fgm_program_to_binary(program, binfile, save_path);
-        if(!fe_loader_wait(fe_io_sync_file(binfile, save_path, 0))) {
+        if(!fe_promise_wait(fe_io_sync_file(binfile, save_path, 0))) {
             fe_logw(TAG, "Could not save program binary to \"%s\".\n",
                             save_path);
             return true;

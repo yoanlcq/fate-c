@@ -10,11 +10,11 @@ $(GAME)_DBG_OFILES = $(patsubst src/$(GAME)/%.c,$(BUILDDIR)/$(GAME)_dbg/%$(OBJ_E
 $(BUILDDIR)/$(GAME)/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs
 	$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	$(CC) $(CCRELEASEFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	@$(CC) $(CCRELEASEFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
 $(BUILDDIR)/$(GAME)_dbg/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	$(CC) $(CCDEBUGFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	@$(CC) $(CCDEBUGFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
 
 ifeq ($(OS),windows)
 ifeq ($(CC),cl)
@@ -35,10 +35,10 @@ $(GAME)_DBG = $(BINDIR)/$(GAME)_dbg$(EXE_EXTENSION)
 
 $($(GAME)): $(FATE_OFILES) $($(GAME)_OFILES)
 	@echo " ==> $@"
-	$(CC) $(CCRELEASEFLAGS) $^ $(CCOUT_EXE)$@ $(LDLIBS)
+	@$(CC) $(CCRELEASEFLAGS) $^ $(CCOUT_EXE)$@ $(LDLIBS)
 $($(GAME)_DBG): $(FATE_DBG_OFILES) $($(GAME)_DBG_OFILES)
 	@echo " ==> $@"
-	$(CC) $(CCDEBUGFLAGS) $^ $(CCOUT_EXE)$@ $(LDLIBS)
+	@$(CC) $(CCDEBUGFLAGS) $^ $(CCOUT_EXE)$@ $(LDLIBS)
 	$(MOVEPDB)
 
 GAMES += $($(GAME)) $($(GAME)_DBG)

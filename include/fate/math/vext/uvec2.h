@@ -43,23 +43,23 @@
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define UVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define UVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define uvec2_shuffle(v,m) \
+    #define FE_UVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_UVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_uvec2_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define uvec2_shuffle2(u,v,m) \
+    #define fe_uvec2_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define UVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint32_t))))
-    #define UVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define uvec2_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define uvec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_UVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint32_t))))
+    #define FE_UVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_uvec2_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_uvec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef UVEC2_SIZE_ATTR
+#ifndef FE_UVEC2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -70,46 +70,46 @@
 #include <math.h>
 
 
-typedef uint32_t uvec2 UVEC2_SIZE_ATTR(2);
+typedef uint32_t fe_uvec2 FE_UVEC2_SIZE_ATTR(2);
 
 
-struct UVEC2_PACKED_ATTR uvec2_color {
+struct FE_UVEC2_PACKED_ATTR fe_uvec2_color {
     uint32_t r;
     uint32_t g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct uvec2_color uvec2_color;
+typedef struct fe_uvec2_color fe_uvec2_color;
 
-struct UVEC2_PACKED_ATTR uvec2_coord {
+struct FE_UVEC2_PACKED_ATTR fe_uvec2_coord {
     uint32_t x;
     uint32_t y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct uvec2_coord uvec2_coord;
+typedef struct fe_uvec2_coord fe_uvec2_coord;
 
-#define uvec2_as_array(v) (&(v)[0])
-#define uvec2_as_color(v) ((uvec2_color*)uvec2_as_array(v))
-#define uvec2_as_coord(v) ((uvec2_coord*)uvec2_as_array(v))
+#define fe_uvec2_as_array(v) (&(v)[0])
+#define fe_uvec2_as_color(v) ((fe_uvec2_color*)fe_uvec2_as_array(v))
+#define fe_uvec2_as_coord(v) ((fe_uvec2_coord*)fe_uvec2_as_array(v))
 
-#define uvec2_add(s,a,b)   ((s)=(a)+(b))
-#define uvec2_sub(s,a,b)   ((s)=(a)-(b))
-#define uvec2_scale(r,v,s) ((r)=(v)*(s))
-#define uvec2_dot(a,b) uvec2_mul_inner(a,b)
-static inline uint32_t uvec2_mul_inner(const uvec2 a, const uvec2 b) {
-    uvec2 v = a*b;
+#define fe_uvec2_add(s,a,b)   ((s)=(a)+(b))
+#define fe_uvec2_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_uvec2_scale(r,v,s) ((r)=(v)*(s))
+#define fe_uvec2_dot(a,b) fe_uvec2_mul_inner(a,b)
+static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 a, const fe_uvec2 b) {
+    fe_uvec2 v = a*b;
     return v[0]+v[1];
 }
-#define uvec2_len(v)  sqrt(uvec2_mul_inner(v, v))
-#define uvec2_lenf(v) sqrtf(uvec2_mul_inner(v, v))
-#define uvec2_norm(r,v) uvec2_scale(r, v, 1./uvec2_len(v))
+#define fe_uvec2_len(v)  sqrt(fe_uvec2_mul_inner(v, v))
+#define fe_uvec2_lenf(v) sqrtf(fe_uvec2_mul_inner(v, v))
+#define fe_uvec2_norm(r,v) fe_uvec2_scale(r, v, 1./fe_uvec2_len(v))
 
-/* No cross product for uvec2. */
+/* No cross product for fe_uvec2. */
 
-#define uvec2_reflect(r,v,n) uvec2p_reflect(&r,v,n)
-static inline void uvec2p_reflect(uvec2 *r, const uvec2 v, const uvec2 n) {
-    const uint32_t p = 2*uvec2_mul_inner(v, n);
+#define fe_uvec2_reflect(r,v,n) fe_uvec2p_reflect(&r,v,n)
+static inline void fe_uvec2p_reflect(fe_uvec2 *r, const fe_uvec2 v, const fe_uvec2 n) {
+    const uint32_t p = 2*fe_uvec2_mul_inner(v, n);
     *r = v-p*n;
 }
 

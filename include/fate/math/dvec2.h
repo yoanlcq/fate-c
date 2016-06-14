@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/dvec2.h
+ *  \brief dvec2
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/dvec2.h
- *  \brief dvec2
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * dvec2
+ * fe_dvec2
  */
-typedef double dvec2[2];
+typedef double fe_dvec2[2];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT dvec2_color {
+struct FATE_PACKED_STRUCT fe_dvec2_color {
     double r;
     double g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct dvec2_color dvec2_color;
+typedef struct fe_dvec2_color fe_dvec2_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT dvec2_coord {
+struct FATE_PACKED_STRUCT fe_dvec2_coord {
     double x;
     double y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct dvec2_coord dvec2_coord;
+typedef struct fe_dvec2_coord fe_dvec2_coord;
 
 /*! \brief TODO */
-#define dvec2_as_array(v) (v)
+#define fe_dvec2_as_array(v) (v)
 /*! \brief TODO */
-#define dvec2_as_color(v) ((dvec2_color*)dvec2_as_array(v))
+#define fe_dvec2_as_color(v) ((fe_dvec2_color*)fe_dvec2_as_array(v))
 /*! \brief TODO */
-#define dvec2_as_coord(v) ((dvec2_coord*)dvec2_as_array(v))
+#define fe_dvec2_as_coord(v) ((fe_dvec2_coord*)fe_dvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void dvec2_add(dvec2 r, const dvec2 a, const dvec2 b) {
+static inline void fe_dvec2_add(fe_dvec2 r, const fe_dvec2 a, const fe_dvec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void dvec2_sub(dvec2 r, const dvec2 a, const dvec2 b) {
+static inline void fe_dvec2_sub(fe_dvec2 r, const fe_dvec2 a, const fe_dvec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void dvec2_scale(dvec2 r, const dvec2 v, const double s) {
+static inline void fe_dvec2_scale(fe_dvec2 r, const fe_dvec2 v, const double s) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define dvec2_dot(a,b) dvec2_mul_inner(a,b)
+#define fe_dvec2_dot(a,b) fe_dvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline double dvec2_mul_inner(const dvec2 a, const dvec2 b) {
+static inline double fe_dvec2_mul_inner(const fe_dvec2 a, const fe_dvec2 b) {
 	double p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
@@ -127,17 +124,17 @@ static inline double dvec2_mul_inner(const dvec2 a, const dvec2 b) {
 }
 
 /*! \brief TODO */
-#define dvec2_len(v)  sqrt(dvec2_mul_inner(v, v))
+#define fe_dvec2_len(v)  sqrt(fe_dvec2_mul_inner(v, v))
 /*! \brief TODO */
-#define dvec2_lenf(v) sqrtf(dvec2_mul_inner(v, v))
+#define fe_dvec2_lenf(v) sqrtf(fe_dvec2_mul_inner(v, v))
 /*! \brief TODO */
-#define dvec2_norm(r,v) dvec2_scale(r, v, 1./dvec2_len(v))
+#define fe_dvec2_norm(r,v) fe_dvec2_scale(r, v, 1./fe_dvec2_len(v))
 
-/* No cross product for dvec2. */
+/* No cross product for fe_dvec2. */
 
 /*! \brief TODO */
-static inline void dvec2_reflect(dvec2 r, const dvec2 v, const dvec2 n) {
-	const double p = 2*dvec2_mul_inner(v, n);
+static inline void fe_dvec2_reflect(fe_dvec2 r, const fe_dvec2 v, const fe_dvec2 n) {
+	const double p = 2*fe_dvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -145,6 +142,5 @@ static inline void dvec2_reflect(dvec2 r, const dvec2 v, const dvec2 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_DVEC2_H */
-
 /* @} */
+#endif /* FE_MATH_DVEC2_H */

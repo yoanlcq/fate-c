@@ -43,23 +43,23 @@
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define VEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define VEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define vec2_shuffle(v,m) \
+    #define FE_VEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_VEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_vec2_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define vec2_shuffle2(u,v,m) \
+    #define fe_vec2_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define VEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(float))))
-    #define VEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define vec2_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define vec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_VEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(float))))
+    #define FE_VEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_vec2_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_vec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef VEC2_SIZE_ATTR
+#ifndef FE_VEC2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -70,46 +70,46 @@
 #include <math.h>
 
 
-typedef float vec2 VEC2_SIZE_ATTR(2);
+typedef float fe_vec2 FE_VEC2_SIZE_ATTR(2);
 
 
-struct VEC2_PACKED_ATTR vec2_color {
+struct FE_VEC2_PACKED_ATTR fe_vec2_color {
     float r;
     float g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct vec2_color vec2_color;
+typedef struct fe_vec2_color fe_vec2_color;
 
-struct VEC2_PACKED_ATTR vec2_coord {
+struct FE_VEC2_PACKED_ATTR fe_vec2_coord {
     float x;
     float y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct vec2_coord vec2_coord;
+typedef struct fe_vec2_coord fe_vec2_coord;
 
-#define vec2_as_array(v) (&(v)[0])
-#define vec2_as_color(v) ((vec2_color*)vec2_as_array(v))
-#define vec2_as_coord(v) ((vec2_coord*)vec2_as_array(v))
+#define fe_vec2_as_array(v) (&(v)[0])
+#define fe_vec2_as_color(v) ((fe_vec2_color*)fe_vec2_as_array(v))
+#define fe_vec2_as_coord(v) ((fe_vec2_coord*)fe_vec2_as_array(v))
 
-#define vec2_add(s,a,b)   ((s)=(a)+(b))
-#define vec2_sub(s,a,b)   ((s)=(a)-(b))
-#define vec2_scale(r,v,s) ((r)=(v)*(s))
-#define vec2_dot(a,b) vec2_mul_inner(a,b)
-static inline float vec2_mul_inner(const vec2 a, const vec2 b) {
-    vec2 v = a*b;
+#define fe_vec2_add(s,a,b)   ((s)=(a)+(b))
+#define fe_vec2_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_vec2_scale(r,v,s) ((r)=(v)*(s))
+#define fe_vec2_dot(a,b) fe_vec2_mul_inner(a,b)
+static inline float fe_vec2_mul_inner(const fe_vec2 a, const fe_vec2 b) {
+    fe_vec2 v = a*b;
     return v[0]+v[1];
 }
-#define vec2_len(v)  sqrt(vec2_mul_inner(v, v))
-#define vec2_lenf(v) sqrtf(vec2_mul_inner(v, v))
-#define vec2_norm(r,v) vec2_scale(r, v, 1./vec2_len(v))
+#define fe_vec2_len(v)  sqrt(fe_vec2_mul_inner(v, v))
+#define fe_vec2_lenf(v) sqrtf(fe_vec2_mul_inner(v, v))
+#define fe_vec2_norm(r,v) fe_vec2_scale(r, v, 1./fe_vec2_len(v))
 
-/* No cross product for vec2. */
+/* No cross product for fe_vec2. */
 
-#define vec2_reflect(r,v,n) vec2p_reflect(&r,v,n)
-static inline void vec2p_reflect(vec2 *r, const vec2 v, const vec2 n) {
-    const float p = 2*vec2_mul_inner(v, n);
+#define fe_vec2_reflect(r,v,n) fe_vec2p_reflect(&r,v,n)
+static inline void fe_vec2p_reflect(fe_vec2 *r, const fe_vec2 v, const fe_vec2 n) {
+    const float p = 2*fe_vec2_mul_inner(v, n);
     *r = v-p*n;
 }
 

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <fate/defs.h>
 #include <fate/log.h>
-#include <fate/loader.h>
+#include <fate/promise.h>
 #include <fate/fs.h>
 
 #if defined(FE_TARGET_WINDOWS)
@@ -38,8 +38,8 @@
 
 static const char *TAG = "fe_fs";
 
-fe_loader fe_userdata_exists(const char *filename) {return 0;}
-fe_loader fe_userdata_delete(const char *filename) {return 0;}
+fe_promise fe_userdata_exists(const char *filename) {return 0;}
+fe_promise fe_userdata_delete(const char *filename) {return 0;}
 
 
 /*

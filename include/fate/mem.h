@@ -51,7 +51,7 @@
 #include <fate/defs.h>
 
 /*! \brief TODO */
-void fe_mem_setup(void);
+FE_NIY void fe_mem_setup(void);
 
 /*! \brief Heap block info, as stored by calls to #fe_mem_malloc() and 
  *         friends. */
@@ -82,11 +82,11 @@ static inline void fe_mem_handle_failure(const char *func_prefix, size_t nmemb,
 
 #if __DOXYGEN__ || defined(FE_MEM_DEBUG)
 
-void *fe_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_NIY void *fe_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
                     const char *type_str, 
                     const char *filename, unsigned lineno) 
                     FE_MALLOC_DECL;
-void *fe_mem_xmalloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_NIY void *fe_mem_xmalloc_real(size_t nmemb, size_t size, const char *tag, 
                     const char *type_str, 
                     const char *filename, unsigned lineno) 
                     FE_MALLOC_DECL;
@@ -98,11 +98,11 @@ void *fe_mem_xmalloc_real(size_t nmemb, size_t size, const char *tag,
         fe_mem_xmalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 
 
-void *fe_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_NIY void *fe_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
                          const char *type_str,
                          const char *filename, unsigned lineno) 
                          FE_MALLOC_DECL;
-void *fe_mem_xcalloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_NIY void *fe_mem_xcalloc_real(size_t nmemb, size_t size, const char *tag, 
                          const char *type_str,
                          const char *filename, unsigned lineno) 
                          FE_MALLOC_DECL;
@@ -113,11 +113,11 @@ void *fe_mem_xcalloc_real(size_t nmemb, size_t size, const char *tag,
 #define fe_mem_xcalloc(nmemb, type, tag) \
         fe_mem_xcalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 
-void *fe_mem_realloc_real(void *ptr, 
+FE_NIY void *fe_mem_realloc_real(void *ptr, 
                           size_t nmemb, size_t size, const char *tag, 
                           const char *type_str,
                           const char *filename, unsigned lineno);
-void *fe_mem_xrealloc_real(void *ptr, 
+FE_NIY void *fe_mem_xrealloc_real(void *ptr, 
                           size_t nmemb, size_t size, const char *tag, 
                           const char *type_str,
                           const char *filename, unsigned lineno);
@@ -130,13 +130,13 @@ void *fe_mem_xrealloc_real(void *ptr,
 
 
 /*! \brief TODO */
-void fe_mem_free(void *ptr);
+FE_NIY void fe_mem_free(void *ptr);
 
 /*! \brief TODO */
-void fe_mem_lock(void);
+FE_NIY void fe_mem_lock(void);
 
 /*! \brief TODO */
-void fe_mem_unlock(void);
+FE_NIY void fe_mem_unlock(void);
 
 /*! \brief Get blocks info.
  *
@@ -155,7 +155,7 @@ void fe_mem_unlock(void);
  *         \p nblocks.
  * \see fe_mem_getblockindex
  */
-size_t fe_mem_getblocksinfo(size_t index, 
+FE_NIY size_t fe_mem_getblocksinfo(size_t index, 
                                      size_t nblocks,          
                                      fe_mem_blockinfo *blocks);
 
@@ -167,7 +167,7 @@ size_t fe_mem_getblocksinfo(size_t index,
  *              It may then be used for calls to #fe_mem_getblocksinfo().
  * \return Is \p addr indeed within a block ? 
  * \see fe_mem_getblocksinfo */
-bool fe_mem_getblockindex(void *addr, size_t *index);
+FE_NIY bool fe_mem_getblockindex(void *addr, size_t *index);
 
 /*! \brief Atomically simulates limits on the memory allocated 
  *         by #fe_mem_malloc() and friends.
@@ -193,14 +193,14 @@ bool fe_mem_getblockindex(void *addr, size_t *index);
  *         0 Otherwise.
  * \see fe_mem_getlimits
  */
-size_t fe_mem_limits(size_t total_nbytes, size_t heap_size);
+FE_NIY size_t fe_mem_limits(size_t total_nbytes, size_t heap_size);
 
 /*! \brief Atomically gets the values set by the last call to 
  *         #fe_mem_limits().
  *
  * \see fe_mem_limits
  */
-void fe_mem_getlimits(size_t *total_nbytes, size_t *heap_size);
+FE_NIY void fe_mem_getlimits(size_t *total_nbytes, size_t *heap_size);
 
 #else /* ifdef FE_MEM_DEBUG */
 
@@ -360,7 +360,7 @@ static inline void* fe_mem_xrealloc_real(size_t size, void *ptr, size_t nmemb, c
  *         data within the current function's scope, or NULL on failure.
  * \see fe_mem_stackfree
  */
-void *fe_mem_stackalloc(size_t size, size_t *left);
+FE_NIY void *fe_mem_stackalloc(size_t size, size_t *left);
 
 /*! \brief Atomically frees memory returned by a call to
  *         #fe_mem_stackalloc(), in case the memory was allocated on the 
@@ -369,7 +369,7 @@ void *fe_mem_stackalloc(size_t size, size_t *left);
  * Just like \c free(), it's a no-op if \p ptr is NULL.
  * \see fe_mem_stackalloc
  */
-void fe_mem_stackfree(void *ptr);
+FE_NIY void fe_mem_stackfree(void *ptr);
 
 /*! @} */
 

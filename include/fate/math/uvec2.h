@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/uvec2.h
+ *  \brief uvec2
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/uvec2.h
- *  \brief uvec2
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * uvec2
+ * fe_uvec2
  */
-typedef uint32_t uvec2[2];
+typedef uint32_t fe_uvec2[2];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec2_color {
+struct FATE_PACKED_STRUCT fe_uvec2_color {
     uint32_t r;
     uint32_t g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct uvec2_color uvec2_color;
+typedef struct fe_uvec2_color fe_uvec2_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec2_coord {
+struct FATE_PACKED_STRUCT fe_uvec2_coord {
     uint32_t x;
     uint32_t y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct uvec2_coord uvec2_coord;
+typedef struct fe_uvec2_coord fe_uvec2_coord;
 
 /*! \brief TODO */
-#define uvec2_as_array(v) (v)
+#define fe_uvec2_as_array(v) (v)
 /*! \brief TODO */
-#define uvec2_as_color(v) ((uvec2_color*)uvec2_as_array(v))
+#define fe_uvec2_as_color(v) ((fe_uvec2_color*)fe_uvec2_as_array(v))
 /*! \brief TODO */
-#define uvec2_as_coord(v) ((uvec2_coord*)uvec2_as_array(v))
+#define fe_uvec2_as_coord(v) ((fe_uvec2_coord*)fe_uvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void uvec2_add(uvec2 r, const uvec2 a, const uvec2 b) {
+static inline void fe_uvec2_add(fe_uvec2 r, const fe_uvec2 a, const fe_uvec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void uvec2_sub(uvec2 r, const uvec2 a, const uvec2 b) {
+static inline void fe_uvec2_sub(fe_uvec2 r, const fe_uvec2 a, const fe_uvec2 b) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void uvec2_scale(uvec2 r, const uvec2 v, const uint32_t s) {
+static inline void fe_uvec2_scale(fe_uvec2 r, const fe_uvec2 v, const uint32_t s) {
 	size_t i;
 	for(i=0; i<2; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define uvec2_dot(a,b) uvec2_mul_inner(a,b)
+#define fe_uvec2_dot(a,b) fe_uvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline uint32_t uvec2_mul_inner(const uvec2 a, const uvec2 b) {
+static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 a, const fe_uvec2 b) {
 	uint32_t p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
@@ -127,17 +124,17 @@ static inline uint32_t uvec2_mul_inner(const uvec2 a, const uvec2 b) {
 }
 
 /*! \brief TODO */
-#define uvec2_len(v)  sqrt(uvec2_mul_inner(v, v))
+#define fe_uvec2_len(v)  sqrt(fe_uvec2_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec2_lenf(v) sqrtf(uvec2_mul_inner(v, v))
+#define fe_uvec2_lenf(v) sqrtf(fe_uvec2_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec2_norm(r,v) uvec2_scale(r, v, 1./uvec2_len(v))
+#define fe_uvec2_norm(r,v) fe_uvec2_scale(r, v, 1./fe_uvec2_len(v))
 
-/* No cross product for uvec2. */
+/* No cross product for fe_uvec2. */
 
 /*! \brief TODO */
-static inline void uvec2_reflect(uvec2 r, const uvec2 v, const uvec2 n) {
-	const uint32_t p = 2*uvec2_mul_inner(v, n);
+static inline void fe_uvec2_reflect(fe_uvec2 r, const fe_uvec2 v, const fe_uvec2 n) {
+	const uint32_t p = 2*fe_uvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -145,6 +142,5 @@ static inline void uvec2_reflect(uvec2 r, const uvec2 v, const uvec2 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_UVEC2_H */
-
 /* @} */
+#endif /* FE_MATH_UVEC2_H */

@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/dvec3.h
+ *  \brief dvec3
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/dvec3.h
- *  \brief dvec3
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * dvec3
+ * fe_dvec3
  */
-typedef double dvec3[3];
+typedef double fe_dvec3[3];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT dvec3_color {
+struct FATE_PACKED_STRUCT fe_dvec3_color {
     double r;
     double g;
     double b;
     /* No alpha component. */
 };
-typedef struct dvec3_color dvec3_color;
+typedef struct fe_dvec3_color fe_dvec3_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT dvec3_coord {
+struct FATE_PACKED_STRUCT fe_dvec3_coord {
     double x;
     double y;
     double z;
     /* No w component. */
 };
-typedef struct dvec3_coord dvec3_coord;
+typedef struct fe_dvec3_coord fe_dvec3_coord;
 
 /*! \brief TODO */
-#define dvec3_as_array(v) (v)
+#define fe_dvec3_as_array(v) (v)
 /*! \brief TODO */
-#define dvec3_as_color(v) ((dvec3_color*)dvec3_as_array(v))
+#define fe_dvec3_as_color(v) ((fe_dvec3_color*)fe_dvec3_as_array(v))
 /*! \brief TODO */
-#define dvec3_as_coord(v) ((dvec3_coord*)dvec3_as_array(v))
+#define fe_dvec3_as_coord(v) ((fe_dvec3_coord*)fe_dvec3_as_array(v))
 
 /*! \brief TODO */
-static inline void dvec3_add(dvec3 r, const dvec3 a, const dvec3 b) {
+static inline void fe_dvec3_add(fe_dvec3 r, const fe_dvec3 a, const fe_dvec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void dvec3_sub(dvec3 r, const dvec3 a, const dvec3 b) {
+static inline void fe_dvec3_sub(fe_dvec3 r, const fe_dvec3 a, const fe_dvec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void dvec3_scale(dvec3 r, const dvec3 v, const double s) {
+static inline void fe_dvec3_scale(fe_dvec3 r, const fe_dvec3 v, const double s) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define dvec3_dot(a,b) dvec3_mul_inner(a,b)
+#define fe_dvec3_dot(a,b) fe_dvec3_mul_inner(a,b)
 /*! \brief TODO */
-static inline double dvec3_mul_inner(const dvec3 a, const dvec3 b) {
+static inline double fe_dvec3_mul_inner(const fe_dvec3 a, const fe_dvec3 b) {
 	double p;
 	size_t i;
 	for(p=i=0; i<3; ++i)
@@ -127,16 +124,16 @@ static inline double dvec3_mul_inner(const dvec3 a, const dvec3 b) {
 }
 
 /*! \brief TODO */
-#define dvec3_len(v)  sqrt(dvec3_mul_inner(v, v))
+#define fe_dvec3_len(v)  sqrt(fe_dvec3_mul_inner(v, v))
 /*! \brief TODO */
-#define dvec3_lenf(v) sqrtf(dvec3_mul_inner(v, v))
+#define fe_dvec3_lenf(v) sqrtf(fe_dvec3_mul_inner(v, v))
 /*! \brief TODO */
-#define dvec3_norm(r,v) dvec3_scale(r, v, 1./dvec3_len(v))
+#define fe_dvec3_norm(r,v) fe_dvec3_scale(r, v, 1./fe_dvec3_len(v))
 
 /*! \brief TODO */
-#define dvec3_cross(r,a,b) dvec3_mul_cross(r,a,b)
+#define fe_dvec3_cross(r,a,b) fe_dvec3_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void dvec3_mul_cross(dvec3 r, const dvec3 a, const dvec3 b) {
+static inline void fe_dvec3_mul_cross(fe_dvec3 r, const fe_dvec3 a, const fe_dvec3 b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
@@ -144,8 +141,8 @@ static inline void dvec3_mul_cross(dvec3 r, const dvec3 a, const dvec3 b) {
 }
 
 /*! \brief TODO */
-static inline void dvec3_reflect(dvec3 r, const dvec3 v, const dvec3 n) {
-	const double p = 2*dvec3_mul_inner(v, n);
+static inline void fe_dvec3_reflect(fe_dvec3 r, const fe_dvec3 v, const fe_dvec3 n) {
+	const double p = 2*fe_dvec3_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<3 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +150,5 @@ static inline void dvec3_reflect(dvec3 r, const dvec3 v, const dvec3 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_DVEC3_H */
-
 /* @} */
+#endif /* FE_MATH_DVEC3_H */

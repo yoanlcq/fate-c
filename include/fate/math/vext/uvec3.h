@@ -43,23 +43,23 @@
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define UVEC3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define UVEC3_PACKED_ATTR  __attribute__((__packed__))
-    #define uvec3_shuffle(v,m) \
+    #define FE_UVEC3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_UVEC3_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_uvec3_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define uvec3_shuffle2(u,v,m) \
+    #define fe_uvec3_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define UVEC3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint32_t))))
-    #define UVEC3_PACKED_ATTR  __attribute__((__packed__))
-    #define uvec3_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define uvec3_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_UVEC3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint32_t))))
+    #define FE_UVEC3_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_uvec3_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_uvec3_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef UVEC3_SIZE_ATTR
+#ifndef FE_UVEC3_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -71,67 +71,67 @@
 
 #include <fate/math/vext/uvec4.h> /* Needed for __builtin_shuffle() */
 #include <fate/math/vext/uvec4.h>
-typedef uvec4 uvec3;
+typedef fe_uvec4 fe_uvec3;
 
 
-struct UVEC3_PACKED_ATTR uvec3_color {
+struct FE_UVEC3_PACKED_ATTR fe_uvec3_color {
     uint32_t r;
     uint32_t g;
     uint32_t b;
     /* No alpha component. */
 };
-typedef struct uvec3_color uvec3_color;
+typedef struct fe_uvec3_color fe_uvec3_color;
 
-struct UVEC3_PACKED_ATTR uvec3_coord {
+struct FE_UVEC3_PACKED_ATTR fe_uvec3_coord {
     uint32_t x;
     uint32_t y;
     uint32_t z;
     /* No w component. */
 };
-typedef struct uvec3_coord uvec3_coord;
+typedef struct fe_uvec3_coord fe_uvec3_coord;
 
-#define uvec3_as_array(v) (&(v)[0])
-#define uvec3_as_color(v) ((uvec3_color*)uvec3_as_array(v))
-#define uvec3_as_coord(v) ((uvec3_coord*)uvec3_as_array(v))
+#define fe_uvec3_as_array(v) (&(v)[0])
+#define fe_uvec3_as_color(v) ((fe_uvec3_color*)fe_uvec3_as_array(v))
+#define fe_uvec3_as_coord(v) ((fe_uvec3_coord*)fe_uvec3_as_array(v))
 
-#define uvec3_add(s,a,b)   ((s)=(a)+(b))
-#define uvec3_sub(s,a,b)   ((s)=(a)-(b))
-#define uvec3_scale(r,v,s) ((r)=(v)*(s))
-#define uvec3_dot(a,b) uvec3_mul_inner(a,b)
-static inline uint32_t uvec3_mul_inner(const uvec3 a, const uvec3 b) {
-    uvec3 v = a*b;
+#define fe_uvec3_add(s,a,b)   ((s)=(a)+(b))
+#define fe_uvec3_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_uvec3_scale(r,v,s) ((r)=(v)*(s))
+#define fe_uvec3_dot(a,b) fe_uvec3_mul_inner(a,b)
+static inline uint32_t fe_uvec3_mul_inner(const fe_uvec3 a, const fe_uvec3 b) {
+    fe_uvec3 v = a*b;
     return v[0]+v[1]+v[2];
 }
-#define uvec3_len(v)  sqrt(uvec3_mul_inner(v, v))
-#define uvec3_lenf(v) sqrtf(uvec3_mul_inner(v, v))
-#define uvec3_norm(r,v) uvec3_scale(r, v, 1./uvec3_len(v))
+#define fe_uvec3_len(v)  sqrt(fe_uvec3_mul_inner(v, v))
+#define fe_uvec3_lenf(v) sqrtf(fe_uvec3_mul_inner(v, v))
+#define fe_uvec3_norm(r,v) fe_uvec3_scale(r, v, 1./fe_uvec3_len(v))
 
 /* TODO benchmark me */
-#define uvec3_mul_cross(r,a,b) uvec3p_mul_cross(&(r),a,b)
-#define uvec3_cross(r,a,b)     uvec3_mul_cross(r,a,b)
-static inline void uvec3p_mul_cross(uvec3 *r, const uvec3 a, const uvec3 b) {
-    const uvec4 s1 = {1, 2, 0, 0};
-    const uvec4 s2 = {2, 0, 1, 0};
-    const uvec3 la = uvec3_shuffle(a, s1);
-    const uvec3 lb = uvec3_shuffle(b, s2);
-    const uvec3 ra = uvec3_shuffle(a, s2);
-    const uvec3 rb = uvec3_shuffle(b, s1);
+#define fe_uvec3_mul_cross(r,a,b) fe_uvec3p_mul_cross(&(r),a,b)
+#define fe_uvec3_cross(r,a,b)     fe_uvec3_mul_cross(r,a,b)
+static inline void fe_uvec3p_mul_cross(fe_uvec3 *r, const fe_uvec3 a, const fe_uvec3 b) {
+    const fe_uvec4 s1 = {1, 2, 0, 0};
+    const fe_uvec4 s2 = {2, 0, 1, 0};
+    const fe_uvec3 la = fe_uvec3_shuffle(a, s1);
+    const fe_uvec3 lb = fe_uvec3_shuffle(b, s2);
+    const fe_uvec3 ra = fe_uvec3_shuffle(a, s2);
+    const fe_uvec3 rb = fe_uvec3_shuffle(b, s1);
     *r = la*lb - ra*rb;
     
 }
 
 /* TODO should be discarded if proven to be less efficient. */
-#define uvec3_mul_cross_naive(r,a,b) uvec3p_mul_cross_naive(&(r),a,b)
-static inline void uvec3p_mul_cross_naive(uvec3 *r, const uvec3 a, const uvec3 b) {
+#define fe_uvec3_mul_cross_naive(r,a,b) fe_uvec3p_mul_cross_naive(&(r),a,b)
+static inline void fe_uvec3p_mul_cross_naive(fe_uvec3 *r, const fe_uvec3 a, const fe_uvec3 b) {
     (*r)[0] = a[1]*b[2] - a[2]*b[1];
     (*r)[1] = a[2]*b[0] - a[0]*b[2];
     (*r)[2] = a[0]*b[1] - a[1]*b[0];
     
 }
 
-#define uvec3_reflect(r,v,n) uvec3p_reflect(&r,v,n)
-static inline void uvec3p_reflect(uvec3 *r, const uvec3 v, const uvec3 n) {
-    const uint32_t p = 2*uvec3_mul_inner(v, n);
+#define fe_uvec3_reflect(r,v,n) fe_uvec3p_reflect(&r,v,n)
+static inline void fe_uvec3p_reflect(fe_uvec3 *r, const fe_uvec3 v, const fe_uvec3 n) {
+    const uint32_t p = 2*fe_uvec3_mul_inner(v, n);
     *r = v-p*n;
 }
 

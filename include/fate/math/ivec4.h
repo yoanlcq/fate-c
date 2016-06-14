@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/ivec4.h
+ *  \brief ivec4
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/ivec4.h
- *  \brief ivec4
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * ivec4
+ * fe_ivec4
  */
-typedef int32_t ivec4[4];
+typedef int32_t fe_ivec4[4];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ivec4_color {
+struct FATE_PACKED_STRUCT fe_ivec4_color {
     int32_t r;
     int32_t g;
     int32_t b;
     int32_t a;
 };
-typedef struct ivec4_color ivec4_color;
+typedef struct fe_ivec4_color fe_ivec4_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ivec4_coord {
+struct FATE_PACKED_STRUCT fe_ivec4_coord {
     int32_t x;
     int32_t y;
     int32_t z;
     int32_t w;
 };
-typedef struct ivec4_coord ivec4_coord;
+typedef struct fe_ivec4_coord fe_ivec4_coord;
 
 /*! \brief TODO */
-#define ivec4_as_array(v) (v)
+#define fe_ivec4_as_array(v) (v)
 /*! \brief TODO */
-#define ivec4_as_color(v) ((ivec4_color*)ivec4_as_array(v))
+#define fe_ivec4_as_color(v) ((fe_ivec4_color*)fe_ivec4_as_array(v))
 /*! \brief TODO */
-#define ivec4_as_coord(v) ((ivec4_coord*)ivec4_as_array(v))
+#define fe_ivec4_as_coord(v) ((fe_ivec4_coord*)fe_ivec4_as_array(v))
 
 /*! \brief TODO */
-static inline void ivec4_add(ivec4 r, const ivec4 a, const ivec4 b) {
+static inline void fe_ivec4_add(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void ivec4_sub(ivec4 r, const ivec4 a, const ivec4 b) {
+static inline void fe_ivec4_sub(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void ivec4_scale(ivec4 r, const ivec4 v, const int32_t s) {
+static inline void fe_ivec4_scale(fe_ivec4 r, const fe_ivec4 v, const int32_t s) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define ivec4_dot(a,b) ivec4_mul_inner(a,b)
+#define fe_ivec4_dot(a,b) fe_ivec4_mul_inner(a,b)
 /*! \brief TODO */
-static inline int32_t ivec4_mul_inner(const ivec4 a, const ivec4 b) {
+static inline int32_t fe_ivec4_mul_inner(const fe_ivec4 a, const fe_ivec4 b) {
 	int32_t p;
 	size_t i;
 	for(p=i=0; i<4; ++i)
@@ -127,16 +124,16 @@ static inline int32_t ivec4_mul_inner(const ivec4 a, const ivec4 b) {
 }
 
 /*! \brief TODO */
-#define ivec4_len(v)  sqrt(ivec4_mul_inner(v, v))
+#define fe_ivec4_len(v)  sqrt(fe_ivec4_mul_inner(v, v))
 /*! \brief TODO */
-#define ivec4_lenf(v) sqrtf(ivec4_mul_inner(v, v))
+#define fe_ivec4_lenf(v) sqrtf(fe_ivec4_mul_inner(v, v))
 /*! \brief TODO */
-#define ivec4_norm(r,v) ivec4_scale(r, v, 1./ivec4_len(v))
+#define fe_ivec4_norm(r,v) fe_ivec4_scale(r, v, 1./fe_ivec4_len(v))
 
 /*! \brief TODO */
-#define ivec4_cross(r,a,b) ivec4_mul_cross(r,a,b)
+#define fe_ivec4_cross(r,a,b) fe_ivec4_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void ivec4_mul_cross(ivec4 r, const ivec4 a, const ivec4 b) {
+static inline void fe_ivec4_mul_cross(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
@@ -144,8 +141,8 @@ static inline void ivec4_mul_cross(ivec4 r, const ivec4 a, const ivec4 b) {
 }
 
 /*! \brief TODO */
-static inline void ivec4_reflect(ivec4 r, const ivec4 v, const ivec4 n) {
-	const int32_t p = 2*ivec4_mul_inner(v, n);
+static inline void fe_ivec4_reflect(fe_ivec4 r, const fe_ivec4 v, const fe_ivec4 n) {
+	const int32_t p = 2*fe_ivec4_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<4 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +150,5 @@ static inline void ivec4_reflect(ivec4 r, const ivec4 v, const ivec4 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_IVEC4_H */
-
 /* @} */
+#endif /* FE_MATH_IVEC4_H */

@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/uvec4.h
+ *  \brief uvec4
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/uvec4.h
- *  \brief uvec4
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * uvec4
+ * fe_uvec4
  */
-typedef uint32_t uvec4[4];
+typedef uint32_t fe_uvec4[4];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec4_color {
+struct FATE_PACKED_STRUCT fe_uvec4_color {
     uint32_t r;
     uint32_t g;
     uint32_t b;
     uint32_t a;
 };
-typedef struct uvec4_color uvec4_color;
+typedef struct fe_uvec4_color fe_uvec4_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec4_coord {
+struct FATE_PACKED_STRUCT fe_uvec4_coord {
     uint32_t x;
     uint32_t y;
     uint32_t z;
     uint32_t w;
 };
-typedef struct uvec4_coord uvec4_coord;
+typedef struct fe_uvec4_coord fe_uvec4_coord;
 
 /*! \brief TODO */
-#define uvec4_as_array(v) (v)
+#define fe_uvec4_as_array(v) (v)
 /*! \brief TODO */
-#define uvec4_as_color(v) ((uvec4_color*)uvec4_as_array(v))
+#define fe_uvec4_as_color(v) ((fe_uvec4_color*)fe_uvec4_as_array(v))
 /*! \brief TODO */
-#define uvec4_as_coord(v) ((uvec4_coord*)uvec4_as_array(v))
+#define fe_uvec4_as_coord(v) ((fe_uvec4_coord*)fe_uvec4_as_array(v))
 
 /*! \brief TODO */
-static inline void uvec4_add(uvec4 r, const uvec4 a, const uvec4 b) {
+static inline void fe_uvec4_add(fe_uvec4 r, const fe_uvec4 a, const fe_uvec4 b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void uvec4_sub(uvec4 r, const uvec4 a, const uvec4 b) {
+static inline void fe_uvec4_sub(fe_uvec4 r, const fe_uvec4 a, const fe_uvec4 b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void uvec4_scale(uvec4 r, const uvec4 v, const uint32_t s) {
+static inline void fe_uvec4_scale(fe_uvec4 r, const fe_uvec4 v, const uint32_t s) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define uvec4_dot(a,b) uvec4_mul_inner(a,b)
+#define fe_uvec4_dot(a,b) fe_uvec4_mul_inner(a,b)
 /*! \brief TODO */
-static inline uint32_t uvec4_mul_inner(const uvec4 a, const uvec4 b) {
+static inline uint32_t fe_uvec4_mul_inner(const fe_uvec4 a, const fe_uvec4 b) {
 	uint32_t p;
 	size_t i;
 	for(p=i=0; i<4; ++i)
@@ -127,16 +124,16 @@ static inline uint32_t uvec4_mul_inner(const uvec4 a, const uvec4 b) {
 }
 
 /*! \brief TODO */
-#define uvec4_len(v)  sqrt(uvec4_mul_inner(v, v))
+#define fe_uvec4_len(v)  sqrt(fe_uvec4_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec4_lenf(v) sqrtf(uvec4_mul_inner(v, v))
+#define fe_uvec4_lenf(v) sqrtf(fe_uvec4_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec4_norm(r,v) uvec4_scale(r, v, 1./uvec4_len(v))
+#define fe_uvec4_norm(r,v) fe_uvec4_scale(r, v, 1./fe_uvec4_len(v))
 
 /*! \brief TODO */
-#define uvec4_cross(r,a,b) uvec4_mul_cross(r,a,b)
+#define fe_uvec4_cross(r,a,b) fe_uvec4_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void uvec4_mul_cross(uvec4 r, const uvec4 a, const uvec4 b) {
+static inline void fe_uvec4_mul_cross(fe_uvec4 r, const fe_uvec4 a, const fe_uvec4 b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
@@ -144,8 +141,8 @@ static inline void uvec4_mul_cross(uvec4 r, const uvec4 a, const uvec4 b) {
 }
 
 /*! \brief TODO */
-static inline void uvec4_reflect(uvec4 r, const uvec4 v, const uvec4 n) {
-	const uint32_t p = 2*uvec4_mul_inner(v, n);
+static inline void fe_uvec4_reflect(fe_uvec4 r, const fe_uvec4 v, const fe_uvec4 n) {
+	const uint32_t p = 2*fe_uvec4_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<4 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +150,5 @@ static inline void uvec4_reflect(uvec4 r, const uvec4 v, const uvec4 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_UVEC4_H */
-
 /* @} */
+#endif /* FE_MATH_UVEC4_H */

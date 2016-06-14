@@ -35,31 +35,31 @@
  * functionalities.
  */
 
-#ifndef FE_MATH_VEXT_SPACEVEC2_H
-#define FE_MATH_VEXT_SPACEVEC2_H
+#ifndef FE_MATH_VEXT_ULLVEC2_H
+#define FE_MATH_VEXT_ULLVEC2_H
 
 /* Feature test section */
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define SPACEVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define SPACEVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define spacevec2_shuffle(v,m) \
+    #define FE_ULLVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_ULLVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_ullvec2_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define spacevec2_shuffle2(u,v,m) \
+    #define fe_ullvec2_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define SPACEVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(fe_space_unit))))
-    #define SPACEVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define spacevec2_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define spacevec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_ULLVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint64_t))))
+    #define FE_ULLVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_ullvec2_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_ullvec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef SPACEVEC2_SIZE_ATTR
+#ifndef FE_ULLVEC2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -68,49 +68,49 @@
 
 #include <stdint.h>
 #include <math.h>
-#include <fate/units.h>
-
-typedef fe_space_unit spacevec2 SPACEVEC2_SIZE_ATTR(2);
 
 
-struct SPACEVEC2_PACKED_ATTR spacevec2_color {
-    fe_space_unit r;
-    fe_space_unit g;
+typedef uint64_t fe_ullvec2 FE_ULLVEC2_SIZE_ATTR(2);
+
+
+struct FE_ULLVEC2_PACKED_ATTR fe_ullvec2_color {
+    uint64_t r;
+    uint64_t g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct spacevec2_color spacevec2_color;
+typedef struct fe_ullvec2_color fe_ullvec2_color;
 
-struct SPACEVEC2_PACKED_ATTR spacevec2_coord {
-    fe_space_unit x;
-    fe_space_unit y;
+struct FE_ULLVEC2_PACKED_ATTR fe_ullvec2_coord {
+    uint64_t x;
+    uint64_t y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct spacevec2_coord spacevec2_coord;
+typedef struct fe_ullvec2_coord fe_ullvec2_coord;
 
-#define spacevec2_as_array(v) (&(v)[0])
-#define spacevec2_as_color(v) ((spacevec2_color*)spacevec2_as_array(v))
-#define spacevec2_as_coord(v) ((spacevec2_coord*)spacevec2_as_array(v))
+#define fe_ullvec2_as_array(v) (&(v)[0])
+#define fe_ullvec2_as_color(v) ((fe_ullvec2_color*)fe_ullvec2_as_array(v))
+#define fe_ullvec2_as_coord(v) ((fe_ullvec2_coord*)fe_ullvec2_as_array(v))
 
-#define spacevec2_add(s,a,b)   ((s)=(a)+(b))
-#define spacevec2_sub(s,a,b)   ((s)=(a)-(b))
-#define spacevec2_scale(r,v,s) ((r)=(v)*(s))
-#define spacevec2_dot(a,b) spacevec2_mul_inner(a,b)
-static inline fe_space_unit spacevec2_mul_inner(const spacevec2 a, const spacevec2 b) {
-    spacevec2 v = a*b;
+#define fe_ullvec2_add(s,a,b)   ((s)=(a)+(b))
+#define fe_ullvec2_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_ullvec2_scale(r,v,s) ((r)=(v)*(s))
+#define fe_ullvec2_dot(a,b) fe_ullvec2_mul_inner(a,b)
+static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 a, const fe_ullvec2 b) {
+    fe_ullvec2 v = a*b;
     return v[0]+v[1];
 }
-#define spacevec2_len(v)  sqrt(spacevec2_mul_inner(v, v))
-#define spacevec2_lenf(v) sqrtf(spacevec2_mul_inner(v, v))
-#define spacevec2_norm(r,v) spacevec2_scale(r, v, 1./spacevec2_len(v))
+#define fe_ullvec2_len(v)  sqrt(fe_ullvec2_mul_inner(v, v))
+#define fe_ullvec2_lenf(v) sqrtf(fe_ullvec2_mul_inner(v, v))
+#define fe_ullvec2_norm(r,v) fe_ullvec2_scale(r, v, 1./fe_ullvec2_len(v))
 
-/* No cross product for spacevec2. */
+/* No cross product for fe_ullvec2. */
 
-#define spacevec2_reflect(r,v,n) spacevec2p_reflect(&r,v,n)
-static inline void spacevec2p_reflect(spacevec2 *r, const spacevec2 v, const spacevec2 n) {
-    const fe_space_unit p = 2*spacevec2_mul_inner(v, n);
+#define fe_ullvec2_reflect(r,v,n) fe_ullvec2p_reflect(&r,v,n)
+static inline void fe_ullvec2p_reflect(fe_ullvec2 *r, const fe_ullvec2 v, const fe_ullvec2 n) {
+    const uint64_t p = 2*fe_ullvec2_mul_inner(v, n);
     *r = v-p*n;
 }
 
-#endif /* FE_MATH_VEXT_SPACEVEC2_H */
+#endif /* FE_MATH_VEXT_ULLVEC2_H */

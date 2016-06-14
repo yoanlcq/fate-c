@@ -35,31 +35,31 @@
  * functionalities.
  */
 
-#ifndef FE_MATH_VEXT_DVEC4_H
-#define FE_MATH_VEXT_DVEC4_H
+#ifndef FE_MATH_VEXT_ULLVEC4_H
+#define FE_MATH_VEXT_ULLVEC4_H
 
 /* Feature test section */
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define FE_DVEC4_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define FE_DVEC4_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec4_shuffle(v,m) \
+    #define FE_ULLVEC4_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_ULLVEC4_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_ullvec4_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define fe_dvec4_shuffle2(u,v,m) \
+    #define fe_ullvec4_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define FE_DVEC4_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(double))))
-    #define FE_DVEC4_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec4_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define fe_dvec4_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_ULLVEC4_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint64_t))))
+    #define FE_ULLVEC4_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_ullvec4_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_ullvec4_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef FE_DVEC4_SIZE_ATTR
+#ifndef FE_ULLVEC4_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -70,68 +70,68 @@
 #include <math.h>
 
 #include <fate/math/vext/ullvec4.h> /* Needed for __builtin_shuffle() */
-typedef double fe_dvec4 FE_DVEC4_SIZE_ATTR(4);
+typedef uint64_t fe_ullvec4 FE_ULLVEC4_SIZE_ATTR(4);
 
 
-struct FE_DVEC4_PACKED_ATTR fe_dvec4_color {
-    double r;
-    double g;
-    double b;
-    double a;
+struct FE_ULLVEC4_PACKED_ATTR fe_ullvec4_color {
+    uint64_t r;
+    uint64_t g;
+    uint64_t b;
+    uint64_t a;
 };
-typedef struct fe_dvec4_color fe_dvec4_color;
+typedef struct fe_ullvec4_color fe_ullvec4_color;
 
-struct FE_DVEC4_PACKED_ATTR fe_dvec4_coord {
-    double x;
-    double y;
-    double z;
-    double w;
+struct FE_ULLVEC4_PACKED_ATTR fe_ullvec4_coord {
+    uint64_t x;
+    uint64_t y;
+    uint64_t z;
+    uint64_t w;
 };
-typedef struct fe_dvec4_coord fe_dvec4_coord;
+typedef struct fe_ullvec4_coord fe_ullvec4_coord;
 
-#define fe_dvec4_as_array(v) (&(v)[0])
-#define fe_dvec4_as_color(v) ((fe_dvec4_color*)fe_dvec4_as_array(v))
-#define fe_dvec4_as_coord(v) ((fe_dvec4_coord*)fe_dvec4_as_array(v))
+#define fe_ullvec4_as_array(v) (&(v)[0])
+#define fe_ullvec4_as_color(v) ((fe_ullvec4_color*)fe_ullvec4_as_array(v))
+#define fe_ullvec4_as_coord(v) ((fe_ullvec4_coord*)fe_ullvec4_as_array(v))
 
-#define fe_dvec4_add(s,a,b)   ((s)=(a)+(b))
-#define fe_dvec4_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_dvec4_scale(r,v,s) ((r)=(v)*(s))
-#define fe_dvec4_dot(a,b) fe_dvec4_mul_inner(a,b)
-static inline double fe_dvec4_mul_inner(const fe_dvec4 a, const fe_dvec4 b) {
-    fe_dvec4 v = a*b;
+#define fe_ullvec4_add(s,a,b)   ((s)=(a)+(b))
+#define fe_ullvec4_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_ullvec4_scale(r,v,s) ((r)=(v)*(s))
+#define fe_ullvec4_dot(a,b) fe_ullvec4_mul_inner(a,b)
+static inline uint64_t fe_ullvec4_mul_inner(const fe_ullvec4 a, const fe_ullvec4 b) {
+    fe_ullvec4 v = a*b;
     return v[0]+v[1]+v[2]+v[3];
 }
-#define fe_dvec4_len(v)  sqrt(fe_dvec4_mul_inner(v, v))
-#define fe_dvec4_lenf(v) sqrtf(fe_dvec4_mul_inner(v, v))
-#define fe_dvec4_norm(r,v) fe_dvec4_scale(r, v, 1./fe_dvec4_len(v))
+#define fe_ullvec4_len(v)  sqrt(fe_ullvec4_mul_inner(v, v))
+#define fe_ullvec4_lenf(v) sqrtf(fe_ullvec4_mul_inner(v, v))
+#define fe_ullvec4_norm(r,v) fe_ullvec4_scale(r, v, 1./fe_ullvec4_len(v))
 
 /* TODO benchmark me */
-#define fe_dvec4_mul_cross(r,a,b) fe_dvec4p_mul_cross(&(r),a,b)
-#define fe_dvec4_cross(r,a,b)     fe_dvec4_mul_cross(r,a,b)
-static inline void fe_dvec4p_mul_cross(fe_dvec4 *r, const fe_dvec4 a, const fe_dvec4 b) {
+#define fe_ullvec4_mul_cross(r,a,b) fe_ullvec4p_mul_cross(&(r),a,b)
+#define fe_ullvec4_cross(r,a,b)     fe_ullvec4_mul_cross(r,a,b)
+static inline void fe_ullvec4p_mul_cross(fe_ullvec4 *r, const fe_ullvec4 a, const fe_ullvec4 b) {
     const fe_ullvec4 s1 = {1, 2, 0, 0};
     const fe_ullvec4 s2 = {2, 0, 1, 0};
-    const fe_dvec4 la = fe_dvec4_shuffle(a, s1);
-    const fe_dvec4 lb = fe_dvec4_shuffle(b, s2);
-    const fe_dvec4 ra = fe_dvec4_shuffle(a, s2);
-    const fe_dvec4 rb = fe_dvec4_shuffle(b, s1);
+    const fe_ullvec4 la = fe_ullvec4_shuffle(a, s1);
+    const fe_ullvec4 lb = fe_ullvec4_shuffle(b, s2);
+    const fe_ullvec4 ra = fe_ullvec4_shuffle(a, s2);
+    const fe_ullvec4 rb = fe_ullvec4_shuffle(b, s1);
     *r = la*lb - ra*rb;
     (*r)[3] = 1;
 }
 
 /* TODO should be discarded if proven to be less efficient. */
-#define fe_dvec4_mul_cross_naive(r,a,b) fe_dvec4p_mul_cross_naive(&(r),a,b)
-static inline void fe_dvec4p_mul_cross_naive(fe_dvec4 *r, const fe_dvec4 a, const fe_dvec4 b) {
+#define fe_ullvec4_mul_cross_naive(r,a,b) fe_ullvec4p_mul_cross_naive(&(r),a,b)
+static inline void fe_ullvec4p_mul_cross_naive(fe_ullvec4 *r, const fe_ullvec4 a, const fe_ullvec4 b) {
     (*r)[0] = a[1]*b[2] - a[2]*b[1];
     (*r)[1] = a[2]*b[0] - a[0]*b[2];
     (*r)[2] = a[0]*b[1] - a[1]*b[0];
     (*r)[3] = 1;
 }
 
-#define fe_dvec4_reflect(r,v,n) fe_dvec4p_reflect(&r,v,n)
-static inline void fe_dvec4p_reflect(fe_dvec4 *r, const fe_dvec4 v, const fe_dvec4 n) {
-    const double p = 2*fe_dvec4_mul_inner(v, n);
+#define fe_ullvec4_reflect(r,v,n) fe_ullvec4p_reflect(&r,v,n)
+static inline void fe_ullvec4p_reflect(fe_ullvec4 *r, const fe_ullvec4 v, const fe_ullvec4 n) {
+    const uint64_t p = 2*fe_ullvec4_mul_inner(v, n);
     *r = v-p*n;
 }
 
-#endif /* FE_MATH_VEXT_DVEC4_H */
+#endif /* FE_MATH_VEXT_ULLVEC4_H */

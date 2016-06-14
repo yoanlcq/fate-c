@@ -27,35 +27,32 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/wvec4.h
+ *  \brief wvec4
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/spacevec2.h
- *  \brief spacevec2
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
 
-#ifndef FE_MATH_SPACEVEC2_H
-#define FE_MATH_SPACEVEC2_H
+#ifndef FE_MATH_WVEC4_H
+#define FE_MATH_WVEC4_H
 
 
 #ifdef __clang__
     #if __has_extension(attribute_ext_vector_type) \
     && __has_builtin(__builtin_shufflevector)
-        #include <fate/math/vext/spacevec2.h>
+        #include <fate/math/vext/wvec4.h>
     #endif
 #elif defined(__GNUC__)
     #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-        #include <fate/math/vext/spacevec2.h>
+        #include <fate/math/vext/wvec4.h>
     #endif
 
 #else /* Naive */
@@ -67,84 +64,91 @@
 #include <fate/units.h>
 /*! \brief TODO 
  *
- * spacevec2
+ * fe_wvec4
  */
-typedef fe_space_unit spacevec2[2];
+typedef fe_space_unit fe_wvec4[4];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT spacevec2_color {
+struct FATE_PACKED_STRUCT fe_wvec4_color {
     fe_space_unit r;
     fe_space_unit g;
-    /* No blue component. */
-    /* No alpha component. */
+    fe_space_unit b;
+    fe_space_unit a;
 };
-typedef struct spacevec2_color spacevec2_color;
+typedef struct fe_wvec4_color fe_wvec4_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT spacevec2_coord {
+struct FATE_PACKED_STRUCT fe_wvec4_coord {
     fe_space_unit x;
     fe_space_unit y;
-    /* No z component. */
-    /* No w component. */
+    fe_space_unit z;
+    fe_space_unit w;
 };
-typedef struct spacevec2_coord spacevec2_coord;
+typedef struct fe_wvec4_coord fe_wvec4_coord;
 
 /*! \brief TODO */
-#define spacevec2_as_array(v) (v)
+#define fe_wvec4_as_array(v) (v)
 /*! \brief TODO */
-#define spacevec2_as_color(v) ((spacevec2_color*)spacevec2_as_array(v))
+#define fe_wvec4_as_color(v) ((fe_wvec4_color*)fe_wvec4_as_array(v))
 /*! \brief TODO */
-#define spacevec2_as_coord(v) ((spacevec2_coord*)spacevec2_as_array(v))
+#define fe_wvec4_as_coord(v) ((fe_wvec4_coord*)fe_wvec4_as_array(v))
 
 /*! \brief TODO */
-static inline void spacevec2_add(spacevec2 r, const spacevec2 a, const spacevec2 b) {
+static inline void fe_wvec4_add(fe_wvec4 r, const fe_wvec4 a, const fe_wvec4 b) {
 	size_t i;
-	for(i=0; i<2; ++i)
+	for(i=0; i<4; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void spacevec2_sub(spacevec2 r, const spacevec2 a, const spacevec2 b) {
+static inline void fe_wvec4_sub(fe_wvec4 r, const fe_wvec4 a, const fe_wvec4 b) {
 	size_t i;
-	for(i=0; i<2; ++i)
+	for(i=0; i<4; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void spacevec2_scale(spacevec2 r, const spacevec2 v, const fe_space_unit s) {
+static inline void fe_wvec4_scale(fe_wvec4 r, const fe_wvec4 v, const fe_space_unit s) {
 	size_t i;
-	for(i=0; i<2; ++i)
+	for(i=0; i<4; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define spacevec2_dot(a,b) spacevec2_mul_inner(a,b)
+#define fe_wvec4_dot(a,b) fe_wvec4_mul_inner(a,b)
 /*! \brief TODO */
-static inline fe_space_unit spacevec2_mul_inner(const spacevec2 a, const spacevec2 b) {
+static inline fe_space_unit fe_wvec4_mul_inner(const fe_wvec4 a, const fe_wvec4 b) {
 	fe_space_unit p;
 	size_t i;
-	for(p=i=0; i<2; ++i)
+	for(p=i=0; i<4; ++i)
 		p += b[i]*a[i];
 	return p;
 }
 
 /*! \brief TODO */
-#define spacevec2_len(v)  sqrt(spacevec2_mul_inner(v, v))
+#define fe_wvec4_len(v)  sqrt(fe_wvec4_mul_inner(v, v))
 /*! \brief TODO */
-#define spacevec2_lenf(v) sqrtf(spacevec2_mul_inner(v, v))
+#define fe_wvec4_lenf(v) sqrtf(fe_wvec4_mul_inner(v, v))
 /*! \brief TODO */
-#define spacevec2_norm(r,v) spacevec2_scale(r, v, 1./spacevec2_len(v))
-
-/* No cross product for spacevec2. */
+#define fe_wvec4_norm(r,v) fe_wvec4_scale(r, v, 1./fe_wvec4_len(v))
 
 /*! \brief TODO */
-static inline void spacevec2_reflect(spacevec2 r, const spacevec2 v, const spacevec2 n) {
-	const fe_space_unit p = 2*spacevec2_mul_inner(v, n);
+#define fe_wvec4_cross(r,a,b) fe_wvec4_mul_cross(r,a,b)
+/*! \brief TODO */
+static inline void fe_wvec4_mul_cross(fe_wvec4 r, const fe_wvec4 a, const fe_wvec4 b) {
+	r[0] = a[1]*b[2] - a[2]*b[1];
+	r[1] = a[2]*b[0] - a[0]*b[2];
+	r[2] = a[0]*b[1] - a[1]*b[0];
+	r[3] = 1.f;
+}
+
+/*! \brief TODO */
+static inline void fe_wvec4_reflect(fe_wvec4 r, const fe_wvec4 v, const fe_wvec4 n) {
+	const fe_space_unit p = 2*fe_wvec4_mul_inner(v, n);
 	size_t i;
-	for(i=0 ; i<2 ; ++i)
+	for(i=0 ; i<4 ; ++i)
 		r[i] = v[i] - p*n[i];
 }
 
 #endif /* Naive */
 
-#endif /* FE_MATH_SPACEVEC2_H */
-
 /* @} */
+#endif /* FE_MATH_WVEC4_H */

@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/vec3.h
+ *  \brief vec3
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/vec3.h
- *  \brief vec3
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * vec3
+ * fe_vec3
  */
-typedef float vec3[3];
+typedef float fe_vec3[3];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT vec3_color {
+struct FATE_PACKED_STRUCT fe_vec3_color {
     float r;
     float g;
     float b;
     /* No alpha component. */
 };
-typedef struct vec3_color vec3_color;
+typedef struct fe_vec3_color fe_vec3_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT vec3_coord {
+struct FATE_PACKED_STRUCT fe_vec3_coord {
     float x;
     float y;
     float z;
     /* No w component. */
 };
-typedef struct vec3_coord vec3_coord;
+typedef struct fe_vec3_coord fe_vec3_coord;
 
 /*! \brief TODO */
-#define vec3_as_array(v) (v)
+#define fe_vec3_as_array(v) (v)
 /*! \brief TODO */
-#define vec3_as_color(v) ((vec3_color*)vec3_as_array(v))
+#define fe_vec3_as_color(v) ((fe_vec3_color*)fe_vec3_as_array(v))
 /*! \brief TODO */
-#define vec3_as_coord(v) ((vec3_coord*)vec3_as_array(v))
+#define fe_vec3_as_coord(v) ((fe_vec3_coord*)fe_vec3_as_array(v))
 
 /*! \brief TODO */
-static inline void vec3_add(vec3 r, const vec3 a, const vec3 b) {
+static inline void fe_vec3_add(fe_vec3 r, const fe_vec3 a, const fe_vec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void vec3_sub(vec3 r, const vec3 a, const vec3 b) {
+static inline void fe_vec3_sub(fe_vec3 r, const fe_vec3 a, const fe_vec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void vec3_scale(vec3 r, const vec3 v, const float s) {
+static inline void fe_vec3_scale(fe_vec3 r, const fe_vec3 v, const float s) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define vec3_dot(a,b) vec3_mul_inner(a,b)
+#define fe_vec3_dot(a,b) fe_vec3_mul_inner(a,b)
 /*! \brief TODO */
-static inline float vec3_mul_inner(const vec3 a, const vec3 b) {
+static inline float fe_vec3_mul_inner(const fe_vec3 a, const fe_vec3 b) {
 	float p;
 	size_t i;
 	for(p=i=0; i<3; ++i)
@@ -127,16 +124,16 @@ static inline float vec3_mul_inner(const vec3 a, const vec3 b) {
 }
 
 /*! \brief TODO */
-#define vec3_len(v)  sqrt(vec3_mul_inner(v, v))
+#define fe_vec3_len(v)  sqrt(fe_vec3_mul_inner(v, v))
 /*! \brief TODO */
-#define vec3_lenf(v) sqrtf(vec3_mul_inner(v, v))
+#define fe_vec3_lenf(v) sqrtf(fe_vec3_mul_inner(v, v))
 /*! \brief TODO */
-#define vec3_norm(r,v) vec3_scale(r, v, 1./vec3_len(v))
+#define fe_vec3_norm(r,v) fe_vec3_scale(r, v, 1./fe_vec3_len(v))
 
 /*! \brief TODO */
-#define vec3_cross(r,a,b) vec3_mul_cross(r,a,b)
+#define fe_vec3_cross(r,a,b) fe_vec3_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void vec3_mul_cross(vec3 r, const vec3 a, const vec3 b) {
+static inline void fe_vec3_mul_cross(fe_vec3 r, const fe_vec3 a, const fe_vec3 b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
@@ -144,8 +141,8 @@ static inline void vec3_mul_cross(vec3 r, const vec3 a, const vec3 b) {
 }
 
 /*! \brief TODO */
-static inline void vec3_reflect(vec3 r, const vec3 v, const vec3 n) {
-	const float p = 2*vec3_mul_inner(v, n);
+static inline void fe_vec3_reflect(fe_vec3 r, const fe_vec3 v, const fe_vec3 n) {
+	const float p = 2*fe_vec3_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<3 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +150,5 @@ static inline void vec3_reflect(vec3 r, const vec3 v, const vec3 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_VEC3_H */
-
 /* @} */
+#endif /* FE_MATH_VEC3_H */

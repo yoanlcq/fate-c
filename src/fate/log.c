@@ -48,35 +48,60 @@
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #endif
 
-INFO     green  - Supposed to be compiled in.
-WARN     yellow - Supposed to be compiled in.
-ERROR    red    - Supposed to be compiled in.
-DEBUG    blue   - Supposed to be compiled only for debug builds.
-CRITICAL red    - The user must see it by all means, no matter what, but
-                  it doesn't seem fatal. Should spawn a message box.
-
-Each module's .c file should declare :
-    static const char *TAG = "ThisModule";
-Then use :
-    fe_logv(TAG, "Blah %d\n", 12, ...);
-
 */
 
 void fe_log_setup(void) {}
 void fe_log_cleanup(void) {}
 void fe_log_flags(unsigned long flags) {}
 unsigned long fe_log_getflags(void) { return 0; }
-void fe_log_multiplex(const char *tag, fe_log_severity sev,
-                        FILE* streams[], size_t streams_count) {}
-void fe_logi(const char *tag, const char *fmt, ...) {}
-void fe_logw(const char *tag, const char *fmt, ...) {}
-void fe_loge(const char *tag, const char *fmt, ...) {}
-#ifndef FE_DEBUG_BUILD
-void fe_logd(const char *tag, const char *fmt, ...) {}
+void fe_log_no_console(const char *tag) {}
+void fe_log_on_console(const char *tag) {}
+void fe_log_file(const char *tag, const char *filename) {}
+
+#ifdef FE_TARGET_ANDROID
+#define log_do_print(constream, sev) \
+        __android_log_vprint(ANDROID_LOG_##sev, tag, fmt, vl)
+#else
+#define log_do_print(constream, sev) \
+        fprintf(constream, "%s: ", tag); \
+        vfprintf(constream, fmt, vl)
 #endif
+
+#define log_helper(constream, sev) \
+    va_list vl; \
+    va_start(vl, fmt); \
+    log_do_print(constream, sev); \
+    va_end(vl)
+
+void fe_logi(const char *tag, const char *fmt, ...) {
+    log_helper(stdout, INFO);
+}
+void fe_logw(const char *tag, const char *fmt, ...) {
+    log_helper(stderr, WARN);
+}
+void fe_loge(const char *tag, const char *fmt, ...) {
+    log_helper(stderr, ERROR);
+}
+#ifdef FE_DEBUG_BUILD
+void fe_logd(const char *tag, const char *fmt, ...) {
+    log_helper(stdout, DEBUG);
+}
+#endif
+void fe_logd_not_macro(const char *tag, const char *fmt, ...) {
+#ifdef FE_DEBUG_BUILD
+    log_helper(stdout, DEBUG);
+#endif
+}
 #ifdef FE_LOG_USE_VERBOSE
-void fe_logv(const char *tag, const char *fmt, ...) {}
+void fe_logv(const char *tag, const char *fmt, ...) {
+    log_helper(stdout, VERBOSE);
+}
 #endif
+void fe_logv_not_macro(const char *tag, const char *fmt, ...) {
+#ifdef FE_LOG_USE_VERBOSE
+    log_helper(stdout, VERBOSE);
+#endif
+}
 void fe_logc(const char *tag, const char *fmt, ...) {
     char message[4096*4];
     va_list ap;
@@ -85,7 +110,9 @@ void fe_logc(const char *tag, const char *fmt, ...) {
     vsnprintf(message, sizeof(message), fmt, ap);
     va_end(ap);
 
-#ifdef __EMSCRIPTEN__
+    log_helper(stderr, ERROR);
+
+#ifdef FE_TARGET_EMSCRIPTEN
     const char *errstr = _("F.A.T.E has encountered an error "
                            "from which it cannot recover.");
     assert((strlen(errstr)+12) < 512);

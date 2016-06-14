@@ -35,31 +35,31 @@
  * functionalities.
  */
 
-#ifndef FE_MATH_VEXT_DVEC2_H
-#define FE_MATH_VEXT_DVEC2_H
+#ifndef FE_MATH_VEXT_WVEC2_H
+#define FE_MATH_VEXT_WVEC2_H
 
 /* Feature test section */
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define FE_DVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define FE_DVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec2_shuffle(v,m) \
+    #define FE_WVEC2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_WVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_wvec2_shuffle(v,m) \
                 __builtin_shufflevector(v,v,m[0],m[1],m[2],m[3])
-    #define fe_dvec2_shuffle2(u,v,m) \
+    #define fe_wvec2_shuffle2(u,v,m) \
                 __builtin_shufflevector(u,v,m[0],m[1],m[2],m[3])
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define FE_DVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(double))))
-    #define FE_DVEC2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_dvec2_shuffle(v,m)    __builtin_shuffle(v,m)
-    #define fe_dvec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
+    #define FE_WVEC2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(fe_space_unit))))
+    #define FE_WVEC2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_wvec2_shuffle(v,m)    __builtin_shuffle(v,m)
+    #define fe_wvec2_shuffle2(u,v,m) __builtin_shuffle(u,v,m)
 #endif
 #endif
 
-#ifndef FE_DVEC2_SIZE_ATTR
+#ifndef FE_WVEC2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -68,49 +68,49 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <fate/units.h>
+
+typedef fe_space_unit fe_wvec2 FE_WVEC2_SIZE_ATTR(2);
 
 
-typedef double fe_dvec2 FE_DVEC2_SIZE_ATTR(2);
-
-
-struct FE_DVEC2_PACKED_ATTR fe_dvec2_color {
-    double r;
-    double g;
+struct FE_WVEC2_PACKED_ATTR fe_wvec2_color {
+    fe_space_unit r;
+    fe_space_unit g;
     /* No blue component. */
     /* No alpha component. */
 };
-typedef struct fe_dvec2_color fe_dvec2_color;
+typedef struct fe_wvec2_color fe_wvec2_color;
 
-struct FE_DVEC2_PACKED_ATTR fe_dvec2_coord {
-    double x;
-    double y;
+struct FE_WVEC2_PACKED_ATTR fe_wvec2_coord {
+    fe_space_unit x;
+    fe_space_unit y;
     /* No z component. */
     /* No w component. */
 };
-typedef struct fe_dvec2_coord fe_dvec2_coord;
+typedef struct fe_wvec2_coord fe_wvec2_coord;
 
-#define fe_dvec2_as_array(v) (&(v)[0])
-#define fe_dvec2_as_color(v) ((fe_dvec2_color*)fe_dvec2_as_array(v))
-#define fe_dvec2_as_coord(v) ((fe_dvec2_coord*)fe_dvec2_as_array(v))
+#define fe_wvec2_as_array(v) (&(v)[0])
+#define fe_wvec2_as_color(v) ((fe_wvec2_color*)fe_wvec2_as_array(v))
+#define fe_wvec2_as_coord(v) ((fe_wvec2_coord*)fe_wvec2_as_array(v))
 
-#define fe_dvec2_add(s,a,b)   ((s)=(a)+(b))
-#define fe_dvec2_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_dvec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_dvec2_dot(a,b) fe_dvec2_mul_inner(a,b)
-static inline double fe_dvec2_mul_inner(const fe_dvec2 a, const fe_dvec2 b) {
-    fe_dvec2 v = a*b;
+#define fe_wvec2_add(s,a,b)   ((s)=(a)+(b))
+#define fe_wvec2_sub(s,a,b)   ((s)=(a)-(b))
+#define fe_wvec2_scale(r,v,s) ((r)=(v)*(s))
+#define fe_wvec2_dot(a,b) fe_wvec2_mul_inner(a,b)
+static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 a, const fe_wvec2 b) {
+    fe_wvec2 v = a*b;
     return v[0]+v[1];
 }
-#define fe_dvec2_len(v)  sqrt(fe_dvec2_mul_inner(v, v))
-#define fe_dvec2_lenf(v) sqrtf(fe_dvec2_mul_inner(v, v))
-#define fe_dvec2_norm(r,v) fe_dvec2_scale(r, v, 1./fe_dvec2_len(v))
+#define fe_wvec2_len(v)  sqrt(fe_wvec2_mul_inner(v, v))
+#define fe_wvec2_lenf(v) sqrtf(fe_wvec2_mul_inner(v, v))
+#define fe_wvec2_norm(r,v) fe_wvec2_scale(r, v, 1./fe_wvec2_len(v))
 
-/* No cross product for fe_dvec2. */
+/* No cross product for fe_wvec2. */
 
-#define fe_dvec2_reflect(r,v,n) fe_dvec2p_reflect(&r,v,n)
-static inline void fe_dvec2p_reflect(fe_dvec2 *r, const fe_dvec2 v, const fe_dvec2 n) {
-    const double p = 2*fe_dvec2_mul_inner(v, n);
+#define fe_wvec2_reflect(r,v,n) fe_wvec2p_reflect(&r,v,n)
+static inline void fe_wvec2p_reflect(fe_wvec2 *r, const fe_wvec2 v, const fe_wvec2 n) {
+    const fe_space_unit p = 2*fe_wvec2_mul_inner(v, n);
     *r = v-p*n;
 }
 
-#endif /* FE_MATH_VEXT_DVEC2_H */
+#endif /* FE_MATH_VEXT_WVEC2_H */

@@ -27,19 +27,16 @@
  *
  */
 
-/* This file was generated automagically from genvec.h.m4, using Make and 
+/*! \file fate/math/uvec3.h
+ *  \brief uvec3
+ *  \ingroup math
+ * 
+ * This file was generated automagically from genvec.h.m4, using Make and 
  * GNU M4. Therefore, it's pointless to edit it. Edit genvec.h.m4 instead. 
  *
  * Thanks to Datenwolf for providing his 'linmath.h' library under the WTFPL
  * license, which was used as a reference to implement this file's 
  * functionalities.
- */
-
-/*! \file fate/math/uvec3.h
- *  \brief uvec3
- *  \ingroup math
- * 
- * TODO
  *
  * @{
  */
@@ -67,58 +64,58 @@
 
 /*! \brief TODO 
  *
- * uvec3
+ * fe_uvec3
  */
-typedef uint32_t uvec3[3];
+typedef uint32_t fe_uvec3[3];
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec3_color {
+struct FATE_PACKED_STRUCT fe_uvec3_color {
     uint32_t r;
     uint32_t g;
     uint32_t b;
     /* No alpha component. */
 };
-typedef struct uvec3_color uvec3_color;
+typedef struct fe_uvec3_color fe_uvec3_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT uvec3_coord {
+struct FATE_PACKED_STRUCT fe_uvec3_coord {
     uint32_t x;
     uint32_t y;
     uint32_t z;
     /* No w component. */
 };
-typedef struct uvec3_coord uvec3_coord;
+typedef struct fe_uvec3_coord fe_uvec3_coord;
 
 /*! \brief TODO */
-#define uvec3_as_array(v) (v)
+#define fe_uvec3_as_array(v) (v)
 /*! \brief TODO */
-#define uvec3_as_color(v) ((uvec3_color*)uvec3_as_array(v))
+#define fe_uvec3_as_color(v) ((fe_uvec3_color*)fe_uvec3_as_array(v))
 /*! \brief TODO */
-#define uvec3_as_coord(v) ((uvec3_coord*)uvec3_as_array(v))
+#define fe_uvec3_as_coord(v) ((fe_uvec3_coord*)fe_uvec3_as_array(v))
 
 /*! \brief TODO */
-static inline void uvec3_add(uvec3 r, const uvec3 a, const uvec3 b) {
+static inline void fe_uvec3_add(fe_uvec3 r, const fe_uvec3 a, const fe_uvec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] + b[i];
 }
 /*! \brief TODO */
-static inline void uvec3_sub(uvec3 r, const uvec3 a, const uvec3 b) {
+static inline void fe_uvec3_sub(fe_uvec3 r, const fe_uvec3 a, const fe_uvec3 b) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = a[i] - b[i];
 }
 /*! \brief TODO */
-static inline void uvec3_scale(uvec3 r, const uvec3 v, const uint32_t s) {
+static inline void fe_uvec3_scale(fe_uvec3 r, const fe_uvec3 v, const uint32_t s) {
 	size_t i;
 	for(i=0; i<3; ++i)
 		r[i] = v[i] * s;
 }
 
 /*! \brief TODO */
-#define uvec3_dot(a,b) uvec3_mul_inner(a,b)
+#define fe_uvec3_dot(a,b) fe_uvec3_mul_inner(a,b)
 /*! \brief TODO */
-static inline uint32_t uvec3_mul_inner(const uvec3 a, const uvec3 b) {
+static inline uint32_t fe_uvec3_mul_inner(const fe_uvec3 a, const fe_uvec3 b) {
 	uint32_t p;
 	size_t i;
 	for(p=i=0; i<3; ++i)
@@ -127,16 +124,16 @@ static inline uint32_t uvec3_mul_inner(const uvec3 a, const uvec3 b) {
 }
 
 /*! \brief TODO */
-#define uvec3_len(v)  sqrt(uvec3_mul_inner(v, v))
+#define fe_uvec3_len(v)  sqrt(fe_uvec3_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec3_lenf(v) sqrtf(uvec3_mul_inner(v, v))
+#define fe_uvec3_lenf(v) sqrtf(fe_uvec3_mul_inner(v, v))
 /*! \brief TODO */
-#define uvec3_norm(r,v) uvec3_scale(r, v, 1./uvec3_len(v))
+#define fe_uvec3_norm(r,v) fe_uvec3_scale(r, v, 1./fe_uvec3_len(v))
 
 /*! \brief TODO */
-#define uvec3_cross(r,a,b) uvec3_mul_cross(r,a,b)
+#define fe_uvec3_cross(r,a,b) fe_uvec3_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void uvec3_mul_cross(uvec3 r, const uvec3 a, const uvec3 b) {
+static inline void fe_uvec3_mul_cross(fe_uvec3 r, const fe_uvec3 a, const fe_uvec3 b) {
 	r[0] = a[1]*b[2] - a[2]*b[1];
 	r[1] = a[2]*b[0] - a[0]*b[2];
 	r[2] = a[0]*b[1] - a[1]*b[0];
@@ -144,8 +141,8 @@ static inline void uvec3_mul_cross(uvec3 r, const uvec3 a, const uvec3 b) {
 }
 
 /*! \brief TODO */
-static inline void uvec3_reflect(uvec3 r, const uvec3 v, const uvec3 n) {
-	const uint32_t p = 2*uvec3_mul_inner(v, n);
+static inline void fe_uvec3_reflect(fe_uvec3 r, const fe_uvec3 v, const fe_uvec3 n) {
+	const uint32_t p = 2*fe_uvec3_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<3 ; ++i)
 		r[i] = v[i] - p*n[i];
@@ -153,6 +150,5 @@ static inline void uvec3_reflect(uvec3 r, const uvec3 v, const uvec3 n) {
 
 #endif /* Naive */
 
-#endif /* FE_MATH_UVEC3_H */
-
 /* @} */
+#endif /* FE_MATH_UVEC3_H */

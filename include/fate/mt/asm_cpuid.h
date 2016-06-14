@@ -10,19 +10,4 @@ inline unsigned fe_asm_cpuid(void) {
     return b;
 }
 
-/* See http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros#x86andx8664 */
-#if defined(i386) \
- || defined(__i386) \
- || defined(__i386__) \
- || defined(_M_IX86) \
- || defined(_X86_) \
- || defined(__x86_64) \
- || defined(__x86_64__) \
- || defined(__amd64) \
- || defined(__amd64__) \
- || defined(_M_AMD64) \
- || defined(_M_X64)
-#define FE_X86 1
-#endif
-
 
