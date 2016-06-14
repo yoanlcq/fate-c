@@ -1,6 +1,5 @@
 #include <string.h>
-#include <fate/gl/defs.h>
-#include <fate/gl/debug.h>
+#include <fate/gl.h>
 #include "cube.h"
 
 void Cube_init(Cube *c, GLuint prog) {
@@ -35,17 +34,17 @@ void Cube_init(Cube *c, GLuint prog) {
 
     glGenBuffers(1, &c->ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
-    fate_glObjectLabel(GL_BUFFER, c->ebo, -1, "\"Cube EBO\"");
+    fe_gl_dbg_glObjectLabel(GL_BUFFER, c->ebo, -1, "\"Cube EBO\"");
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &c->vao);
     glBindVertexArray(c->vao);
-    fate_glObjectLabel(GL_VERTEX_ARRAY, c->vao, -1, "\"Cube VAO\"");
+    fe_gl_dbg_glObjectLabel(GL_VERTEX_ARRAY, c->vao, -1, "\"Cube VAO\"");
  
     glGenBuffers(1, &c->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);
-    fate_glObjectLabel(GL_BUFFER, c->vbo, -1, "\"Cube VBO\"");
+    fe_gl_dbg_glObjectLabel(GL_BUFFER, c->vbo, -1, "\"Cube VBO\"");
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)+sizeof(colors), NULL, 
             GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -65,7 +64,6 @@ void Cube_free(Cube *c) {
     glDeleteBuffers(1, &c->vbo);
     glDeleteVertexArrays(1, &c->vao);
 }
-void draw_some_image(void);
 void Cube_draw(Cube *c) {
     //glDisable(GL_CULL_FACE);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
@@ -75,14 +73,10 @@ void Cube_draw(Cube *c) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     glPrimitiveRestartIndex(0xFF);
     glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_BYTE, NULL);
-    //draw_some_image();
+    //draw_some_image(NULL);
 }
-struct 2dplane {
-    GLuint ebo, vao, vbo, prog;
-};
-typedef struct 2dplane 2dplane;
 
-void draw_some_image(2dplane *p) {
+void draw_some_image(plane2d *p) {
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

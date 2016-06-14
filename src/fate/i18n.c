@@ -1,7 +1,10 @@
+#include <stdlib.h>
 #include <fate/i18n.h>
 #include <fate/log.h>
 
-static const char *TAG="i18n";
+#ifdef FE_LOG_USE_VERBOSE
+static const char *TAG="fe_i18n";
+#endif
 
 /* See https://www.gnu.org/software/gettext/manual/html_node/gettext-grok.html */
 void fe_i18n_switchlang(const char *lang) {

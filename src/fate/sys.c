@@ -42,24 +42,24 @@
 #include <fate/sys.h>
 #include <fate/log.h>
 
-#if defined(FE_WINDOWS)
+#if defined(FE_TARGET_WINDOWS)
 #include <Windows.h>
 #include <DbgHelp.h>
-#elif defined(FE_LINUX)
+#elif defined(FE_TARGET_LINUX)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FE_FREEBSD)
+#elif defined(FE_TARGET_FREEBSD)
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FE_OSX)
+#elif defined(FE_TARGET_OSX)
 #include <stdint.h>
 #include <limits.h>
 #include <signal.h>
@@ -72,7 +72,7 @@
 #endif
 
 
-static const char *TAG = "sys";
+static const char *TAG = "fe_sys";
 
 /*
  *
@@ -92,7 +92,7 @@ static const char *TAG = "sys";
  *
  */
 
-#if defined(FE_EMSCRIPTEN)
+#if defined(FE_TARGET_EMSCRIPTEN)
 inline bool fe_sys_file_exists(const char *path) {
     FILE *file = fopen(path, "r");
     if(!file)
@@ -100,7 +100,7 @@ inline bool fe_sys_file_exists(const char *path) {
     fclose(file);
     return true;
 }
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 inline bool fe_sys_file_exists(const char *path) {
     return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
 }
@@ -130,18 +130,18 @@ inline bool fe_sys_file_exists(const char *path) {
  */
 
 
-#if defined(FE_EMSCRIPTEN)
+#if defined(FE_TARGET_EMSCRIPTEN)
 uint64_t fe_sys_get_last_write_time(const char *path) {
     return 0; /* FIXME */
 }
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 uint64_t fe_sys_get_last_write_time(const char *path) {
     FILETIME ft;
     HANDLE fh;
     fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(fh==INVALID_HANDLE_VALUE) {
-        fe_logf_err("Could not stat \"%s\".\n", path);
+        fe_loge(TAG, "Could not stat \"%s\".\n", path);
         return 0;
     }
     GetFileTime(fh, NULL, NULL, &ft);
@@ -152,7 +152,7 @@ uint64_t fe_sys_get_last_write_time(const char *path) {
 inline uint64_t fe_sys_get_last_write_time(const char *path) {
     struct stat st;
     if(stat(path, &st)) {
-        fe_logf_err("Could not stat \"%s\".\n", path);
+        fe_logw(TAG, "Could not stat \"%s\".\n", path);
         return 0;
     }
     return st.st_mtime;
@@ -178,11 +178,11 @@ inline uint64_t fe_sys_get_last_write_time(const char *path) {
  */
 
 
-#if defined(FE_EMSCRIPTEN)
+#if defined(FE_TARGET_EMSCRIPTEN)
 inline bool fe_sys_set_current_directory(const char *path) {
     return false; /* TODO */
 }
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 #if !(_MSC_VER && !__INTEL_COMPILER)
 inline 
 #endif 
@@ -216,11 +216,11 @@ inline bool fe_sys_set_current_directory(const char *path) {
  */
 
 
-#if defined(FE_EMSCRIPTEN)
+#if defined(FE_TARGET_EMSCRIPTEN)
 char *fe_sys_getgamepath(void) {
     return ""; /* FIXME */
 }
-#elif defined(FE_LINUX)
+#elif defined(FE_TARGET_LINUX)
 
 #if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
  || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
@@ -260,7 +260,7 @@ static char *get_executable_path(void) {
     return NULL;
 }
 
-#elif defined(FE_FREEBSD)
+#elif defined(FE_TARGET_FREEBSD)
 
 static char *get_executable_path(void) {
     static char appdir[PATH_MAX];
@@ -290,7 +290,7 @@ static char *get_executable_path(void) {
 }
 
 
-#elif defined(FE_OSX)
+#elif defined(FE_TARGET_OSX)
 
 static char *get_executable_path(void) {
     static char appdir[MAXPATHLEN];
@@ -305,15 +305,15 @@ static char *get_executable_path(void) {
     return str2;
 }
 
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 static char *get_executable_path(void) {
     return strdup(_pgmptr);
 }
 #endif
 
-#ifndef FE_EMSCRIPTEN
+#ifndef FE_TARGET_EMSCRIPTEN
 
-#if defined(FE_WINDOWS)
+#if defined(FE_TARGET_WINDOWS)
 #define PATHSEP "\\"
 #else
 #define PATHSEP "/"
@@ -352,7 +352,7 @@ char *fe_sys_getgamepath(void) {
     }
     free(res);
     free(data);
-    fe_logf_err("Could not find res/ and data/ directories.\n");
+    fe_loge(TAG, "Could not find res/ and data/ directories.\n");
     return NULL;
 }
 
@@ -379,7 +379,7 @@ char *fe_sys_getgamepath(void) {
  */
 
 
-#ifdef FE_EMSCRIPTEN
+#ifdef FE_TARGET_EMSCRIPTEN
 void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
@@ -388,7 +388,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     logfunc(TAG, buf);
     free(buf);
 }
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 
 void fe_sys_log_win32_error(fe_logfunc logfunc, 
                               const char *funcstr, DWORD error) 
@@ -500,7 +500,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc)
     fe_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
 }
 
-#else /* !FE_WINDOWS */
+#else /* !FE_TARGET_WINDOWS */
 
 
 void fe_sys_log_stacktrace(fe_logfunc logfunc) {
@@ -519,7 +519,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     free(strings);
 }
 
-#endif /* FE_WINDOWS */
+#endif /* FE_TARGET_WINDOWS */
 
 
 /*
@@ -540,20 +540,20 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
  *
  */
 
-#ifdef FE_EMSCRIPTEN
+#ifdef FE_TARGET_EMSCRIPTEN
 void fe_sys_crash_handler_setup(void) {
     /* FIXME */
 }
-#elif defined(FE_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS)
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
 LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
 {
-    fe_logf_err("Process received ");
+    fe_loge(TAG, "Process received ");
 #define HELPER(_S) \
-    case _S: fe_logf_err(#_S); break
+    case _S: fe_loge(TAG, #_S); break
 #define DEFAULT \
-    default: fe_logf_err("Unrecognized exception"); break
+    default: fe_loge(TAG, "Unrecognized exception"); break
     switch(ep->ExceptionRecord->ExceptionCode) {
     HELPER(EXCEPTION_ACCESS_VIOLATION);
     HELPER(EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
@@ -579,27 +579,27 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
     }
 #undef HELPER
 #undef DEFAULT
-    fe_logf_err(" (%scontinuable, at %p).\r\n", 
+    fe_loge(TAG, " (%scontinuable, at %p).\r\n", 
                   ep->ExceptionRecord->ExceptionFlags ? "non" : "",
                   ep->ExceptionRecord->ExceptionAddress
                   );
 
     if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
     || ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
-        fe_logf_err("(Thread ");
+        fe_loge(TAG, "(Thread ");
         if(ep->ExceptionRecord->ExceptionInformation[0] == 8)
-            fe_logf_err("caused a user-mode data execution "
+            fe_loge(TAG, "caused a user-mode data execution "
                           "prevention violation ");
         else
-            fe_logf_err("attempted to %s inacessible data ",
+            fe_loge(TAG, "attempted to %s inacessible data ",
                           ep->ExceptionRecord->ExceptionInformation[0]
                               ? "write to" : "read");
-        fe_logf_err("at %p", 
+        fe_loge(TAG, "at %p", 
                       ep->ExceptionRecord->ExceptionInformation[1]);
         if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
-            fe_logf_err(", NTSTATUS code is %p", 
+            fe_loge(TAG, ", NTSTATUS code is %p", 
                           ep->ExceptionRecord->ExceptionInformation[2]);
-        fe_logf_err(")\r\n");
+        fe_loge(TAG, ")\r\n");
     }
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
@@ -661,7 +661,7 @@ void fe_sys_crash_handler_setup(void) {
 
 /* Very unlikely, but since it is most often compiled out, it causes no harm. */
 void fe_sys_crash_handler_setup(void) {
-    fe_logf_err("The POSIX signal handler was not available "
+    fe_loge(TAG, "The POSIX signal handler was not available "
                   "at compilation.\n");
 }
 
@@ -675,10 +675,10 @@ void fe_sys_sighandler(int signum)
 {
     int btrace, fatal;
 
-    fe_logf_err("Process received ");
+    fe_loge(TAG, "Process received ");
 
 #define HELPER(S_, A_, B_, C_) \
-    case S_: fe_logf_err(#S_ ": " A_); B_; C_; break
+    case S_: fe_loge(TAG, #S_ ": " A_); B_; C_; break
     switch(signum) {
     HELPER(SIGHUP,  "death of controlling process",  btrace=0, fatal=0);
     HELPER(SIGINT,  "interrupt from keyboard",       btrace=0, fatal=1);
@@ -689,16 +689,16 @@ void fe_sys_sighandler(int signum)
     HELPER(SIGBUS,  "bus error (bad memory access)", btrace=1, fatal=1);
     HELPER(SIGSEGV, "invalid memory reference",      btrace=1, fatal=1);
     HELPER(SIGABRT, "abort",                         btrace=1, fatal=1);
-    default: fe_logf_err("signal #%d", signum);    btrace=1, fatal=0; break;
+    default: fe_loge(TAG, "signal #%d", signum);    btrace=1, fatal=0; break;
     }
 #undef HELPER
 
 #if _POSIX_C_SOURCE >= 199309L
 
 #define HELPER(S_, A_, B_, C_) \
-    case S_: fe_logf_err(" (%s%s%s)", A_, B_, C_); break
+    case S_: fe_loge(TAG, " (%s%s%s)", A_, B_, C_); break
 #define DEFAULT \
-    default: fe_logf_err(" (siginfo->si_code = %d)", siginfo->si_code); break
+    default: fe_loge(TAG, " (siginfo->si_code = %d)", siginfo->si_code); break
 
     /* Below, the strings are separated into keywords so the compiler reuses
      * them instead of storing, each time, a long string. See GCC's manual. */
@@ -745,9 +745,9 @@ void fe_sys_sighandler(int signum)
 #undef DEFAULT
 #endif /* _POSIX_C_SOURCE >= 199309L */
 
-    fe_logf_err(".\n");
+    fe_loge(TAG, ".\n");
     if(btrace)
-        fe_sys_log_stacktrace(fe_logf_err);
+        fe_sys_log_stacktrace(fe_loge);
 
     fe_globalstate_deinit(fe_gs);
 
@@ -788,9 +788,9 @@ void fe_sys_crash_handler_setup(void) {
 
 unsigned recursive(unsigned d) {
     if(d==1) {
-        fe_logf_err("--- Early stack trace ---\n");
+        fe_loge(TAG, "--- Early stack trace ---\n");
         fe_sys_log_stacktrace(&fe_logf_err);
-        fe_logf_err("--- Stack trace ---\n");
+        fe_loge(TAG, "--- Stack trace ---\n");
     }
     unsigned foo = 100/(d--);
     return recursive(d);
@@ -798,7 +798,7 @@ unsigned recursive(unsigned d) {
 
 int main(void) {
     fe_sys_crash_handler_setup();
-    fe_logf_err("%u\n", recursive(4));
+    fe_loge(TAG, "%u\n", recursive(4));
     return 0;
 }
 */

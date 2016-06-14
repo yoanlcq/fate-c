@@ -40,16 +40,11 @@
 #include <fate/defs.h>
 
 struct fe_globalstate {
-    FILE *logf_stream;
-    FILE *logf_trace_stream;
-    FILE *logf_err_stream;
-    FILE *logf_video_stream;
-    FILE *logf_audio_stream;
+    int foo;
     /* fe_vfs vfs; */
 };
 typedef struct fe_globalstate fe_globalstate;
 
-extern fe_globalstate  fe_gs_;
 extern fe_globalstate *fe_gs;
 
 void fe_globalstate_init(fe_globalstate *gs);

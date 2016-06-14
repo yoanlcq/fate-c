@@ -38,7 +38,7 @@
 #define FE_GL_H
 
 #include <fate/gl/defs.h>
-#include <fate/gl/debug.h>
+#include <fate/gl/dbg.h>
 #include <fate/gl/log.h>
 #include <fate/gl/mkprog.h>
 

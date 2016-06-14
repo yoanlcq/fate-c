@@ -33,6 +33,7 @@
  * TODO
  */
 
+/*
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -108,12 +109,11 @@ int main(int argc, char *argv[])
             sfClock_restart(refresh_rate_clock);
         
         DXCALLV(dev, ClearRenderTargetView, render_target, CORNFLOWER);
-        /*
-        DXCALLV(dev, ClearDepthStencilView, mDepthStencilView, 
-                D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
-        */
         
-        /* Render things here ! */
+        //DXCALLV(dev, ClearDepthStencilView, mDepthStencilView, 
+        //        D3D10_CLEAR_DEPTH | D3D10_CLEAR_STENCIL, 1.0f, 0);
+        
+        // Render things here !
         DXCALLV(swap_chain, Present, 0, 0);
 
         if (!vsync) {
@@ -144,3 +144,4 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+*/

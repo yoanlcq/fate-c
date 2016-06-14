@@ -65,7 +65,7 @@ Then use :
 void fe_log_setup(void) {}
 void fe_log_cleanup(void) {}
 void fe_log_flags(unsigned long flags) {}
-unsigned long fe_log_getflags(void) {}
+unsigned long fe_log_getflags(void) { return 0; }
 void fe_log_multiplex(const char *tag, fe_log_severity sev,
                         FILE* streams[], size_t streams_count) {}
 void fe_logi(const char *tag, const char *fmt, ...) {}

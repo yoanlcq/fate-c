@@ -45,9 +45,11 @@
 #define GL_CHECK_ERR()
 #endif
 
-void fe_gl_log_error(GLenum err, bool even_no_error);
-void fe_gl_log_all_errors(void);
-void fe_gl_log_program_info(GLuint program);
-void fe_gl_log_shader_info(GLuint shader);
+#include <fate/log.h>
+
+void fe_gl_log_error(GLenum err, fe_logfunc log, bool even_no_error);
+void fe_gl_log_all_errors(fe_logfunc log);
+void fe_gl_log_program_info(GLuint program, fe_logfunc log);
+void fe_gl_log_shader_info(GLuint shader, fe_logfunc log);
 
 #endif /* FE_GL_LOG */

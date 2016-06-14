@@ -135,6 +135,8 @@
 #ifdef FE_NO_MT
 #endif
 
+typedef int fe_mt_thread;
+typedef int fe_mt_mutex;
 void fe_mt_setup(void);
 unsigned fe_mt_get_num_threads(void);
 fe_mt_thread* fe_mt_thread_create(int (*func)(void*), const char *name);
@@ -204,9 +206,9 @@ void fe_mutex_unlock(fe_mt_mutex *mutex);
     #define fe_mt_mutex_unlock(mutex)
 
 #elif defined(FE_MT_MUTEX_USE_GNUTM)
-#include "mutex_gnutm.h"
+#include "mt/mutex_gnutm.h"
 #elif defined(FE_MT_MUTEX_USE_SDL2)
-#include "mutex_sdl2.h"
+#include "mt/mutex_sdl2.h"
 #endif
 
 /* Nice documentation for x86 intrinsics : 
@@ -221,11 +223,11 @@ void fe_mutex_unlock(fe_mt_mutex *mutex);
 #endif
 
 #ifdef FE_MT_MUTEX_TRY_X86HLE
-#include "mutex_x86hle.h"
+#include "mt/mutex_x86hle.h"
 #endif
 
 #ifdef FE_MT_MUTEX_TRY_X86RTM
-#include "mutex_x86rtm.h"
+#include "mt/mutex_x86rtm.h"
 #endif
 
 /*! @} */

@@ -34,9 +34,7 @@
  */
 
 #include <string.h>
-#include <fate/gl/defs.h>
-#include <fate/gl/debug.h>
-#include <fate/gl/stats.h>
+#include <fate/gl.h>
 
 #ifdef FE_GL_DEBUG
 

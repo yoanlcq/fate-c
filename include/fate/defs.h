@@ -260,6 +260,11 @@
  *
  * This macro expands to nothing if the compiler is not GCC. */
 #define FE_DEPRECATED(msg) __attribute__((deprecated(msg)))
+/*! \brief Marks a function as malloc-like.
+ *
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define FE_MALLOC_DECL __attribute__((malloc))
 /*! \brief Marks a function as printf-like.
  *
  * This gives to the compiler the ability to check formats given to the marked
@@ -267,8 +272,8 @@
  *
  * This macro expands to nothing if the compiler is not GCC.
  *
- * \param fmt_index The index of the "format" parameter.
- * \param args_index The index of the "..." parameter.
+ * \param fmt_index The index of the "format" parameter, starting from 1.
+ * \param args_index The index of the "..." parameter, starting from 1.
  */
 #define FE_PRINTF_DECL(fmt_index, args_index) \
             __attribute__((format(printf, fmt_index, args_index)))
@@ -309,6 +314,7 @@
 
 #define MUST_BE_ARRAY(a) 0
 #define FE_DEPRECATED(msg) 
+#define FE_MALLOC_DECL
 #define FE_PRINTF_DECL(fmt_index, args_index) 
 #define FE_NONNULL_PARAMS(arg_index,...) 
 #define FE_SENTINEL(pos) 
@@ -330,6 +336,15 @@
  * Please don't use it on pointers. It ain't wizardry.
  */
 #define COUNTOF(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
+
+#ifdef FE_TARGET_WINDOWS
+#define PRIsize_t "Iu"
+#define PRIssize_t "Id"
+#else
+#define PRIsize_t "zu"
+#define PRIssize_t "zd"
+#endif
+
 
 /*! @} */
 

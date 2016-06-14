@@ -4,17 +4,17 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include <fate.h>
+#include <fate/fate.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_revision.h>
 #include <linmath/linmath.h>
-#ifdef __EMSCRIPTEN__
+#ifdef FE_TARGET_EMSCRIPTEN
 #include <emscripten.h>
 #endif
 #include "cube.h"
 
-#define FATE_GAME_NAME "Rainbow Dice"
-#define FATE_GAME_ID "Rainbow_Dice"
+#define FE_GAME_NAME "Rainbow Dice"
+#define FE_GAME_ID "Rainbow_Dice"
 
 struct cube_main {
     SDL_Window *window;
@@ -43,6 +43,8 @@ struct cube_main {
     uint32_t last_time;
 };
 
+static const char *TAG = "cube_main";
+
 void cube_main_init(struct cube_main *m) {
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
@@ -52,20 +54,20 @@ void cube_main_init(struct cube_main *m) {
 
     puts("Initializing SDL...");
     if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
-        fate_fatal("SDL_Init failed: %s\n", SDL_GetError());
+        fe_fatal(TAG, "SDL_Init failed: %s\n", SDL_GetError());
 
     puts("Initializing log system and global state...");
     //We do this after SDL_Init to (hopefully) override its signal handler.
-    fate_globalstate_init(fate_gs);
+    fe_globalstate_init(fe_gs);
 
-    fate_logf("Welcome to F.A.T.E !\n"
+    fe_logi(TAG, "Welcome to F.A.T.E !\n"
               "Version : %d.%d.%d (\"%s\")\n"
               "Compiled on %s, %s.\n"
               "Platform : %s\n\n",
-              FATE_VERSION_MAJOR, FATE_VERSION_MINOR, FATE_VERSION_PATCH,
-              FATE_VERSION_CODENAME,
+              FE_VERSION_MAJOR, FE_VERSION_MINOR, FE_VERSION_PATCH,
+              FE_VERSION_CODENAME,
               __DATE__, __TIME__,
-#ifdef __EMSCRIPTEN__
+#ifdef FE_TARGET_EMSCRIPTEN
               "Emscripten"
 #else
               SDL_GetPlatform()
@@ -76,24 +78,24 @@ void cube_main_init(struct cube_main *m) {
     SDL_version linked;
     SDL_VERSION(&compiled);
     SDL_GetVersion(&linked);
-    fate_logf("--- SDL version ---\n"
+    fe_logi(TAG, "--- SDL version ---\n"
               "    Compiled : %d.%d.%d (revision %s)\n"
               "    Linked   : %d.%d.%d (revision %s)\n\n",
               compiled.major, compiled.minor, compiled.patch, SDL_REVISION,
               linked.major, linked.minor, linked.patch, SDL_GetRevision());
 
-    fate_logf_video("--- SDL Video drivers ---\n");
+    fe_logi(TAG, "--- SDL Video drivers ---\n");
     int ndrivers = SDL_GetNumVideoDrivers();
     for(--ndrivers ; ndrivers>=0 ; --ndrivers)
-        fate_logf_video("    %s\n", SDL_GetVideoDriver(ndrivers));
-    fate_logf_video("\n");
+        fe_logi(TAG, "    %s\n", SDL_GetVideoDriver(ndrivers));
+    fe_logi(TAG, "\n");
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
                         0//SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
-#ifdef FATE_GL_DEBUG
+#ifdef FE_GL_DEBUG
                        |SDL_GL_CONTEXT_DEBUG_FLAG
 #endif
                         );
@@ -118,28 +120,28 @@ void cube_main_init(struct cube_main *m) {
 */
     m->win_w = 640;
     m->win_h = 480;
-    m->window = SDL_CreateWindow(FATE_GAME_NAME, 
+    m->window = SDL_CreateWindow(FE_GAME_NAME, 
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m->win_w, m->win_h,
             SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
 
     if(!m->window)
-        fate_fatal("SDL_CreateWindow failed: %s\n", SDL_GetError());
+        fe_fatal(TAG, "SDL_CreateWindow failed: %s\n", SDL_GetError());
 
     if(SDL_GetCurrentDisplayMode(0, &m->current_display_mode))
-        fate_fatal("SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
+        fe_fatal(TAG, "SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
 
     m->glctx = SDL_GL_CreateContext(m->window);
     if(!m->glctx)
-        fate_fatal("SDL_GL_CreateContext failed : %s\n", SDL_GetError());
+        fe_fatal(TAG, "SDL_GL_CreateContext failed : %s\n", SDL_GetError());
 
     glewExperimental = GL_TRUE;
-    fate_logf_video("Using GLEW %s\n", glewGetString(GLEW_VERSION));
+    fe_logi(TAG, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
     GLenum glew = glewInit();
     if(glew != GLEW_OK)
-        fate_fatal("Could not initialize GLEW :\n%s\n", 
+        fe_fatal(TAG, "Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
 
-    fate_logf_video(
+    fe_logi(TAG,
             "--- OpenGL version ---\n"
             "    Required  : >= %d.%d\n"
             "    Supported :    %s\n"
@@ -157,7 +159,7 @@ void cube_main_init(struct cube_main *m) {
     glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
     glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
     if(gl_major < 4 || (gl_major == 4 && gl_minor < 1))
-        fate_fatal("The OpenGL version reported by your driver is "
+        fe_fatal(TAG, "The OpenGL version reported by your driver is "
                    "not supported yet.\nSorry. I'm working on it.\n");
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
@@ -171,7 +173,7 @@ void cube_main_init(struct cube_main *m) {
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
 
-    fate_logf_video(
+    fe_logi(TAG,
         "--- Active OpenGL context settings ---\n"
         "    Version             : %d.%d\n"
         "    GLSL version        : %s\n"
@@ -188,7 +190,7 @@ void cube_main_init(struct cube_main *m) {
         ctxpflags,
         ctxflags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT ? "forward_compatible " : "",
         ctxflags & GL_CONTEXT_FLAG_DEBUG_BIT ? "debug " : "",
-#ifdef FATE_EMSCRIPTEN
+#ifdef FE_TARGET_EMSCRIPTEN
         "", "",
 #else
         ctxflags & GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT ? "robust_access " : "",
@@ -203,29 +205,29 @@ void cube_main_init(struct cube_main *m) {
 
     GLint num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
-    fate_logf_video("    Extensions :\n");
+    fe_logi(TAG, "    Extensions :\n");
     for(i=0 ; i<num_glexts ; i++) {
-        fate_logf_video("%-38s", glGetStringi(GL_EXTENSIONS, i));
+        fe_logi(TAG, "%-38s", glGetStringi(GL_EXTENSIONS, i));
         if(i+1<num_glexts) {
             ++i;
-            fate_logf_video(" %-38s", glGetStringi(GL_EXTENSIONS, i));
+            fe_logi(TAG, " %-38s", glGetStringi(GL_EXTENSIONS, i));
         }
-        fate_logf_video("\n");
+        fe_logi(TAG, "\n");
     }
-    fate_logf_video("\n");
+    fe_logi(TAG, "\n");
 
-    fate_gl_debug_setup(gl_major, gl_minor, true);
+    fe_gl_dbg_setup(gl_major, gl_minor, true);
 
-    fate_gl_mkprog_setup(gl_major, gl_minor);
+    fe_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
-    if(!fate_gl_mkprog(progid,
+    if(!fe_gl_mkprog(progid,
                        "data/OpenGL/triangles.glpb",
                        "res/shaders/triangles.330.core.vert",
                        "res/shaders/triangles.330.core.frag",
                        NULL))
-        fate_fatal("Could not build the OpenGL program.\n");
-    fate_gl_mkprog_cleanup();
-    fate_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
+        fe_fatal(TAG, "Could not build the OpenGL program.\n");
+    fe_gl_mkprog_cleanup();
+    fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube_init(&m->cube, progid);
 
     glEnable(GL_PRIMITIVE_RESTART); /* Since OpenGL 3.1 */
@@ -257,17 +259,17 @@ void cube_main_init(struct cube_main *m) {
     mat4_mul(m->MVPMatrix, m->Model, m->MVPMatrix); \
     glUniformMatrix4fv(m->MVPMatrixLoc, 1, GL_FALSE, &m->MVPMatrix[0][0])
    
-#define FATE_FALLBACK_REFRESH_RATE 60
-#define FATE_DEFAULT_FPS_CEIL 256
-#define FATE_DEFAULT_NEAR 0.25
-#define FATE_DEFAULT_FAR  1024.0
-#define FATE_DEFAULT_FOV  (75.0*M_PI/180.0)
+#define FE_FALLBACK_REFRESH_RATE 60
+#define FE_DEFAULT_FPS_CEIL 256
+#define FE_DEFAULT_NEAR 0.25
+#define FE_DEFAULT_FAR  1024.0
+#define FE_DEFAULT_FOV  (75.0*M_PI/180.0)
 
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
     m->win_w = _W_; m->win_h = _H_; \
-    mat4_perspective(m->Projection, FATE_DEFAULT_FOV, _W_/(float)_H_, \
-                     FATE_DEFAULT_NEAR, FATE_DEFAULT_FAR); \
+    mat4_perspective(m->Projection, FE_DEFAULT_FOV, _W_/(float)_H_, \
+                     FE_DEFAULT_NEAR, FE_DEFAULT_FAR); \
     UPDATE_MVP()
 
     UPDATE_VIEW();
@@ -282,12 +284,11 @@ void cube_main_init(struct cube_main *m) {
     m->go_west = m->go_east = false;
     m->splitx = 0.5f;
 
-    m->fps_ceil = FATE_DEFAULT_FPS_CEIL;
+    m->fps_ceil = FE_DEFAULT_FPS_CEIL;
     m->framerate_limit = 0;
 
-    if(m->framerate_limit <= 0)
-        if(SDL_GL_SetSwapInterval(1) < 0)
-            fate_logf_err("Warning : Vsync is disabled. The FPS may skyrocket.\n");
+    if(m->framerate_limit <= 0) if(SDL_GL_SetSwapInterval(1) < 0)
+        fe_logw(TAG, "Warning : Vsync is disabled. The FPS may skyrocket.\n");
 
     m->frameno = 0;
     m->lim_last_time = SDL_GetTicks();
@@ -300,7 +301,7 @@ void cube_main_clean_then_exit(void *arg) {
 
     glDeleteProgram(m->cube.prog);
     Cube_free(&m->cube);
-    fate_globalstate_deinit(fate_gs);
+    fe_globalstate_deinit(fe_gs);
     SDL_GL_DeleteContext(m->glctx);
     SDL_DestroyWindow(m->window);
     SDL_Quit();
@@ -374,11 +375,11 @@ void cube_main_loop_iteration(void *arg) {
                             SDL_SetWindowSize(m->window, 
                                     m->current_display_mode.w, 
                                     m->current_display_mode.h);
-                            fate_logf_video("Now using %s mode.\n", "fullscreen");
+                            fe_logi(TAG, "Now using %s mode.\n", "fullscreen");
                         }
                         if(SDL_SetWindowFullscreen(m->window, 
                                 (!is_fullscreen)*SDL_WINDOW_FULLSCREEN)<0) {
-                            fate_logf_video("Failed to toggle fullscreen : %s\n", SDL_GetError());
+                            fe_logi(TAG, "Failed to toggle fullscreen : %s\n", SDL_GetError());
                             break;
                         }
                         if(is_fullscreen) {
@@ -386,7 +387,7 @@ void cube_main_loop_iteration(void *arg) {
                             SDL_SetWindowPosition(m->window, 
                                     SDL_WINDOWPOS_CENTERED, 
                                     SDL_WINDOWPOS_CENTERED);
-                            fate_logf_video("Now using %s mode.\n", "windowed");
+                            fe_logi(TAG, "Now using %s mode.\n", "windowed");
                         }
                     }
                         break;
@@ -488,7 +489,7 @@ void cube_main_loop_iteration(void *arg) {
     if(SDL_TICKS_PASSED(current_time, m->last_time+fps_counter_interval))
     {
         unsigned fps = lround(m->frameno*1000.0/fps_counter_interval);
-        fate_logf_video("%u frames under %lg milliseconds = "
+        fe_logi(TAG, "%u frames under %lg milliseconds = "
                         "%lg milliseconds/frame = "
                         "%u FPS\n", 
                 (unsigned)m->frameno,
@@ -503,10 +504,10 @@ void cube_main_loop_iteration(void *arg) {
                 m->framerate_limit = m->current_display_mode.refresh_rate;
                 str = "from display mode info";
             } else {
-                m->framerate_limit = FATE_FALLBACK_REFRESH_RATE;
+                m->framerate_limit = FE_FALLBACK_REFRESH_RATE;
                 str = "fallback";
             }
-            fate_logf_video("Abnormal FPS detected (Vsync is not working). "
+            fe_logi(TAG, "Abnormal FPS detected (Vsync is not working). "
                             "Now limiting FPS to %u (%s).\n", 
                             m->framerate_limit, str);
         }
@@ -544,7 +545,7 @@ void cube_main_loop_iteration(void *arg) {
 }
 
 
-#ifdef FATE_WINDOWS
+#ifdef FE_TARGET_WINDOWS
 #include <Windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    PSTR pCmdLine, int nCmdShow)
@@ -555,7 +556,7 @@ int main(int argc, char *argv[])
     struct cube_main m;
     cube_main_init(&m);
     cube_main_framefuncptr = cube_main_loop_iteration;
-#ifdef __EMSCRIPTEN__
+#ifdef FE_TARGET_EMSCRIPTEN
     emscripten_set_main_loop_arg(cube_main_framefuncptr, &m, 0, true);
 #else
     for(;;)

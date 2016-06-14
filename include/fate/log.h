@@ -48,7 +48,7 @@
  * flexible.<br>
  * The log functions actually translate to calls like fprintf() or 
  * platform-specific alternatives.
- * #fe_logc may use SDL_ShowSimpleMessageBox() or a Javascript alert().
+ * #fe_logc may use \c SDL_ShowSimpleMessageBox() or a Javascript \c alert().
  * 
  * Each other module is encouraged to declare a private string which they
  * should pass as the log functions' first parameter, like so :
@@ -58,7 +58,7 @@
  * fe_logi(TAG, _("The answer is %u\n"), 42);
  * \endcode
  *
- * In each of the log functions, the "tag" parameter may never be NULL.
+ * In each one of the log functions, the "tag" parameter may never be NULL.
  * You may however use an empty string instead.
  *
  * @{
@@ -75,7 +75,7 @@
  * This is intended for use by other modules, which would like to expose
  * functions taking a log function as a parameter.
  */
-typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...);
+typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 
 /*! \brief Setup this module.
  * 
@@ -134,7 +134,7 @@ void fe_log_flags(unsigned long flags);
  */
 unsigned long fe_log_getflags(void);
 
-/*! \brief Enumeration of log sevreities for #fe_log_multiplex().
+/*! \brief Enumeration of log severities for #fe_log_multiplex().
  *
  */
 enum fe_log_severity {
@@ -148,42 +148,22 @@ enum fe_log_severity {
 };
 typedef enum fe_log_severity fe_log_severity;
 
-
-/*! \brief Atomically multiplexes logs to one or more files at tag-level.
- *
- * Specifies which files the logging functions will write to, for a
- * particular tag.\n
- * As long as this function is not called for a particular tag, then
- * the files used for logging with the tag will be the default ones,
- * that is : \c stdout and \c stderr (\c Logcat on Android).
- *
- * Files given in \p streams <b>must not be closed</b>. They must be treated
- * as "given away" and must be forgotten after the call.\n
- * They are internally reference-counted and are closed when their reference
- * count reaches 0 (exceptions to this rule are \c stdout and \c stderr).
- * One of the following actions causes such reference counts to be decremented :
- * - Calling #fe_log_multiplex() with different files;
- * - Calling #fe_log_cleanup().
- * 
- * By the way, it is safe to provide the same file pointers
- * for different tags and severities.
- *
- * Support for logging to generic I/O streams such as online files and sockets
- * has been considered. However, there's no apparent use case for such a
- * feature, and it just seems overkill. In practice we'll mostly log to the
- * console to get immediate feedback from the app's execution, and at 
- * worst save logs to local files so users can send them back to us.
- *
- * \param tag The tag to multiplex. If NULL, then this sets the default
- *        multiplex files for all tags.
- * \param sev The severity to multiplex, given \p tag. If #FE_LOG_ALL,
- *        all severities are affected.
- * \param streams Array of extra opened files to use for logging. It can be NULL
- *        as long as \p streams_count is set to zero.
- * \param streams_count Number of elements in \p streams.
+/*! \brief Prevents messages having the given tag from being displayed to the 
+ *         console.
  */
-void fe_log_multiplex(const char *tag, fe_log_severity sev,
-                        FILE* streams[], size_t streams_count);
+void fe_log_no_console(const char *tag);
+/*! \brief Requests that messages having the given tag be displayed to the 
+ *         console (using stdout, stderr or Android's Logcat depending 
+ *         on cases).
+ */
+void fe_log_on_console(const char *tag);
+/*! \brief Requests that messages having the given tag be also displayed to 
+ *         a file.
+ *
+ * Files are reference_counted within the \c fe_log module, so that no file
+ * is fopen()-ed more than once.
+ */
+void fe_log_file(const char *tag, const char *filename);
 
 /*! \brief Log Infos.
  *
@@ -194,7 +174,7 @@ void fe_log_multiplex(const char *tag, fe_log_severity sev,
  * The default output stream is \c stdout.\n
  * The default color is green.
  */
-void fe_logi(const char *tag, const char *fmt, ...);
+void fe_logi(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 
 /*! \brief Log Warnings.
  *
@@ -205,7 +185,7 @@ void fe_logi(const char *tag, const char *fmt, ...);
  * The default output stream is \c stderr.\n
  * The default color is yellow.
  */
-void fe_logw(const char *tag, const char *fmt, ...);
+void fe_logw(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 
 /*! \brief Log Errors.
  *
@@ -216,7 +196,7 @@ void fe_logw(const char *tag, const char *fmt, ...);
  * The default output stream is \c stderr.\n
  * The default color is red.
  */
-void fe_loge(const char *tag, const char *fmt, ...);
+void fe_loge(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 
 /*! \brief Log Debug.
  *
@@ -228,7 +208,13 @@ void fe_loge(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is cyan.
  */
-void fe_logd(const char *tag, const char *fmt, ...);
+void fe_logd(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+/*! \brief Valid function pointer to #fe_logd.
+ *
+ * This function is for when you need to pass #fe_logd as a #fe_logfunc 
+ * parameter.
+ */
+void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 #ifdef FE_DEBUG_BUILD
 #define fe_logd(tag, fmt, ...) 
 #endif
@@ -242,7 +228,13 @@ void fe_logd(const char *tag, const char *fmt, ...);
  * The default output stream is \c stdout.\n
  * The default color is blue.
  */
-void fe_logv(const char *tag, const char *fmt, ...);
+void fe_logv(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+/*! \brief Valid function pointer to #fe_logv.
+ *
+ * This function is for when you need to pass #fe_logv as a #fe_logfunc 
+ * parameter.
+ */
+void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 
 #ifndef FE_LOG_USE_VERBOSE
 /*! \brief Dummy macro to compile out calls to #fe_logv() when the 
@@ -250,6 +242,7 @@ void fe_logv(const char *tag, const char *fmt, ...);
  */
 #define fe_logv(tag, fmt, ...) 
 #endif
+
 
 /*! \brief Log Critical.
  *
@@ -270,7 +263,10 @@ void fe_logv(const char *tag, const char *fmt, ...);
  *
  * \see fe_fatal
  */
-void fe_logc(const char *tag, const char *fmt, ...);
+void fe_logc(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+
+#include <fate/globalstate.h>
+#include <fate/sys.h>
 
 /*! \brief Abort on a fatal error.
  *
@@ -283,7 +279,7 @@ void fe_logc(const char *tag, const char *fmt, ...);
  *
  * An alternative name would be "fe_panic".
  */
-void fe_fatal(const char *tag, const char *fmt, ...);
+void fe_fatal(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
 #define fe_fatal(tag, ...) \
     do { fe_sys_log_stacktrace(fe_loge); \
     fe_logc(tag, __VA_ARGS__); \

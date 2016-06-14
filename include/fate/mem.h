@@ -63,62 +63,74 @@ struct fe_mem_blockinfo {
     const char *tag; /*!< Tag given at allocation time. */
     const char *filename; /*!< The name of the source file in which the 
                                allocation took place. */
-    unsigned lineno; /*!< The line in the source file, at which the 
+    size_t lineno; /*!< The line in the source file, at which the 
                           allocation took place. */
 };
 /*! \brief TODO */
 typedef struct fe_mem_blockinfo fe_mem_blockinfo;
 
+#include <fate/log.h>
+static inline void fe_mem_handle_failure(const char *func_prefix, size_t nmemb, 
+                                  const char *type_str, const char *tag) {
+    fe_fatal("fe_mem", "fe_mem_%salloc() failed: "
+             "Could not allocate space for %"PRIsize_t" '%s's (tag:'%s').\n", 
+             func_prefix, nmemb, type_str, tag);
+}
+
+
+
 
 #if __DOXYGEN__ || defined(FE_MEM_DEBUG)
 
-/*! \brief TODO */
-#ifdef __GNUC__
-__attribute__((malloc))
-#endif
 void *fe_mem_malloc_real(size_t nmemb, size_t size, const char *tag, 
-                           const char *type_str, 
-                           const char *filename, unsigned lineno);
+                    const char *type_str, 
+                    const char *filename, unsigned lineno) 
+                    FE_MALLOC_DECL;
+void *fe_mem_xmalloc_real(size_t nmemb, size_t size, const char *tag, 
+                    const char *type_str, 
+                    const char *filename, unsigned lineno) 
+                    FE_MALLOC_DECL;
 /*! \brief TODO */
 #define fe_mem_malloc(nmemb, type, tag) \
-            fe_mem_lock(); \
-            fe_mem_malloc_real(nmemb, sizeof(type), \
-                                 tag, #type, __FILE__, __LINE__); \
-            fe_mem_unlock();
-
+        fe_mem_malloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 /*! \brief TODO */
-#ifdef __GNUC__
-__attribute__((malloc))
-#endif
+#define fe_mem_xmalloc(nmemb, type, tag) \
+        fe_mem_xmalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
+
+
 void *fe_mem_calloc_real(size_t nmemb, size_t size, const char *tag, 
-                           const char *type_str,
-                           const char *filename, unsigned lineno);
+                         const char *type_str,
+                         const char *filename, unsigned lineno) 
+                         FE_MALLOC_DECL;
+void *fe_mem_xcalloc_real(size_t nmemb, size_t size, const char *tag, 
+                         const char *type_str,
+                         const char *filename, unsigned lineno) 
+                         FE_MALLOC_DECL;
 /*! \brief TODO */
 #define fe_mem_calloc(nmemb, type, tag) \
-            fe_mem_lock(); \
-            fe_mem_calloc_real(nmemb, sizeof(type), \
-                                 tag, #type, __FILE__, __LINE__); \
-            fe_mem_unlock();
-
+        fe_mem_calloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 /*! \brief TODO */
+#define fe_mem_xcalloc(nmemb, type, tag) \
+        fe_mem_xcalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
+
 void *fe_mem_realloc_real(void *ptr, 
-                            size_t nmemb, size_t size, const char *tag, 
-                            const char *type_str,
-                            const char *filename, unsigned lineno);
+                          size_t nmemb, size_t size, const char *tag, 
+                          const char *type_str,
+                          const char *filename, unsigned lineno);
+void *fe_mem_xrealloc_real(void *ptr, 
+                          size_t nmemb, size_t size, const char *tag, 
+                          const char *type_str,
+                          const char *filename, unsigned lineno);
 /*! \brief TODO */
 #define fe_mem_realloc(ptr, nmemb, type, tag) \
-            fe_mem_lock(); \
-            fe_mem_realloc_real(ptr, nmemb, sizeof(type), \
-                                  tag, #type, __FILE__, __LINE__); \
-            fe_mem_unlock();
+  fe_mem_realloc_real(ptr, nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
+/*! \brief TODO */
+#define fe_mem_xrealloc(ptr, nmemb, type, tag) \
+  fe_mem_xrealloc_real(ptr, nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
+
 
 /*! \brief TODO */
-void fe_mem_free_real(void *ptr);
-/*! \brief TODO */
-#define fe_mem_free(ptr) \
-            fe_mem_lock(); \
-            fe_mem_free_real(ptr); \
-            fe_mem_unlock(); \
+void fe_mem_free(void *ptr);
 
 /*! \brief TODO */
 void fe_mem_lock(void);
@@ -143,8 +155,8 @@ void fe_mem_unlock(void);
  *         \p nblocks.
  * \see fe_mem_getblockindex
  */
-unsigned long fe_mem_getblocksinfo(unsigned long index, 
-                                     unsigned long nblocks,          
+size_t fe_mem_getblocksinfo(size_t index, 
+                                     size_t nblocks,          
                                      fe_mem_blockinfo *blocks);
 
 /*! \brief Get a block index, given an arbitrary address. 
@@ -155,7 +167,7 @@ unsigned long fe_mem_getblocksinfo(unsigned long index,
  *              It may then be used for calls to #fe_mem_getblocksinfo().
  * \return Is \p addr indeed within a block ? 
  * \see fe_mem_getblocksinfo */
-bool fe_mem_getblockindex(void *addr, unsigned long *index);
+bool fe_mem_getblockindex(void *addr, size_t *index);
 
 /*! \brief Atomically simulates limits on the memory allocated 
  *         by #fe_mem_malloc() and friends.
@@ -181,24 +193,49 @@ bool fe_mem_getblockindex(void *addr, unsigned long *index);
  *         0 Otherwise.
  * \see fe_mem_getlimits
  */
-unsigned fe_mem_limits(unsigned long total_nbytes, unsigned long heap_size);
+size_t fe_mem_limits(size_t total_nbytes, size_t heap_size);
 
 /*! \brief Atomically gets the values set by the last call to 
  *         #fe_mem_limits().
  *
  * \see fe_mem_limits
  */
-void fe_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
+void fe_mem_getlimits(size_t *total_nbytes, size_t *heap_size);
 
 #else /* ifdef FE_MEM_DEBUG */
 
 #include <stdlib.h>
+
 #define fe_mem_lock() 
 #define fe_mem_unlock() 
 #define fe_mem_malloc(nmemb, type, tag) malloc((nmemb)*sizeof(type))
+static inline void* fe_mem_xmalloc_real(size_t size, size_t nmemb, const char *type_str, const char *tag) {
+    void *res = malloc(nmemb*size);
+    if(!res)
+        fe_mem_handle_failure("xm", nmemb, type_str, tag);
+    return res;
+}
+#define fe_mem_xmalloc(nmemb, type, tag) \
+        fe_mem_xmalloc_real(sizeof(type), nmemb, #type, tag)
 #define fe_mem_calloc(nmemb, type, tag) calloc(nmemb, sizeof(type))
+static inline void* fe_mem_xcalloc_real(size_t size, size_t nmemb, const char *type_str, const char *tag) {
+    void *res = calloc(nmemb, size);
+    if(!res)
+        fe_mem_handle_failure("xc", nmemb, type_str, tag);
+    return res;
+}
+#define fe_mem_xcalloc(nmemb, type, tag) \
+        fe_mem_xcalloc_real(sizeof(type), nmemb, #type, tag)
 #define fe_mem_realloc(ptr, nmemb, type, tag) \
             realloc(ptr, (nmemb)*sizeof(type))
+static inline void* fe_mem_xrealloc_real(size_t size, void *ptr, size_t nmemb, const char *type_str, const char *tag) {
+    void *res = realloc(ptr, nmemb*size);
+    if(!res)
+        fe_mem_handle_failure("xre", nmemb, type_str, tag);
+    return res;
+}
+#define fe_mem_xrealloc(ptr, nmemb, type, tag) \
+        fe_mem_xrealloc_real(sizeof(type), ptr, nmemb, #type, tag)
 #define fe_mem_free(ptr) free(ptr)
 #define fe_mem_getblocksinfo(index, nblocks, blocks) 0
 #define fe_mem_getblockindex(addr, index) false
@@ -254,7 +291,7 @@ void fe_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * int *stored;
  * 
  * void fill(void) {
- *     unsigned long i;
+ *     size_t i;
  *     stored = fe_mem_stackalloc(LEN*sizeof(*stored), NULL);
  *     if(!stored)
  *         fe_fatal(TAG, "Oops\n");
@@ -268,7 +305,7 @@ void fe_mem_getlimits(unsigned long *total_nbytes, unsigned long *heap_size);
  * }
  * 
  * void display(void) {
- *     unsigned long i;
+ *     size_t i;
  *     for(i=0 ; i<LEN ; ++i) // *Undefined behaviour intensifies*
  *         fe_logi(TAG, "%d\n", stored[i]); 
  *     fe_logi(TAG, "\n");

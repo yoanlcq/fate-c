@@ -38,109 +38,113 @@
 #include <fate/tracer.h>
 #include <fate/log.h>
 
+#ifdef FE_LOG_USE_VERBOSE
+static const char *TAG = "fe_tracer";
+#endif
+
 unsigned fe_tracer_level = 0;
 
 #if __STDC_VERSION__ >= 201112L
 
 void fe_trace_chr(const int c) {
     switch(c) {
-    case '\a': fe_logf_trace("\\a");  break;
-    case '\b': fe_logf_trace("\\b");  break;
-    case '\f': fe_logf_trace("\\f");  break;
-    case '\n': fe_logf_trace("\\n");  break;
-    case '\r': fe_logf_trace("\\r");  break;
-    case '\t': fe_logf_trace("\\t");  break;
-    case '\v': fe_logf_trace("\\v");  break;
-    case '\\': fe_logf_trace("\\\\"); break;
-    case '\'': fe_logf_trace("'");    break;
-    case '\"': fe_logf_trace("\"");   break;
-    case '\?': fe_logf_trace("?");    break;
-    case '\0': fe_logf_trace("\\0");  break;
+    case '\a': fe_logv(TAG, "\\a");  break;
+    case '\b': fe_logv(TAG, "\\b");  break;
+    case '\f': fe_logv(TAG, "\\f");  break;
+    case '\n': fe_logv(TAG, "\\n");  break;
+    case '\r': fe_logv(TAG, "\\r");  break;
+    case '\t': fe_logv(TAG, "\\t");  break;
+    case '\v': fe_logv(TAG, "\\v");  break;
+    case '\\': fe_logv(TAG, "\\\\"); break;
+    case '\'': fe_logv(TAG, "'");    break;
+    case '\"': fe_logv(TAG, "\"");   break;
+    case '\?': fe_logv(TAG, "?");    break;
+    case '\0': fe_logv(TAG, "\\0");  break;
     default: 
-        if(isprint(c)) fe_logf_trace("%c", c);
-        else fe_logf_trace("\\x%2hhx", (char) c);
+        if(isprint(c)) fe_logv(TAG, "%c", c);
+        else fe_logv(TAG, "\\x%2hhx", (char) c);
         break;
     }
 }
 void fe_trace_sc(const signed char c) {
     if(c==EOF) {
-        fe_logf_trace("EOF");
+        fe_logv(TAG, "EOF");
         return;
     }
-    fe_logf_trace("'");
+    fe_logv(TAG, "'");
     fe_trace_chr(c);
-    fe_logf_trace("'");
+    fe_logv(TAG, "'");
 }
 void fe_trace_str(const signed char *str) {
     if(str==NULL) {
-        fe_logf_trace("NULL");
+        fe_logv(TAG, "NULL");
         return;
     }
-    fe_logf_trace("\"");
+    fe_logv(TAG, "\"");
     for(; *str ; ++str)
         fe_trace_chr(*str);
-    fe_logf_trace("\"");
+    fe_logv(TAG, "\"");
 }
 void fe_trace_ss(const signed short c) {
-    fe_logf_trace("%hd", c);
+    fe_logv(TAG, "%hd", c);
     if(isprint(c)) {
-        fe_logf_trace(" ('"); 
+        fe_logv(TAG, " ('"); 
         fe_trace_chr(c); 
-        fe_logf_trace("')");
+        fe_logv(TAG, "')");
     }
 }
 void fe_trace_us(const unsigned short c) {
-    fe_logf_trace("%hu", c);
+    fe_logv(TAG, "%hu", c);
     if(isprint((int)c)) {
-        fe_logf_trace(" ('"); 
+        fe_logv(TAG, " ('"); 
         fe_trace_chr(c); 
-        fe_logf_trace("')");
+        fe_logv(TAG, "')");
     }
 }
 void fe_trace_s(const signed int c) {
-    fe_logf_trace("%d", c);
+    fe_logv(TAG, "%d", c);
     if(isprint(c)) {
-        fe_logf_trace(" ('"); 
+        fe_logv(TAG, " ('"); 
         fe_trace_chr(c); 
-        fe_logf_trace("')");
+        fe_logv(TAG, "')");
     }
 }
 void fe_trace_u(const unsigned int c) {
-    fe_logf_trace("%u", c);
+    fe_logv(TAG, "%u", c);
     if(isprint((int)c)) {
-        fe_logf_trace(" ('"); 
+        fe_logv(TAG, " ('"); 
         fe_trace_chr(c); 
-        fe_logf_trace("')");
+        fe_logv(TAG, "')");
     }
 }
 void fe_trace_sl(const signed long c) {
-    fe_logf_trace("%ld", c);
+    fe_logv(TAG, "%ld", c);
 }
 void fe_trace_ul(const unsigned long c) {
-    fe_logf_trace("%lu", c);
+    fe_logv(TAG, "%lu", c);
 }
 void fe_trace_sll(const signed long long c) {
-    fe_logf_trace("%lld", c);
+    fe_logv(TAG, "%lld", c);
 }
 void fe_trace_ull(const unsigned long long c) {
-    fe_logf_trace("%llu", c);
+    fe_logv(TAG, "%llu", c);
 }
 void fe_trace_f(const float c) {
-    fe_logf_trace("%f", c);
+    fe_logv(TAG, "%f", c);
 }
 void fe_trace_d(const double c) {
-    fe_logf_trace("%lf", c);
+    fe_logv(TAG, "%lf", c);
 }
 void fe_trace_ld(const long double c) {
-    fe_logf_trace("%Lf", c);
+    fe_logv(TAG, "%Lf", c);
 }
 void fe_trace_default(const void *p) {
-    if(p==NULL) fe_logf_trace("NULL");
-    else fe_logf_trace("%p", p);
+    if(p==NULL) fe_logv(TAG, "NULL");
+    else fe_logv(TAG, "%p", p);
 }
 void fe_trace_voidp(const void *p) {
-    if(p==NULL) fe_logf_trace("NULL");
-    else fe_logf_trace("(void*) %p", p);
+    if(p==NULL) fe_logv(TAG, "NULL");
+    else fe_logv(TAG, "(void*) %p", p);
 }
 
 #endif /* __STDC_VERSION__ */

@@ -38,17 +38,23 @@
  */
 
 #include <fate/defs.h>
+#include <fate/asm.h>
 #include <fate/al.h>
 #include <fate/gl.h>
 #ifdef FE_WINDOWS
 #include <fate/d3d.h>
 #endif
-#include <fate/file_to_string.h>
-#include <fate/globalstate.h>
-#include <fate/log.h>
-#include <fate/sys.h>
 #include <fate/dpyres.h>
+#include <fate/globalstate.h>
+#include <fate/i18n.h>
+#include <fate/io.h>
+#include <fate/log.h>
+#include <fate/math.h>
+#include <fate/mem.h>
+#include <fate/mt.h>
+#include <fate/steam.h>
+#include <fate/sys.h>
 #include <fate/tracer.h>
-#include <fate/vfs.h>
+#include <fate/units.h>
 
 #endif /* FE_H */

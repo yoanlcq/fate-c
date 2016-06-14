@@ -34,46 +34,46 @@
  *  TODO
  */
 
-#ifndef FE_GL_DEBUG_H
-#define FE_GL_DEBUG_H
+#ifndef FE_GL_DBG_H
+#define FE_GL_DBG_H
 
 #include <fate/gl/defs.h>
 #include <stdbool.h>
 
-void fe_gl_debug_setup(GLint gl_major, GLint gl_minor, bool enable);
+void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable);
 
 #ifdef FE_DEBUG_BUILD
-#define FE_GL_DEBUG
+#define FE_GL_DBG
 #endif
 
-#ifdef FE_GL_DEBUG
+#ifdef FE_GL_DBG
 
-extern void (*fe_gl_debug_insert_marker)(const char *string);
-extern PFNGLDEBUGMESSAGECALLBACKPROC fe_glDebugMessageCallback;
-extern PFNGLDEBUGMESSAGECONTROLPROC fe_glDebugMessageControl;
-extern PFNGLDEBUGMESSAGEINSERTPROC fe_glDebugMessageInsert;
-extern PFNGLGETDEBUGMESSAGELOGPROC fe_glGetDebugMessageLog;
-extern PFNGLPUSHDEBUGGROUPPROC fe_glPushDebugGroup;
-extern PFNGLPOPDEBUGGROUPPROC fe_glPopDebugGroup;
-extern PFNGLOBJECTLABELPROC fe_glObjectLabel;
-extern PFNGLOBJECTPTRLABELPROC fe_glObjectPtrLabel;
-extern PFNGLGETOBJECTLABELPROC fe_glGetObjectLabel;
-extern PFNGLGETOBJECTPTRLABELPROC fe_glGetObjectPtrLabel;
+extern void (*fe_gl_dbg_insert_marker)(const char *string);
+extern PFNGLDEBUGMESSAGECALLBACKPROC fe_gl_dbg_glDebugMessageCallback;
+extern PFNGLDEBUGMESSAGECONTROLPROC fe_gl_dbg_glDebugMessageControl;
+extern PFNGLDEBUGMESSAGEINSERTPROC fe_gl_dbg_glDebugMessageInsert;
+extern PFNGLGETDEBUGMESSAGELOGPROC fe_gl_dbg_glGetDebugMessageLog;
+extern PFNGLPUSHDEBUGGROUPPROC fe_gl_dbg_glPushDebugGroup;
+extern PFNGLPOPDEBUGGROUPPROC fe_gl_dbg_glPopDebugGroup;
+extern PFNGLOBJECTLABELPROC fe_gl_dbg_glObjectLabel;
+extern PFNGLOBJECTPTRLABELPROC fe_gl_dbg_glObjectPtrLabel;
+extern PFNGLGETOBJECTLABELPROC fe_gl_dbg_glGetObjectLabel;
+extern PFNGLGETOBJECTPTRLABELPROC fe_gl_dbg_glGetObjectPtrLabel;
 
-#else /* FE_GL_DEBUG */
+#else /* FE_GL_DBG */
 
-#define fe_gl_debug_insert_marker(...)
-#define fe_glDebugMessageCallback(...)
-#define fe_glDebugMessageControl(...)
-#define fe_glDebugMessageInsert(...)
-#define fe_glGetDebugMessageLog(...)
-#define fe_glPushDebugGroup(...)
-#define fe_glPopDebugGroup()
-#define fe_glObjectLabel(...)
-#define fe_glObjectPtrLabel(...)
-#define fe_glGetObjectLabel(...)
-#define fe_glGetObjectPtrLabel(...)
+#define fe_gl_dbg_gl_debug_insert_marker(...)
+#define fe_gl_dbg_glDebugMessageCallback(...)
+#define fe_gl_dbg_glDebugMessageControl(...)
+#define fe_gl_dbg_glDebugMessageInsert(...)
+#define fe_gl_dbg_glGetDebugMessageLog(...)
+#define fe_gl_dbg_glPushDebugGroup(...)
+#define fe_gl_dbg_glPopDebugGroup()
+#define fe_gl_dbg_glObjectLabel(...)
+#define fe_gl_dbg_glObjectPtrLabel(...)
+#define fe_gl_dbg_glGetObjectLabel(...)
+#define fe_gl_dbg_glGetObjectPtrLabel(...)
 
 #endif /* FE_DEBUG_BUILD */
 
-#endif /* FE_GL_DEBUG_H */
+#endif /* FE_GL_DBG_H */
