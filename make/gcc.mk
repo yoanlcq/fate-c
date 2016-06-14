@@ -17,7 +17,7 @@ endif
 
 ifeq ($(OS),osx)
 CCFLAGS += -F/Library/Frameworks 
-LDLIBS = -framework SDL2 -framework OpenGL -lm
+LDLIBS = -framework SDL2 -framework OpenGL -lm -lintl
 else
 LDLIBS = -lSDL2 -l$(LIBGL) -lm
 endif
