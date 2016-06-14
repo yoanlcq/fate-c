@@ -39,6 +39,5 @@
 #ifndef FE_MATH_H
 #define FE_MATH_H
 
-#endif /* FE_MATH_H */
-
 /*! @} */
+#endif /* FE_MATH_H */

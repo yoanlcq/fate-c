@@ -25,7 +25,7 @@ endif
 ifeq ($(OS),windows)
 CCRELEASEFLAGS += -mwindows
 #LDLIBS += -ld3d10 -ldxguid 
-LDLIBS += -lGdi32 -lUser32 -lKernel32 -lDbgHelp
+LDLIBS += -lGdi32 -lUser32 -lKernel32 -lDbgHelp -lws2_32
 else
 endif
 

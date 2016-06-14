@@ -32,6 +32,8 @@
  *  \defgroup globalstate Global state
  *
  * TODO
+ *
+ * @{
  */
 
 #ifndef FE_GLOBALSTATE_H
@@ -39,16 +41,21 @@
 
 #include <fate/defs.h>
 
+/*! \brief TODO */
 struct fe_globalstate {
     int foo;
     /* fe_vfs vfs; */
 };
+/*! \brief TODO */
 typedef struct fe_globalstate fe_globalstate;
 
+/*! \brief TODO */
 extern fe_globalstate *fe_gs;
 
+/*! \brief TODO */
 void fe_globalstate_init(fe_globalstate *gs);
+/*! \brief TODO */
 void fe_globalstate_deinit(fe_globalstate *gs);
 
-
+/*! @} */
 #endif /* FE_GLOBALSTATE_H */

@@ -29,8 +29,11 @@
 
 /*! \file fate/gl/defs.h
  *  \brief Common definitions for the OpenGL backend.
+ *  \ingroup gl
  *
  *  TODO
+ *
+ *  @{
  */
 
 #ifndef FE_GL_DEFS
@@ -38,9 +41,12 @@
 
 #include <fate/defs.h>
 
+/*! \brief TODO */
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
+/*! \brief TODO */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)
 
+/*! @} */
 #endif /* FE_GL_DEFS */

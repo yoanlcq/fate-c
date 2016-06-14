@@ -1,6 +1,48 @@
+/* 
+ * This file is part of F.A.T.E - the Fight And Travel game Engine.
+ * Copyright (c) 2015-2016 Yoan Lecoq (yoanlecoq.io at gmail.com)
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from the
+ * use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 
+ * 1. The origin of this software must not be misrepresented;
+ *    you must not claim that you wrote the original software. 
+ *    If you use this software in a product, an acknowledgment in the product
+ *    documentation would be appreciated but is not required.
+ * 
+ * 2. Altered source versions must be plainly marked as such, 
+ *    and must not be misrepresented as being the original software.
+ *
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ *
+ * Contributors :
+ * - Please make sure your indentation is set to 4 spaces;
+ * - Please avoid exceeding 80 character columns.
+ *
+ */
+
+/*! \file fate/wss13.h
+ *  \brief The WebSocket 13 server implementation.
+ *  \defgroup wss13 WebSocket 13
+ *
+ * @{
+ */
+
+
 #ifndef FE_WSS13_H
 #define FE_WSS13_H
 
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+/*! \brief TODO*/
 struct fe_wss13_requirements {
     uint32_t websockets_version; //13 normally.
     uint8_t max_conns_from_same_ipadress;
@@ -12,8 +54,10 @@ struct fe_wss13_requirements {
     const char **supported_protocols;
     size_t supported_protocol_count;
 };
+/*! \brief TODO*/
 typedef struct fe_wss13_requirements fe_wss13_requirements;
 
+/*! \brief TODO*/
 enum fe_wss13_handshake_status {
     FE_WSS13_HS_OK = 0,
     FE_WSS13_HS_BAD_VERSION,
@@ -24,8 +68,10 @@ enum fe_wss13_handshake_status {
     FE_WSS13_HS_BAD_HEADER,
     FE_WSS13_HS_BAD_URI
 };
+/*! \brief TODO*/
 typedef enum fe_wss13_handshake_status fe_wss13_handshake_status;
 
+/*! \brief TODO*/
 enum fe_wss13_status {
     FE_WSS13_UTF8 = 0,
     FE_WSS13_BIN,
@@ -35,14 +81,17 @@ enum fe_wss13_status {
     FE_WSS13_PING,
     FE_WSS13_PONG
 };
+/*! \brief TODO*/
 typedef enum fe_wss13_status fe_wss13_status;
 
+/*! \brief TODO*/
 struct fe_wss13_handshake {
     fe_wss13_handshake_status status;
     const char *request_uri;
     const char *protocol;
     uint32_t websockets_version;
 };
+/*! \brief TODO*/
 typedef struct fe_wss13_handshake fe_wss13_handshake;
 
 /* Typical code (newer):
@@ -104,4 +153,5 @@ typedef struct fe_wss13_handshake fe_wss13_handshake;
  *
  */
 
+/*! @} */
 #endif /* FE_WSS13_H */

@@ -42,6 +42,7 @@
 #include <errno.h>
 #include <fate/defs.h>
 #include <fate/sys.h>
+#include <fate/fs.h>
 #include <fate/log.h>
 #include <fate/io.h>
 #include <fate/mem.h>
@@ -266,14 +267,14 @@ void (*fe_gl_mkprog_cleanup)(void);
 
 
 static inline bool fgm_file_is_outdated(const char *path, va_list ap) {
-    uint64_t mtime = fe_file_get_last_write_time(path);
+    uint64_t mtime = fe_fs_get_last_write_time(path);
     for(;;) {
         path = va_arg(ap, const char*);
         if(!path) 
             break;
         if(!path[0])
             continue;
-        if(fe_file_get_last_write_time(path) > mtime)
+        if(fe_fs_get_last_write_time(path) > mtime)
             return true;
     }
     return false;

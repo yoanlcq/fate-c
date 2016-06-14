@@ -28,8 +28,8 @@
  */
 
 /*! \file fate/steam.h
- *  \brief C binding for parts of the SteamWorks SDK.
- *  \defgroup steam C binding for parts of the SteamWorks SDK.
+ *  \brief C bindings for parts of the SteamWorks SDK.
+ *  \defgroup steam SteamWorks SDK interop.
  *
  * This module is yet to be implemented.
  */

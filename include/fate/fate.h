@@ -48,6 +48,7 @@
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
 #include <fate/io.h>
+#include <fate/fs.h>
 #include <fate/log.h>
 #include <fate/math.h>
 #include <fate/mem.h>

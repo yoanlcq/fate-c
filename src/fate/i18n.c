@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <fate/defs.h>
 #include <fate/i18n.h>
 #include <fate/log.h>
 
@@ -10,10 +11,13 @@ static const char *TAG="fe_i18n";
 void fe_i18n_switchlang(const char *lang) {
     fe_logv(TAG, _("Now switching language to \"%s\".\n"), lang);
     setenv("LANGUAGE", lang, 1);
+#ifdef FE_TARGET_LINUX 
     {
+        /* This is for GNU gettext() only. */
         extern int _nl_msg_cat_cntr;
         ++_nl_msg_cat_cntr;
     }
+#endif
 }
 
 void fe_i18n_setup(void) {

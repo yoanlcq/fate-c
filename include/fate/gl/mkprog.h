@@ -30,8 +30,11 @@
 
 /*! \file fate/gl/mkprog.h
  *  \brief An interface to build and use OpenGL programs efficiently.
+ *  \ingroup gl
  *
  * “Sometimes, the elegant implementation is just a function. Not a method. Not a class. Not a framework. Just a function.” – John Carmack
+ *
+ * @{
  */
 
 #ifndef FE_GL_MKPROG_H
@@ -41,10 +44,10 @@
 #include <stdarg.h>
 #include <fate/gl/defs.h>
 
+/*! \brief TODO */
 void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
 
-/**
- * @brief A helper function to create OpenGL programs, in a 'make' fashion.
+/*! \brief A helper function to create OpenGL programs, in a 'make' fashion.
  *
  * fe_gl_mkprog() is intended as an efficient way to build OpenGL programs 
  * at run-time, quite like the well-known 'make' utility.
@@ -125,7 +128,7 @@ void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor);
  */
 extern bool (*fe_gl_mkprog)(GLuint program, const char *save_path, ...) FE_SENTINEL(0);
 
-/** @brief Clean-up function for fe_gl_mkprog().
+/*! \brief Clean-up function for fe_gl_mkprog().
  *
  * fe_gl_mkprog_cleanup() calls glDeleteShader() on each shader object stored 
  * previously by fe_gl_mkprog(), and then empties the table. 
@@ -134,4 +137,5 @@ extern bool (*fe_gl_mkprog)(GLuint program, const char *save_path, ...) FE_SENTI
  */
 extern void (*fe_gl_mkprog_cleanup)(void);
 
+/*! @} */
 #endif /* FE_GL_MKPROG_H */ 

@@ -27,20 +27,32 @@
  *
  */
 
-/*! \file fate/gl.h
- *  \brief Interface to the OpenGL rendering backend.
- *  \defgroup gl OpenGL video backend
+/*! \file fate/loader.h
+ *  \brief Loaders.
+ *  \defgroup loader Loader
  *
- * TODO
+ * @{
  */
 
-#ifndef FE_GL_H
-#define FE_GL_H
+#ifndef FE_LOADER_H
+#define FE_LOADER_H
 
-#include <fate/gl/defs.h>
-#include <fate/gl/dbg.h>
-#include <fate/gl/log.h>
-#include <fate/gl/stats.h>
-#include <fate/gl/mkprog.h>
+#include <stdbool.h>
+#include <stdint.h>
 
-#endif /* FE_GL_H */
+/*! \brief TODO*/
+typedef struct fe_loader_callback_data fe_loader_callback_data;
+/*! \brief TODO*/
+typedef void (*fe_loader_callback)(const fe_loader_callback_data *data);
+/*! \brief TODO*/
+typedef uint32_t fe_loader;
+/*! \brief TODO*/
+bool fe_loader_wait(fe_loader l);
+/*! \brief TODO*/
+bool fe_loader_is_ready(fe_loader l);
+/*! \brief TODO*/
+void fe_loader_set_callback(fe_loader l, fe_loader_callback func, void *userdata);
+
+
+/*! @} */
+#endif /* FE_LOADER_H */

@@ -4,9 +4,6 @@
 #include <fate/defs.h>
 #include <fate/io.h>
 
-bool fe_loader_wait(fe_loader l) {return false;}
-bool fe_loader_is_ready(fe_loader l) {return false;}
-void fe_loader_set_callback(fe_loader l, fe_loader_callback func, void *userdata) {}
 void fe_io___zallocv(fe_io *s, size_t cnt) {}
 void fe_io___deallocv(fe_io *s, size_t cnt) {}
 void fe_io_open_mmap(fe_io io, const char *filename, fe_io_file_flags flags) {}
@@ -39,19 +36,4 @@ void fe_io_printf(fe_io io, const char *fmt, ...) {}
 fe_loader fe_io_sync_file(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
 /* Completely overwrites a userdata file. */
 fe_loader fe_io_sync_userdata(fe_io io, const char *filename, fe_io_file_flags flags) {return 0;}
-
-fe_loader fe_userdata_exists(const char *filename) {return 0;}
-fe_loader fe_userdata_delete(const char *filename) {return 0;}
-bool fe_file_exists(const char *filename) {return false;}
-void fe_file_delete(const char *filename) {}
-uint64_t fe_file_get_last_write_time(const char *path) {return 0;}
-void fe_file_move(const char *dst, const char *src) {}
-void fe_file_copy(const char *dst, const char *src) {}
-fe_filewatch fe_file_watch(const char *filename) {return 0;}
-void fe_file_unwatch(fe_filewatch watch) {}
-void fe_sys_setcwd(const char *wd) {}
-const char* fe_sys_getcwd() {return NULL;}
-void fe_sys_pushd(const char *wd) {}
-void fe_sys_popd(void) {}
-
 

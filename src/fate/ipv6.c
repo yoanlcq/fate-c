@@ -6,11 +6,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
-#include "ipv6.h"
-#include "udp6.h"
-#include "tcp6.h"
+#include <fate/ipv6.h>
+#include <fate/udp6.h>
+#include <fate/tcp6.h>
 
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
 #include <windows.h>
 #include <winsock2.h>
 #include <Ws2tcpip.h>
@@ -34,9 +34,9 @@ typedef int socklen_t;
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
-#if defined(__linux__) && defined(_GNU_SOURCE)
+#if defined(FE_TARGET_LINUX) && defined(_GNU_SOURCE)
 #include <sys/sendfile.h>
-#elif defined(__APPLE__) //darwin 9.0 (OSX 10.5)
+#elif defined(FE_TARGET_OSX) //darwin 9.0 (OSX 10.5)
 #include <sys/uio.h>
 #endif
 
@@ -91,7 +91,7 @@ const char *fe_ipv6_err_getstr(fe_ipv6_err err) {
 }
 
 static inline fe_ipv6_err fe_ipv6_systoerr(int err) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     if(err == WSATRY_AGAIN || err==WSAEWOULDBLOCK)
         return FE_IPV6_ERR_NOTREADY;
 #else
@@ -106,7 +106,7 @@ static inline fe_ipv6_err fe_ipv6_systoerr(int err) {
         return FE_IPV6_ERR_NOTREADY;
     case FE_IPV6_SYSERR(EHOSTUNREACH):
         return FE_IPV6_ERR_NOHOST;
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     case WSAENETDOWN:
 #endif
     case FE_IPV6_SYSERR(ENETUNREACH):
@@ -120,7 +120,7 @@ static inline fe_ipv6_err fe_ipv6_systoerr(int err) {
     case FE_IPV6_SYSERR(EADDRINUSE):
         return FE_IPV6_ERR_ADDR_IN_USE;
     case FE_IPV6_SYSERR(EFAULT):
-#ifndef _WIN32
+#ifndef FE_TARGET_WINDOWS
     case ENOMEM:
 #endif
         return FE_IPV6_ERR_NOMEM;
@@ -137,7 +137,7 @@ static inline fe_ipv6_err fe_ipv6_systoerr(int err) {
 
 
 fe_ipv6_err fe_ipv6_setup(void) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     int err;
     WSADATA data;
     err = WSAStartup(MAKEWORD(2, 2), &data);
@@ -165,7 +165,7 @@ fe_ipv6_err fe_ipv6_setup(void) {
     return FE_IPV6_ERR_NONE;
 }
 void fe_ipv6_cleanup(void) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     WSACleanup();
 #endif
 }
@@ -181,7 +181,7 @@ bool fe_udp6_init(fe_udp6 *s) {
     *s = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
     if(*s==-1)
         return false;
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     DWORD val;
 #else
     int val;
@@ -193,7 +193,7 @@ bool fe_udp6_init(fe_udp6 *s) {
     return true;
 }
 void fe_udp6_deinit(fe_udp6 *s) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     closesocket(*s);
 #else
     close(*s);
@@ -204,7 +204,7 @@ bool fe_tcp6_init(fe_tcp6 *s) {
     *s = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
     if(*s==-1)
         return false;
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     DWORD val;
 #else
     int val;
@@ -218,7 +218,7 @@ bool fe_tcp6_init(fe_tcp6 *s) {
 }
 void fe_tcp6_deinit(fe_tcp6 *s) {
     shutdown(*s, 
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
         SD_BOTH
 #else
         SHUT_RDWR
@@ -228,7 +228,7 @@ void fe_tcp6_deinit(fe_tcp6 *s) {
 }
 void fe_tcp6_recv_no_more(fe_tcp6 *s) {
     shutdown(*s, 
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
         SD_RECEIVE
 #else
         SHUT_RD
@@ -237,7 +237,7 @@ void fe_tcp6_recv_no_more(fe_tcp6 *s) {
 }
 void fe_tcp6_send_no_more(fe_tcp6 *s) {
     shutdown(*s, 
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
         SD_SEND
 #else
         SHUT_WR
@@ -246,7 +246,7 @@ void fe_tcp6_send_no_more(fe_tcp6 *s) {
 }
 
 void fe_udp6_unblock(fe_udp6 *s) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     u_long val = true;
     ioctlsocket(*s, FIONBIO, &val);
 #else
@@ -257,7 +257,7 @@ void fe_udp6_unblock(fe_udp6 *s) {
 #endif
 }
 void fe_udp6_block(fe_udp6 *s) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     u_long val = false;
     ioctlsocket(*s, FIONBIO, &val);
 #else
@@ -268,7 +268,7 @@ void fe_udp6_block(fe_udp6 *s) {
 #endif
 }
 void fe_udp6_opt_priority(fe_udp6 *s, float prio) {
-#if defined(__linux__)
+#if defined(FE_TARGET_LINUX)
     int val;
     //FIXME maybe 0 is the higest priority and 6 is lowest ?
     if(prio<0.f) val = 0;
@@ -290,7 +290,7 @@ static inline void ms_to_timeval(uint32_t ms, struct timeval *tv) {
     tv->tv_usec = 1000*(ms%1000);
 }
 void fe_udp6_opt_send_timeout(fe_udp6 *s, uint32_t timeout_milliseconds) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     DWORD timeout = timeout_milliseconds;
 #else
     struct timeval timeout;      
@@ -299,7 +299,7 @@ void fe_udp6_opt_send_timeout(fe_udp6 *s, uint32_t timeout_milliseconds) {
     setsockopt(*s, SOL_SOCKET, SO_SNDTIMEO, (void*) &timeout, sizeof(timeout));
 }
 void fe_udp6_opt_recv_timeout(fe_udp6 *s, uint32_t timeout_milliseconds) {
-#ifdef _WIN32
+#ifdef FE_TARGET_WINDOWS
     DWORD timeout = timeout_milliseconds;
 #else
     struct timeval timeout;      
@@ -308,7 +308,7 @@ void fe_udp6_opt_recv_timeout(fe_udp6 *s, uint32_t timeout_milliseconds) {
     setsockopt(*s, SOL_SOCKET, SO_RCVTIMEO, (void*) &timeout, sizeof(timeout));
 }
 int32_t fe_udp6_opt_get_mtu(fe_udp6 *s) {
-#if defined(__linux__)
+#if defined(FE_TARGET_LINUX)
     int val;
     socklen_t val_len = sizeof(val);
     return getsockopt(*s, IPPROTO_IPV6, IPV6_MTU, (void*)&val, &val_len);
@@ -317,7 +317,7 @@ int32_t fe_udp6_opt_get_mtu(fe_udp6 *s) {
 #endif
 }
 void fe_udp6_opt_mtu(fe_udp6 *s, int32_t mtu) {
-#if defined(__linux__)
+#if defined(FE_TARGET_LINUX)
     setsockopt(*s, IPPROTO_IPV6, IPV6_MTU, (void*)&mtu, sizeof(mtu));
 #endif
 }
@@ -423,7 +423,7 @@ ssize_t fe_udp6_send(fe_udp6 *s, fe_ipv6_peer *p, const void *data, size_t len) 
     return res>=0 ? res : fe_ipv6_systoerr(FE_IPV6_GETLASTERROR());
 }
 ssize_t fe_udp6_reply(fe_udp6 *s, fe_ipv6_peer *p, const void *data, size_t len) {
-#if defined(__linux__)
+#if defined(FE_TARGET_LINUX)
     assert(p);
     ssize_t res = sendto(*s, data, len, MSG_CONFIRM, (void*) p, sizeof(*p));
     return res>=0 ? res : fe_ipv6_systoerr(FE_IPV6_GETLASTERROR());
@@ -457,7 +457,7 @@ ssize_t fe_tcp6_peek(fe_tcp6 *s, void *data, size_t len) {
     return res>=0 ? res : fe_ipv6_systoerr(FE_IPV6_GETLASTERROR());
 }
 ssize_t fe_tcp6_sendfile(fe_tcp6 *s, const char *filename) {
-#if (defined(__linux__) && defined(_GNU_SOURCE)) || defined(__APPLE__)
+#if (defined(FE_TARGET_LINUX) && defined(_GNU_SOURCE)) || defined(__APPLE__)
     int fd = open(filename, O_RDONLY, 0666);
     if(fd < 0)
         return FE_IPV6_ERR_NOFILE;
@@ -477,7 +477,7 @@ ssize_t fe_tcp6_sendfile(fe_tcp6 *s, const char *filename) {
                 break;
             }
         }
-    #elif defined(__linux__) && defined(_GNU_SOURCE)
+    #elif defined(FE_TARGET_LINUX) && defined(_GNU_SOURCE)
         lseek(fd, 0, SEEK_SET);
         ssize_t sent = splice(fd, NULL, *s, NULL, size, 0);
         if(sent < 0)
@@ -491,7 +491,7 @@ ssize_t fe_tcp6_sendfile(fe_tcp6 *s, const char *filename) {
 #endif
 }
 ssize_t fe_tcp6_recvfile(fe_tcp6 *s, const char *file) {
-#if defined(__linux__) && defined(_GNU_SOURCE)
+#if defined(FE_TARGET_LINUX) && defined(_GNU_SOURCE)
     uint32_t size;
     fe_tcp6_recv(s, &size, sizeof(uint32_t));
     size = ntohl(size);

@@ -1,4 +1,7 @@
+#include <fate/wss13.h>
+#include <fate/tcp6.h>
 
+/*
 
 status fe_tcp6_wss_handshake(fe_tcp6 *s, const fe_wss_requirements *s, 
                              const char **chosen_protocol, 
@@ -21,7 +24,7 @@ if(!origin || origin is spam)
     send 403 forbidden;
 beware if coming from same ipaddress (denial of service).
 str = "Sec-WebSocket-Protocol";
-look_at_the_protocols /* chat, superchat */
+look_at_the_protocols // chat, superchat
 str = "Sec-WebSocket-Version: ";
 ws_version = strtoul(strstr(buf, str)+strlen(str), NULL, 10);
 if(ws_version not supported)
@@ -52,7 +55,7 @@ struct ws_data_frame {
     unsigned payload_length          : 7;
     uint64_t extended_payload_length : 64;
     uint32_t masking_key             : 32;
-    /* uint8_t  payload_data            : 8; */
+    // uint8_t  payload_data            : 8;
 };
 if(!df->masked)
     close();
@@ -99,3 +102,4 @@ void send_close_frame() {
     send(df);
     //Don't send anymore !
 }
+*/

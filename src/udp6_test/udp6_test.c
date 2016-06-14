@@ -1,17 +1,9 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
-#include "ipv6.h"
-#include "udp6.h"
-
-#ifdef _WIN32
-#define PRIssize_t "Id"
-#define PRIsize_t "Iu"
-#define PRIxsize_t "Ix"
-#else
-#define PRIssize_t "zd"
-#define PRIsize_t "zu"
-#define PRIxsize_t "zx"
-#endif
+#include <fate/defs.h>
+#include <fate/ipv6.h>
+#include <fate/udp6.h>
 
 /* Windows: -lws2_32 */
 

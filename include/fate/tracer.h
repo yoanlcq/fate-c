@@ -32,6 +32,8 @@
  *  \defgroup tracer Tracer : Logging function calls and parameters at runtime.
  *
  * TODO
+ *
+ * @{
  */
 
 
@@ -1115,4 +1117,5 @@ extern unsigned fe_tracer_level;
 
 #endif /* FE_ENABLE_TRACING */
 
+/*! @} */
 #endif /* FE_TRACER_H */

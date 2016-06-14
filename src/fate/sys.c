@@ -41,6 +41,7 @@
 #include <fate/globalstate.h>
 #include <fate/sys.h>
 #include <fate/log.h>
+#include <fate/fs.h>
 
 #if defined(FE_TARGET_WINDOWS)
 #include <Windows.h>
@@ -73,128 +74,6 @@
 
 
 static const char *TAG = "fe_sys";
-
-/*
- *
- *
- *
- *
- *
- *
- *
- *    fe_sys_file_exists()
- *
- *
- *
- *
- *
- *
- *
- */
-
-#if defined(FE_TARGET_EMSCRIPTEN)
-inline bool fe_sys_file_exists(const char *path) {
-    FILE *file = fopen(path, "r");
-    if(!file)
-        return false;
-    fclose(file);
-    return true;
-}
-#elif defined(FE_TARGET_WINDOWS)
-inline bool fe_sys_file_exists(const char *path) {
-    return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
-}
-#else
-inline bool fe_sys_file_exists(const char *path) {
-    return !access(path, F_OK);
-}
-#endif
-
-
-/*
- *
- *
- *
- *
- *
- *
- *
- *    fe_sys_get_last_write_time()
- *
- *
- *
- *
- *
- *
- *
- */
-
-
-#if defined(FE_TARGET_EMSCRIPTEN)
-uint64_t fe_sys_get_last_write_time(const char *path) {
-    return 0; /* FIXME */
-}
-#elif defined(FE_TARGET_WINDOWS)
-uint64_t fe_sys_get_last_write_time(const char *path) {
-    FILETIME ft;
-    HANDLE fh;
-    fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if(fh==INVALID_HANDLE_VALUE) {
-        fe_loge(TAG, "Could not stat \"%s\".\n", path);
-        return 0;
-    }
-    GetFileTime(fh, NULL, NULL, &ft);
-    CloseHandle(fh);
-    return (((uint64_t)ft.dwHighDateTime)<<32)+(uint64_t)ft.dwLowDateTime;
-}
-#else
-inline uint64_t fe_sys_get_last_write_time(const char *path) {
-    struct stat st;
-    if(stat(path, &st)) {
-        fe_logw(TAG, "Could not stat \"%s\".\n", path);
-        return 0;
-    }
-    return st.st_mtime;
-}
-#endif
-
-/*
- *
- *
- *
- *
- *
- *
- *
- *    fe_set_current_directory()
- *
- *
- *
- *
- *
- *
- *
- */
-
-
-#if defined(FE_TARGET_EMSCRIPTEN)
-inline bool fe_sys_set_current_directory(const char *path) {
-    return false; /* TODO */
-}
-#elif defined(FE_TARGET_WINDOWS)
-#if !(_MSC_VER && !__INTEL_COMPILER)
-inline 
-#endif 
-bool fe_sys_set_current_directory(const char *path) {
-    return SetCurrentDirectory(path);
-}
-#else
-inline bool fe_sys_set_current_directory(const char *path) {
-    return !chdir(path);
-}
-#endif
-
 
 
 /*
@@ -344,7 +223,7 @@ char *fe_sys_getgamepath(void) {
         strcat(res,  PATHSEP"res");
         strcpy(data, expath);
         strcat(data, PATHSEP"data");
-        if(fe_sys_file_exists(res) && fe_sys_file_exists(data)) {
+        if(fe_fs_exists(res) && fe_fs_exists(data)) {
             free(res);
             free(data);
             return expath;

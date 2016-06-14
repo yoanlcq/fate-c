@@ -338,12 +338,15 @@
 #define COUNTOF(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
 
 #ifdef FE_TARGET_WINDOWS
-#define PRIsize_t "Iu"
 #define PRIssize_t "Id"
+#define PRIsize_t "Iu"
+#define PRIxsize_t "Ix"
 #else
-#define PRIsize_t "zu"
 #define PRIssize_t "zd"
+#define PRIsize_t "zu"
+#define PRIxsize_t "zx"
 #endif
+
 
 
 /*! @} */

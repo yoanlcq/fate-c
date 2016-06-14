@@ -29,7 +29,7 @@
 
 /*! \file fate/videostuff.h
  *  \brief TODO
- *  \defgroup videostuff Videostuff : TODO
+ *  \defgroup videostuff Videostuff : Inspiration for the design of video components
  *
  * TODO
  * Possible FATE 2 extensions :
@@ -40,20 +40,12 @@
  * @{
  */
 
-<<<<<<< HEAD
-=======
-
 
 #ifndef FE_VIDEOSTUFF_H
 #define FE_VIDEOSTUFF_H
 
 /*!\brief TODO  */
-<<<<<<< HEAD
 struct fe_transform5d {
-=======
->>>>>>> 586f46a2093c5f79edcce7ba0e57cd9f07932e9c
-struct fe_transform4d {
->>>>>>> 92f48c2903c6f25f8445b477efe00f073d59b757
     spacevec3 pos, vel, accel;
     spacequat rot, rot_vel, rot_accel;
     spacevec3 scale, scale_vel, scale_accel;

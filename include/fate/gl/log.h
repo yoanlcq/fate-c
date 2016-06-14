@@ -29,8 +29,10 @@
 
 /*! \file fate/gl/log.h
  *  \brief Utilities for logging parts of OpenGL's state.
+ *  \ingroup gl
+ * TODO
  *
- *  TODO
+ * @{
  */
 
 #ifndef FE_GL_LOG
@@ -42,14 +44,20 @@
 #ifdef GL_CHECK_ERRORS
 #define GL_CHECK_ERR() print_gl_errors(stdout)
 #else
+/*! \brief TODO */
 #define GL_CHECK_ERR()
 #endif
 
 #include <fate/log.h>
 
+/*! \brief TODO */
 void fe_gl_log_error(GLenum err, fe_logfunc log, bool even_no_error);
+/*! \brief TODO */
 void fe_gl_log_all_errors(fe_logfunc log);
+/*! \brief TODO */
 void fe_gl_log_program_info(GLuint program, fe_logfunc log);
+/*! \brief TODO */
 void fe_gl_log_shader_info(GLuint shader, fe_logfunc log);
 
+/*! @} */
 #endif /* FE_GL_LOG */

@@ -31,6 +31,8 @@
  *  \brief Crash handling, stack traces, and more.
  *  \defgroup sys Sys : Crash handling, stack traces, and more.
  *
+ * TODO
+ *
  * @{
  */
 
@@ -44,10 +46,9 @@
 #define FE_SYS_STACK_LEN 128
 #define FE_SYS_MODNAME_LEN 256
 
-bool fe_sys_file_exists(const char *path);
-uint64_t fe_sys_get_last_write_time(const char *path);
-bool fe_sys_set_current_directory(const char *path);
+/*! \brief TODO */
 char *fe_sys_getgamepath(void);
+/*! \brief TODO */
 void fe_sys_crash_handler_setup(void);
 /*! \brief Log a platform-specific stack trace, through the given log function.
  *

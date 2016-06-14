@@ -27,7 +27,7 @@
  *
  */
 
-/*! \file fate/gl/debug.c
+/*! \file fate/gl/dbg.c
  *  \brief OpenGL debug
  *
  * TODO

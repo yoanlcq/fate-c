@@ -29,16 +29,20 @@
 
 /*! \file fate/gl/stats.h
  *  \brief OpenGL wrapper for getting rendering pipeline statistics.
+ *  \ingroup gl
  *
- *  TODO
+ * TODO
+ *
+ * @{
  */
 
 #ifndef FE_GL_STATS_H
 #define FE_GL_STATS_H
 
 #include <fate/gl/defs.h>
-#include <fate/gl/debug.h>
+#include <fate/gl/dbg.h>
 
+/*! \brief TODO */
 struct fe_gl_stats {
     GLuint vertices_submitted;
     GLuint primitives_submitted;
@@ -52,13 +56,19 @@ struct fe_gl_stats {
     GLuint clipping_input_primitives;
     GLuint clipping_output_primitives;
 };
+/*! \brief TODO */
 typedef struct fe_gl_stats fe_gl_stats;
 
-#ifdef FE_GL_DEBUG
+#ifdef FE_GL_DEBUG || defined(__DOXYGEN__)
+/*! \brief TODO */
 void fe_gl_stats_setup(void);
+/*! \brief TODO */
 void fe_gl_stats_cleanup(void);
+/*! \brief TODO */
 extern void (*fe_gl_stats_start_recording)(void);
+/*! \brief TODO */
 extern void (*fe_gl_stats_end_recording)(void);
+/*! \brief TODO */
 extern void (*fe_gl_stats_get_stats)(fe_gl_stats*);
 #else
 #define fe_gl_stats_setup() 
@@ -68,4 +78,5 @@ extern void (*fe_gl_stats_get_stats)(fe_gl_stats*);
 #define fe_gl_stats_get_stats(X) 
 #endif /* FE_GL_DEBUG */
 
+/*! @} */
 #endif /* FE_GL_STATS_H */

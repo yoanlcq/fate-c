@@ -28,10 +28,13 @@
  */
 
 
-/*! \file fate/gl/debug.h
+/*! \file fate/gl/dbg.h
  *  \brief OpenGL debug management.
+ *  \ingroup gl
  *
  *  TODO
+ *
+ *  @{
  */
 
 #ifndef FE_GL_DBG_H
@@ -40,6 +43,7 @@
 #include <fate/gl/defs.h>
 #include <stdbool.h>
 
+/*! \brief TODO */
 void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable);
 
 #ifdef FE_DEBUG_BUILD
@@ -48,6 +52,7 @@ void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable);
 
 #ifdef FE_GL_DBG
 
+/*! \brief TODO */
 extern void (*fe_gl_dbg_insert_marker)(const char *string);
 extern PFNGLDEBUGMESSAGECALLBACKPROC fe_gl_dbg_glDebugMessageCallback;
 extern PFNGLDEBUGMESSAGECONTROLPROC fe_gl_dbg_glDebugMessageControl;
@@ -62,18 +67,30 @@ extern PFNGLGETOBJECTPTRLABELPROC fe_gl_dbg_glGetObjectPtrLabel;
 
 #else /* FE_GL_DBG */
 
+/*! \brief TODO */
 #define fe_gl_dbg_gl_debug_insert_marker(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glDebugMessageCallback(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glDebugMessageControl(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glDebugMessageInsert(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glGetDebugMessageLog(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glPushDebugGroup(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glPopDebugGroup()
+/*! \brief TODO */
 #define fe_gl_dbg_glObjectLabel(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glObjectPtrLabel(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glGetObjectLabel(...)
+/*! \brief TODO */
 #define fe_gl_dbg_glGetObjectPtrLabel(...)
 
 #endif /* FE_DEBUG_BUILD */
 
+/*! @} */
 #endif /* FE_GL_DBG_H */
