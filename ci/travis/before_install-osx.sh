@@ -15,3 +15,5 @@ sudo cp -R /Volumes/SDL2/SDL2.framework /Library/Frameworks
 hdiutil unmount /Volumes/SDL2/
 popd
 rm -rf tmp
+brew install gettext
+brew link gettext
