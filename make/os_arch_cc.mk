@@ -116,15 +116,20 @@ ifeq ($(CC),emcc)
 endif
 MOVEPDB=
 
-%/:
-	$(call MKDIR_P,$@)
 
 BUILDDIR = build/$(OSARCH)
 BINDIR = bin/$(OSARCH)
 DATADIR = data
 
+$(DATADIR):
+	$(call MKDIR_P,$@)
+$(BINDIR):
+	$(call MKDIR_P,$@)
+$(BUILDDIR):
+	$(call MKDIR_P,$@)
+
 .PHONY: dirs
-dirs: | $(DATADIR)\/ $(BINDIR)\/ $(BUILDDIR)\/
+dirs: | $(DATADIR) $(BINDIR) $(BUILDDIR)
 
 ifeq ($(OS),windows)
 CLEANCMD = if exist $(subst /,\\,$(BUILDDIR)) ( rmdir /Q /S $(subst /,\\,$(BUILDDIR)) )
