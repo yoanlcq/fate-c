@@ -66,7 +66,7 @@
  *
  * fe_uvec2
  */
-typedef uint32_t fe_uvec2[2];
+typedef struct { uint32_t at[2]; } fe_uvec2;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_uvec2_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_uvec2_coord {
 typedef struct fe_uvec2_coord fe_uvec2_coord;
 
 /*! \brief TODO */
-#define fe_uvec2_as_array(v) (v)
+#define fe_uvec2_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_uvec2_as_color(v) ((fe_uvec2_color*)fe_uvec2_as_array(v))
 /*! \brief TODO */
 #define fe_uvec2_as_coord(v) ((fe_uvec2_coord*)fe_uvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_uvec2_add(fe_uvec2 r, const fe_uvec2 a, const fe_uvec2 b) {
+static inline void fe_uvec2_add(fe_uvec2 * r, const fe_uvec2 * a, const fe_uvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_uvec2_sub(fe_uvec2 r, const fe_uvec2 a, const fe_uvec2 b) {
+static inline void fe_uvec2_sub(fe_uvec2 * r, const fe_uvec2 * a, const fe_uvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_uvec2_scale(fe_uvec2 r, const fe_uvec2 v, const uint32_t s) {
+static inline void fe_uvec2_scale(fe_uvec2 * r, const fe_uvec2 * v, const uint32_t s) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_uvec2_dot(a,b) fe_uvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 a, const fe_uvec2 b) {
+static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 * a, const fe_uvec2 * b) {
 	uint32_t p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,11 +133,11 @@ static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 a, const fe_uvec2 b) {
 /* No cross product for fe_uvec2. */
 
 /*! \brief TODO */
-static inline void fe_uvec2_reflect(fe_uvec2 r, const fe_uvec2 v, const fe_uvec2 n) {
+static inline void fe_uvec2_reflect(fe_uvec2 * r, const  fe_uvec2 * v, const fe_uvec2 * n) {
 	const uint32_t p = 2*fe_uvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

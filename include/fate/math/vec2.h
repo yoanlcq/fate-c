@@ -66,7 +66,7 @@
  *
  * fe_vec2
  */
-typedef float fe_vec2[2];
+typedef struct { float at[2]; } fe_vec2;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_vec2_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_vec2_coord {
 typedef struct fe_vec2_coord fe_vec2_coord;
 
 /*! \brief TODO */
-#define fe_vec2_as_array(v) (v)
+#define fe_vec2_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_vec2_as_color(v) ((fe_vec2_color*)fe_vec2_as_array(v))
 /*! \brief TODO */
 #define fe_vec2_as_coord(v) ((fe_vec2_coord*)fe_vec2_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_vec2_add(fe_vec2 r, const fe_vec2 a, const fe_vec2 b) {
+static inline void fe_vec2_add(fe_vec2 * r, const fe_vec2 * a, const fe_vec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_vec2_sub(fe_vec2 r, const fe_vec2 a, const fe_vec2 b) {
+static inline void fe_vec2_sub(fe_vec2 * r, const fe_vec2 * a, const fe_vec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_vec2_scale(fe_vec2 r, const fe_vec2 v, const float s) {
+static inline void fe_vec2_scale(fe_vec2 * r, const fe_vec2 * v, const float s) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_vec2_dot(a,b) fe_vec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline float fe_vec2_mul_inner(const fe_vec2 a, const fe_vec2 b) {
+static inline float fe_vec2_mul_inner(const fe_vec2 * a, const fe_vec2 * b) {
 	float p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,11 +133,11 @@ static inline float fe_vec2_mul_inner(const fe_vec2 a, const fe_vec2 b) {
 /* No cross product for fe_vec2. */
 
 /*! \brief TODO */
-static inline void fe_vec2_reflect(fe_vec2 r, const fe_vec2 v, const fe_vec2 n) {
+static inline void fe_vec2_reflect(fe_vec2 * r, const  fe_vec2 * v, const fe_vec2 * n) {
 	const float p = 2*fe_vec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

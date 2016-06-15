@@ -66,7 +66,7 @@
  *
  * fe_dvec2
  */
-typedef double fe_dvec2[2];
+typedef struct { double at[2]; } fe_dvec2;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_dvec2_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_dvec2_coord {
 typedef struct fe_dvec2_coord fe_dvec2_coord;
 
 /*! \brief TODO */
-#define fe_dvec2_as_array(v) (v)
+#define fe_dvec2_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_dvec2_as_color(v) ((fe_dvec2_color*)fe_dvec2_as_array(v))
 /*! \brief TODO */
 #define fe_dvec2_as_coord(v) ((fe_dvec2_coord*)fe_dvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_dvec2_add(fe_dvec2 r, const fe_dvec2 a, const fe_dvec2 b) {
+static inline void fe_dvec2_add(fe_dvec2 * r, const fe_dvec2 * a, const fe_dvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_dvec2_sub(fe_dvec2 r, const fe_dvec2 a, const fe_dvec2 b) {
+static inline void fe_dvec2_sub(fe_dvec2 * r, const fe_dvec2 * a, const fe_dvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_dvec2_scale(fe_dvec2 r, const fe_dvec2 v, const double s) {
+static inline void fe_dvec2_scale(fe_dvec2 * r, const fe_dvec2 * v, const double s) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_dvec2_dot(a,b) fe_dvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline double fe_dvec2_mul_inner(const fe_dvec2 a, const fe_dvec2 b) {
+static inline double fe_dvec2_mul_inner(const fe_dvec2 * a, const fe_dvec2 * b) {
 	double p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,11 +133,11 @@ static inline double fe_dvec2_mul_inner(const fe_dvec2 a, const fe_dvec2 b) {
 /* No cross product for fe_dvec2. */
 
 /*! \brief TODO */
-static inline void fe_dvec2_reflect(fe_dvec2 r, const fe_dvec2 v, const fe_dvec2 n) {
+static inline void fe_dvec2_reflect(fe_dvec2 * r, const  fe_dvec2 * v, const fe_dvec2 * n) {
 	const double p = 2*fe_dvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

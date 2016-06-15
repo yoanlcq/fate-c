@@ -66,7 +66,7 @@
  *
  * fe_wvec2
  */
-typedef fe_space_unit fe_wvec2[2];
+typedef struct { fe_space_unit at[2]; } fe_wvec2;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_wvec2_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_wvec2_coord {
 typedef struct fe_wvec2_coord fe_wvec2_coord;
 
 /*! \brief TODO */
-#define fe_wvec2_as_array(v) (v)
+#define fe_wvec2_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_wvec2_as_color(v) ((fe_wvec2_color*)fe_wvec2_as_array(v))
 /*! \brief TODO */
 #define fe_wvec2_as_coord(v) ((fe_wvec2_coord*)fe_wvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_wvec2_add(fe_wvec2 r, const fe_wvec2 a, const fe_wvec2 b) {
+static inline void fe_wvec2_add(fe_wvec2 * r, const fe_wvec2 * a, const fe_wvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_wvec2_sub(fe_wvec2 r, const fe_wvec2 a, const fe_wvec2 b) {
+static inline void fe_wvec2_sub(fe_wvec2 * r, const fe_wvec2 * a, const fe_wvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_wvec2_scale(fe_wvec2 r, const fe_wvec2 v, const fe_space_unit s) {
+static inline void fe_wvec2_scale(fe_wvec2 * r, const fe_wvec2 * v, const fe_space_unit s) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_wvec2_dot(a,b) fe_wvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 a, const fe_wvec2 b) {
+static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 * a, const fe_wvec2 * b) {
 	fe_space_unit p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,11 +133,11 @@ static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 a, const fe_wvec2 
 /* No cross product for fe_wvec2. */
 
 /*! \brief TODO */
-static inline void fe_wvec2_reflect(fe_wvec2 r, const fe_wvec2 v, const fe_wvec2 n) {
+static inline void fe_wvec2_reflect(fe_wvec2 * r, const  fe_wvec2 * v, const fe_wvec2 * n) {
 	const fe_space_unit p = 2*fe_wvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

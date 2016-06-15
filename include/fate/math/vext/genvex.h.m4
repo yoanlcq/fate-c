@@ -106,9 +106,9 @@ typedef struct ns`'vec`'_coord ns`'vec`'_coord;
 #define ns`'vec`'_add(s,a,b)   ((s)=(a)+(b))
 #define ns`'vec`'_sub(s,a,b)   ((s)=(a)-(b))
 #define ns`'vec`'_scale(r,v,s) ((r)=(v)*(s))
-#define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
-static inline type ns`'vec`'_mul_inner(const ns`'vec a, const ns`'vec b) {
-    ns`'vec v = a*b;
+#define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(&a,&b)
+static inline type ns`'vec`'_mul_inner(const ns`'vec *a, const ns`'vec *b) {
+    ns`'vec v = (*a)*(*b);
     ifelse(
         dim, 4, return v[0]+v[1]+v[2]+v[3],
         dim, 3, return v[0]+v[1]+v[2],

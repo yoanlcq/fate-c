@@ -66,7 +66,7 @@
  *
  * fe_ivec3
  */
-typedef int32_t fe_ivec3[3];
+typedef struct { int32_t at[3]; } fe_ivec3;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_ivec3_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_ivec3_coord {
 typedef struct fe_ivec3_coord fe_ivec3_coord;
 
 /*! \brief TODO */
-#define fe_ivec3_as_array(v) (v)
+#define fe_ivec3_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_ivec3_as_color(v) ((fe_ivec3_color*)fe_ivec3_as_array(v))
 /*! \brief TODO */
 #define fe_ivec3_as_coord(v) ((fe_ivec3_coord*)fe_ivec3_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_ivec3_add(fe_ivec3 r, const fe_ivec3 a, const fe_ivec3 b) {
+static inline void fe_ivec3_add(fe_ivec3 * r, const fe_ivec3 * a, const fe_ivec3 * b) {
 	size_t i;
 	for(i=0; i<3; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ivec3_sub(fe_ivec3 r, const fe_ivec3 a, const fe_ivec3 b) {
+static inline void fe_ivec3_sub(fe_ivec3 * r, const fe_ivec3 * a, const fe_ivec3 * b) {
 	size_t i;
 	for(i=0; i<3; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ivec3_scale(fe_ivec3 r, const fe_ivec3 v, const int32_t s) {
+static inline void fe_ivec3_scale(fe_ivec3 * r, const fe_ivec3 * v, const int32_t s) {
 	size_t i;
 	for(i=0; i<3; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(a,b)
 /*! \brief TODO */
-static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 a, const fe_ivec3 b) {
+static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 * a, const fe_ivec3 * b) {
 	int32_t p;
 	size_t i;
 	for(p=i=0; i<3; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,19 +133,19 @@ static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 a, const fe_ivec3 b) {
 /*! \brief TODO */
 #define fe_ivec3_cross(r,a,b) fe_ivec3_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void fe_ivec3_mul_cross(fe_ivec3 r, const fe_ivec3 a, const fe_ivec3 b) {
-	r[0] = a[1]*b[2] - a[2]*b[1];
-	r[1] = a[2]*b[0] - a[0]*b[2];
-	r[2] = a[0]*b[1] - a[1]*b[0];
+static inline void fe_ivec3_mul_cross(fe_ivec3 * r, const fe_ivec3 * a, const fe_ivec3 * b) {
+	r->at[0] = a->at[1]*b->at[2] - a->at[2]*b->at[1];
+	r->at[1] = a->at[2]*b->at[0] - a->at[0]*b->at[2];
+	r->at[2] = a->at[0]*b->at[1] - a->at[1]*b->at[0];
 	
 }
 
 /*! \brief TODO */
-static inline void fe_ivec3_reflect(fe_ivec3 r, const fe_ivec3 v, const fe_ivec3 n) {
+static inline void fe_ivec3_reflect(fe_ivec3 * r, const  fe_ivec3 * v, const fe_ivec3 * n) {
 	const int32_t p = 2*fe_ivec3_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<3 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

@@ -69,7 +69,7 @@ ifelse(type,fe_space_unit,#include <fate/units.h>)
  *
  * ns`'vec
  */
-typedef type ns`'vec[dim];
+typedef struct { type at[dim]; } ns`'vec;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT ns`'vec`'_color {
@@ -90,39 +90,39 @@ struct FATE_PACKED_STRUCT ns`'vec`'_coord {
 typedef struct ns`'vec`'_coord ns`'vec`'_coord;
 
 /*! \brief TODO */
-#define ns`'vec`'_as_array(v) (v)
+#define ns`'vec`'_as_array(v) (v.at)
 /*! \brief TODO */
 #define ns`'vec`'_as_color(v) ((ns`'vec`'_color*)ns`'vec`'_as_array(v))
 /*! \brief TODO */
 #define ns`'vec`'_as_coord(v) ((ns`'vec`'_coord*)ns`'vec`'_as_array(v))
 
 /*! \brief TODO */
-static inline void ns`'vec`'_add(ns`'vec r, const ns`'vec a, const ns`'vec b) {
+static inline void ns`'vec`'_add(ns`'vec * r, const ns`'vec * a, const ns`'vec * b) {
 	size_t i;
 	for(i=0; i<dim; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void ns`'vec`'_sub(ns`'vec r, const ns`'vec a, const ns`'vec b) {
+static inline void ns`'vec`'_sub(ns`'vec * r, const ns`'vec * a, const ns`'vec * b) {
 	size_t i;
 	for(i=0; i<dim; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void ns`'vec`'_scale(ns`'vec r, const ns`'vec v, const type s) {
+static inline void ns`'vec`'_scale(ns`'vec * r, const ns`'vec * v, const type s) {
 	size_t i;
 	for(i=0; i<dim; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
 /*! \brief TODO */
-static inline type ns`'vec`'_mul_inner(const ns`'vec a, const ns`'vec b) {
+static inline type ns`'vec`'_mul_inner(const ns`'vec * a, const ns`'vec * b) {
 	type p;
 	size_t i;
 	for(p=i=0; i<dim; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -137,21 +137,21 @@ ifelse(eval(dim>=3),1,
 /*! \brief TODO */
 #define ns`'vec`'_cross(r,a,b) ns`'vec`'_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void ns`'vec`'_mul_cross(ns`'vec r, const ns`'vec a, const ns`'vec b) {
-	r[0] = a[1]*b[2] - a[2]*b[1];
-	r[1] = a[2]*b[0] - a[0]*b[2];
-	r[2] = a[0]*b[1] - a[1]*b[0];
-	ifelse(eval(dim>=4),1,r[3] = 1.f;)
+static inline void ns`'vec`'_mul_cross(ns`'vec * r, const ns`'vec * a, const ns`'vec * b) {
+	r->at[0] = a->at[1]*b->at[2] - a->at[2]*b->at[1];
+	r->at[1] = a->at[2]*b->at[0] - a->at[0]*b->at[2];
+	r->at[2] = a->at[0]*b->at[1] - a->at[1]*b->at[0];
+	ifelse(eval(dim>=4),1,r->at[3] = 1;)
 }
 ,/* No cross product for ns`'vec. */
 )dnl
 
 /*! \brief TODO */
-static inline void ns`'vec`'_reflect(ns`'vec r, const ns`'vec v, const ns`'vec n) {
+static inline void ns`'vec`'_reflect(ns`'vec * r, const  ns`'vec * v, const ns`'vec * n) {
 	const type p = 2*ns`'vec`'_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<dim ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

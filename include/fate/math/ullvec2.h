@@ -66,7 +66,7 @@
  *
  * fe_ullvec2
  */
-typedef uint64_t fe_ullvec2[2];
+typedef struct { uint64_t at[2]; } fe_ullvec2;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_ullvec2_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_ullvec2_coord {
 typedef struct fe_ullvec2_coord fe_ullvec2_coord;
 
 /*! \brief TODO */
-#define fe_ullvec2_as_array(v) (v)
+#define fe_ullvec2_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_ullvec2_as_color(v) ((fe_ullvec2_color*)fe_ullvec2_as_array(v))
 /*! \brief TODO */
 #define fe_ullvec2_as_coord(v) ((fe_ullvec2_coord*)fe_ullvec2_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_ullvec2_add(fe_ullvec2 r, const fe_ullvec2 a, const fe_ullvec2 b) {
+static inline void fe_ullvec2_add(fe_ullvec2 * r, const fe_ullvec2 * a, const fe_ullvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ullvec2_sub(fe_ullvec2 r, const fe_ullvec2 a, const fe_ullvec2 b) {
+static inline void fe_ullvec2_sub(fe_ullvec2 * r, const fe_ullvec2 * a, const fe_ullvec2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ullvec2_scale(fe_ullvec2 r, const fe_ullvec2 v, const uint64_t s) {
+static inline void fe_ullvec2_scale(fe_ullvec2 * r, const fe_ullvec2 * v, const uint64_t s) {
 	size_t i;
 	for(i=0; i<2; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_ullvec2_dot(a,b) fe_ullvec2_mul_inner(a,b)
 /*! \brief TODO */
-static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 a, const fe_ullvec2 b) {
+static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 * a, const fe_ullvec2 * b) {
 	uint64_t p;
 	size_t i;
 	for(p=i=0; i<2; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,11 +133,11 @@ static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 a, const fe_ullvec2
 /* No cross product for fe_ullvec2. */
 
 /*! \brief TODO */
-static inline void fe_ullvec2_reflect(fe_ullvec2 r, const fe_ullvec2 v, const fe_ullvec2 n) {
+static inline void fe_ullvec2_reflect(fe_ullvec2 * r, const  fe_ullvec2 * v, const fe_ullvec2 * n) {
 	const uint64_t p = 2*fe_ullvec2_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<2 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */

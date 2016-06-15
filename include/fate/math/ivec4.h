@@ -66,7 +66,7 @@
  *
  * fe_ivec4
  */
-typedef int32_t fe_ivec4[4];
+typedef struct { int32_t at[4]; } fe_ivec4;
 
 /*! \brief TODO */
 struct FATE_PACKED_STRUCT fe_ivec4_color {
@@ -87,39 +87,39 @@ struct FATE_PACKED_STRUCT fe_ivec4_coord {
 typedef struct fe_ivec4_coord fe_ivec4_coord;
 
 /*! \brief TODO */
-#define fe_ivec4_as_array(v) (v)
+#define fe_ivec4_as_array(v) (v.at)
 /*! \brief TODO */
 #define fe_ivec4_as_color(v) ((fe_ivec4_color*)fe_ivec4_as_array(v))
 /*! \brief TODO */
 #define fe_ivec4_as_coord(v) ((fe_ivec4_coord*)fe_ivec4_as_array(v))
 
 /*! \brief TODO */
-static inline void fe_ivec4_add(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
+static inline void fe_ivec4_add(fe_ivec4 * r, const fe_ivec4 * a, const fe_ivec4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)
-		r[i] = a[i] + b[i];
+		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ivec4_sub(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
+static inline void fe_ivec4_sub(fe_ivec4 * r, const fe_ivec4 * a, const fe_ivec4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)
-		r[i] = a[i] - b[i];
+		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_ivec4_scale(fe_ivec4 r, const fe_ivec4 v, const int32_t s) {
+static inline void fe_ivec4_scale(fe_ivec4 * r, const fe_ivec4 * v, const int32_t s) {
 	size_t i;
 	for(i=0; i<4; ++i)
-		r[i] = v[i] * s;
+		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
 #define fe_ivec4_dot(a,b) fe_ivec4_mul_inner(a,b)
 /*! \brief TODO */
-static inline int32_t fe_ivec4_mul_inner(const fe_ivec4 a, const fe_ivec4 b) {
+static inline int32_t fe_ivec4_mul_inner(const fe_ivec4 * a, const fe_ivec4 * b) {
 	int32_t p;
 	size_t i;
 	for(p=i=0; i<4; ++i)
-		p += b[i]*a[i];
+		p += b->at[i]*a->at[i];
 	return p;
 }
 
@@ -133,19 +133,19 @@ static inline int32_t fe_ivec4_mul_inner(const fe_ivec4 a, const fe_ivec4 b) {
 /*! \brief TODO */
 #define fe_ivec4_cross(r,a,b) fe_ivec4_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void fe_ivec4_mul_cross(fe_ivec4 r, const fe_ivec4 a, const fe_ivec4 b) {
-	r[0] = a[1]*b[2] - a[2]*b[1];
-	r[1] = a[2]*b[0] - a[0]*b[2];
-	r[2] = a[0]*b[1] - a[1]*b[0];
-	r[3] = 1.f;
+static inline void fe_ivec4_mul_cross(fe_ivec4 * r, const fe_ivec4 * a, const fe_ivec4 * b) {
+	r->at[0] = a->at[1]*b->at[2] - a->at[2]*b->at[1];
+	r->at[1] = a->at[2]*b->at[0] - a->at[0]*b->at[2];
+	r->at[2] = a->at[0]*b->at[1] - a->at[1]*b->at[0];
+	r->at[3] = 1;
 }
 
 /*! \brief TODO */
-static inline void fe_ivec4_reflect(fe_ivec4 r, const fe_ivec4 v, const fe_ivec4 n) {
+static inline void fe_ivec4_reflect(fe_ivec4 * r, const  fe_ivec4 * v, const fe_ivec4 * n) {
 	const int32_t p = 2*fe_ivec4_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<4 ; ++i)
-		r[i] = v[i] - p*n[i];
+		r->at[i] = v->at[i] - p*n->at[i];
 }
 
 #endif /* Naive */
