@@ -19,8 +19,6 @@ cache:
 before_build:
   - |-
     set MINGW32_ARCH=i686-w64-mingw32
-    set WINDBG_DIR="C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x86"
-    set DBGHELP_H="C:\Program Files (x86)\Windows Kits\8.1\include\um\DbgHelp.h"
   - if exist %PREFIX% set NEEDDEPENDS=rem
 
   # Depends
@@ -52,7 +50,6 @@ before_build:
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\include\SDL2\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\lib\*.a %PREFIX%\lib > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\bin\*.dll %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MINGW32% copy %DBGHELP_H% %PREFIX%\include
 
 build_script:
   # build
@@ -60,7 +57,7 @@ build_script:
     %MSVC% cd "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools"
     %MSVC% VSVARS32
     %MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
-    %MINGW32% set PATH=c:\mingw\bin;%PATH%
+    set PATH=c:\mingw\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
