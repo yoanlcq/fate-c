@@ -96,9 +96,9 @@ typedef struct fe_ullvec4_coord fe_ullvec4_coord;
 #define fe_ullvec4_add(s,a,b)   ((s)=(a)+(b))
 #define fe_ullvec4_sub(s,a,b)   ((s)=(a)-(b))
 #define fe_ullvec4_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ullvec4_dot(a,b) fe_ullvec4_mul_inner(a,b)
-static inline uint64_t fe_ullvec4_mul_inner(const fe_ullvec4 a, const fe_ullvec4 b) {
-    fe_ullvec4 v = a*b;
+#define fe_ullvec4_dot(a,b) fe_ullvec4_mul_inner(&a,&b)
+static inline uint64_t fe_ullvec4_mul_inner(const fe_ullvec4 *a, const fe_ullvec4 *b) {
+    fe_ullvec4 v = (*a)*(*b);
     return v[0]+v[1]+v[2]+v[3];
 }
 #define fe_ullvec4_len(v)  sqrt(fe_ullvec4_mul_inner(v, v))

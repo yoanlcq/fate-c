@@ -96,9 +96,9 @@ typedef struct fe_uvec2_coord fe_uvec2_coord;
 #define fe_uvec2_add(s,a,b)   ((s)=(a)+(b))
 #define fe_uvec2_sub(s,a,b)   ((s)=(a)-(b))
 #define fe_uvec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_uvec2_dot(a,b) fe_uvec2_mul_inner(a,b)
-static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 a, const fe_uvec2 b) {
-    fe_uvec2 v = a*b;
+#define fe_uvec2_dot(a,b) fe_uvec2_mul_inner(&a,&b)
+static inline uint32_t fe_uvec2_mul_inner(const fe_uvec2 *a, const fe_uvec2 *b) {
+    fe_uvec2 v = (*a)*(*b);
     return v[0]+v[1];
 }
 #define fe_uvec2_len(v)  sqrt(fe_uvec2_mul_inner(v, v))

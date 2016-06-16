@@ -69,7 +69,7 @@
 typedef struct { float at[2]; } fe_vec2;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_vec2_color {
+struct FE_PACKED_STRUCT fe_vec2_color {
     float r;
     float g;
     /* No blue component. */
@@ -78,7 +78,7 @@ struct FATE_PACKED_STRUCT fe_vec2_color {
 typedef struct fe_vec2_color fe_vec2_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_vec2_coord {
+struct FE_PACKED_STRUCT fe_vec2_coord {
     float x;
     float y;
     /* No z component. */

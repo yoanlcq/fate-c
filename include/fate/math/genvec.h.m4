@@ -72,7 +72,7 @@ ifelse(type,fe_space_unit,#include <fate/units.h>)
 typedef struct { type at[dim]; } ns`'vec;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT ns`'vec`'_color {
+struct FE_PACKED_STRUCT ns`'vec`'_color {
     type r;
     type g;
     ifelse(eval(dim>=3),1,type b;,/* No blue component. */)
@@ -81,7 +81,7 @@ struct FATE_PACKED_STRUCT ns`'vec`'_color {
 typedef struct ns`'vec`'_color ns`'vec`'_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT ns`'vec`'_coord {
+struct FE_PACKED_STRUCT ns`'vec`'_coord {
     type x;
     type y;
     ifelse(eval(dim>=3),1,type z;,/* No z component. */)

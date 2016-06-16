@@ -69,7 +69,7 @@
 typedef struct { fe_space_unit at[3]; } fe_wvec3;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_wvec3_color {
+struct FE_PACKED_STRUCT fe_wvec3_color {
     fe_space_unit r;
     fe_space_unit g;
     fe_space_unit b;
@@ -78,7 +78,7 @@ struct FATE_PACKED_STRUCT fe_wvec3_color {
 typedef struct fe_wvec3_color fe_wvec3_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_wvec3_coord {
+struct FE_PACKED_STRUCT fe_wvec3_coord {
     fe_space_unit x;
     fe_space_unit y;
     fe_space_unit z;

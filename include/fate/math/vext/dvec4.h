@@ -96,9 +96,9 @@ typedef struct fe_dvec4_coord fe_dvec4_coord;
 #define fe_dvec4_add(s,a,b)   ((s)=(a)+(b))
 #define fe_dvec4_sub(s,a,b)   ((s)=(a)-(b))
 #define fe_dvec4_scale(r,v,s) ((r)=(v)*(s))
-#define fe_dvec4_dot(a,b) fe_dvec4_mul_inner(a,b)
-static inline double fe_dvec4_mul_inner(const fe_dvec4 a, const fe_dvec4 b) {
-    fe_dvec4 v = a*b;
+#define fe_dvec4_dot(a,b) fe_dvec4_mul_inner(&a,&b)
+static inline double fe_dvec4_mul_inner(const fe_dvec4 *a, const fe_dvec4 *b) {
+    fe_dvec4 v = (*a)*(*b);
     return v[0]+v[1]+v[2]+v[3];
 }
 #define fe_dvec4_len(v)  sqrt(fe_dvec4_mul_inner(v, v))

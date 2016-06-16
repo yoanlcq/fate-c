@@ -96,9 +96,9 @@ typedef struct fe_vec2_coord fe_vec2_coord;
 #define fe_vec2_add(s,a,b)   ((s)=(a)+(b))
 #define fe_vec2_sub(s,a,b)   ((s)=(a)-(b))
 #define fe_vec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_vec2_dot(a,b) fe_vec2_mul_inner(a,b)
-static inline float fe_vec2_mul_inner(const fe_vec2 a, const fe_vec2 b) {
-    fe_vec2 v = a*b;
+#define fe_vec2_dot(a,b) fe_vec2_mul_inner(&a,&b)
+static inline float fe_vec2_mul_inner(const fe_vec2 *a, const fe_vec2 *b) {
+    fe_vec2 v = (*a)*(*b);
     return v[0]+v[1];
 }
 #define fe_vec2_len(v)  sqrt(fe_vec2_mul_inner(v, v))

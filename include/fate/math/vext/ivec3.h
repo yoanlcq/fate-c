@@ -97,9 +97,9 @@ typedef struct fe_ivec3_coord fe_ivec3_coord;
 #define fe_ivec3_add(s,a,b)   ((s)=(a)+(b))
 #define fe_ivec3_sub(s,a,b)   ((s)=(a)-(b))
 #define fe_ivec3_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(a,b)
-static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 a, const fe_ivec3 b) {
-    fe_ivec3 v = a*b;
+#define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(&a,&b)
+static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 *a, const fe_ivec3 *b) {
+    fe_ivec3 v = (*a)*(*b);
     return v[0]+v[1]+v[2];
 }
 #define fe_ivec3_len(v)  sqrt(fe_ivec3_mul_inner(v, v))

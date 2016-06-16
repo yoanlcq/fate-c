@@ -69,7 +69,7 @@
 typedef struct { uint64_t at[3]; } fe_ullvec3;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_ullvec3_color {
+struct FE_PACKED_STRUCT fe_ullvec3_color {
     uint64_t r;
     uint64_t g;
     uint64_t b;
@@ -78,7 +78,7 @@ struct FATE_PACKED_STRUCT fe_ullvec3_color {
 typedef struct fe_ullvec3_color fe_ullvec3_color;
 
 /*! \brief TODO */
-struct FATE_PACKED_STRUCT fe_ullvec3_coord {
+struct FE_PACKED_STRUCT fe_ullvec3_coord {
     uint64_t x;
     uint64_t y;
     uint64_t z;
