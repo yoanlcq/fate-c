@@ -524,7 +524,7 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
             stack[nframes++] = stack_frame.AddrPC.Offset;
         }
 
-        fe_sys_log_stacktrace_win32(fe_logf_err, stack, nframes);
+        fe_sys_log_stacktrace_win32(fe_loge, stack, nframes);
     }
 
     fe_globalstate_deinit(fe_gs);
@@ -672,7 +672,7 @@ void fe_sys_crash_handler_setup(void) {
 unsigned recursive(unsigned d) {
     if(d==1) {
         fe_loge(TAG, "--- Early stack trace ---\n");
-        fe_sys_log_stacktrace(&fe_logf_err);
+        fe_sys_log_stacktrace(&fe_loge);
         fe_loge(TAG, "--- Stack trace ---\n");
     }
     unsigned foo = 100/(d--);
