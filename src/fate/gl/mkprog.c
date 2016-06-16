@@ -142,7 +142,7 @@ typedef struct fgm_shader_type_entry fgm_shader_type_entry;
  * fe_gl_mkprog_setup().
  */
 static const fgm_shader_type_entry shader_types_db_actual[] = {
-#ifndef FE_EMSCRIPTEN
+#ifndef FE_TARGET_EMSCRIPTEN
     { "comp", GL_COMPUTE_SHADER,         43 },
 #endif
     { "tesc", GL_TESS_CONTROL_SHADER,    40 },
@@ -217,7 +217,7 @@ GLuint fgm_find_or_compile_shader(const char *path)
 
     GLchar *shsrc = fe_io_getdata(file);
    
-#ifdef FE_EMSCRIPTEN
+#ifdef FE_TARGET_EMSCRIPTEN
     glShaderSource(shid, 1, (const GLchar**) &shsrc, NULL);
 #else
     glShaderSource(shid, 1, (const GLchar* const*) &shsrc, NULL);
@@ -282,6 +282,7 @@ static inline bool fgm_file_is_outdated(const char *path, va_list ap) {
 
 static bool fgm_program_from_binary(GLuint program, fe_io binfile, 
                                     const char *save_path) {
+#ifndef FE_TARGET_EMSCRIPTEN
     size_t binlen = fe_io_getsize(binfile);
     char *bin = fe_io_getdata(binfile);
     GLenum binfmt = *(const GLenum*)bin;
@@ -307,9 +308,13 @@ static bool fgm_program_from_binary(GLuint program, fe_io binfile,
                         "or the OpenGL implementation just rejected it. "
                         "See also the context's settings.\n", binfmt);
     return false;
+#else /* FE_TARGET_EMSCRIPTEN */
+    return true;
+#endif
 }
 
 static void fgm_program_to_binary(GLuint program, fe_io binfile, const char *binfile_path) {
+#ifndef FE_TARGET_EMSCRIPTEN
     GLsizei binlen;
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
     char *bin = fe_mem_malloc(binlen, char, "fe_gl prog binary");
@@ -319,6 +324,7 @@ static void fgm_program_to_binary(GLuint program, fe_io binfile, const char *bin
     fe_io_write(binfile, bin, binlen);
     fe_promise_wait(fe_io_sync_userdata(binfile, binfile_path, 0));
     fe_logv(TAG, "Saved binary with format 0x%x.\n", binfmt);
+#endif /* FE_TARGET_EMSCRIPTEN */
 }
 
 
@@ -407,8 +413,10 @@ static bool fe_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
     }
 
     if(!fe_io_ok(binfile) || binfile_is_outdated) {
+#ifndef FE_TARGET_EMSCRIPTEN
         glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, 
                             GL_TRUE);
+#endif
         va_start(ap, save_path);
         int success = fe_gl_mkprog_2_0_real(program, save_path, ap);
         va_end(ap);

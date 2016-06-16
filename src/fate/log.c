@@ -35,10 +35,16 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <assert.h>
 #include <SDL2/SDL.h>
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
 #include <fate/log.h>
+#ifdef FE_TARGET_ANDROID
+#include <android/log.h>
+#elif defined(FE_TARGET_EMSCRIPTEN)
+#include <emscripten/emscripten.h>
+#endif
 
 /*
 #ifdef FE_ANDROID

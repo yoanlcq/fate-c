@@ -5,8 +5,8 @@ OS, ARCH and CC are not defined.
 Please set them on the command line when calling make,
 each with one of the following values :
 
-OS = windows | linux | osx
-ARCH = 32 | 64 (don't specify for osx)
+OS = windows | linux | osx (don't specify if CC=emcc)
+ARCH = 32 | 64 (don't specify for osx or if CC=emcc)
 CC = gcc | cl | clang | emcc
 
 Exemple : 
@@ -17,7 +17,7 @@ endef
 
 define OS_ERROR
 
-The OS variable must be set to either windows, linux, osx or web.
+The OS variable must be set to either windows, linux, or osx.
 
 endef
 
@@ -33,6 +33,9 @@ The CC variable must be set to either gcc, cl, clang or emcc.
 
 endef
 
+ifeq ($(CC),emcc)
+OS=web
+endif
 
 ifndef OS
 $(error $(call OS_ARCH_CC_ERROR))
@@ -40,7 +43,9 @@ else
 ifneq ($(OS),windows)
 ifneq ($(OS),linux)
 ifneq ($(OS),osx)
+ifneq ($(OS),web)
 $(error $(call OS_ERROR))
+endif
 endif
 endif
 endif

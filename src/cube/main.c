@@ -203,6 +203,7 @@ void cube_main_init(struct cube_main *m) {
         stencil_bits
     );
 
+#ifndef FE_TARGET_EMSCRIPTEN /* glGetStringi(): unresolved symbol */
     GLint num_glexts, i;
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
     fe_logi(TAG, "    Extensions :\n");
@@ -215,6 +216,7 @@ void cube_main_init(struct cube_main *m) {
         fe_logi(TAG, "\n");
     }
     fe_logi(TAG, "\n");
+#endif
 
     fe_gl_dbg_setup(gl_major, gl_minor, true);
 
@@ -521,13 +523,13 @@ void cube_main_loop_iteration(void *arg) {
     glScissor(0, 0, m->splitx*(float)m->win_w, m->win_h);
     glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUniform1ui(m->ufInvertLoc, 0);
+    glUniform1i(m->ufInvertLoc, 0);
     Cube_draw(&m->cube);
 
     glScissor(m->splitx*(float)m->win_w, 0, m->win_w-m->splitx*(float)m->win_w, m->win_h);
     glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUniform1ui(m->ufInvertLoc, 1);
+    glUniform1i(m->ufInvertLoc, 1);
     Cube_draw(&m->cube);
     
     glDisable(GL_SCISSOR_TEST); 

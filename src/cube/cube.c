@@ -1,4 +1,5 @@
 #include <string.h>
+#include <fate/defs.h>
 #include <fate/gl.h>
 #include "cube.h"
 
