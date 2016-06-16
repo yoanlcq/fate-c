@@ -6,6 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <fate/defs.h>
 #include <fate/ipv6.h>
 #include <fate/udp6.h>
 #include <fate/tcp6.h>

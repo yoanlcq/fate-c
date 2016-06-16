@@ -38,6 +38,7 @@
 #ifndef FE_WSS13_H
 #define FE_WSS13_H
 
+#include <fate/defs.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>

@@ -43,6 +43,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <fate/defs.h>
 #include <fate/ipv6.h>
 
 /*! \brief TODO*/
