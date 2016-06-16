@@ -18,9 +18,7 @@ cache:
   - c:\usr_mingw32 -> appveyor.yml
 before_build:
   - |-
-    set MINGW32_ARCH=i686-w64-mingw32
-    set MAKESHELL=c:/windows/system32/cmd.exe
-    set .SHELLFLAGS= 
+    set MINGW32_ARCH=x86_64-w64-mingw32
   - if exist %PREFIX% set NEEDDEPENDS=rem
 
   # Depends
@@ -49,7 +47,10 @@ build_script:
   # build
   - |-
     %MINGW% set PATH=c:\mingw\bin;%PATH%
-
+    #%MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 15.0\VC\bin";%PATH%
+    %MSVC% dir "C:\Program Files (x86)"
+    %MSVC% dir "C:\Program Files"
+    
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
