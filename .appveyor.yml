@@ -44,13 +44,12 @@ before_build:
     %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
     %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
     %NEEDDEPENDS% %MSVC% cd ..
-    %NEEDDEPENDS% %MSVC% robocopy "%PREFIX%\include" "%INCLUDE%" /S
-    %NEEDDEPENDS% %MSVC% robocopy "%PREFIX%\lib" "%LIBPATH%" /S
-    %NEEDDEPENDS% %MSVC% dir "%INCLUDE%"
-    %NEEDDEPENDS% %MSVC% dir "%LIBPATH%"
+    %NEEDDEPENDS% %MSVC% set INCLUDE=%PREFIX\include;%INCLUDE%
+    %NEEDDEPENDS% %MSVC% set LIBPATH=%PREFIX\lib;%LIBPATH%
 
   # Depends for MinGW32
   - |-
+    %NEEDDEPENDS% %MINGW32% choco install mingw
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
