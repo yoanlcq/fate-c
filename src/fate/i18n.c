@@ -10,7 +10,9 @@ static const char *TAG="fe_i18n";
 /* See https://www.gnu.org/software/gettext/manual/html_node/gettext-grok.html */
 void fe_i18n_switchlang(const char *lang) {
     fe_logv(TAG, _("Now switching language to \"%s\".\n"), lang);
+#ifndef FE_TARGET_EMSCRIPTEN
     setenv("LANGUAGE", lang, 1);
+#endif
 #ifdef FE_TARGET_LINUX 
     {
         /* This is for GNU gettext() only. */

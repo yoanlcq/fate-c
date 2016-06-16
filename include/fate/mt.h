@@ -127,7 +127,7 @@
 
 #include <fate/defs.h>
 
-#ifdef FE_EMSCRIPTEN
+#ifdef FE_TARGET_EMSCRIPTEN
 /* It's not like we had the choice anyway. */
 #define FE_NO_MT
 #endif

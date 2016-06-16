@@ -33,6 +33,7 @@
  * TODO
  */
 
+#include <fate/defs.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/meminfo.h>
 
@@ -40,7 +41,7 @@ static void fgl_meminfo_query_dummy(fe_gl_meminfo *m) {
     m->type = FE_GL_MEMINFO_NONE;
 }
 static void fgl_meminfo_query_nvx(fe_gl_meminfo *m) {
-#ifndef FE_EMSCRIPTEN
+#ifndef FE_TARGET_EMSCRIPTEN
     m->type = FE_GL_MEMINFO_NVX;
     glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, 
                   &(m->data.nvx.dedicated_vidmem));

@@ -1,8 +1,11 @@
-FATE_CFILES = $(wildcard src/fate/*.c \
-						 src/fate/*/*.c \
-						 src/fate/*/*/*.c \
-						 src/fate/*/*/*/*.c \
-						 src/fate/*/*/*/*/*.c)
+FATE_CFILES := $(wildcard src/fate/*.c \
+                          src/fate/*/*.c \
+                          src/fate/*/*/*.c \
+                          src/fate/*/*/*/*.c \
+                          src/fate/*/*/*/*/*.c)
+ifeq ($(CC),emcc)
+FATE_CFILES := $(filter-out %/glew.c, $(FATE_CFILES))
+endif
 FATE_OFILES = $(patsubst src/fate/%.c,$(BUILDDIR)/fate/%$(OBJ_EXTENSION),$(FATE_CFILES))
 FATE_DBG_OFILES = $(patsubst src/fate/%.c,$(BUILDDIR)/fate_dbg/%$(OBJ_EXTENSION),$(FATE_CFILES))
 
