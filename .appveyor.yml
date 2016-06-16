@@ -20,7 +20,7 @@ before_build:
   - |-
     set MINGW32_ARCH=i686-w64-mingw32
     set SHELL=c:/windows/system32/cmd.exe
-    set .SHELLFLAGS=/C
+    set .SHELLFLAGS= /c 
   - if exist %PREFIX% set NEEDDEPENDS=rem
 
   # Depends
