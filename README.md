@@ -1,5 +1,5 @@
 Travis build status - OS X Mavericks and Ubuntu 12.04 64-bits - gcc and clang :  
-[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.svg?branch=master)](https://travis-ci.org/yoanlcq/FATE)
+[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)
   
 AppVeyor build status - Work in progress, ignore for now :  
 [![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)
