@@ -61,8 +61,7 @@ build_script:
   # build
   - |-
     set PATH=C:\tools\mingw32\bin;%PATH%
-    dir C:\
-    dir C:\tools
+    dir C:\ProgramData\chocolatey
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
