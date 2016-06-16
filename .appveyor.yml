@@ -29,6 +29,9 @@ before_build:
 
   # Depends for MSVC
   - |-
+    %NEEDDEPENDS% %MSVC% cd "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools"
+    %NEEDDEPENDS% %MSVC% VSVARS32
+    %NEEDDEPENDS% %MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
     %NEEDDEPENDS% %MSVC% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
@@ -41,6 +44,10 @@ before_build:
     %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
     %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
     %NEEDDEPENDS% %MSVC% cd ..
+    %NEEDDEPENDS% %MSVC% robocopy %PREFIX%\include %INCLUDE% /S
+    %NEEDDEPENDS% %MSVC% robocopy %PREFIX%\lib %LIBPATH% /S
+    %NEEDDEPENDS% %MSVC% dir %INCLUDE%
+    %NEEDDEPENDS% %MSVC% dir %LIBPATH%
 
   # Depends for MinGW32
   - |-
@@ -54,9 +61,6 @@ before_build:
 build_script:
   # build
   - |-
-    %MSVC% cd "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools"
-    %MSVC% VSVARS32
-    %MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
     set PATH=c:\mingw\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
