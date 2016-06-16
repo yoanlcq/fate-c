@@ -51,6 +51,11 @@ endif
 endif
 endif
 
+ifeq ($(OS),windows)
+SHELL=cmd
+.SHELLFLAGS=/c
+endif
+
 ifndef CC
 $(error $(call OS_ARCH_CC_ERROR))
 else
