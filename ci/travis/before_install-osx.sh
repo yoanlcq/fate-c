@@ -18,9 +18,9 @@ rm -rf tmp
 brew install gettext
 brew link --force gettext
 
-wget https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz
-tar xzf emsdk-portable.tar.gz
-rm emsdk-portable.tar.gz
-pushd emsdk_portable
-./emsdk update && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh
-popd
+#wget https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz
+#tar xzf emsdk-portable.tar.gz
+#rm emsdk-portable.tar.gz
+#pushd emsdk_portable
+#./emsdk update && ./emsdk install latest && ./emsdk activate latest && source ./emsdk_env.sh
+#popd
