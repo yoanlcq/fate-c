@@ -44,10 +44,10 @@ before_build:
     %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
     %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
     %NEEDDEPENDS% %MSVC% cd ..
-    %NEEDDEPENDS% %MSVC% robocopy %PREFIX%\include %INCLUDE% /S
-    %NEEDDEPENDS% %MSVC% robocopy %PREFIX%\lib %LIBPATH% /S
-    %NEEDDEPENDS% %MSVC% dir %INCLUDE%
-    %NEEDDEPENDS% %MSVC% dir %LIBPATH%
+    %NEEDDEPENDS% %MSVC% robocopy "%PREFIX%\include" "%INCLUDE%" /S
+    %NEEDDEPENDS% %MSVC% robocopy "%PREFIX%\lib" "%LIBPATH%" /S
+    %NEEDDEPENDS% %MSVC% dir "%INCLUDE%"
+    %NEEDDEPENDS% %MSVC% dir "%LIBPATH%"
 
   # Depends for MinGW32
   - |-
