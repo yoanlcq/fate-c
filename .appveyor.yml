@@ -49,7 +49,7 @@ before_build:
 
   # Depends for MinGW32
   - |-
-    %NEEDDEPENDS% %MINGW32% choco install mingw
+    %NEEDDEPENDS% %MINGW32% choco install -y mingw -x86
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
@@ -60,7 +60,7 @@ before_build:
 build_script:
   # build
   - |-
-    set PATH=c:\mingw\bin;%PATH%
+    set PATH=C:\tools\mingw32\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
