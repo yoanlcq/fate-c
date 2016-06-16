@@ -19,7 +19,8 @@ cache:
 before_build:
   - |-
     set MINGW32_ARCH=i686-w64-mingw32
-
+    set SHELL=c:/windows/system32/cmd.exe
+    set .SHELLFLAGS=/C
   - if exist %PREFIX% set NEEDDEPENDS=rem
 
   # Depends
@@ -50,7 +51,7 @@ build_script:
     %MINGW% set PATH=c:\mingw\bin;%PATH%
 
     cd %APPVEYOR_BUILD_FOLDER%
-    %MINGW% mingw32-make %MAKE_ARGS%
+    mingw32-make %MAKE_ARGS%
 
 after_build:
   - git status
