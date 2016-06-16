@@ -19,6 +19,10 @@ cache:
 before_build:
   - |-
     set MINGW32_ARCH=i686-w64-mingw32
+    set MINGW_DIR=mingw32
+    set MINGW_URL=https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/4.9.2/threads-win32/dwarf/i686-4.9.2-release-win32-dwarf-rt_v4-rev4.7z/download
+    set MINGW_ARCHIVE=i686-4.9.2-release-win32-dwarf-rt_v4-rev4.7z
+    set WINDBG_DIR="%ProgramFiles(x86)%\Windows Kits\8.1\Debuggers\x86"
   - if exist %PREFIX% set NEEDDEPENDS=rem
 
   # Depends
@@ -33,9 +37,19 @@ before_build:
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\lib\x86\* %PREFIX%\lib > nul
-    
+    %NEEDDEPENDS% %MSVC% appveyor DownloadFile https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
+    %NEEDDEPENDS% %MSVC% mkdir gettext-0.14.4-lib
+    %NEEDDEPENDS% %MSVC% move gettext-0.14.4-lib.zip gettext-0.14.4-lib
+    %NEEDDEPENDS% %MSVC% cd gettext-0.14.4-lib
+    %NEEDDEPENDS% %MSVC% 7z x gettext-0.14.4-lib.zip > nul
+    %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
+    %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
+    %NEEDDEPENDS% %MSVC% cd ..
+
   # Depends for MinGW32
   - |-
+    %NEEDDEPENDS% %MINGW32% if not exist "%MINGW_ARCHIVE%" appveyor DownloadFile "%MINGW_URL%" -FileName "%MINGW_ARCHIVE%"
+    %NEEDDEPENDS% %MINGW32% 7z x -y "%MINGW_ARCHIVE%" > nul
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
@@ -46,11 +60,9 @@ before_build:
 build_script:
   # build
   - |-
-    %MINGW% set PATH=c:\mingw\bin;%PATH%
     %MSVC% cd "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools"
     %MSVC% VSVARS32
-    %MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
-    
+    set PATH=%WINDBG_DIR%;%CD%\%MINGW_DIR%\bin;%CD%\%MINGW_DIR%;"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
