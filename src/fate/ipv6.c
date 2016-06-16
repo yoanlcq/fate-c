@@ -15,7 +15,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <Ws2tcpip.h>
-#ifndef IPPROTO_IPV6
+#if !defined(IPPROTO_IPV6) || (_WIN32_WINNT == 0x0500)
 #include <tpipv6.h>
 #endif
 #define FE_IPV6_SYSERR(code) WSA##code

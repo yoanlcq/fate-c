@@ -146,6 +146,9 @@
 #endif
 
 #if FE_TARGET_WINDOWS
+
+    #define WIN32_LEAN_AND_MEAN
+
     #ifdef _WIN32_WINNT
         #if _WIN32_WINNT < 0x0600
             #undef _WIN32_WINNT
