@@ -50,7 +50,7 @@ build_script:
     %MINGW% set PATH=c:\mingw\bin;%PATH%
 
     cd %APPVEYOR_BUILD_FOLDER%
-    make %MAKE_ARGS%
+    %MINGW% mingw32-make %MAKE_ARGS%
 
 after_build:
   - git status
