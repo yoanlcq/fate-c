@@ -39,6 +39,7 @@
 #ifndef FE_TCP6_H
 #define FE_TCP6_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
