@@ -380,9 +380,12 @@
  */
 #define COUNTOF(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
 
-#ifdef FE_TARGET_WINDOWS
+#ifdef _MSC_VER
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
+#endif
+
+#ifdef FE_TARGET_WINDOWS
 #define PRIssize_t "Id"
 #define PRIsize_t "Iu"
 #define PRIxsize_t "Ix"
