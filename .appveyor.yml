@@ -44,8 +44,8 @@ before_build:
     %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
     %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
     %NEEDDEPENDS% %MSVC% cd ..
-    %NEEDDEPENDS% %MSVC% set INCLUDE=%PREFIX\include;%INCLUDE%
-    %NEEDDEPENDS% %MSVC% set LIBPATH=%PREFIX\lib;%LIBPATH%
+    %NEEDDEPENDS% %MSVC% set INCLUDE=%PREFIX%\include;%INCLUDE%
+    %NEEDDEPENDS% %MSVC% set LIBPATH=%PREFIX%\lib;%LIBPATH%
 
   # Depends for MinGW32
   - |-
