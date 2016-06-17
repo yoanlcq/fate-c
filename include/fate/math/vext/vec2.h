@@ -95,7 +95,7 @@ typedef struct fe_vec2_coord fe_vec2_coord;
 
 #define fe_vec2_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
 #define fe_vec2_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
-#define fe_vec2_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_vec2_scale(r,v,s) ((*(r))=(*(v))*(s))
 #define fe_vec2_dot(a,b) fe_vec2_mul_inner(a,b)
 static inline float fe_vec2_mul_inner(const fe_vec2 *a, const fe_vec2 *b) {
     fe_vec2 v = (*a)*(*b);
@@ -108,8 +108,17 @@ static inline float fe_vec2_mul_inner(const fe_vec2 *a, const fe_vec2 *b) {
 /* No cross product for fe_vec2. */
 
 static inline void fe_vec2_reflect(fe_vec2 *r, const fe_vec2 *v, const fe_vec2 *n) {
+    /* GCC claims to be able to multiply by a scalar, but still throws errors
+     * like these with the latest MinGW - w64 :
+     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   {aka const __vector(4) double}' involves truncation
+     */
     const float p = 2*fe_vec2_mul_inner(v, n);
-    *r = (*v)-p*(*n);
+    fe_vec2 pv;
+    pv[0]=pv[1]=p;
+
+
+    *r = (*v)-pv*(*n);
 }
 
 #endif /* FE_MATH_VEXT_VEC2_H */

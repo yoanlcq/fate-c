@@ -105,7 +105,7 @@ typedef struct ns`'vec`'_coord ns`'vec`'_coord;
 
 #define ns`'vec`'_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
 #define ns`'vec`'_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
-#define ns`'vec`'_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define ns`'vec`'_scale(r,v,s) ((*(r))=(*(v))*(s))
 #define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
 static inline type ns`'vec`'_mul_inner(const ns`'vec *a, const ns`'vec *b) {
     ns`'vec v = (*a)*(*b);
@@ -149,8 +149,24 @@ static inline void ns`'vec`'p_mul_cross_naive(ns`'vec *r, const ns`'vec *a, cons
 )dnl
 
 static inline void ns`'vec`'_reflect(ns`'vec *r, const ns`'vec *v, const ns`'vec *n) {
+    /* GCC claims to be able to multiply by a scalar, but still throws errors
+     * like these with the latest MinGW - w64 :
+     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   {aka const __vector(4) double}' involves truncation
+     */
     const type p = 2*ns`'vec`'_mul_inner(v, n);
-    *r = (*v)-p*(*n);
+    ns`'vec pv;
+    ifelse(
+        dim, 4, pv[0]=pv[1]=pv[2]=pv[3]=p,
+        dim, 3, pv[0]=pv[1]=pv[2]=p,
+        dim, 2, pv[0]=pv[1]=p,
+        size_t i;
+        for(i=0 ; i<dim ; ++i)
+            pv[i] = p;
+    );
+
+
+    *r = (*v)-pv*(*n);
 }
 
 #endif /* PREFIX`'VEC`'_H */

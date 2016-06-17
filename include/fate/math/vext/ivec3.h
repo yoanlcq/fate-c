@@ -96,7 +96,7 @@ typedef struct fe_ivec3_coord fe_ivec3_coord;
 
 #define fe_ivec3_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
 #define fe_ivec3_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
-#define fe_ivec3_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_ivec3_scale(r,v,s) ((*(r))=(*(v))*(s))
 #define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(a,b)
 static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 *a, const fe_ivec3 *b) {
     fe_ivec3 v = (*a)*(*b);
@@ -128,8 +128,17 @@ static inline void fe_ivec3p_mul_cross_naive(fe_ivec3 *r, const fe_ivec3 *a, con
 }
 
 static inline void fe_ivec3_reflect(fe_ivec3 *r, const fe_ivec3 *v, const fe_ivec3 *n) {
+    /* GCC claims to be able to multiply by a scalar, but still throws errors
+     * like these with the latest MinGW - w64 :
+     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   {aka const __vector(4) double}' involves truncation
+     */
     const int32_t p = 2*fe_ivec3_mul_inner(v, n);
-    *r = (*v)-p*(*n);
+    fe_ivec3 pv;
+    pv[0]=pv[1]=pv[2]=p;
+
+
+    *r = (*v)-pv*(*n);
 }
 
 #endif /* FE_MATH_VEXT_IVEC3_H */

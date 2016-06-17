@@ -18,12 +18,14 @@ $(BUILDDIR)/$(GAME)_dbg/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs
 
 ifeq ($(OS),windows)
 ifeq ($(CC),cl)
-$(BUILDDIR)/$(GAME)/$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
-						  | dirs $(BUILDDIR)/$(GAME)/
+$(BUILDDIR)/$(GAME)$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
+						  | dirs
+	@$(call MKDIR_P,$(@D))
 	rc $(subst /,\\,$<) /fo $(subst /,\\,$@)
 else
 $(BUILDDIR)/$(GAME)/$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
-						  | dirs $(BUILDDIR)/$(GAME)/
+						  | dirs
+	@$(call MKDIR_P,$(@D))
 	windres $< -O coff -F $(WINDRES_TARGET) -o $@
 endif
 $(GAME)_OFILES     += $(BUILDDIR)/$(GAME)/$(GAME).res

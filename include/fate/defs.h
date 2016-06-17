@@ -295,8 +295,10 @@
  * \param fmt_index The index of the "format" parameter, starting from 1.
  * \param args_index The index of the "..." parameter, starting from 1.
  */
+/* We say __printf__ instead of printf because libintl.h may redefine printf as 
+ * _libintl_printf. */
 #define FE_PRINTF_DECL(fmt_index, args_index) \
-            __attribute__((format(printf, fmt_index, args_index)))
+            __attribute__((format(__printf__, fmt_index, args_index)))
 /*! \brief Instructs the compiler that some arguments to a function cannot be 
  *         NULL. 
  *
