@@ -61,6 +61,7 @@ build_script:
   # build
   - |-
     %MSVC% set PATH=c:\mingw\bin;%PATH%
+    %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
