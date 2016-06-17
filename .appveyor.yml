@@ -38,39 +38,38 @@ before_build:
 
   # Depends for MSVC
   - |-
-    %NEEDDEPENDS% %MSVC% set VS_DIR="C:\Program Files (x86)\Microsoft Visual Studio 14.0"
-    %NEEDDEPENDS% %MSVC% %VS_DIR%\Common7\Tools\vsvars32.bat
+    %MSVC% set VS_DIR="C:\Program Files (x86)\Microsoft Visual Studio 14.0"
+    %MSVC% %VS_DIR%\Common7\Tools\vsvars32.bat
     %NEEDDEPENDS% %MSVC% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\lib\x86\* %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MSVC% xcopy %PREFIX%\lib\* %VS_DIR%\VC\lib /s /e > nul
-    %NEEDDEPENDS% %MSVC% xcopy %PREFIX%\include\* %VS_DIR%\VC\include /s /e > nul
-    %NEEDDEPENDS% %MSVC% set PATH=c:\mingw\bin;%VS_DIR%\VC\bin;%PATH%
+    %MSVC% xcopy %PREFIX%\lib\* %VS_DIR%\VC\lib /s /e > nul
+    %MSVC% xcopy %PREFIX%\include\* %VS_DIR%\VC\include /s /e > nul
+    %MSVC% set PATH=c:\mingw\bin;%VS_DIR%\VC\bin;%PATH%
 
   # Depends for MinGW32
   - |-
-    %NEEDDEPENDS% %MINGW32% choco install -y mingw -x86 > nul
+    %MINGW32% choco install -y mingw -x86 > nul
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\include\SDL2\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\lib\*.a %PREFIX%\lib > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\bin\*.dll %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib /s /e > nul
-    %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\include\* c:\tools\mingw32\%MINGW32_ARCH%\include /s /e > nul
-    %NEEDDEPENDS% %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
-    %NEEDDEPENDS% %MINGW32% dir c:\tools
-    %NEEDDEPENDS% %MINGW32% dir c:\tools\mingw32
-    %NEEDDEPENDS% %MINGW32% dir c:\tools\mingw32\bin
+    %MINGW32% xcopy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib /s /e > nul
+    %MINGW32% xcopy %PREFIX%\include\* c:\tools\mingw32\%MINGW32_ARCH%\include /s /e > nul
+    %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
+    %MINGW32% dir c:\tools
+    %MINGW32% dir c:\tools\mingw32
+    %MINGW32% dir c:\tools\mingw32\bin
 
 
 build_script:
   # build
   - |-
     cd %APPVEYOR_BUILD_FOLDER%
-    %MSVC% c:\mingw\bin\mingw32-make %MAKE_ARGS%
-    %MINGW32% mingw32-make %MAKE_ARGS%
+    mingw32-make %MAKE_ARGS%
 
 after_build:
   - git status
