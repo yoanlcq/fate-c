@@ -60,6 +60,7 @@ before_build:
 build_script:
   # build
   - |-
+    %MSVC% set PATH=c:\mingw\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 
