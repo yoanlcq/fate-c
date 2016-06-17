@@ -18,7 +18,7 @@ $(BUILDDIR)/$(GAME)_dbg/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs
 
 ifeq ($(OS),windows)
 ifeq ($(CC),cl)
-$(BUILDDIR)/$(GAME)$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
+$(BUILDDIR)/$(GAME)/$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
 						  | dirs
 	@$(call MKDIR_P,$(@D))
 	rc $(subst /,\\,$<) /fo $(subst /,\\,$@)
