@@ -21,7 +21,7 @@ ifeq ($(CC),cl)
 $(BUILDDIR)/$(GAME)/$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
 						  | dirs
 	@$(call MKDIR_P,$(@D))
-	rc $(subst /,\\,$<) /fo $(subst /,\\,$@)
+	rc /nologo /fo $(subst /,\\,$@) $(subst /,\\,$<)
 else
 $(BUILDDIR)/$(GAME)/$(GAME).res:src/$(GAME)/$(GAME).rc src/$(GAME)/$(GAME).ico \
 						  | dirs

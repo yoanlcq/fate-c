@@ -97,7 +97,7 @@ inline bool fe_fs_setcwd(const char *path) {
  */
 
 #if defined(FE_TARGET_EMSCRIPTEN)
-inline bool fe_fs_exists(const char *path) {
+bool fe_fs_exists(const char *path) {
     FILE *file = fopen(path, "r");
     if(!file)
         return false;
@@ -105,7 +105,7 @@ inline bool fe_fs_exists(const char *path) {
     return true;
 }
 #elif defined(FE_TARGET_WINDOWS)
-inline bool fe_fs_exists(const char *path) {
+bool fe_fs_exists(const char *path) {
     return GetFileAttributes(path) != INVALID_FILE_ATTRIBUTES;
 }
 #else

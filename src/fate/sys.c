@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <inttypes.h>
 #include <fate/defs.h>
 #include <fate/globalstate.h>
 #include <fate/sys.h>
@@ -288,7 +289,7 @@ void fe_sys_log_win32_error(fe_logfunc logfunc,
         (LPSTR) &lpMsgBuf,
         0, NULL);
 
-    logfunc(TAG, "%s failed with error %d : %s", funcstr, error, lpMsgBuf);
+    logfunc(TAG, "%s failed with error %lu : %s", funcstr, error, lpMsgBuf);
 
     LocalFree(lpMsgBuf);
 }
@@ -305,7 +306,6 @@ static void fe_sys_log_stacktrace_win32(
     SYMBOL_INFO *symbol;
     HANDLE process;
     HMODULE modhandle;
-    BOOL retval;
 
     process = GetCurrentProcess();
     if(!SymInitialize(process, NULL, TRUE)) {
@@ -352,18 +352,18 @@ static void fe_sys_log_stacktrace_win32(
         IMAGEHLP_LINE64 line;
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
         if(SymGetLineFromAddr64(process, stack[i], &col, &line))
-            logfunc(TAG, "(%s:%u:%u) ", line.FileName, line.LineNumber, col);
+            logfunc(TAG, "(%s:%lu:%lu) ", line.FileName, line.LineNumber, col);
         else {
             DWORD err = GetLastError();
             if(err != 487)
                 fe_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
         }
 
-        logfunc(TAG, "[0x%llx] ", symbol->Address);
+        logfunc(TAG, "[0x%"PRIx64"] ", symbol->Address);
         if(symbol->MaxNameLen > 0)
             logfunc(TAG, "(%s)", symbol->Name);
         if(symbol->Flags & SYMFLAG_VALUEPRESENT)
-            logfunc(TAG, "(Value : 0x%llx)", symbol->Value);
+            logfunc(TAG, "(Value : 0x%"PRIx64")", symbol->Value);
         logfunc(TAG, "\r\n");
     }
 
@@ -478,10 +478,10 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
                           ep->ExceptionRecord->ExceptionInformation[0]
                               ? "write to" : "read");
         fe_loge(TAG, "at %p", 
-                      ep->ExceptionRecord->ExceptionInformation[1]);
+                      (void*)ep->ExceptionRecord->ExceptionInformation[1]);
         if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
             fe_loge(TAG, ", NTSTATUS code is %p", 
-                          ep->ExceptionRecord->ExceptionInformation[2]);
+                          (void*)ep->ExceptionRecord->ExceptionInformation[2]);
         fe_loge(TAG, ")\r\n");
     }
 

@@ -397,8 +397,6 @@ typedef SSIZE_T ssize_t;
 #define PRIxsize_t "zx"
 #endif
 
-
-
 /*! @} */
 
 #endif /* FE_DEFS_H */
