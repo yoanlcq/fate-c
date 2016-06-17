@@ -38,16 +38,15 @@ before_build:
 
   # Depends for MSVC
   - |-
-    %NEEDDEPENDS% %MSVC% cd "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools"
-    %NEEDDEPENDS% %MSVC% VSVARS32
-    %NEEDDEPENDS% %MSVC% set PATH="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin";%PATH%
+    %NEEDDEPENDS% %MSVC% set VS_DIR="C:\Program Files (x86)\Microsoft Visual Studio 14.0"
+    %NEEDDEPENDS% %MSVC% %VS_DIR%\Common7\Tools\vsvars32.bat
     %NEEDDEPENDS% %MSVC% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\lib\x86\* %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MSVC% set INCLUDE="%PREFIX%\include;%INCLUDE%"
-    %NEEDDEPENDS% %MSVC% set LIBPATH="%PREFIX%\lib;%LIBPATH%"
-    %NEEDDEPENDS% %MSVC% set PATH="c:\mingw\bin;%PATH%"
+    %NEEDDEPENDS% %MSVC% xcopy %PREFIX%\lib\* %VS_DIR%\VC\lib /s /e > nul
+    %NEEDDEPENDS% %MSVC% xcopy %PREFIX%\include\* %VS_DIR%\VC\include /s /e > nul
+    %NEEDDEPENDS% %MSVC% set PATH=c:\mingw\bin;%VS_DIR%\VC\bin;%PATH%
 
   # Depends for MinGW32
   - |-
