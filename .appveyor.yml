@@ -51,15 +51,15 @@ before_build:
 
   # Depends for MinGW32
   - |-
-    %NEEDDEPENDS% %MINGW32% choco install -y mingw -x86
+    %NEEDDEPENDS% %MINGW32% choco install -y mingw -x86 > nul
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\include\SDL2\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\lib\*.a %PREFIX%\lib > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\bin\*.dll %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MINGW32% copy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib
-    %NEEDDEPENDS% %MINGW32% robocopy %PREFIX%\include c:\tools\mingw32\%MINGW32_ARCH%\include /S
+    %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib /s /e > nul
+    %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\include\* c:\tools\mingw32\%MINGW32_ARCH%\include /s /e > nul
     %NEEDDEPENDS% %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
 
 
