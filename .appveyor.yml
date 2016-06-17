@@ -45,9 +45,9 @@ before_build:
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\lib\x86\* %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MSVC% set INCLUDE=%PREFIX%\include;%INCLUDE%
-    %NEEDDEPENDS% %MSVC% set LIBPATH=%PREFIX%\lib;%LIBPATH%
-    %NEEDDEPENDS% %MSVC% set PATH=c:\mingw\bin;%PATH%
+    %NEEDDEPENDS% %MSVC% set INCLUDE="%PREFIX%\include;%INCLUDE%"
+    %NEEDDEPENDS% %MSVC% set LIBPATH="%PREFIX%\lib;%LIBPATH%"
+    %NEEDDEPENDS% %MSVC% set PATH="c:\mingw\bin;%PATH%"
 
   # Depends for MinGW32
   - |-
