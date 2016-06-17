@@ -60,13 +60,17 @@ before_build:
     %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib /s /e > nul
     %NEEDDEPENDS% %MINGW32% xcopy %PREFIX%\include\* c:\tools\mingw32\%MINGW32_ARCH%\include /s /e > nul
     %NEEDDEPENDS% %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
+    %NEEDDEPENDS% %MINGW32% dir c:\tools
+    %NEEDDEPENDS% %MINGW32% dir c:\tools\mingw32
+    %NEEDDEPENDS% %MINGW32% dir c:\tools\mingw32\bin
 
 
 build_script:
   # build
   - |-
     cd %APPVEYOR_BUILD_FOLDER%
-    c:\mingw\bin\mingw32-make %MAKE_ARGS%
+    %MSVC% c:\mingw\bin\mingw32-make %MAKE_ARGS%
+    %MINGW32% mingw32-make %MAKE_ARGS%
 
 after_build:
   - git status
