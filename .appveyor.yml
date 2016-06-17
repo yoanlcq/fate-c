@@ -26,6 +26,15 @@ before_build:
     %NEEDDEPENDS% mkdir %PREFIX%\include\SDL2
     %NEEDDEPENDS% mkdir %PREFIX%\lib
     %NEEDDEPENDS% cd %TEMP%
+    %NEEDDEPENDS% appveyor DownloadFile https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
+    %NEEDDEPENDS% mkdir gettext-0.14.4-lib
+    %NEEDDEPENDS% move gettext-0.14.4-lib.zip gettext-0.14.4-lib
+    %NEEDDEPENDS% cd gettext-0.14.4-lib
+    %NEEDDEPENDS% 7z x gettext-0.14.4-lib.zip > nul
+    %NEEDDEPENDS% copy include\* %PREFIX%\include > nul
+    %NEEDDEPENDS% copy lib\* %PREFIX%\lib > nul
+    %NEEDDEPENDS% cd ..
+
 
   # Depends for MSVC
   - |-
@@ -36,16 +45,9 @@ before_build:
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\lib\x86\* %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MSVC% appveyor DownloadFile https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
-    %NEEDDEPENDS% %MSVC% mkdir gettext-0.14.4-lib
-    %NEEDDEPENDS% %MSVC% move gettext-0.14.4-lib.zip gettext-0.14.4-lib
-    %NEEDDEPENDS% %MSVC% cd gettext-0.14.4-lib
-    %NEEDDEPENDS% %MSVC% 7z x gettext-0.14.4-lib.zip > nul
-    %NEEDDEPENDS% %MSVC% copy include\* %PREFIX%\include > nul
-    %NEEDDEPENDS% %MSVC% copy lib\* %PREFIX%\lib > nul
-    %NEEDDEPENDS% %MSVC% cd ..
     %NEEDDEPENDS% %MSVC% set INCLUDE=%PREFIX%\include;%INCLUDE%
     %NEEDDEPENDS% %MSVC% set LIBPATH=%PREFIX%\lib;%LIBPATH%
+    %NEEDDEPENDS% %MSVC% set PATH=c:\mingw\bin;%PATH%
 
   # Depends for MinGW32
   - |-
@@ -56,12 +58,14 @@ before_build:
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\include\SDL2\* %PREFIX%\include\SDL2 > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\lib\*.a %PREFIX%\lib > nul
     %NEEDDEPENDS% %MINGW32% copy SDL2-2.0.4\%MINGW32_ARCH%\bin\*.dll %PREFIX%\lib > nul
+    %NEEDDEPENDS% %MINGW32% copy %PREFIX%\lib\* c:\tools\mingw32\%MINGW32_ARCH%\lib
+    %NEEDDEPENDS% %MINGW32% robocopy %PREFIX%\include c:\tools\mingw32\%MINGW32_ARCH%\include /S
+    %NEEDDEPENDS% %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
+
 
 build_script:
   # build
   - |-
-    %MSVC% set PATH=c:\mingw\bin;%PATH%
-    %MINGW32% set PATH=c:\tools\mingw32\bin;%PATH%
     cd %APPVEYOR_BUILD_FOLDER%
     mingw32-make %MAKE_ARGS%
 

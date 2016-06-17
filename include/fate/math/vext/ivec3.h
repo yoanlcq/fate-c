@@ -94,10 +94,10 @@ typedef struct fe_ivec3_coord fe_ivec3_coord;
 #define fe_ivec3_as_color(v) ((fe_ivec3_color*)fe_ivec3_as_array(v))
 #define fe_ivec3_as_coord(v) ((fe_ivec3_coord*)fe_ivec3_as_array(v))
 
-#define fe_ivec3_add(s,a,b)   ((s)=(a)+(b))
-#define fe_ivec3_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_ivec3_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(&a,&b)
+#define fe_ivec3_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_ivec3_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_ivec3_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_ivec3_dot(a,b) fe_ivec3_mul_inner(a,b)
 static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 *a, const fe_ivec3 *b) {
     fe_ivec3 v = (*a)*(*b);
     return v[0]+v[1]+v[2];
@@ -107,30 +107,29 @@ static inline int32_t fe_ivec3_mul_inner(const fe_ivec3 *a, const fe_ivec3 *b) {
 #define fe_ivec3_norm(r,v) fe_ivec3_scale(r, v, 1./fe_ivec3_len(v))
 
 /* TODO benchmark me */
-#define fe_ivec3_mul_cross(r,a,b) fe_ivec3p_mul_cross(&(r),a,b)
+#define fe_ivec3_mul_cross(r,a,b) fe_ivec3p_mul_cross(r,a,b)
 #define fe_ivec3_cross(r,a,b)     fe_ivec3_mul_cross(r,a,b)
-static inline void fe_ivec3p_mul_cross(fe_ivec3 *r, const fe_ivec3 a, const fe_ivec3 b) {
-    const fe_ivec3 la = fe_ivec3_shuffle(a, 1, 2, 0, 0);
-    const fe_ivec3 rb = fe_ivec3_shuffle(b, 1, 2, 0, 0);
-    const fe_ivec3 lb = fe_ivec3_shuffle(b, 2, 0, 1, 0);
-    const fe_ivec3 ra = fe_ivec3_shuffle(a, 2, 0, 1, 0);
+static inline void fe_ivec3p_mul_cross(fe_ivec3 *r, const fe_ivec3 *a, const fe_ivec3 *b) {
+    const fe_ivec3 la = fe_ivec3_shuffle(*a, 1, 2, 0, 0);
+    const fe_ivec3 rb = fe_ivec3_shuffle(*b, 1, 2, 0, 0);
+    const fe_ivec3 lb = fe_ivec3_shuffle(*b, 2, 0, 1, 0);
+    const fe_ivec3 ra = fe_ivec3_shuffle(*a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     
 }
 
 /* TODO should be discarded if proven to be less efficient. */
 #define fe_ivec3_mul_cross_naive(r,a,b) fe_ivec3p_mul_cross_naive(&(r),a,b)
-static inline void fe_ivec3p_mul_cross_naive(fe_ivec3 *r, const fe_ivec3 a, const fe_ivec3 b) {
-    (*r)[0] = a[1]*b[2] - a[2]*b[1];
-    (*r)[1] = a[2]*b[0] - a[0]*b[2];
-    (*r)[2] = a[0]*b[1] - a[1]*b[0];
+static inline void fe_ivec3p_mul_cross_naive(fe_ivec3 *r, const fe_ivec3 *a, const fe_ivec3 *b) {
+    (*r)[0] = (*a)[1]*(*b)[2] - (*a)[2]*(*b)[1];
+    (*r)[1] = (*a)[2]*(*b)[0] - (*a)[0]*(*b)[2];
+    (*r)[2] = (*a)[0]*(*b)[1] - (*a)[1]*(*b)[0];
     
 }
 
-#define fe_ivec3_reflect(r,v,n) fe_ivec3p_reflect(&r,v,n)
-static inline void fe_ivec3p_reflect(fe_ivec3 *r, const fe_ivec3 v, const fe_ivec3 n) {
+static inline void fe_ivec3_reflect(fe_ivec3 *r, const fe_ivec3 *v, const fe_ivec3 *n) {
     const int32_t p = 2*fe_ivec3_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_IVEC3_H */

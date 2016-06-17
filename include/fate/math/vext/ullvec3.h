@@ -94,10 +94,10 @@ typedef struct fe_ullvec3_coord fe_ullvec3_coord;
 #define fe_ullvec3_as_color(v) ((fe_ullvec3_color*)fe_ullvec3_as_array(v))
 #define fe_ullvec3_as_coord(v) ((fe_ullvec3_coord*)fe_ullvec3_as_array(v))
 
-#define fe_ullvec3_add(s,a,b)   ((s)=(a)+(b))
-#define fe_ullvec3_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_ullvec3_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ullvec3_dot(a,b) fe_ullvec3_mul_inner(&a,&b)
+#define fe_ullvec3_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_ullvec3_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_ullvec3_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_ullvec3_dot(a,b) fe_ullvec3_mul_inner(a,b)
 static inline uint64_t fe_ullvec3_mul_inner(const fe_ullvec3 *a, const fe_ullvec3 *b) {
     fe_ullvec3 v = (*a)*(*b);
     return v[0]+v[1]+v[2];
@@ -107,30 +107,29 @@ static inline uint64_t fe_ullvec3_mul_inner(const fe_ullvec3 *a, const fe_ullvec
 #define fe_ullvec3_norm(r,v) fe_ullvec3_scale(r, v, 1./fe_ullvec3_len(v))
 
 /* TODO benchmark me */
-#define fe_ullvec3_mul_cross(r,a,b) fe_ullvec3p_mul_cross(&(r),a,b)
+#define fe_ullvec3_mul_cross(r,a,b) fe_ullvec3p_mul_cross(r,a,b)
 #define fe_ullvec3_cross(r,a,b)     fe_ullvec3_mul_cross(r,a,b)
-static inline void fe_ullvec3p_mul_cross(fe_ullvec3 *r, const fe_ullvec3 a, const fe_ullvec3 b) {
-    const fe_ullvec3 la = fe_ullvec3_shuffle(a, 1, 2, 0, 0);
-    const fe_ullvec3 rb = fe_ullvec3_shuffle(b, 1, 2, 0, 0);
-    const fe_ullvec3 lb = fe_ullvec3_shuffle(b, 2, 0, 1, 0);
-    const fe_ullvec3 ra = fe_ullvec3_shuffle(a, 2, 0, 1, 0);
+static inline void fe_ullvec3p_mul_cross(fe_ullvec3 *r, const fe_ullvec3 *a, const fe_ullvec3 *b) {
+    const fe_ullvec3 la = fe_ullvec3_shuffle(*a, 1, 2, 0, 0);
+    const fe_ullvec3 rb = fe_ullvec3_shuffle(*b, 1, 2, 0, 0);
+    const fe_ullvec3 lb = fe_ullvec3_shuffle(*b, 2, 0, 1, 0);
+    const fe_ullvec3 ra = fe_ullvec3_shuffle(*a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     
 }
 
 /* TODO should be discarded if proven to be less efficient. */
 #define fe_ullvec3_mul_cross_naive(r,a,b) fe_ullvec3p_mul_cross_naive(&(r),a,b)
-static inline void fe_ullvec3p_mul_cross_naive(fe_ullvec3 *r, const fe_ullvec3 a, const fe_ullvec3 b) {
-    (*r)[0] = a[1]*b[2] - a[2]*b[1];
-    (*r)[1] = a[2]*b[0] - a[0]*b[2];
-    (*r)[2] = a[0]*b[1] - a[1]*b[0];
+static inline void fe_ullvec3p_mul_cross_naive(fe_ullvec3 *r, const fe_ullvec3 *a, const fe_ullvec3 *b) {
+    (*r)[0] = (*a)[1]*(*b)[2] - (*a)[2]*(*b)[1];
+    (*r)[1] = (*a)[2]*(*b)[0] - (*a)[0]*(*b)[2];
+    (*r)[2] = (*a)[0]*(*b)[1] - (*a)[1]*(*b)[0];
     
 }
 
-#define fe_ullvec3_reflect(r,v,n) fe_ullvec3p_reflect(&r,v,n)
-static inline void fe_ullvec3p_reflect(fe_ullvec3 *r, const fe_ullvec3 v, const fe_ullvec3 n) {
+static inline void fe_ullvec3_reflect(fe_ullvec3 *r, const fe_ullvec3 *v, const fe_ullvec3 *n) {
     const uint64_t p = 2*fe_ullvec3_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_ULLVEC3_H */

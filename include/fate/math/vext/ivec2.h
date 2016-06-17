@@ -93,10 +93,10 @@ typedef struct fe_ivec2_coord fe_ivec2_coord;
 #define fe_ivec2_as_color(v) ((fe_ivec2_color*)fe_ivec2_as_array(v))
 #define fe_ivec2_as_coord(v) ((fe_ivec2_coord*)fe_ivec2_as_array(v))
 
-#define fe_ivec2_add(s,a,b)   ((s)=(a)+(b))
-#define fe_ivec2_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_ivec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ivec2_dot(a,b) fe_ivec2_mul_inner(&a,&b)
+#define fe_ivec2_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_ivec2_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_ivec2_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_ivec2_dot(a,b) fe_ivec2_mul_inner(a,b)
 static inline int32_t fe_ivec2_mul_inner(const fe_ivec2 *a, const fe_ivec2 *b) {
     fe_ivec2 v = (*a)*(*b);
     return v[0]+v[1];
@@ -107,10 +107,9 @@ static inline int32_t fe_ivec2_mul_inner(const fe_ivec2 *a, const fe_ivec2 *b) {
 
 /* No cross product for fe_ivec2. */
 
-#define fe_ivec2_reflect(r,v,n) fe_ivec2p_reflect(&r,v,n)
-static inline void fe_ivec2p_reflect(fe_ivec2 *r, const fe_ivec2 v, const fe_ivec2 n) {
+static inline void fe_ivec2_reflect(fe_ivec2 *r, const fe_ivec2 *v, const fe_ivec2 *n) {
     const int32_t p = 2*fe_ivec2_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_IVEC2_H */

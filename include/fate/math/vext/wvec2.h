@@ -93,10 +93,10 @@ typedef struct fe_wvec2_coord fe_wvec2_coord;
 #define fe_wvec2_as_color(v) ((fe_wvec2_color*)fe_wvec2_as_array(v))
 #define fe_wvec2_as_coord(v) ((fe_wvec2_coord*)fe_wvec2_as_array(v))
 
-#define fe_wvec2_add(s,a,b)   ((s)=(a)+(b))
-#define fe_wvec2_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_wvec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_wvec2_dot(a,b) fe_wvec2_mul_inner(&a,&b)
+#define fe_wvec2_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_wvec2_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_wvec2_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_wvec2_dot(a,b) fe_wvec2_mul_inner(a,b)
 static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 *a, const fe_wvec2 *b) {
     fe_wvec2 v = (*a)*(*b);
     return v[0]+v[1];
@@ -107,10 +107,9 @@ static inline fe_space_unit fe_wvec2_mul_inner(const fe_wvec2 *a, const fe_wvec2
 
 /* No cross product for fe_wvec2. */
 
-#define fe_wvec2_reflect(r,v,n) fe_wvec2p_reflect(&r,v,n)
-static inline void fe_wvec2p_reflect(fe_wvec2 *r, const fe_wvec2 v, const fe_wvec2 n) {
+static inline void fe_wvec2_reflect(fe_wvec2 *r, const fe_wvec2 *v, const fe_wvec2 *n) {
     const fe_space_unit p = 2*fe_wvec2_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_WVEC2_H */

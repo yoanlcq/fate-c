@@ -93,10 +93,10 @@ typedef struct fe_vec2_coord fe_vec2_coord;
 #define fe_vec2_as_color(v) ((fe_vec2_color*)fe_vec2_as_array(v))
 #define fe_vec2_as_coord(v) ((fe_vec2_coord*)fe_vec2_as_array(v))
 
-#define fe_vec2_add(s,a,b)   ((s)=(a)+(b))
-#define fe_vec2_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_vec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_vec2_dot(a,b) fe_vec2_mul_inner(&a,&b)
+#define fe_vec2_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_vec2_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_vec2_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_vec2_dot(a,b) fe_vec2_mul_inner(a,b)
 static inline float fe_vec2_mul_inner(const fe_vec2 *a, const fe_vec2 *b) {
     fe_vec2 v = (*a)*(*b);
     return v[0]+v[1];
@@ -107,10 +107,9 @@ static inline float fe_vec2_mul_inner(const fe_vec2 *a, const fe_vec2 *b) {
 
 /* No cross product for fe_vec2. */
 
-#define fe_vec2_reflect(r,v,n) fe_vec2p_reflect(&r,v,n)
-static inline void fe_vec2p_reflect(fe_vec2 *r, const fe_vec2 v, const fe_vec2 n) {
+static inline void fe_vec2_reflect(fe_vec2 *r, const fe_vec2 *v, const fe_vec2 *n) {
     const float p = 2*fe_vec2_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_VEC2_H */

@@ -93,10 +93,10 @@ typedef struct fe_ullvec2_coord fe_ullvec2_coord;
 #define fe_ullvec2_as_color(v) ((fe_ullvec2_color*)fe_ullvec2_as_array(v))
 #define fe_ullvec2_as_coord(v) ((fe_ullvec2_coord*)fe_ullvec2_as_array(v))
 
-#define fe_ullvec2_add(s,a,b)   ((s)=(a)+(b))
-#define fe_ullvec2_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_ullvec2_scale(r,v,s) ((r)=(v)*(s))
-#define fe_ullvec2_dot(a,b) fe_ullvec2_mul_inner(&a,&b)
+#define fe_ullvec2_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_ullvec2_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_ullvec2_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_ullvec2_dot(a,b) fe_ullvec2_mul_inner(a,b)
 static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 *a, const fe_ullvec2 *b) {
     fe_ullvec2 v = (*a)*(*b);
     return v[0]+v[1];
@@ -107,10 +107,9 @@ static inline uint64_t fe_ullvec2_mul_inner(const fe_ullvec2 *a, const fe_ullvec
 
 /* No cross product for fe_ullvec2. */
 
-#define fe_ullvec2_reflect(r,v,n) fe_ullvec2p_reflect(&r,v,n)
-static inline void fe_ullvec2p_reflect(fe_ullvec2 *r, const fe_ullvec2 v, const fe_ullvec2 n) {
+static inline void fe_ullvec2_reflect(fe_ullvec2 *r, const fe_ullvec2 *v, const fe_ullvec2 *n) {
     const uint64_t p = 2*fe_ullvec2_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_ULLVEC2_H */

@@ -103,10 +103,10 @@ typedef struct ns`'vec`'_coord ns`'vec`'_coord;
 #define ns`'vec`'_as_color(v) ((ns`'vec`'_color*)ns`'vec`'_as_array(v))
 #define ns`'vec`'_as_coord(v) ((ns`'vec`'_coord*)ns`'vec`'_as_array(v))
 
-#define ns`'vec`'_add(s,a,b)   ((s)=(a)+(b))
-#define ns`'vec`'_sub(s,a,b)   ((s)=(a)-(b))
-#define ns`'vec`'_scale(r,v,s) ((r)=(v)*(s))
-#define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(&a,&b)
+#define ns`'vec`'_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define ns`'vec`'_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define ns`'vec`'_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
 static inline type ns`'vec`'_mul_inner(const ns`'vec *a, const ns`'vec *b) {
     ns`'vec v = (*a)*(*b);
     ifelse(
@@ -126,32 +126,31 @@ static inline type ns`'vec`'_mul_inner(const ns`'vec *a, const ns`'vec *b) {
 
 ifelse(eval(dim>=3),1,
 /* TODO benchmark me */
-#define ns`'vec`'_mul_cross(r,a,b) ns`'vec`'p_mul_cross(&(r),a,b)
+#define ns`'vec`'_mul_cross(r,a,b) ns`'vec`'p_mul_cross(r,a,b)
 #define ns`'vec`'_cross(r,a,b)     ns`'vec`'_mul_cross(r,a,b)
-static inline void ns`'vec`'p_mul_cross(ns`'vec *r, const ns`'vec a, const ns`'vec b) {
-    const ns`'vec la = ns`'vec`'_shuffle(a, 1, 2, 0, 0);
-    const ns`'vec rb = ns`'vec`'_shuffle(b, 1, 2, 0, 0);
-    const ns`'vec lb = ns`'vec`'_shuffle(b, 2, 0, 1, 0);
-    const ns`'vec ra = ns`'vec`'_shuffle(a, 2, 0, 1, 0);
+static inline void ns`'vec`'p_mul_cross(ns`'vec *r, const ns`'vec *a, const ns`'vec *b) {
+    const ns`'vec la = ns`'vec`'_shuffle(*a, 1, 2, 0, 0);
+    const ns`'vec rb = ns`'vec`'_shuffle(*b, 1, 2, 0, 0);
+    const ns`'vec lb = ns`'vec`'_shuffle(*b, 2, 0, 1, 0);
+    const ns`'vec ra = ns`'vec`'_shuffle(*a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     ifelse(eval(dim==4),1,(*r)[3] = 1;)
 }
 
 /* TODO should be discarded if proven to be less efficient. */
 #define ns`'vec`'_mul_cross_naive(r,a,b) ns`'vec`'p_mul_cross_naive(&(r),a,b)
-static inline void ns`'vec`'p_mul_cross_naive(ns`'vec *r, const ns`'vec a, const ns`'vec b) {
-    (*r)[0] = a[1]*b[2] - a[2]*b[1];
-    (*r)[1] = a[2]*b[0] - a[0]*b[2];
-    (*r)[2] = a[0]*b[1] - a[1]*b[0];
+static inline void ns`'vec`'p_mul_cross_naive(ns`'vec *r, const ns`'vec *a, const ns`'vec *b) {
+    (*r)[0] = (*a)[1]*(*b)[2] - (*a)[2]*(*b)[1];
+    (*r)[1] = (*a)[2]*(*b)[0] - (*a)[0]*(*b)[2];
+    (*r)[2] = (*a)[0]*(*b)[1] - (*a)[1]*(*b)[0];
     ifelse(eval(dim==4),1,(*r)[3] = 1;)
 }
 ,/* No cross product for ns`'vec. */
 )dnl
 
-#define ns`'vec`'_reflect(r,v,n) ns`'vec`'p_reflect(&r,v,n)
-static inline void ns`'vec`'p_reflect(ns`'vec *r, const ns`'vec v, const ns`'vec n) {
+static inline void ns`'vec`'_reflect(ns`'vec *r, const ns`'vec *v, const ns`'vec *n) {
     const type p = 2*ns`'vec`'_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* PREFIX`'VEC`'_H */

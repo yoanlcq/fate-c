@@ -93,10 +93,10 @@ typedef struct fe_dvec4_coord fe_dvec4_coord;
 #define fe_dvec4_as_color(v) ((fe_dvec4_color*)fe_dvec4_as_array(v))
 #define fe_dvec4_as_coord(v) ((fe_dvec4_coord*)fe_dvec4_as_array(v))
 
-#define fe_dvec4_add(s,a,b)   ((s)=(a)+(b))
-#define fe_dvec4_sub(s,a,b)   ((s)=(a)-(b))
-#define fe_dvec4_scale(r,v,s) ((r)=(v)*(s))
-#define fe_dvec4_dot(a,b) fe_dvec4_mul_inner(&a,&b)
+#define fe_dvec4_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
+#define fe_dvec4_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
+#define fe_dvec4_scale(r,v,s) ((*(r))=(*(v))*(*(s)))
+#define fe_dvec4_dot(a,b) fe_dvec4_mul_inner(a,b)
 static inline double fe_dvec4_mul_inner(const fe_dvec4 *a, const fe_dvec4 *b) {
     fe_dvec4 v = (*a)*(*b);
     return v[0]+v[1]+v[2]+v[3];
@@ -106,30 +106,29 @@ static inline double fe_dvec4_mul_inner(const fe_dvec4 *a, const fe_dvec4 *b) {
 #define fe_dvec4_norm(r,v) fe_dvec4_scale(r, v, 1./fe_dvec4_len(v))
 
 /* TODO benchmark me */
-#define fe_dvec4_mul_cross(r,a,b) fe_dvec4p_mul_cross(&(r),a,b)
+#define fe_dvec4_mul_cross(r,a,b) fe_dvec4p_mul_cross(r,a,b)
 #define fe_dvec4_cross(r,a,b)     fe_dvec4_mul_cross(r,a,b)
-static inline void fe_dvec4p_mul_cross(fe_dvec4 *r, const fe_dvec4 a, const fe_dvec4 b) {
-    const fe_dvec4 la = fe_dvec4_shuffle(a, 1, 2, 0, 0);
-    const fe_dvec4 rb = fe_dvec4_shuffle(b, 1, 2, 0, 0);
-    const fe_dvec4 lb = fe_dvec4_shuffle(b, 2, 0, 1, 0);
-    const fe_dvec4 ra = fe_dvec4_shuffle(a, 2, 0, 1, 0);
+static inline void fe_dvec4p_mul_cross(fe_dvec4 *r, const fe_dvec4 *a, const fe_dvec4 *b) {
+    const fe_dvec4 la = fe_dvec4_shuffle(*a, 1, 2, 0, 0);
+    const fe_dvec4 rb = fe_dvec4_shuffle(*b, 1, 2, 0, 0);
+    const fe_dvec4 lb = fe_dvec4_shuffle(*b, 2, 0, 1, 0);
+    const fe_dvec4 ra = fe_dvec4_shuffle(*a, 2, 0, 1, 0);
     *r = la*lb - ra*rb;
     (*r)[3] = 1;
 }
 
 /* TODO should be discarded if proven to be less efficient. */
 #define fe_dvec4_mul_cross_naive(r,a,b) fe_dvec4p_mul_cross_naive(&(r),a,b)
-static inline void fe_dvec4p_mul_cross_naive(fe_dvec4 *r, const fe_dvec4 a, const fe_dvec4 b) {
-    (*r)[0] = a[1]*b[2] - a[2]*b[1];
-    (*r)[1] = a[2]*b[0] - a[0]*b[2];
-    (*r)[2] = a[0]*b[1] - a[1]*b[0];
+static inline void fe_dvec4p_mul_cross_naive(fe_dvec4 *r, const fe_dvec4 *a, const fe_dvec4 *b) {
+    (*r)[0] = (*a)[1]*(*b)[2] - (*a)[2]*(*b)[1];
+    (*r)[1] = (*a)[2]*(*b)[0] - (*a)[0]*(*b)[2];
+    (*r)[2] = (*a)[0]*(*b)[1] - (*a)[1]*(*b)[0];
     (*r)[3] = 1;
 }
 
-#define fe_dvec4_reflect(r,v,n) fe_dvec4p_reflect(&r,v,n)
-static inline void fe_dvec4p_reflect(fe_dvec4 *r, const fe_dvec4 v, const fe_dvec4 n) {
+static inline void fe_dvec4_reflect(fe_dvec4 *r, const fe_dvec4 *v, const fe_dvec4 *n) {
     const double p = 2*fe_dvec4_mul_inner(v, n);
-    *r = v-p*n;
+    *r = (*v)-p*(*n);
 }
 
 #endif /* FE_MATH_VEXT_DVEC4_H */
