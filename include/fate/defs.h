@@ -390,11 +390,15 @@ typedef SSIZE_T ssize_t;
 #ifdef FE_TARGET_WINDOWS
 #define PRIssize_t "Id"
 #define PRIsize_t "Iu"
+#define PRIosize_t "Io"
 #define PRIxsize_t "Ix"
+#define PRIXsize_t "IX"
 #else
 #define PRIssize_t "zd"
 #define PRIsize_t "zu"
+#define PRIosize_t "zo"
 #define PRIxsize_t "zx"
+#define PRIXsize_t "zX"
 #endif
 
 /*! @} */

@@ -44,3 +44,4 @@ $($(GAME)_DBG): $(FATE_DBG_OFILES) $($(GAME)_DBG_OFILES)
 	$(MOVEPDB)
 
 GAMES += $($(GAME)) $($(GAME)_DBG)
+
