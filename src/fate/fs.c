@@ -16,7 +16,9 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <unistd.h>
+#ifndef FE_TARGET_ANDROID
 #include <execinfo.h>
+#endif
 #elif defined(FE_TARGET_FREEBSD)
 #include <limits.h>
 #include <sys/types.h>

@@ -119,14 +119,14 @@ void fe_logc(const char *tag, const char *fmt, ...) {
     log_helper(stderr, ERROR);
 
 #ifdef FE_TARGET_EMSCRIPTEN
-    const char *errstr = _("F.A.T.E has encountered an error "
-                           "from which it cannot recover.");
+    const char *errstr = "F.A.T.E has encountered an error "
+                           "from which it cannot recover.";
     assert((strlen(errstr)+12) < 512);
     char script[512+sizeof(message)];
     snprintf(script, sizeof(script), "alert('%s\n%s');", errstr, message);
     emscripten_run_script(script);
 #else
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        _("F.A.T.E internal error"), message, NULL);
+        "F.A.T.E internal error", message, NULL);
 #endif
 }

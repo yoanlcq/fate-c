@@ -97,7 +97,7 @@
 #ifndef FE_I18N_H
 #define FE_I18N_H
 
-#include <libintl.h>
+//#include <libintl.h>
 #include <locale.h>
 
 #ifndef FE_NO_I18N

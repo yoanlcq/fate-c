@@ -167,4 +167,47 @@ int main(int argc, char *argv[]) {
  *        The user can choose whether they should be jammed together
  *        or arranged within directories. The engine can be instructed
  *        to includes sources.);
+ *
+ * FATE utilities :
+ *  fate-setup-android
+ *  fate-setup-ios
+ *  fate-setup-windows
+ *  fate-setup-linux
+ *  fate-setup-osx
+ *  fate-setup-emscripten
+ *  fate-create-multiverse # Create a template multiverse
+ *  fate-build-android
+ *  fate-build-ios
+ *  fate-build-windows32-msvc
+ *  fate-build-windows64-msvc
+ *  fate-build-windows32-gcc
+ *  fate-build-windows64-gcc
+ *  fate-build-windows32-clang
+ *  fate-build-windows64-clang
+ *  fate-build-linux32-gcc
+ *  fate-build-linux64-gcc
+ *  fate-build-linux32-clang
+ *  fate-build-linux64-clang
+ *  fate-build-osx-gcc
+ *  fate-build-osx-clang
+ *  fate-build-emscripten
+ *  fate-dist <recipe>
+ *
+ * Example settings.cfg:
+ *  company_name = Foobar
+ *  description = A Cube spinning around.
+ *  legal_copyright = Foobar
+ *  legal_trademarks = ...
+ *  name = Cube Demo
+ *  name_ident = cube_demo
+ *  executable_name = cube_demo
+ *  version = 1.0
+ *  domain = org.author.cube
+ *  android_activity = CubeActivity
+ *
+ *  [recipe win32-portable]
+ *  target = windows32-msvc
+ *  include_sources = no
+ *  portable = yes
+ *
  */

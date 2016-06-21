@@ -57,7 +57,9 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <unistd.h>
+#ifndef FE_TARGET_ANDROID
 #include <execinfo.h>
+#endif
 #elif defined(FE_TARGET_FREEBSD)
 #include <limits.h>
 #include <sys/types.h>
@@ -106,6 +108,7 @@ char *fe_sys_getgamepath(void) {
 }
 #elif defined(FE_TARGET_LINUX)
 
+#ifndef FE_TARGET_ANDROID
 #if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
  || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
 #ifdef _GNU_SOURCE
@@ -120,6 +123,8 @@ static inline int lstat(const char *path, struct stat *buf) {
 #error Syscalls lstat() and readlink() are not available. Please update (g)libc or define _GNU_SOURCE.
 #endif
 #endif
+#endif /* !FE_TARGET_ANDROID */
+
 #if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
 #include <sys/auxv.h>
 #endif
@@ -387,6 +392,9 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc)
 
 
 void fe_sys_log_stacktrace(fe_logfunc logfunc) {
+#ifdef FE_TARGET_ANDROID
+    logfunc(TAG, "TODO : Support stacktraces on Android.\n");
+#else
     void *buffer[FE_SYS_STACK_LEN];
     char **strings;
     int i, num_strings;
@@ -400,6 +408,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     for(i=0; i<num_strings; ++i)
         logfunc(TAG, "%s\n", strings[i]);
     free(strings);
+#endif
 }
 
 #endif /* FE_TARGET_WINDOWS */

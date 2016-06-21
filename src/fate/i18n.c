@@ -15,7 +15,7 @@ void fe_i18n_switchlang(const char *lang) {
     setenv("LANGUAGE", lang, 1);
 #endif
 #endif
-#ifdef FE_TARGET_LINUX 
+#if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
     {
         /* This is for GNU gettext() only. */
         extern int _nl_msg_cat_cntr;
@@ -25,6 +25,7 @@ void fe_i18n_switchlang(const char *lang) {
 }
 
 void fe_i18n_setup(void) {
+    /*
     const char *td = "res/locale";
     setlocale(LC_ALL, "");
     bindtextdomain("fate", td);
@@ -32,4 +33,5 @@ void fe_i18n_setup(void) {
     textdomain("fate");
     fe_logv(TAG, 
         _("I18N has been set up. Text domain bound under \"%s\".\n"), td);
+    */
 }

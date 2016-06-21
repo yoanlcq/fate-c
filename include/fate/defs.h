@@ -110,16 +110,21 @@
 #define FE_TARGET_EMSCRIPTEN 1
 #endif
 
+#if defined(__ANDROID__)
+    #define FE_TARGET_ANDROID 1
+#endif
 #if defined(_WIN32) || defined(__WIN32__)
     #define FE_TARGET_WINDOWS 1
-#elif defined(linux) || defined(__linux)
+#endif
+#if defined(linux) || defined(__linux)
     #define FE_TARGET_LINUX 1
+#endif
 /*
 #elif defined(__APPLE__) || defined(MACOSX) || defined(macintosh) \
       || defined(Macintosh)
     #define FE_OSX
 */
-#elif __APPLE__
+#if __APPLE__
     #include "TargetConditionals.h"
     #if TARGET_IPHONE_SIMULATOR
         #define FE_TARGET_IOS_SIMULATOR 1
@@ -131,13 +136,22 @@
     #else
         #error "Unknown Apple platform."
     #endif
-#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#endif
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     #define FE_TARGET_FREEBSD 1
-#elif defined(__EMSCRIPTEN__)
+#endif
+#if defined(__EMSCRIPTEN__)
     #define FE_TARGET_EMSCRIPTEN 1
-#elif defined(__ANDROID__)
-    #define FE_TARGET_ANDROID 1
-#else
+#endif
+
+#if !defined(FE_TARGET_LINUX) \
+ && !defined(FE_TARGET_WINDOWS) \
+ && !defined(FE_TARGET_OSX) \
+ && !defined(FE_TARGET_FREEBSD) \
+ && !defined(FE_TARGET_ANDROID) \
+ && !defined(FE_TARGET_IOS_SIMULATOR) \
+ && !defined(FE_TARGET_IOS) \
+ && !defined(FE_TARGET_EMSCRIPTEN) 
     #error This platform is not supported by F.A.T.E.
 #endif
 
@@ -235,8 +249,6 @@
 #if __STDC_VERSION__ < 199901L
 #ifndef __GNUC__
 #define __func__ ""
-#else
-#define __func__ __FUNCTION__
 #endif
 #endif
 

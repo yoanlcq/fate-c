@@ -551,6 +551,8 @@ void cube_main_loop_iteration(void *arg) {
 #include <Windows.h>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
                    PSTR pCmdLine, int nCmdShow)
+#elif defined FE_TARGET_ANDROID
+int cube_main(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 #endif
