@@ -1,10 +1,10 @@
 ifeq ($(OS),android)
 
 BUILDPATH=$(BUILDDIR)/$(GAME)
-ACTIVITY=FateActivity
-APP_NAME=Cube Demo
-APP_DOMAIN=org.author.cube
-APP_DOMAIN_AS_DIR=$(patsubst .,/,$(APP_DOMAIN))
+GAME_ACTIVITY=FateActivity
+GAME_APP_NAME=Cube Demo
+GAME_APP_DOMAIN=org.author.cube
+GAME_APP_DOMAIN_AS_DIR=$(patsubst .,/,$(GAME_APP_DOMAIN))
 NCPUS=4
 ifeq ($(OS),linux)
 NCPUS=$(shell nproc)
@@ -15,12 +15,17 @@ endif
 
 $(BUILDPATH):
 	$(call MKDIR_P,$@)
-	cp -R $(SDLPATH)/android-project/* $@
-	sed -i "s|YourSourceHere.c|$(MY_SOURCE_FILES)|g" $(BUILDPATH)/jni/src/Android.mk
-	sed -i "s|org\.libsdl\.app|$(APP_DOMAIN)|g"      $(BUILDPATH)/AndroidManifest.xml
-	sed -i "s|SDLActivity|$(ACTIVITY)|g"             $(BUILDPATH)/AndroidManifest.xml
-	sed -i "s|SDLActivity|$(APP_DOMAIN)|g"           $(BUILDPATH)/build.xml
-	sed -i "s|SDL App|$(APP_NAME)|g"                 $(BUILDPATH)/res/values/strings.xml
+	cp -R dist/android_base/* $@
+
+$(BUILDPATH)/jni/src/Android.mk: $(BUILDPATH)/jni/src/Android.mk.m4 | $(BUILDPATH)
+	m4 -DGAME_SOURCE_FILES="$(GAME_SOURCE_FILES)" $< > $@
+$(BUILDPATH)/AndroidManifest.xml: $(BUILDPATH)/AndroidManifest.xml.m4 | $(BUILDPATH)
+	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY=$(GAME_ACTIVITY) $< > $@
+$(BUILDPATH)/build.xml: $(BUILDPATH)/build.xml.m4 | $(BUILDPATH)
+	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" $< > $@
+$(BUILDPATH)/res/values/strings.xml: $(BUILDPATH)/res/values/strings.xml.m4 | $(BUILDPATH)
+	m4 -DGAME_APP_NAME="$(GAME_APP_NAME)" $< > $@
+
 
 $(BUILDPATH)/jni/SDL: | $(BUILDPATH)
 	$(call MKDIR_P,$@)
@@ -33,23 +38,25 @@ $(BUILDPATH)/jni/SDL/Android.mk: | $(BUILDPATH)/jni/SDL
 
 
 $(BUILDPATH)/jni/src/fate: | $(BUILDPATH)
-	$(call MKDIR_P,$@)
 	ln -s src/fate $@
+$(BUILDPATH)/jni/include/fate: | $(BUILDPATH)
+	ln -s include/fate $@
 $(BUILDPATH)/jni/src/$(GAME): | $(BUILDPATH)
-	$(call MKDIR_P,$@)
 	ln -s src/$(GAME) $@
 
 
-$(BUILDPATH)/src/$(APP_DOMAIN_AS_DIR):
+$(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR):
 	$(call MKDIR_P,$@)
-$(BUILDPATH)/src/$(APP_DOMAIN_AS_DIR)/$(ACTIVITY).java: | $(BUILDPATH)/src/$(APP_DOMAIN_AS_DIR) 
-	echo "package $(APP_DOMAIN);" > $@
-	echo "import org.libsdl.app.SDLActivity;" >> $@
-	echo "public class $(ACTIVITY) extends SDLActivity {}" >> $@
+$(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR)/$(ACTIVITY).java: $(BUILDPATH)/MyActivity.java.m4 | $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR) 
+	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY="$(GAME_ACTIVITY)" $< > $@
 
-GAME_DEBUG_APK=$(BUILDPATH)/bin/$(APP_DOMAIN)-debug.apk
+GAME_DEBUG_APK=$(BUILDPATH)/bin/$(GAME_APP_DOMAIN)-debug.apk
 
-$(GAME_DEBUG_APK): $(BUILDPATH)/src/$(APP_DOMAIN_AS_DIR)/$(ACTIVITY).java \
+$(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
+				   $(BUILDPATH)/AndroidManifest.xml \
+				   $(BUILDPATH)/build.xml \
+				   $(BUILDPATH)/res/values/strings.xml \
+				   $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR)/$(GAME_ACTIVITY).java \
 				   $(BUILDPATH)/jni/SDL/Android.mk \
 				 | $(BUILDPATH)/jni/SDL/src \
 				   $(BUILDPATH)/jni/SDL/include\
