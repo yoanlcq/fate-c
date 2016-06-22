@@ -1,11 +1,13 @@
 #include <fate/defs.h>
+#ifndef FE_TARGET_WINDOWS
+#include <sys/types.h>
+#endif
 #include <stdlib.h>
 #include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/types.h>
 #include <inttypes.h>
 
 typedef struct {
