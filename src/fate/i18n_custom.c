@@ -89,6 +89,7 @@ size_t fe_i18n_print_real(const char *fmt, const fe_i18n_param *params, size_t p
         }
         cur = end;
     }
+    return 0;
 }
 #define COUNTOF(x) 3
 #define fe_fmt_pointer(var,width,precision)  { "p",        FE_FMT_POINTER,  .val.as_pointer  =(const void*)var, width, precision }

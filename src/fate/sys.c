@@ -67,7 +67,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <execinfo.h>
-#elif defined(FE_TARGET_OSX)
+#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
 #include <stdint.h>
 #include <limits.h>
 #include <signal.h>
@@ -179,7 +179,7 @@ static char *get_executable_path(void) {
 }
 
 
-#elif defined(FE_TARGET_OSX)
+#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
 
 static char *get_executable_path(void) {
     static char appdir[MAXPATHLEN];
