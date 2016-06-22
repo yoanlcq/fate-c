@@ -21,12 +21,12 @@ FATE_DBG_OFILES := $(patsubst src/contrib/%.c,$(BUILDDIR)/contrib_dbg/%$(OBJ_EXT
 $(BUILDDIR)/contrib/%$(OBJ_EXTENSION): src/contrib/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	@$(CC) $(CCRELEASEFLAGS) $(GLEWFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	@$(CC) $(CCRELEASEFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
 
 $(BUILDDIR)/contrib_dbg/%$(OBJ_EXTENSION): src/contrib/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	@$(CC) $(CCDEBUGFLAGS) $(GLEWFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	@$(CC) $(CCDEBUGFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
 
 $(BUILDDIR)/fate/%$(OBJ_EXTENSION): src/fate/%.c | dirs
 	@$(call MKDIR_P,$(@D))
