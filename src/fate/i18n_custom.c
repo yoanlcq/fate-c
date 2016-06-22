@@ -1,3 +1,4 @@
+#include <fate/defs.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stddef.h>
