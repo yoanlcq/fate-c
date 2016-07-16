@@ -31,9 +31,7 @@
 #include <fate/hw.h>
 
 static void static_sse_prefetch(void *addr, bool rw, int locality) {
-/* GCC (and probably Clang) actually define _mm_prefetch() to 
- * __builtin_prefetch() which requires its 2nd and 3rd parameters
- * to be compile-time constants - preventing us from compiling this. */
+/* FIXME Okay, everyone expects a constant expression here. */
 #if !defined(__GNUC__)
     _mm_prefetch(addr, locality);
 #endif
@@ -45,7 +43,7 @@ void (*fe_hw_prefetch)(void *, bool, int) = static_prefetch_dummy;
 static fe_hw_cacheinfo_struct static_cacheinfo;
 const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo = &static_cacheinfo;
 
-#ifdef FE_TARGET_IS_A_UNIX
+#ifdef FE_TARGET_LINUX
 #include <unistd.h>
 
 static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {

@@ -401,7 +401,7 @@ void fe_ipv6_peer_get_host(const fe_ipv6_peer *p,
     }
 }
 void fe_ipv6_peer_get_addr(const fe_ipv6_peer *p, char addr[FE_IPV6_ADDRSTRLEN]) {
-    inet_ntop(AF_INET6, &(p->sin6_addr.s6_addr), addr, FE_IPV6_ADDRSTRLEN);
+    inet_ntop(AF_INET6, (void*)&(p->sin6_addr.s6_addr), addr, FE_IPV6_ADDRSTRLEN);
 }
 uint16_t fe_ipv6_peer_get_port(const fe_ipv6_peer *p) {
     return ntohs(p->sin6_port);

@@ -221,7 +221,7 @@ typedef struct {
 extern const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo;
 
 
-#if __DOXYGEN__ || (defined(FE_HW_TARGET_X86) && defined(__GNUC__))
+#if __DOXYGEN__ || (defined(FE_HW_TARGET_X86) && defined(__GNUC__) && !defined(__clang__))
 #define FE_HW_X86_FEATURE_CMOV   "cmov"
 #define FE_HW_X86_FEATURE_MMX    "mmx"
 #define FE_HW_X86_FEATURE_POPCNT "popcnt"

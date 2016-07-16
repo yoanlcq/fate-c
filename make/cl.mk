@@ -1,4 +1,4 @@
-CCFLAGS = /nologo /Iinclude /Iinclude/contrib
+CCFLAGS = /nologo /Iinclude /Iinclude/contrib /Oi
 GLEWFLAGS = /DGLEW_STATIC /DGLEW_NO_GLU
 CCDEBUGFLAGS = $(CCFLAGS) /Ob2 /Zi /DEBUG /DFATE_DEBUG_BUILD \
 			   /DFATE_ENABLE_TRACING $(GLEWFLAGS)
