@@ -503,6 +503,7 @@ ssize_t fe_tcp6_recvfile(fe_tcp6 *s, const char *file) {
         return 0;
     splice(*s, NULL, fd, NULL, size, 0);
     close(fd);
+    return FE_IPV6_ERR_NONE;
 #else
     fputs("Sorry, recvfile() is NIY.\n", stderr);
     return FE_IPV6_ERR_UNKNOWN;

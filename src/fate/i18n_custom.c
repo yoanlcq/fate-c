@@ -94,7 +94,6 @@ size_t fe_i18n_print_real(const char *fmt, const fe_i18n_param *params, size_t p
     }
     return 0;
 }
-#define COUNTOF(x) 3
 #define fe_fmt_pointer(var,width,precision)  { "p",        FE_FMT_POINTER,  .val.as_pointer  =(const void*)var, width, precision }
 #define fe_fmt_char(var,width,precision)     { "c",        FE_FMT_CHAR,     .val.as_char     =(       char)var, width, precision }
 #define fe_fmt_string(var,width,precision)   { "s",        FE_FMT_STRING,   .val.as_string   =(const char*)var, width, precision }
@@ -139,7 +138,7 @@ size_t fe_i18n_print_real(const char *fmt, const fe_i18n_param *params, size_t p
 #define fe_fmt_X64(var,width,precision)      { PRIX64,     FE_FMT_UINT64_T, .val.as_uint64_t =(   uint64_t)var, width, precision }
 #define fe_i18n_print(fmt, ...) do { \
     const fe_i18n_param fe_i18n_the_params[] = {__VA_ARGS__}; \
-    fe_i18n_print_real(fmt, fe_i18n_the_params, COUNTOF(fe_i18n_the_params)); \
+    fe_i18n_print_real(fmt, fe_i18n_the_params, 3); \
 } while(0)
 
 /*

@@ -38,7 +38,7 @@
  */
 
 #include <fate/defs.h>
-#include <fate/asm.h>
+#include <fate/hw.h>
 #include <fate/al.h>
 #include <fate/gl.h>
 #ifdef FE_WINDOWS

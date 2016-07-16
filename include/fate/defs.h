@@ -49,6 +49,11 @@
 /*! \brief Stringify the given expression. */
 #define STRINGIFY(X) #X
 
+#define KIBIBYTES(bytes) (1024*(bytes))
+#define MEBIBYTES(bytes) (1024*KIBIBYTES(bytes))
+#define GIBIBYTES(bytes) (1024*MEBIBYTES(bytes))
+
+
 /*! \brief The current F.A.T.E version's codename. 
  *
  * It serves no other purpose than being a fun way of identifying a version. 
@@ -155,6 +160,17 @@
     #error This platform is not supported by F.A.T.E.
 #endif
 
+/*! \brief Is the target a Unix ? */
+#if __DOXYGEN__ \
+ || defined(FE_TARGET_LINUX) \
+ || defined(FE_TARGET_OSX) \
+ || defined(FE_TARGET_FREEBSD) \
+ || defined(FE_TARGET_ANDROID) \
+ || defined(FE_TARGET_IOS_SIMULATOR) \
+ || defined(FE_TARGET_IOS)
+#define FE_TARGET_IS_A_UNIX 1
+#endif
+
 #if __DOXYGEN__
 #define _WIN32_WINNT 0x0600
 #endif
@@ -173,23 +189,6 @@
     #endif
 #endif
 
-
-/* See http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros#x86andx8664 */
-#if __DOXYGEN__ \
- || defined(i386) \
- || defined(__i386) \
- || defined(__i386__) \
- || defined(_M_IX86) \
- || defined(_X86_) \
- || defined(__x86_64) \
- || defined(__x86_64__) \
- || defined(__amd64) \
- || defined(__amd64__) \
- || defined(_M_AMD64) \
- || defined(_M_X64)
-/*! \brief Defined only if we're compiling for x86 hardware. */
-#define FE_HW_X86 1
-#endif
 
 
 /*
@@ -242,6 +241,12 @@
  * Some more utility macros
  *
  */
+
+
+/*! \brief Macro for checking if we're using the C11 standard. */
+#if __STDC_VERSION__ >= 201112L
+#define FE_C11_SUPPORT
+#endif
 
 
 /*! \brief Define <tt>__func__</tt> to an empty string, only if the used
@@ -343,26 +348,27 @@
  * This macro expands to nothing if the compiler is not GCC.
  */
 #define FE_PACKED_STRUCT __attribute__((packed))
+/*! \brief Expands to __attribute__((warning(...))) if supported.
+ *
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define FE_WARN_IF_USED(str) __attribute__((warning(str)))
+#ifdef __clang__
+#undef FE_WARN_IF_USED
+#define FE_WARN_IF_USED(str)
+#endif
 /*! \brief Marks a function as "NOT IMPLEMENTED YET"
  *
  * Use this for functions that are at most 50% finished.
  * This macro expands to nothing if the compiler is not GCC.
  */
-#define FE_NIY __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
-#ifdef __clang__
-#undef FE_NIY
-#define FE_NIY
-#endif
+#define FE_NIY FE_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 /*! \brief Marks a function as "WORK IN PROGRESS"
  *
  * Use this for functions that are at least 50% finished.
  * This macro expands to nothing if the compiler is not GCC.
  */
-#define FE_WIP __attribute__((warning("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")))
-#ifdef __clang__
-#undef FE_WIP
-#define FE_WIP
-#endif
+#define FE_WIP FE_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
 #else /* ifdef __GNUC__ */
@@ -375,10 +381,36 @@
 #define FE_SENTINEL(pos) 
 #define FE_WARN_UNUSED_RESULT 
 #define FE_PACKED_STRUCT
+#define FE_WARN_IF_USED(str)
 #define FE_NIY
 #define FE_WIP
 
 #endif /* ifdef __GNUC_ */
+
+/*! \brief Compile-time assert macro. */
+#ifdef FE_C11_SUPPORT
+#define FE_COMPILETIME_ASSERT(pred, str) _Static_assert(pred, str)
+#else
+#define FE_COMPILETIME_ASSERT(pred, str) \
+    typedef char static_assertion_failed_at_line_##__LINE__[(pred && str)*2-1]
+#endif
+
+/*! \brief Compile-time specifier for a declaration (not a typedef) 
+ *         requiring a specific alignment.
+ *
+ * This matters when using some low-level instructions such as _mm_stream_si128().
+ */
+#ifdef FE_C11_SUPPORT
+#include <stdalign.h>
+#define FE_ALIGN(n) _Alignas(n)
+#elif defined(__GNUC__)
+#define FE_ALIGN(n) __attribute__((align(n)))
+#elif defined(_MSC_VER)
+#define FE_ALIGN(n) __declspec(align(n))
+#else
+#error "FE_ALIGN() can't be defined because your compiler doesn't support alignment specifiers."
+#endif
+
 
 #ifdef _MSC_VER
 #include <sal.h>
@@ -393,6 +425,9 @@
  * Please don't use it on pointers. It ain't wizardry.
  */
 #define COUNTOF(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
+
+
+typedef unsigned long ulong;
 
 #ifdef _MSC_VER
 #include <BaseTsd.h>
