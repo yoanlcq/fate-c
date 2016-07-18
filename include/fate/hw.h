@@ -294,6 +294,8 @@ extern void (*fe_hw_mm_pause)(void);
 #define fe_hw_mm_pause()
 #endif
 
+/*! \brief TODO */
+size_t fe_hw_get_cpu_count(void);
 
 /*! @} */
 

@@ -96,6 +96,18 @@ FE_NIY bool fe_hw_x86_supports(const char *feature) {
 }
 #endif
 
+
+#ifdef FE_TARGET_LINUX
+size_t fe_hw_get_cpu_count(void) {
+    long conf = sysconf(_SC_NPROCESSORS_ONLN);
+    return conf*(conf>0);
+}
+#else
+FE_NIY size_t fe_hw_get_cpu_count(void) {
+    return 0;
+}
+#endif
+
 void fe_hw_setup(void) {
     cacheinfo_fill(&static_cacheinfo);
 #if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
