@@ -156,6 +156,6 @@ fe_mem_stackavail_status fe_mem_stackavail(size_t *available) {
 }
 
 #else
-#error "TODO: other systems"
+/* TODO: other systems */
 #endif /* FE_TARGET_LINUX */
 

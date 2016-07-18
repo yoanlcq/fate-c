@@ -30,14 +30,27 @@
 #include <fate/defs.h>
 #include <fate/hw.h>
 
-static void static_sse_prefetch(void *addr, bool rw, int locality) {
-/* FIXME Okay, everyone expects a constant expression here. */
-#if !defined(__GNUC__)
-    _mm_prefetch(addr, locality);
-#endif
+/* All of these static functions are because _mm_prefetch() is not
+ * guaranteed to be available on all CPUs, and because every compiler
+ * expects _mm_prefetch()'s second parameter to be a compile-time constant
+ * (which seems legit, given that the instruction opcodes are different.) */
+static void static_sse_prefetch_t0(void *addr, bool rw) {
+    _mm_prefetch(addr, _MM_HINT_T0);
 }
-static void static_prefetch_dummy(void *addr, bool rw, int locality) {}
-void (*fe_hw_prefetch)(void *, bool, int) = static_prefetch_dummy;
+static void static_sse_prefetch_t1(void *addr, bool rw) {
+    _mm_prefetch(addr, _MM_HINT_T1);
+}
+static void static_sse_prefetch_t2(void *addr, bool rw) {
+    _mm_prefetch(addr, _MM_HINT_T2);
+}
+static void static_sse_prefetch_nta(void *addr, bool rw) {
+    _mm_prefetch(addr, _MM_HINT_NTA);
+}
+static void static_sse_prefetch_dummy(void *addr, bool rw) {}
+void (*fe_hw_prefetch_l1d)(void *, bool) = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_l2)(void *, bool)  = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_l3)(void *, bool)  = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_nta)(void *, bool) = static_sse_prefetch_dummy;
 
 
 static fe_hw_cacheinfo_struct static_cacheinfo;
@@ -112,7 +125,10 @@ void fe_hw_setup(void) {
     cacheinfo_fill(&static_cacheinfo);
 #if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
     if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE)) {
-        fe_hw_prefetch = static_sse_prefetch;
+        fe_hw_prefetch_l1d = static_sse_prefetch_t0;
+        fe_hw_prefetch_l2  = static_sse_prefetch_t1;
+        fe_hw_prefetch_l3  = static_sse_prefetch_t2;
+        fe_hw_prefetch_nta = static_sse_prefetch_nta;
     }
     if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE2)) {
         fe_hw_clflush = static_clflush;

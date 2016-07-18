@@ -111,18 +111,6 @@ void fe_hw_setup(void);
 
 
 #if __DOXYGEN__ || defined(__GNUC__)
-/*! \brief Hint to #fe_hw_prefetch that data should be pulled into 
- *         level-1 data cache. */
-#define FE_HW_PFTCH_L1D 3
-/*! \brief Hint to #fe_hw_prefetch that data should be pulled into 
- *         level-2 cache. */
-#define FE_HW_PFTCH_L2  2
-/*! \brief Hint to #fe_hw_prefetch that data should be pulled into 
- *         level-3 cache. */
-#define FE_HW_PFTCH_L3  1
-/*! \brief Hint to #fe_hw_prefetch that data will not be used for long 
- *         (NTA stands for Non-Temporal Aligned). */
-#define FE_HW_PFTCH_NTA 0
 /*! \brief Prefetch data, hinting that it should be placed into the 
  *         appropriate CPU cache level.
  *
@@ -144,10 +132,20 @@ void fe_hw_setup(void);
  *
  * \param addr The data's address.
  * \param rw Compile-time boolean : "Will the data be written to ?"
- * \param locality One of the FE_HW_PFTCH_* constants.
  */
-#define fe_hw_prefetch(addr,rw,locality) \
-       __builtin_prefetch(addr,rw,locality)
+#define fe_hw_prefetch_l1d(addr,rw) __builtin_prefetch(addr,rw,3)
+/*! \brief Prefetch data to the L2 CPU cache. See the description at 
+ *         #fe_hw_prefetch_l1d. */
+#define fe_hw_prefetch_l2(addr,rw)  __builtin_prefetch(addr,rw,2)
+/*! \brief Prefetch data to the L3 CPU cache. See the description at 
+ *         #fe_hw_prefetch_l1d. */
+#define fe_hw_prefetch_l3(addr,rw)  __builtin_prefetch(addr,rw,1)
+/*! \brief Prefetch data with Non-Temporal Aligned hint. See the description at 
+ *         #fe_hw_prefetch_l1d. 
+ *
+ * Basically, prefer this when the data is not to be used for long.
+ */
+#define fe_hw_prefetch_nta(addr,rw) __builtin_prefetch(addr,rw,0)
 /*! \brief Provides branch prediction information to the compiler. 
  *
  * This macro expands to \p cond if the compiler does not support 
@@ -182,17 +180,15 @@ void fe_hw_setup(void);
 
 #if !defined(fe_hw_prefetch)
 #if defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
-#define FE_HW_PFTCH_L1D _MM_HINT_T0
-#define FE_HW_PFTCH_L2  _MM_HINT_T1
-#define FE_HW_PFTCH_L3  _MM_HINT_T2
-#define FE_HW_PFTCH_NTA _MM_HINT_NTA
-extern void (*fe_hw_prefetch)(void *addr, bool rw, int locality);
+extern void (*fe_hw_prefetch_t0)(void *addr, bool rw);
+extern void (*fe_hw_prefetch_t1)(void *addr, bool rw);
+extern void (*fe_hw_prefetch_t2)(void *addr, bool rw);
+extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
 #else
-#define FE_HW_PFTCH_L1D 0
-#define FE_HW_PFTCH_L2  0
-#define FE_HW_PFTCH_L3  0
-#define FE_HW_PFTCH_NTA 0
-#define fe_hw_prefetch(addr,rw,locality)
+#define fe_hw_prefetch_t0(addr,rw)
+#define fe_hw_prefetch_t1(addr,rw)
+#define fe_hw_prefetch_t2(addr,rw)
+#define fe_hw_prefetch_nta(addr,rw)
 #endif /* FE_HW_HAS_MULTIMEDIA_INTRINSICS */
 #endif /* fe_hw_prefetch */
 
