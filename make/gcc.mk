@@ -3,7 +3,7 @@ ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
 ifeq ($(OS),linux)
-ifneq($(shell cat /proc/sys/kernel/perf_event_paranoid > /dev/null 2>&1; echo $$?),0)
+ifneq ($(shell cat /proc/sys/kernel/perf_event_paranoid > /dev/null 2>&1; echo $$?),0)
 CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
 endif
 endif
