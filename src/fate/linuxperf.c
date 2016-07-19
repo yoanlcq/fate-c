@@ -26,6 +26,10 @@
 /*
  * Some notes about the implementation :
  *
+ * - It's possible that the Perf Events is not supported at
+ *   build time (I'm looking at you, Travis CI). In this case,
+ *   FE_LINUXPERF_UNSUPPORTED is defined.
+ *
  * - Yeah, I know about the group leader stuff, but I'm avoiding
  *   it on purpose. The thing is, for some events :
  *   - If those are supported at all :
@@ -67,9 +71,9 @@
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 #include <sys/ioctl.h>
+#ifndef FE_LINUXPERF_UNSUPPORTED
 #include <linux/perf_event.h>
-/* Commented since it seems to break the build on Travis.
- * #include <linux/hw_breakpoint.h> */
+#include <linux/hw_breakpoint.h>
 
 #ifdef _GNU_SOURCE
 static int perf_event_open(struct perf_event_attr *hw_event,
@@ -81,6 +85,7 @@ static int perf_event_open(struct perf_event_attr *hw_event,
 #error "Please define _GNU_SOURCE so I can use syscall(), for perf_event_open()."
 #endif
 
+#endif
 
 
 static void dummy_linuxperf_init(fe_linuxperf *pc, int cpu_index) {}
@@ -88,6 +93,7 @@ static void (*ptr_linuxperf_init)(fe_linuxperf *pc, int cpu_index) = dummy_linux
 void fe_linuxperf_init(fe_linuxperf *pc, int cpu_index) {
     ptr_linuxperf_init(pc, cpu_index);
 }
+#ifndef FE_LINUXPERF_UNSUPPORTED
 static void real_linuxperf_init(fe_linuxperf *pc, int cpu_index) {
     struct perf_event_attr pa[FE_LINUXPERF_FD_COUNT] = {{0}};
 
@@ -246,6 +252,7 @@ static void real_linuxperf_init(fe_linuxperf *pc, int cpu_index) {
         pc->err[i] = 0;
     }
 }
+#endif /* FE_LINUXPERF_UNSUPPORTED */
 
 
 static void dummy_linuxperf_deinit(fe_linuxperf *pc) {}
@@ -256,12 +263,15 @@ void fe_linuxperf_deinit(fe_linuxperf *pc) {
     ptr_linuxperf_deinit(pc);
 }
 
+
+#ifndef FE_LINUXPERF_UNSUPPORTED
 static void real_linuxperf_deinit(fe_linuxperf *pc) {
     size_t i;
     for(i=0 ; i<FE_LINUXPERF_FD_COUNT ; ++i)
         if(!pc->err[i])
             close(pc->fds[i]);
 }
+#endif /* FE_LINUXPERF_UNSUPPORTED */
 
 
 static void dummy_linuxperf_restart(fe_linuxperf *pc, size_t count) {}
@@ -272,6 +282,8 @@ void fe_linuxperf_restart(fe_linuxperf *pc, size_t count) {
     ptr_linuxperf_restart(pc, count);
 }
 
+
+#ifndef FE_LINUXPERF_UNSUPPORTED
 static void real_linuxperf_restart(fe_linuxperf *pc, size_t count) {
     size_t i, j;
 
@@ -297,6 +309,7 @@ static void static_readmember(fe_linuxperf *pc, size_t i, fe_linuxperf_state_cou
     }
     member->error = 0;
 }
+#endif /* FE_LINUXPERF_UNSUPPORTED */
 
 static void linuxperf_state_invalidator(const char *name, fe_linuxperf_state_counter *val) {
     val->value = val->time_enabled = val->time_running = 0;
@@ -314,6 +327,7 @@ void fe_linuxperf_retrieve(fe_linuxperf *pc, fe_linuxperf_state *res, size_t cou
     ptr_linuxperf_retrieve(pc, res, count);
 }
 
+#ifndef FE_LINUXPERF_UNSUPPORTED
 static void real_linuxperf_retrieve(fe_linuxperf *pc, fe_linuxperf_state *res, size_t count) {
 
     prctl(PR_TASK_PERF_EVENTS_DISABLE, 0, 0, 0, 0);
@@ -381,6 +395,7 @@ static void real_linuxperf_retrieve(fe_linuxperf *pc, fe_linuxperf_state *res, s
 
     prctl(PR_TASK_PERF_EVENTS_ENABLE, 0, 0, 0, 0);
 }
+#endif /* FE_LINUXPERF_UNSUPPORTED */
 
 void fe_linuxperf_state_visit(fe_linuxperf_state *res, void(*visit)(const char *name, fe_linuxperf_state_counter *val)) {
 #define HELPER(member) visit(#member, &(res->member))
@@ -444,6 +459,9 @@ void fe_linuxperf_state_visit(fe_linuxperf_state *res, void(*visit)(const char *
 }
 
 bool fe_linuxperf_setup(void) {
+#ifdef FE_LINUXPERF_UNSUPPORTED
+    return false;
+#else
     if(access("/proc/sys/kernel/perf_event_paranoid", F_OK))
         return false;
     ptr_linuxperf_init = real_linuxperf_init;
@@ -451,6 +469,7 @@ bool fe_linuxperf_setup(void) {
     ptr_linuxperf_restart = real_linuxperf_restart;
     ptr_linuxperf_retrieve = real_linuxperf_retrieve;
     return true;
+#endif
 }
 
 #endif /* FE_TARGET_LINUX */

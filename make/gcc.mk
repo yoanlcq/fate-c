@@ -2,6 +2,11 @@ CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
+ifeq ($(OS),linux)
+ifneq($(shell cat /proc/sys/kernel/perf_event_paranoid > /dev/null 2>&1; echo $$?),0)
+CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
+endif
+endif
 GLEWFLAGS = -DGLEW_STATIC -DGLEW_NO_GLU
 CCDEBUGFLAGS = $(CCFLAGS) -g -DFATE_DEBUG_BUILD -DFATE_ENABLE_TRACING $(GLEWFLAGS)
 CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG $(GLEWFLAGS)
