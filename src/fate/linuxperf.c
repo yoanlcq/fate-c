@@ -68,7 +68,8 @@
 #include <sys/prctl.h>
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
-#include <linux/hw_breakpoint.h>
+/* Commented since it seems to break the build on Travis.
+ * #include <linux/hw_breakpoint.h> */
 
 #ifdef _GNU_SOURCE
 static int perf_event_open(struct perf_event_attr *hw_event,
