@@ -2,6 +2,7 @@ CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
+# C'mon Travis
 ifeq ($(OS),linux)
 ifneq ($(shell cat /usr/include/linux/hw_breakpoint.h > /dev/null 2>&1; echo $$?),0)
 CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
