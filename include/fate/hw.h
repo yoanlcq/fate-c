@@ -106,7 +106,10 @@ void fe_hw_setup(void);
     #undef FE_HW_HAS_MULTIMEDIA_INTRINSICS
 #endif
 
-
+#ifdef FE_TARGET_ANDROID
+/* See https://developer.android.com/ndk/guides/cpu-features.html */
+#include <cpu-features.h>
+#endif
 
 
 

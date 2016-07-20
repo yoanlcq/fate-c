@@ -110,7 +110,11 @@ FE_NIY bool fe_hw_x86_supports(const char *feature) {
 #endif
 
 
-#ifdef FE_TARGET_LINUX
+#ifdef FE_TARGET_ANDROID
+size_t fe_hw_get_cpu_count(void) {
+    return android_getCpuCount();
+}
+#elif defined(FE_TARGET_LINUX)
 size_t fe_hw_get_cpu_count(void) {
     long conf = sysconf(_SC_NPROCESSORS_ONLN);
     return conf*(conf>0);
