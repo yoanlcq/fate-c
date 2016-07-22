@@ -277,8 +277,8 @@ static const fgl_ign_message_amd fgl_ign_messages_amd[] = {
 };
 
 static void fgl_dbg_reset_funcs(void) {
-#define HELPER(_name_) \
-    fe_##_name_ = fe_##_name_##_dummy
+#define HELPER(glFoo) \
+    fe_gl_dbg_##glFoo = fe_gl_dbg_##glFoo##_dummy
     HELPER(glDebugMessageCallback); 
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert); 
@@ -311,8 +311,8 @@ static void fgl_dbg_setup_khr(bool enable) {
         glDebugMessageControl(ignmsg->source, ignmsg->type, GL_DONT_CARE,
                               1, &(ignmsg->id), GL_FALSE);
     }
-#define HELPER(_name_) \
-    fe_##_name_ = _name_
+#define HELPER(glFoo) \
+    fe_gl_dbg_##glFoo = glFoo
     HELPER(glDebugMessageCallback);
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert);
@@ -343,8 +343,8 @@ static void fgl_dbg_setup_arb(bool enable) {
         glDebugMessageControlARB(ignmsg->source, ignmsg->type, GL_DONT_CARE,
                               1, &(ignmsg->id), GL_FALSE);
     }
-#define HELPER(_name_) \
-    fe_##_name_ = _name_##ARB
+#define HELPER(glFoo) \
+    fe_gl_dbg_##glFoo = glFoo##ARB
     HELPER(glDebugMessageCallback);
     HELPER(glDebugMessageControl);
     HELPER(glDebugMessageInsert);
@@ -357,8 +357,8 @@ static void fgl_dbg_setup_arb(bool enable) {
         fe_gl_dbg_glObjectLabel = fe_gl_dbg_glObjectLabel_dummy;
         fe_gl_dbg_glGetObjectLabel = fe_gl_dbg_glGetObjectLabel_dummy;
     }
-#define HELPER(_name_) \
-    fe_##_name_ = fe_##_name_##_dummy
+#define HELPER(glFoo) \
+    fe_gl_dbg_##glFoo = fe_gl_dbg_##glFoo##_dummy
     HELPER(glPushDebugGroup);
     HELPER(glPopDebugGroup);
     HELPER(glObjectPtrLabel);
@@ -415,11 +415,11 @@ void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable) {
         else enable = false;
     }
     if(GLEW_EXT_debug_marker)
-        fe_gl_dbg_debug_insert_marker = fgl_dbg_insert_marker_ext;
+        fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_ext;
     else if(GLEW_GREMEDY_string_marker)
-        fe_gl_dbg_debug_insert_marker = fgl_dbg_insert_marker_gremedy;
+        fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_gremedy;
     else
-        fe_gl_dbg_debug_insert_marker = fgl_dbg_insert_marker_dummy;
+        fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_dummy;
 #else
     enable = false;
 #endif

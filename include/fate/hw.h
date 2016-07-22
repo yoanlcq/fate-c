@@ -136,15 +136,15 @@ void fe_hw_setup(void);
  * \param addr The data's address.
  * \param rw Compile-time boolean : "Will the data be written to ?"
  */
-#define fe_hw_prefetch_l1d(addr,rw) __builtin_prefetch(addr,rw,3)
+#define fe_hw_prefetch_t0(addr,rw) __builtin_prefetch(addr,rw,3)
 /*! \brief Prefetch data to the L2 CPU cache. See the description at 
- *         #fe_hw_prefetch_l1d. */
-#define fe_hw_prefetch_l2(addr,rw)  __builtin_prefetch(addr,rw,2)
+ *         #fe_hw_prefetch_t0. */
+#define fe_hw_prefetch_t1(addr,rw)  __builtin_prefetch(addr,rw,2)
 /*! \brief Prefetch data to the L3 CPU cache. See the description at 
- *         #fe_hw_prefetch_l1d. */
-#define fe_hw_prefetch_l3(addr,rw)  __builtin_prefetch(addr,rw,1)
+ *         #fe_hw_prefetch_t0. */
+#define fe_hw_prefetch_t2(addr,rw)  __builtin_prefetch(addr,rw,1)
 /*! \brief Prefetch data with Non-Temporal Aligned hint. See the description at 
- *         #fe_hw_prefetch_l1d. 
+ *         #fe_hw_prefetch_t0. 
  *
  * Basically, prefer this when the data is not to be used for long.
  */
@@ -181,8 +181,8 @@ void fe_hw_setup(void);
 #define fe_hw_unlikely(cond) (cond)
 #endif
 
-#if !defined(fe_hw_prefetch)
-#if defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
+#if !defined(fe_hw_prefetch_nta)
+#if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
 extern void (*fe_hw_prefetch_t0)(void *addr, bool rw);
 extern void (*fe_hw_prefetch_t1)(void *addr, bool rw);
 extern void (*fe_hw_prefetch_t2)(void *addr, bool rw);
@@ -195,6 +195,7 @@ extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
 #endif /* FE_HW_HAS_MULTIMEDIA_INTRINSICS */
 #endif /* fe_hw_prefetch */
 
+#if defined(FE_HW_TARGET_X86)
 /*! \brief Defined only if \c _mm_malloc() and \c _mm_free() are available. */
 #define FE_HW_HAS_MM_MALLOC
 
@@ -205,6 +206,8 @@ extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
 #else
 #undef FE_HW_HAS_MM_MALLOC
 #endif // defined(__GNUC__)
+
+#endif /* FE_HW_TARGET_X86 */
 
 /*! \brief Struct holding useful information about our CPU caches. */
 typedef struct {
@@ -266,15 +269,15 @@ extern void (*fe_hw_clflush)(void const *addr);
 #endif
 
 #if __DOXYGEN__  \
- || defined(_MSC_VER) \
- || (defined(__GNUC__) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS))
+ || ( defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS) \
+     && (defined(_MSC_VER) || defined(__GNUC__)) )
+/*! \brief Defined only if #fe_hw_rdtsc() is available. */
+#define FE_HW_HAS_RDTSC
 /*! \brief "Read Timestamp Counter" instruction wrapper. 
  *
- * \return Value of type int64_t.
+ * \return Value of type uint64_t.
  */
 #define fe_hw_rdtsc() __rdtsc()
-#else
-#error "No RDTSC wrapper is provided. Don't really want to use inline assembly."
 #endif
 
 #if __DOXYGEN__ || defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)

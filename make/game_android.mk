@@ -1,8 +1,8 @@
 BUILDPATH=build/android/$(GAME)
 NDKARGS= 
 PWD=$(shell pwd)
-SDLPATH=/home/yoon/Downloads/android_extracted/SDL2-2.0.4
-GAME_CFLAGS= -DFATE_DEBUG_BUILD -DGLEW_STATIC -DGLEW_NO_GLU
+#SDLPATH=/home/yoon/Downloads/android_extracted/SDL2-2.0.4
+GAME_CFLAGS= -DFE_DEBUG_BUILD -DGLEW_STATIC -DGLEW_NO_GLU -DFE_LINUXPERF_UNSUPPORTED
 GAME_ACTIVITY=FateActivity
 GAME_APP_NAME=Cube Demo
 GAME_APP_DOMAIN=org.author.cube
@@ -27,6 +27,9 @@ GAME_SOURCE_FILES= \$$(LOCAL_PATH)/main.c \
 							    \$$(LOCAL_PATH)/contrib/*/*/*/*/*.c \
 							    \$$(LOCAL_PATH)/contrib/*/*/*/*/*/*.c)
 
+ifndef SDLPATH
+$(error Please define the SDLPATH variable to point to your SDL2-2.0.4 directory)
+endif
 
 NCPUS=4
 ifeq ($(OS),linux)
@@ -39,6 +42,8 @@ endif
 $(BUILDPATH):
 	mkdir -p $@
 	cp -R dist/android_base/* $@
+$(BUILDPATH)/res/values:
+	mkdir -p $@
 
 $(BUILDPATH)/jni/src/Android.mk: dist/android_base/m4/Android.mk.m4 | $(BUILDPATH)
 	m4 -DGAME="$(GAME)" -DGAME_CFLAGS="$(GAME_CFLAGS)" -DGAME_SOURCE_FILES="$(GAME_SOURCE_FILES)" $< > $@
@@ -48,7 +53,7 @@ $(BUILDPATH)/AndroidManifest.xml: dist/android_base/m4/AndroidManifest.xml.m4 | 
 	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY=$(GAME_ACTIVITY) $< > $@
 $(BUILDPATH)/build.xml: dist/android_base/m4/build.xml.m4 | $(BUILDPATH)
 	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" $< > $@
-$(BUILDPATH)/res/values/strings.xml: dist/android_base/m4/strings.xml.m4 | $(BUILDPATH)
+$(BUILDPATH)/res/values/strings.xml: dist/android_base/m4/strings.xml.m4 | $(BUILDPATH) $(BUILDPATH)/res/values
 	m4 -DGAME_APP_NAME="$(GAME_APP_NAME)" $< > $@
 $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR):
 	mkdir -p $@
@@ -82,6 +87,9 @@ $(BUILDPATH)/jni/include/SDL2: | $(BUILDPATH)/jni/include
 
 
 GAME_DEBUG_APK=$(BUILDPATH)/bin/$(GAME_APP_DOMAIN)-debug.apk
+
+
+NCPUS=1
 
 $(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
 				   $(BUILDPATH)/AndroidManifest.xml \

@@ -30,6 +30,7 @@
 #include <fate/defs.h>
 #include <fate/hw.h>
 
+#if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
 /* All of these static functions are because _mm_prefetch() is not
  * guaranteed to be available on all CPUs, and because every compiler
  * expects _mm_prefetch()'s second parameter to be a compile-time constant
@@ -46,17 +47,18 @@ static void static_sse_prefetch_t2(void *addr, bool rw) {
 static void static_sse_prefetch_nta(void *addr, bool rw) {
     _mm_prefetch(addr, _MM_HINT_NTA);
 }
+#endif
 static void static_sse_prefetch_dummy(void *addr, bool rw) {}
-void (*fe_hw_prefetch_l1d)(void *, bool) = static_sse_prefetch_dummy;
-void (*fe_hw_prefetch_l2)(void *, bool)  = static_sse_prefetch_dummy;
-void (*fe_hw_prefetch_l3)(void *, bool)  = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_t0)(void *, bool) = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_t1)(void *, bool)  = static_sse_prefetch_dummy;
+void (*fe_hw_prefetch_t2)(void *, bool)  = static_sse_prefetch_dummy;
 void (*fe_hw_prefetch_nta)(void *, bool) = static_sse_prefetch_dummy;
 
 
 static fe_hw_cacheinfo_struct static_cacheinfo;
 const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo = &static_cacheinfo;
 
-#ifdef FE_TARGET_LINUX
+#if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
 #include <unistd.h>
 
 static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
@@ -93,6 +95,7 @@ static void static_mm_pause(void) {
 void (*fe_hw_mm_pause)(void) = static_mm_pause_dummy;
 
 
+#ifdef FE_HW_TARGET_X86
 /* TODO: Use the CPUID intrinsics to detect features 
  * that __builtin_cpu_supports() can't report. 
  * Preferably call them once in fe_hw_setup(). */
@@ -102,6 +105,7 @@ void (*fe_hw_mm_pause)(void) = static_mm_pause_dummy;
 #elif defined(_MSC_VER)
 /* Use __cpuid() and __cpuidex(). */
 #endif
+#endif /* FE_HW_TARGET_X86 */
 
 #ifndef fe_hw_x86_supports
 FE_NIY bool fe_hw_x86_supports(const char *feature) {
@@ -129,9 +133,9 @@ void fe_hw_setup(void) {
     cacheinfo_fill(&static_cacheinfo);
 #if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
     if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE)) {
-        fe_hw_prefetch_l1d = static_sse_prefetch_t0;
-        fe_hw_prefetch_l2  = static_sse_prefetch_t1;
-        fe_hw_prefetch_l3  = static_sse_prefetch_t2;
+        fe_hw_prefetch_t0 = static_sse_prefetch_t0;
+        fe_hw_prefetch_t1  = static_sse_prefetch_t1;
+        fe_hw_prefetch_t2  = static_sse_prefetch_t2;
         fe_hw_prefetch_nta = static_sse_prefetch_nta;
     }
     if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE2)) {
