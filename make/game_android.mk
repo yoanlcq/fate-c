@@ -89,7 +89,7 @@ $(BUILDPATH)/jni/include/SDL2: | $(BUILDPATH)/jni/include
 GAME_DEBUG_APK=$(BUILDPATH)/bin/$(GAME_APP_DOMAIN)-debug.apk
 
 
-NCPUS=1
+#NCPUS=1
 
 $(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
 				   $(BUILDPATH)/AndroidManifest.xml \

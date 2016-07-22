@@ -52,11 +52,11 @@ void cube_main_init(struct cube_main *m) {
                             SDL_HINT_OVERRIDE);
 #endif
 
-    puts("Initializing SDL...");
+    fe_logi(TAG, "Initializing SDL...");
     if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
         fe_fatal(TAG, "SDL_Init failed: %s\n", SDL_GetError());
 
-    puts("Initializing log system and global state...");
+    fe_logi(TAG, "Initializing log system and global state...");
     //We do this after SDL_Init to (hopefully) override its signal handler.
     fe_globalstate_init(fe_gs);
 
