@@ -61,20 +61,44 @@
 
 #include <stdint.h>
 
-/*! \brief Type representing a space unit. Must be a signed integer type. */
+/*! \brief Type representing a space unit. Must be a signed integer type.
+ *
+ * This type is used for storing positions of spatial entities, and defines
+ * the range of all Regions.
+ * This, along with #fe_spacial_scale_unit, limits the range of 
+ * physics simulations. Care must be taken to ensure that no physics
+ * simulation is too large in space, in order to prevent overflows.
+ *
+ * Physics simulations that are at the edge of a region are not a problem,
+ * because they take place in temporary regions which attempt to move
+ * the involved spatial entities as close to the center as possible.
+ */
 typedef  int64_t fe_space_unit;
+
+/*! \brief Type representing a scale in space. Must be a signed integer type. 
+ *
+ * This type is used to apply binary scaling on spatial entities.
+ * This limits the maximum scale for all spatial entities, expressed in 
+ * #fe_space_unit.
+ */
+typedef int32_t fe_spacial_scale_unit;
+
+/*! \brief Type representing an angle. Must be an unsigned integer type.
+ *
+ * Don't subtract two unsigned types. Use #fe_uint_diff instead.
+ */
+typedef uint16_t fe_angular_unit;
+
 
 /*! \brief Type representing a time unit. Must be an unsigned integer type. 
  *
  * Don't subtract two unsigned types. Use #fe_uint_diff instead.
- * \endcode
  */
 typedef uint64_t fe_time_unit;
 
 /*! \brief Type representing an opacity unit. Must be an unsigned integer type. 
  *
  * Don't subtract two unsigned types. Use #fe_uint_diff instead.
- * \endcode
  */
 typedef uint8_t fe_alpha_unit;
 
