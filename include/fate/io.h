@@ -128,7 +128,7 @@ FE_NIY void fe_io_close(fe_io io);
 FE_NIY void fe_io_resize(fe_io io, size_t new_size);
 /* No read(), gets() or scanf() functions are provided, since you can get a pointer on the data. */
 /*! \brief TODO */
-FE_NIY void fe_io_write(fe_io io, const void *data, size_t size);
+FE_NIY void fe_io_append(fe_io io, const void *data, size_t size);
 /*! \brief TODO */
 FE_NIY void fe_io_putc(fe_io io, char c);
 /*! \brief TODO */
