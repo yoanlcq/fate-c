@@ -98,6 +98,8 @@ FE_NIY fe_promise fe_io_load_userdata(fe_io io, const char *file, fe_io_file_fla
  * a single file, you could put that file's name in it.
  * The string is duplicated on purpose, so there's no need to worry about its lifetime. 
  * It is free()'d at each next call to fe_io_name(). 
+ *
+ * It is implicitly called when loading data. XXX
  *  */
 FE_NIY void fe_io_name(fe_io io, const char *name);
 /*! \brief TODO  */

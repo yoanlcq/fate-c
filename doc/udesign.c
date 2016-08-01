@@ -194,6 +194,7 @@ int main(int argc, char *argv[]) {
  *  fate-dist <recipe>
  *
  * Example settings.cfg:
+ *  site_url = http://cube.author.org/
  *  company_name = Foobar
  *  description = A Cube spinning around.
  *  legal_copyright = Foobar
