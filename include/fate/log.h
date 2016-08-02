@@ -160,7 +160,7 @@ FE_NIY void fe_log_on_console(const char *tag);
 /*! \brief Requests that messages having the given tag be also displayed to 
  *         a file.
  *
- * Files are reference_counted within the \c fe_log module, so that no file
+ * Files are reference-counted within the \c fe_log module, so that no file
  * is fopen()-ed more than once.
  */
 FE_NIY void fe_log_file(const char *tag, const char *filename);

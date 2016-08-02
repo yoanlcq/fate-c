@@ -68,12 +68,46 @@ typedef enum {
     FE_IOV_ROOTDIR_SDL2_GETBASEPATH              = 1<<4, /*!< Overrides any other flag from the above. */
     FE_IOV_ROOTDIR_SDL2_GETPREFPATH              = 1<<5  /*!< Overrides any other flag from the above. */
 } fe_iov_rootdir;
-fe_iov_promise fe_iov_load_wget(fe_iov *iov, const char *url);
-fe_iov_promise fe_iov_load_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-fe_iov_promise fe_iov_load_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
-fe_iov_promise fe_iov_load_res(fe_iov *iov, const char *url, const char *filename, fe_iov_rootdir rd);
-fe_iov_promise fe_iov_store_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-fe_iov_promise fe_iov_store_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
+
+/* The 3 promise states :
+ * - Pending;
+ * - Started;
+ * - Completed : either fulfilled or broken. */
+typedef enum {
+    FE_IOV_STATUS_FULFILLED = 0,
+    FE_IOV_STATUS_PENDING,
+    FE_IOV_STATUS_STARTED_RESOLVING_HOST,
+    FE_IOV_STATUS_BROKEN_NO_HOST,
+    FE_IOV_STATUS_BROKEN_NO_ENTRY
+} fe_iov_status;
+
+typedef struct {
+    size_t bytes_current; /*!< Downloaded, read or written. */
+    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
+                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
+    fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
+    * If you want to build a string to show to the user, you're on your own (any URL or
+    * filename is yours to keep track of). */
+} fe_iov_state;
+
+fe_iov_status  fe_iov_load_wget(fe_iov *iov, const char *url);
+fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const char *url);
+fe_iov_status  fe_iov_load_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
+fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_status  fe_iov_load_res(fe_iov *iov, const char *url, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const char *url, const char *filename, fe_iov_rootdir rd);
+fe_iov_status  fe_iov_store_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
+fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
+
+fe_iov_status  fe_persistent_exists(const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_persistent_exists_async(const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_status  fe_persistent_delete(const char *idb_name, const char *filename, fe_iov_rootdir rd);
+fe_iov_promise fe_persistent_delete_async(const char *idb_name, const char *filename, fe_iov_rootdir rd);
+
 
 /* The fe_fd API's goal is to achieve efficient I/O on targets other than Emscripten (while still working on Emscripten, though).
  *
@@ -123,6 +157,8 @@ fe_iov_promise fe_iov_store_persistent(fe_iov *iov, const char *idb_name, const 
  * #fe_fd_open_res() will synchronously return an identifier to a Wget download on Emscripten.
  * Unless the FE_FD_OPEN_LAZY_DOWNLOAD was set, a download promise for it is enqueued.
  * Get the promise with fe_fd_get_download_promise(fe_fd fd) and wait for it to complete.
+ * If you don't feel like bothering with it, you can use the FE_FD_OPEN_NOW flag, which
+ * will cause the open() operation to synchronously download the file.
  *
  * So here's an example for opening a res file :
  * \code{.c}
@@ -157,33 +193,34 @@ typedef enum {
     FE_FD_OPEN_TRUNCATE,
     FE_FD_OPEN_SPARSE_ACCESS_HINT,
     FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT,
-    FE_FD_OPEN_LAZY_DOWNLOAD
+    FE_FD_OPEN_LAZY_DOWNLOAD,
+    FE_FD_OPEN_NOW
 } fe_fd_flags;
 typedef enum {
     FE_FD_SEEK_SET,
     FE_FD_SEEK_CUR,
     FE_FD_SEEK_END
 } fe_fd_seek_whence;
-typedef off_t fe_fd_offset;
-fe_fd         fe_fd_open_file(const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
-fe_fd         fe_fd_open_persistent(const char *idb_name, const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
-fe_fd         fe_fd_open_res(const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
-fe_fd_promise fe_fd_get_download_promise(fe_fd fd);
-bool          fe_fd_is_valid(fe_fd fd);
-size_t        fe_fd_get_len(fe_fd fd);
-void*         fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
-void          fe_fd_munmap(void *addr, size_t len);
-fe_fd_offset  fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
-#define       fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
-ssize_t       fe_fd_read(fe_fd fd, void *buf, size_t len);
-ssize_t       fe_fd_write(fe_fd fd, const void *buf, size_t len);
-ssize_t       fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
-ssize_t       fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
-ssize_t       fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
-ssize_t       fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
-bool          fe_fd_sync(fe_fd fd);
-bool          fe_fd_truncate(fe_fd fd, size_t len);
-void          fe_fd_close(fe_fd fd);
+typedef off_t  fe_fd_offset;
+fe_fd          fe_fd_open_file(const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+fe_fd          fe_fd_open_persistent(const char *idb_name, const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+fe_fd          fe_fd_open_res(const char *url, const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
+bool           fe_fd_is_valid(fe_fd fd);
+void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
+void           fe_fd_munmap(void *addr, size_t len);
+fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
+#define        fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
+ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
+ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
+ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
+ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
+ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+bool           fe_fd_sync(fe_fd fd);
+bool           fe_fd_truncate(fe_fd fd, size_t len);
+void           fe_fd_close(fe_fd fd);
+
 /* Should there be an async version of the API ??
  * We can do async reads with OVERLAPPED.
  * But sometimes it's not worth the trouble.
@@ -191,27 +228,6 @@ void          fe_fd_close(fe_fd fd);
  *
  * Conclusion : An async version of this API should come out later.
  */
-
-/* The 3 promise states :
- * - Pending;
- * - Started;
- * - Completed : either fulfilled or broken. */
-typedef enum {
-    FE_IOV_PROMISE_FULFILLED = 0,
-    FE_IOV_PROMISE_PENDING,
-    FE_IOV_PROMISE_STARTED_RESOLVING_HOST,
-    FE_IOV_PROMISE_BROKEN_NO_HOST,
-    FE_IOV_PROMISE_BROKEN_NO_ENTRY
-} fe_iov_promise_status;
-
-typedef struct {
-    size_t bytes_current; /*!< Downloaded, read or written. */
-    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
-                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
-    fe_iov_promise_status_detail status; /*!< This only gives you a hint about what did go wrong.
-    * If you want to build a string to show to the user, you're on your own (any URL or
-    * filename is yours to keep track of). */
-} fe_iov_promise_state;
 
 typedef void (*fe_iov_promise_completion_routine)(const fe_iov_promise_state *st, void *userdata);
 bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_promise_state *st);
@@ -275,9 +291,7 @@ typedef struct {
     size_t triangles_total;
 } fe_3dobj_promise_state;
 fe_3dobj_promise fe_3dobj_load(fe_3dobj *obj, const fe_iov *iov);
-bool fe_3dobj_promise_poll(fe_3dobj_promise p, fe_3dobj_promise_state *st);
-bool fe_3dobj_promise_wait_change(fe_3dobj_promise p, fe_3dobj_promise_state *st, int timeout_ms);
-bool fe_3dobj_promise_wait_completion(fe_3dobj_promise p, fe_3dobj_promise_state *st, int timeout_ms);
+bool fe_3dobj_promise_wait(fe_3dobj_promise p, fe_3dobj_promise_state *st, int timeout_ms);
 
 
 /* Typical use case: */
