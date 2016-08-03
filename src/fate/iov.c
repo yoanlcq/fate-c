@@ -1,5 +1,6 @@
 #include <fate/iov.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <assert.h>
 
 #if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)

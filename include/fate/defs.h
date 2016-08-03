@@ -392,7 +392,9 @@
 #endif /* ifdef __GNUC_ */
 
 /*! \brief Compile-time assert macro. */
-#ifdef FE_C11_SUPPORT
+#ifdef _MSC_VER
+#define FE_COMPILETIME_ASSERT(pred, str) static_assert(pred, str)
+#elif defined(FE_C11_SUPPORT)
 #define FE_COMPILETIME_ASSERT(pred, str) _Static_assert(pred, str)
 #else
 #define FE_COMPILETIME_ASSERT(pred, str) \

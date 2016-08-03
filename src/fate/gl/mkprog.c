@@ -205,7 +205,7 @@ static const size_t header_size = sizeof(fe_timestamp) + sizeof(GLenum);
 static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
 #ifndef FE_TARGET_EMSCRIPTEN
     GLsizei binlen = binfile->len - header_size;
-    char *bin = binfile->base + header_size;
+    char *bin = ((char*)binfile->base) + header_size;
     GLenum binfmt = fe_hw_swap32_net_to_host(
         *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp))
     );
