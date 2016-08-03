@@ -38,6 +38,7 @@
 #define FE_HASH_H
 
 #include <stdint.h>
+#include <stddef.h>
 /*! \brief The public domain SDBM hash function.
  *
  * This hash function is sbdm, from http://www.cse.yorku.ca/~oz/hash.html

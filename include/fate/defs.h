@@ -257,6 +257,10 @@
 #endif
 #endif
 
+#ifdef _MSC_VER
+#define restrict __restrict
+#endif
+
 #ifndef M_PI
 /*! \brief Definition for M_PI, since it may be missing with std=c11. */
 #define M_PI 3.14159265358979323846264338327
