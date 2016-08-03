@@ -222,11 +222,10 @@ void cube_main_init(struct cube_main *m) {
 
     fe_gl_mkprog_setup(gl_major, gl_minor);
     GLuint progid = glCreateProgram();
-    if(!fe_gl_mkprog(progid,
-                       "data/OpenGL/triangles.glpb",
-                       "res/shaders/triangles.330.core.vert",
-                       "res/shaders/triangles.330.core.frag",
-                       NULL))
+    fe_gl_shader_source_set ss = {{0}};
+    ss.vert.base = fe_gl_src_tri_330_vert;
+    ss.frag.base = fe_gl_src_tri_330_frag;
+    if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program.\n");
     fe_gl_mkprog_cleanup();
     fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");

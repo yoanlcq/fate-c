@@ -27,35 +27,25 @@
  *
  */
 
-
-#ifndef FE_H
-#define FE_H
-
-/*! \file fate.h
- *  \brief A single file for including all of F.A.T.E's interfaces.
+/*! \file fate/timestamp.h
+ *  \brief Small timestamp helper.
+ *  \defgroup timestamp Small timestamp helper.
  *
- * TODO
+ * @{
  */
 
-#include <fate/defs.h>
-#include <fate/hw.h>
-#include <fate/al.h>
-#include <fate/gl.h>
-#ifdef FE_WINDOWS
-#include <fate/d3d.h>
-#endif
-#include <fate/dpyres.h>
-#include <fate/globalstate.h>
-#include <fate/i18n.h>
-#include <fate/iov.h>
-#include <fate/fs.h>
-#include <fate/log.h>
-#include <fate/math.h>
-#include <fate/mem.h>
-#include <fate/mt.h>
-#include <fate/steam.h>
-#include <fate/sys.h>
-#include <fate/tracer.h>
-#include <fate/units.h>
+#ifndef FE_TIMESTAMP_H
+#define FE_TIMESTAMP_H
 
-#endif /* FE_H */
+#include <stdint.h>
+#include <time.h>
+typedef int64_t fe_timestamp;
+/* This function expects its parameters to be formatted EXACTLY like
+ * __DATE__ and __TIME__ macros. */
+fe_timestamp fe_timestamp_of_cpp_date_time(const char *date, const char *time);
+#define fe_timestamp_here() fe_timestamp_of_cpp_date_time(__DATE__, __TIME__)
+#define fe_timestamp_get_now() ((fe_timestamp)time(NULL))
+
+/*! @} */
+
+#endif /* FE_TIMESTAMP_H */

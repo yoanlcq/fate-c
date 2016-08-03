@@ -27,35 +27,23 @@
  *
  */
 
-
-#ifndef FE_H
-#define FE_H
-
-/*! \file fate.h
- *  \brief A single file for including all of F.A.T.E's interfaces.
+/*! \file fate/hash.h
+ *  \brief Hash utilities.
+ *  \defgroup hash Hash utilities.
  *
- * TODO
+ * @{
  */
 
-#include <fate/defs.h>
-#include <fate/hw.h>
-#include <fate/al.h>
-#include <fate/gl.h>
-#ifdef FE_WINDOWS
-#include <fate/d3d.h>
-#endif
-#include <fate/dpyres.h>
-#include <fate/globalstate.h>
-#include <fate/i18n.h>
-#include <fate/iov.h>
-#include <fate/fs.h>
-#include <fate/log.h>
-#include <fate/math.h>
-#include <fate/mem.h>
-#include <fate/mt.h>
-#include <fate/steam.h>
-#include <fate/sys.h>
-#include <fate/tracer.h>
-#include <fate/units.h>
+#ifndef FE_HASH_H
+#define FE_HASH_H
 
-#endif /* FE_H */
+#include <stdint.h>
+/*! \brief The public domain SDBM hash function.
+ *
+ * This hash function is sbdm, from http://www.cse.yorku.ca/~oz/hash.html
+ */
+uint64_t fe_hash_sdbm(const char *str, size_t max_length);
+
+/*! @} */
+
+#endif /* FE_HASH_H */

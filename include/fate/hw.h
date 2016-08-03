@@ -299,6 +299,24 @@ extern void (*fe_hw_mm_pause)(void);
 /*! \brief TODO */
 size_t fe_hw_get_cpu_count(void);
 
+#include <SDL2/SDL.h>
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define fe_hw_swap16_host_to_net(x) SDL_Swap16(x)
+#define fe_hw_swap32_host_to_net(x) SDL_Swap32(x)
+#define fe_hw_swap64_host_to_net(x) SDL_Swap64(x)
+#define fe_hw_swap16_net_to_host(x) SDL_SwapBE16(x)
+#define fe_hw_swap32_net_to_host(x) SDL_SwapBE32(x)
+#define fe_hw_swap64_net_to_host(x) SDL_SwapBE64(x)
+#else
+#define fe_hw_swap16_host_to_net(x) (x)
+#define fe_hw_swap32_host_to_net(x) (x)
+#define fe_hw_swap64_host_to_net(x) (x)
+#define fe_hw_swap16_net_to_host(x) (x)
+#define fe_hw_swap32_net_to_host(x) (x)
+#define fe_hw_swap64_net_to_host(x) (x)
+#endif
+
+
 /*! @} */
 
 #endif /* FE_HW_H */

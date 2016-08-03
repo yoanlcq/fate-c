@@ -42,5 +42,6 @@
 #include <fate/gl/log.h>
 #include <fate/gl/stats.h>
 #include <fate/gl/mkprog.h>
+#include <fate/gl/src.h>
 
 #endif /* FE_GL_H */

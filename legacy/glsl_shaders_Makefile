@@ -1,0 +1,43 @@
+.SUFFIXES:
+
+.PHONY: all clean re mrproper
+
+SYS := $(shell gcc -dumpmachine)
+ifneq (,$(findstring mingw,$(SYS)))
+OS := windows
+CAT := type
+ESC :=^
+RM_F := del /F
+else
+OS := unix
+CAT := cat
+ESC :=\\
+RM_F := rm -f
+endif
+
+SHADERS := $(wildcard *.vert *.frag)
+HEADERS := $(addsuffix .h,$(SHADERS))
+PRE:=fe_gl_shadersrc_
+DTU=$(subst .,_,$(1))
+
+all: $(HEADERS)
+
+%.h: %
+	@echo $@
+	@echo /* This file was automatically generated via GNU Make. */ > $@
+	@echo /* You should not edit it. Edit $< instead, then invoke 'make' again. */ >> $@
+	@echo #ifndef $(PRE)$(call DTU,$<)_H >> $@
+	@echo #define $(PRE)$(call DTU,$<)_H >> $@
+	@echo #ifndef STRINGIFY >> $@
+	@echo #define STRINGIFY(x) #x >> $@
+	@echo #endif /* STRINGIFY */ >> $@
+	@echo static const char *const $(PRE)$(call DTU,$<) = STRINGIFY( >> $@
+	@$(CAT) $^ >> $@
+	@echo ); >> $@
+	@echo #endif /* $(PRE)$(call DTU,$<)_H */ >> $@
+
+
+clean:
+	$(RM_F) $(wildcard *.vert.h *.frag.h)
+re: clean all
+mrpropre: re

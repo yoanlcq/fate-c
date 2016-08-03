@@ -36,4 +36,4 @@ $(BUILDDIR)/fate/%$(OBJ_EXTENSION): src/fate/%.c | dirs
 $(BUILDDIR)/fate_dbg/%$(OBJ_EXTENSION): src/fate/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	$(CC) $(CCDEBUGFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	@$(CC) $(CCDEBUGFLAGS) $(CCOBJ) $< $(CCOUT_OBJ)$@

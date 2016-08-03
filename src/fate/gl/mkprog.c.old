@@ -36,16 +36,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
+#include <errno.h>
 #include <fate/defs.h>
+#include <fate/sys.h>
+#include <fate/fs.h>
 #include <fate/log.h>
-#include <fate/iov.h>
+#include <fate/io.h>
 #include <fate/mem.h>
 #include <fate/gl.h>
 #include <fate/hash.h>
-#include <fate/timestamp.h>
-#include <fate/hw.h>
 
 static const char *TAG = "fe_gl";
 
@@ -101,8 +103,8 @@ static void fgm_add_shader_entry(const fgm_shaders_db_entry *en)
 #ifdef FE_DEBUG_BUILD
         if(en->hash == fgm_shaders_db.entries[i].hash) {
             fe_loge(TAG, "Hash collision detected in the shaders hashtable.\n"
-                    "The hash is %#016"PRIx64".\n", 
-                    en->hash);
+                    "The hash is %#016llX.\n", 
+                    (unsigned long long)en->hash);
             continue;
         }
 #endif
@@ -141,24 +143,75 @@ static const fgm_shader_type_entry shader_types_db_actual[] = {
 
 static const fgm_shader_type_entry *shader_types_db = NULL;
 
-GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype) 
+static GLenum fgm_shader_type_from_extension(const char *path) {
+
+    const char *file_extension = strrchr(path, '.');
+    if(!file_extension) {
+#ifdef FE_DEBUG_BUILD
+        fe_loge(TAG, "\"%s\" has no file extension, "
+                        "which is required to determine the shader type.\n", 
+                        path);
+#endif
+        return GL_INVALID_ENUM;
+    }
+    ++file_extension; /* Skip '.' */
+
+    const fgm_shader_type_entry *it;
+    for(it=shader_types_db ; it->file_extension ; ++it)
+        if(!strcmp(file_extension, it->file_extension))
+            return it->shader_type;
+
+#ifdef FE_DEBUG_BUILD
+    fe_loge(TAG, "Could not determine \"%s\"'s shader type.\n"
+                    "With the current OpenGL version, "
+                    "recognized file extensions are :\n\t",
+                    path);
+
+    for(it=shader_types_db ; ; ++it) {
+        fe_loge(TAG, ".%s", it->file_extension);
+        if((it+2)->file_extension)
+            fe_loge(TAG, ", ");
+        else break;
+    }
+    fe_loge(TAG, "and .%s.\n", (it+1)->file_extension);
+#endif
+    return GL_INVALID_ENUM;
+}
+
+GLuint fgm_find_or_compile_shader(const char *path) 
 {
+    GLenum shtype = fgm_shader_type_from_extension(path);
+    if(shtype == GL_INVALID_ENUM) 
+        return 0;
+
     /* Check hashtable */
-    uint64_t hash = fe_hash_sdbm(src->base, src->len ? src->len : ~(size_t)0);
+    uint64_t hash = fe_hash_sdbm(path); /* reused later */
     fgm_shaders_db_entry *entry = fgm_find_shader_entry(hash);
     if(entry)
         return entry->shader_id;
 
+    fe_io file;
+    fe_io___zallocv(&file, 1);
+    fe_io_load_file(file, path, 0);
+    if(!fe_io_ok(file)) {
+        fe_loge(TAG, "Could not open \"%s\" : %s.\n", path, 
+                fe_io_status_str(fe_io_get_status(file)));
+        return 0;
+    }
+    fe_io_putc(file, '\0');
     GLuint shid = glCreateShader(shtype);
-    /* fe_gl_dbg_glObjectLabel(GL_SHADER, shid, -1, path); XXX */
-    /* fe_logv(TAG, "Compiling \"%s\"...\n", path); XXX */
+    fe_gl_dbg_glObjectLabel(GL_SHADER, shid, -1, path);
+    fe_logv(TAG, "Compiling \"%s\"...\n", path); 
 
-    GLint lenarg = src->len ? src->len : -1;
+    GLchar *shsrc = fe_io_getdata(file);
+   
 #ifdef FE_TARGET_EMSCRIPTEN
-    glShaderSource(shid, 1, (const GLchar**) &src->base, &lenarg);
+    glShaderSource(shid, 1, (const GLchar**) &shsrc, NULL);
 #else
-    glShaderSource(shid, 1, (const GLchar* const*) &src->base, &lenarg);
+    glShaderSource(shid, 1, (const GLchar* const*) &shsrc, NULL);
 #endif
+    fe_io_close(file);
+    fe_io___deallocv(&file, 1);
 
     glCompileShader(shid);
 
@@ -171,7 +224,7 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         fgm_add_shader_entry(&res);
         return shid;
     }
-    /* fe_loge(TAG, "Could not compile \"%s\" :\n\t", path); XXX */
+    fe_loge(TAG, "Could not compile \"%s\" :\n\t", path);
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
     glDeleteShader(shid);
@@ -200,28 +253,41 @@ static void fe_gl_mkprog_cleanup_4_1(void)
 
 void (*fe_gl_mkprog_cleanup)(void);
 
-static const size_t header_size = sizeof(fe_timestamp) + sizeof(GLenum);
 
-static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
+static inline bool fgm_file_is_outdated(const char *path, va_list ap) {
+    uint64_t mtime = fe_fs_get_last_write_time(path);
+    for(;;) {
+        path = va_arg(ap, const char*);
+        if(!path) 
+            break;
+        if(!path[0])
+            continue;
+        if(fe_fs_get_last_write_time(path) > mtime)
+            return true;
+    }
+    return false;
+}
+
+static bool fgm_program_from_binary(GLuint program, fe_io binfile, 
+                                    const char *save_path) {
 #ifndef FE_TARGET_EMSCRIPTEN
-    GLsizei binlen = binfile->len - header_size;
-    char *bin = binfile->base + header_size;
-    GLenum binfmt = fe_hw_swap32_net_to_host(
-        *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp))
-    );
+    size_t binlen = fe_io_getsize(binfile);
+    char *bin = fe_io_getdata(binfile);
+    GLenum binfmt = *(const GLenum*)bin;
 
-    glProgramBinary(program, binfmt, bin, binlen);
+    glProgramBinary(program, binfmt, bin+sizeof(GLenum), 
+                    (GLsizei) (binlen-sizeof(GLenum)));
 
     GLint err, status;
     err = glGetError();
     if(err != GL_INVALID_ENUM) {
         glGetProgramiv(program, GL_LINK_STATUS, &status);
         if(status == GL_TRUE) {
-            /* fe_logv(TAG, "Successfully reused \"%s\".\n", save_path); XXX */
+            fe_logv(TAG, "Successfully reused \"%s\".\n", save_path);
             return true;
         }
     }
-    /* fe_logw(TAG, "Could not reuse \"%s\" : \n\t", save_path); XXX */
+    fe_logw(TAG, "Could not reuse \"%s\" : \n\t", save_path);
     if(err != GL_INVALID_ENUM) {
         fe_gl_log_program_info(program, fe_logw);
         fe_logw(TAG, "\n");
@@ -235,46 +301,45 @@ static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
 #endif
 }
 
-static void fgm_program_to_binary(GLuint program, fe_iov *binfile) {
+static void fgm_program_to_binary(GLuint program, fe_io binfile, const char *binfile_path) {
 #ifndef FE_TARGET_EMSCRIPTEN
     GLsizei binlen;
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
-    binfile->len = header_size + binlen;
-    binfile->base = fe_mem_malloc(binfile->len, char, "fe_gl prog binary");
+    char *bin = fe_mem_malloc(binlen, char, "fe_gl prog binary");
     GLenum binfmt;
-    glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+header_size);
-    *(fe_timestamp*)binfile->base = fe_hw_swap64_host_to_net(fe_timestamp_get_now());
-    *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp)) = fe_hw_swap32_host_to_net(binfmt);
+    glGetProgramBinary(program, binlen, NULL, &binfmt, bin);
+    fe_io_write(binfile, &binfmt, sizeof(GLenum));
+    fe_io_write(binfile, bin, binlen);
+    fe_promise_wait(fe_io_sync_userdata(binfile, binfile_path, 0));
     fe_logv(TAG, "Saved binary with format 0x%x.\n", binfmt);
 #endif /* FE_TARGET_EMSCRIPTEN */
 }
 
-static bool fe_gl_mkprog_2_0(GLuint program, 
-                             fe_timestamp last_build_time,
-                             fe_iov *restrict progbin,
-                             const fe_gl_shader_source_set *restrict ss)
+
+static bool fe_gl_mkprog_2_0_real(GLuint program, const char *save_path, 
+                                   va_list ap)
 {
+    const char *path;
+    bool all_good = true;
     GLuint shid;
-#define TRY_STAGE(stage, stage_enum) \
-    if(ss->stage.base) { \
-        shid = fgm_find_or_compile_shader(&ss->stage, stage_enum); \
-        if(shid) \
-            glAttachShader(program, shid); \
-        else { \
-            /*fe_logw(TAG, "Could not compile/reuse \"%s\".\n", path); XXX */\
-            return false; \
-        } \
+
+    for(;;) {
+        path = va_arg(ap, const char *);
+        if(!path)
+            break;
+        if(!path[0])
+            continue;
+        shid = fgm_find_or_compile_shader(path);
+        if(shid)
+            glAttachShader(program, shid);
+        else {
+            fe_logw(TAG, "Could not compile/reuse \"%s\".\n", path);
+            all_good = false;
+        }
     }
-    /* XXX */
-    TRY_STAGE(vert, GL_VERTEX_SHADER)
-    TRY_STAGE(frag, GL_FRAGMENT_SHADER)
-    TRY_STAGE(tese, GL_TESS_EVALUATION_SHADER)
-    TRY_STAGE(tesc, GL_TESS_CONTROL_SHADER)
-    TRY_STAGE(geom, GL_GEOMETRY_SHADER)
-#ifndef FE_TARGET_EMSCRIPTEN
-    TRY_STAGE(comp, GL_COMPUTE_SHADER) /* Check it anyway. It MUST cause an error. */
-#endif
-#undef TRY_STAGE
+
+    if(!all_good)
+        return false;
 
     glLinkProgram(program);
 
@@ -304,50 +369,80 @@ static bool fe_gl_mkprog_2_0(GLuint program,
         return true;
     }
 
-    /* fe_loge(TAG, "Could not link \"%s\" :\n\t", save_path); XXX */
+    fe_loge(TAG, "Could not link \"%s\" :\n\t", save_path);
     fe_gl_log_program_info(program, fe_loge);
     fe_loge(TAG, "\n");
     return false;
 }
 
-static bool fe_gl_mkprog_4_1(GLuint program, 
-                             fe_timestamp last_build_time,
-                             fe_iov *restrict progbin,
-                             const fe_gl_shader_source_set *restrict ss) {
 
-    if(progbin) {
-        FE_COMPILETIME_ASSERT(sizeof(fe_timestamp)==8, "Expected to swap 8 bytes.");
-        fe_timestamp progbin_ts = fe_hw_swap64_net_to_host(*(fe_timestamp*)progbin->base);
-        bool outdated = (progbin_ts <= last_build_time);
+static bool fe_gl_mkprog_4_1(GLuint program, const char *save_path, ...) {
+    
+    va_list ap;
+    bool binfile_is_outdated=false;
+    fe_io binfile;
+    fe_io___zallocv(&binfile, 1);
+    fe_io_load_file(binfile, save_path, 0);
 
-        if(!outdated)
-            if(fgm_program_from_binary(program, progbin))
+    if(fe_io_ok(binfile)) {
+        va_start(ap, save_path);
+        binfile_is_outdated = fgm_file_is_outdated(save_path, ap);
+        va_end(ap);
+        if(!binfile_is_outdated) {
+            if(fgm_program_from_binary(program, binfile, save_path)) {
+                fe_io_close(binfile);
+                fe_io___deallocv(&binfile, 1);
                 return true;
+            }
+            binfile_is_outdated = true;
+        }
+        fe_io_close(binfile);
+        fe_io___deallocv(&binfile, 1);
     }
 
+    if(!fe_io_ok(binfile) || binfile_is_outdated) {
 #ifndef FE_TARGET_EMSCRIPTEN
-    glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, 
-                        GL_TRUE);
+        glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, 
+                            GL_TRUE);
 #endif
-    if(!fe_gl_mkprog_2_0(program, last_build_time, progbin, ss));
-        return false;
-    if(progbin)
-        fgm_program_to_binary(program, progbin);
+        va_start(ap, save_path);
+        int success = fe_gl_mkprog_2_0_real(program, save_path, ap);
+        va_end(ap);
+        if(!success)
+            return false;
+        fgm_program_to_binary(program, binfile, save_path);
+        if(!fe_promise_wait(fe_io_sync_file(binfile, save_path, 0))) {
+            fe_logw(TAG, "Could not save program binary to \"%s\".\n",
+                            save_path);
+            return true;
+        }
+        fe_io_close(binfile);
+        fe_io___deallocv(&binfile, 1);
+    }
     return true;
 }
 
-bool (*fe_gl_mkprog)(GLuint progid, fe_timestamp last_build_time, fe_iov *restrict progbin,
-                     const fe_gl_shader_source_set *restrict ss);
+static bool fe_gl_mkprog_2_0(GLuint program, const char *save_path, ...) {
+    va_list ap;
+    va_start(ap, save_path);
+    bool retval = fe_gl_mkprog_2_0_real(program, save_path, ap);
+    va_end(ap);
+    return retval;
+}
+
+bool (*fe_gl_mkprog)(GLuint program, const char *save_path, ...);
 
 void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor) {
 
     unsigned version = gl_major*10 + gl_minor;
 
     if(version < 20) {
+#ifdef FE_DEBUG_BUILD
         fe_logw(TAG, "fe_gl_mkprog is not available, because the OpenGL "
-                     "version is less than 2.0.\n"
-                     "If you see this, something is wrong with "
-                     "the caller's code.\n"); 
+                        "version is less than 2.0.\n"
+                        "If you see this, something is wrong with "
+                        "the caller's code.\n"); 
+#endif
         return;
     }
 
