@@ -435,6 +435,8 @@ FE_NIY void fe_iov_promise_cancel(fe_iov_promise p);
 
 /*! @} */
 
-struct fe_iov_promise_struct {};
+struct fe_iov_promise_struct {
+    fe_iov_state state;
+};
 
 #endif /* FE_IOV_H */
