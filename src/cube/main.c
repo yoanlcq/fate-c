@@ -155,12 +155,20 @@ void cube_main_init(struct cube_main *m) {
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
 
-    GLint gl_major, gl_minor;
-    glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
-    glGetIntegerv(GL_MINOR_VERSION, &gl_minor);
-    if(gl_major < 4 || (gl_major == 4 && gl_minor < 1))
-        fe_fatal(TAG, "The OpenGL version reported by your driver is "
-                   "not supported yet.\nSorry. I'm working on it.\n");
+    fe_gl_version gl_version;
+    if(!fe_gl_version_query(&gl_version))
+        fe_fatal(TAG, "Could not parse the OpenGL version and profile mask.\n");
+    {
+        unsigned maj, min, es;
+        maj = gl_version.major;
+        min = gl_version.minor;
+        es  = gl_version.es;
+        fe_logi(TAG, "Parsed OpenGL version : %u.%u%s\n", maj, min, es ? "ES" : "");
+        bool supported = (es ? maj>=2 : maj>4 || (maj==4 && min>=1));
+        if(!supported)
+            fe_fatal(TAG, "The OpenGL version reported by your driver is "
+                       "not supported yet.\nSorry. I'm working on it.\n");
+    }
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
 
@@ -183,7 +191,7 @@ void cube_main_init(struct cube_main *m) {
         "    Stereo buffers      : %s\n"
         "    Depth buffer bits   : %d\n"
         "    Stencil buffer bits : %d\n",
-        gl_major, gl_minor,
+        gl_version.major, gl_version.minor,
         glGetString(GL_SHADING_LANGUAGE_VERSION),
         ctxpflags & GL_CONTEXT_CORE_PROFILE_BIT ? "core " : "",
         ctxpflags & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT ? "compatibility " :"",
@@ -218,14 +226,8 @@ void cube_main_init(struct cube_main *m) {
     fe_logi(TAG, "\n");
 #endif
 
-    fe_gl_dbg_setup(gl_major, gl_minor, true);
-    bool gl_es;
-    {
-        int prof;
-        SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &prof);
-        gl_es = (prof == SDL_GL_CONTEXT_PROFILE_ES);
-    }
-    fe_gl_mkprog_setup(gl_major, gl_minor, gl_es);
+    fe_gl_dbg_setup(&gl_version, true);
+    fe_gl_mkprog_setup(&gl_version);
     GLuint progid = glCreateProgram();
     fe_gl_shader_source_set ss = {{0}};
     ss.vert.base = fe_gl_src_tri_330_vert;

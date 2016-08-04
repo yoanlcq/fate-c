@@ -402,10 +402,11 @@ void (*fe_gl_dbg_insert_marker)(const char *string);
 #endif /* FE_GL_DBG */
 
 
-void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable) {
+void fe_gl_dbg_setup(const fe_gl_version *v, bool enable) {
 
+    /* XXX Does this work on OpenGL ES ? */
 #ifdef FE_GL_DBG
-    if((gl_major>4 || (gl_major==4 && gl_minor>=3)) || GLEW_KHR_debug)
+    if((v->major>4 || (v->major==4 && v->minor>=3)) || GLEW_KHR_debug)
         fgl_dbg_setup_khr(enable);
     else {
         if(GLEW_ARB_debug_output)

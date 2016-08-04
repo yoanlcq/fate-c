@@ -41,10 +41,11 @@
 #define FE_GL_DBG_H
 
 #include <fate/gl/defs.h>
+#include <fate/gl/version.h>
 #include <stdbool.h>
 
 /*! \brief TODO */
-void fe_gl_dbg_setup(GLint gl_major, GLint gl_minor, bool enable);
+void fe_gl_dbg_setup(const fe_gl_version *v, bool enable);
 
 #ifdef FE_DEBUG_BUILD
 #define FE_GL_DBG

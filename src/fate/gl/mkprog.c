@@ -340,8 +340,8 @@ bool (*fe_gl_mkprog)(GLuint progid, fe_timestamp last_build_time, fe_iov *restri
                      const fe_gl_shader_source_set *restrict ss);
 
 
-void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor, bool gl_es) {
-    unsigned version = gl_major*10 + gl_minor;
+void fe_gl_mkprog_setup(const fe_gl_version *v) {
+    unsigned version = v->major*10 + v->minor;
 
     if(version < 20) {
         fe_logw(TAG, "fe_gl_mkprog is not available, because the OpenGL "
@@ -354,7 +354,7 @@ void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor, bool gl_es) {
     for(shader_types_db = shader_types_db_actual ; ; ++shader_types_db)
         if(shader_types_db->min_gl_version <= version)
             break;
-    if(gl_es) {
+    if(v->es) {
         fe_gl_mkprog = (version>=30 ? fe_gl_mkprog_4_1 : fe_gl_mkprog_2_0);
         fe_gl_mkprog_cleanup = fe_gl_mkprog_cleanup_4_1;
     } else {

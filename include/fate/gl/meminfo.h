@@ -39,6 +39,7 @@
 #define FE_GL_MEMINFO_H
 
 #include <fate/gl/defs.h>
+#include <fate/gl/version.h>
 
 /*! \brief TODO */
 struct fe_gl_meminfo_nvx {
@@ -88,7 +89,7 @@ typedef struct fe_gl_meminfo fe_gl_meminfo;
 /*! \brief TODO */
 void (*fe_gl_meminfo_query)(fe_gl_meminfo *m);
 /*! \brief TODO */
-void fe_gl_meminfo_setup(GLint gl_major, GLint gl_minor);
+void fe_gl_meminfo_setup(const fe_gl_version *v);
 
 /*! @} */
 

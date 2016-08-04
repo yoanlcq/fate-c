@@ -43,6 +43,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <fate/gl/defs.h>
+#include <fate/gl/version.h>
 #include <fate/iov.h>
 #include <fate/timestamp.h>
 
@@ -57,7 +58,7 @@ typedef struct {
 } fe_gl_shader_source_set;
 
 /*! \brief TODO */
-void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor, bool opengl_es);
+void fe_gl_mkprog_setup(const fe_gl_version *v);
 
 /*! \brief A helper function to create OpenGL programs, in a 'make' fashion.
  *

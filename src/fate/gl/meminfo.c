@@ -36,6 +36,7 @@
 #include <fate/defs.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/meminfo.h>
+#include <fate/gl/version.h>
 
 static void fgl_meminfo_query_dummy(fe_gl_meminfo *m) {
     m->type = FE_GL_MEMINFO_NONE;
@@ -73,7 +74,8 @@ static void fgl_meminfo_query_ati(fe_gl_meminfo *m) {
 
 void (*fe_gl_meminfo_query)(fe_gl_meminfo *m);
 
-void fe_gl_meminfo_setup(GLint gl_major, GLint gl_minor) {
+void fe_gl_meminfo_setup(const fe_gl_version *v) {
+    /* XXX: OpenGL ES ? */
     if(GLEW_NVX_gpu_memory_info)
         fe_gl_meminfo_query = fgl_meminfo_query_nvx;
     else if(GLEW_ATI_meminfo)
