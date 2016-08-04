@@ -404,9 +404,15 @@ void (*fe_gl_dbg_insert_marker)(const char *string);
 
 void fe_gl_dbg_setup(const fe_gl_version *v, bool enable) {
 
-    /* XXX Does this work on OpenGL ES ? */
+    /* XXX Does this work on OpenGL ES ? 
+     * It should not. On ES, we must suffix everything from GL_KHR_debug 
+     * with KHR. */
 #ifdef FE_GL_DBG
-    if((v->major>4 || (v->major==4 && v->minor>=3)) || GLEW_KHR_debug)
+    bool khr_supported = (v->es 
+        ? v->major > 3 || (v->major == 3 && v->minor >= 2)
+        : v->major > 4 || (v->major == 4 && v->minor >= 3) || GLEW_KHR_debug
+    );
+    if(khr_supported)
         fgl_dbg_setup_khr(enable);
     else {
         if(GLEW_ARB_debug_output)
