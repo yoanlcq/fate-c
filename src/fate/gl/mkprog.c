@@ -194,7 +194,7 @@ static void fe_gl_mkprog_cleanup_2_0(void)
 
 static void fe_gl_mkprog_cleanup_4_1(void) 
 {
-    glReleaseShaderCompiler();
+    glReleaseShaderCompiler(); // >= ES 2.0
     fe_gl_mkprog_cleanup_2_0();
 }
 
@@ -210,7 +210,7 @@ static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
         *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp))
     );
 
-    glProgramBinary(program, binfmt, bin, binlen);
+    glProgramBinary(program, binfmt, bin, binlen); // >= ES 3.0
 
     GLint err, status;
     err = glGetError();
@@ -242,7 +242,7 @@ static void fgm_program_to_binary(GLuint program, fe_iov *binfile) {
     binfile->len = header_size + binlen;
     binfile->base = fe_mem_malloc(binfile->len, char, "fe_gl prog binary");
     GLenum binfmt;
-    glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+header_size);
+    glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+header_size); // >= ES 3.0
     *(fe_timestamp*)binfile->base = fe_hw_swap64_host_to_net(fe_timestamp_get_now());
     *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp)) = fe_hw_swap32_host_to_net(binfmt);
     fe_logv(TAG, "Saved binary with format 0x%x.\n", binfmt);
@@ -261,7 +261,7 @@ static bool fe_gl_mkprog_2_0(GLuint program,
         if(shid) \
             glAttachShader(program, shid); \
         else { \
-            /*fe_logw(TAG, "Could not compile/reuse \"%s\".\n", path); XXX */\
+            fe_logw(TAG, "Could not compile/reuse \"%s\".\n", #stage_enum);\
             return false; \
         } \
     }
@@ -292,9 +292,9 @@ static bool fe_gl_mkprog_2_0(GLuint program,
     GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if(status == GL_TRUE) {
-        fe_logv(TAG, "Successfully linked \"%s\".\n", save_path);
+        /* fe_logv(TAG, "Successfully linked \"%s\".\n", save_path); */
 #ifdef FE_GL_DBG
-        glValidateProgram(program);
+        glValidateProgram(program); // >= ES 2.0
         glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
         fe_logv(TAG, "\"%s\" is %svalid. ", 
                         save_path, status==GL_TRUE ? "" : "in");
@@ -304,7 +304,7 @@ static bool fe_gl_mkprog_2_0(GLuint program,
         return true;
     }
 
-    /* fe_loge(TAG, "Could not link \"%s\" :\n\t", save_path); XXX */
+    fe_loge(TAG, "Could not link \"%s\" :\n\t", "program");
     fe_gl_log_program_info(program, fe_loge);
     fe_loge(TAG, "\n");
     return false;
@@ -329,7 +329,7 @@ static bool fe_gl_mkprog_4_1(GLuint program,
     glProgramParameteri(program, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, 
                         GL_TRUE);
 #endif
-    if(!fe_gl_mkprog_2_0(program, last_build_time, progbin, ss));
+    if(!fe_gl_mkprog_2_0(program, last_build_time, progbin, ss))
         return false;
     if(progbin)
         fgm_program_to_binary(program, progbin);
@@ -339,8 +339,8 @@ static bool fe_gl_mkprog_4_1(GLuint program,
 bool (*fe_gl_mkprog)(GLuint progid, fe_timestamp last_build_time, fe_iov *restrict progbin,
                      const fe_gl_shader_source_set *restrict ss);
 
-void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor) {
 
+void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor, bool gl_es) {
     unsigned version = gl_major*10 + gl_minor;
 
     if(version < 20) {
@@ -354,12 +354,16 @@ void fe_gl_mkprog_setup(GLint gl_major, GLint gl_minor) {
     for(shader_types_db = shader_types_db_actual ; ; ++shader_types_db)
         if(shader_types_db->min_gl_version <= version)
             break;
-
-    if(version >= 41) {
-        fe_gl_mkprog = fe_gl_mkprog_4_1;
+    if(gl_es) {
+        fe_gl_mkprog = (version>=30 ? fe_gl_mkprog_4_1 : fe_gl_mkprog_2_0);
         fe_gl_mkprog_cleanup = fe_gl_mkprog_cleanup_4_1;
     } else {
-        fe_gl_mkprog = fe_gl_mkprog_2_0;
-        fe_gl_mkprog_cleanup = fe_gl_mkprog_cleanup_2_0;
+        if(version >= 41) {
+            fe_gl_mkprog = fe_gl_mkprog_4_1;
+            fe_gl_mkprog_cleanup = fe_gl_mkprog_cleanup_4_1;
+        } else {
+            fe_gl_mkprog = fe_gl_mkprog_2_0;
+            fe_gl_mkprog_cleanup = fe_gl_mkprog_cleanup_2_0;
+        }
     }
 }

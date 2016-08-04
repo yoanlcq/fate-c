@@ -219,8 +219,13 @@ void cube_main_init(struct cube_main *m) {
 #endif
 
     fe_gl_dbg_setup(gl_major, gl_minor, true);
-
-    fe_gl_mkprog_setup(gl_major, gl_minor);
+    bool gl_es;
+    {
+        int prof;
+        SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &prof);
+        gl_es = (prof == SDL_GL_CONTEXT_PROFILE_ES);
+    }
+    fe_gl_mkprog_setup(gl_major, gl_minor, gl_es);
     GLuint progid = glCreateProgram();
     fe_gl_shader_source_set ss = {{0}};
     ss.vert.base = fe_gl_src_tri_330_vert;

@@ -58,7 +58,7 @@
  *
  * It serves no other purpose than being a fun way of identifying a version. 
  */
-#define FE_VERSION_CODENAME "Bookkeeper"
+#define FE_VERSION_CODENAME "Predicator"
 /*! \brief The current F.A.T.E version's prerelease string, conforming to 
  *         point 9 of
  *         <a href="http://semver.org/spec/v2.0.0.html" target="_blank">
@@ -69,7 +69,7 @@
  */
 #define FE_VERSION_PRERELEASE_STR
 #define FE_VERSION_MAJOR 0
-#define FE_VERSION_MINOR 1
+#define FE_VERSION_MINOR 2
 #define FE_VERSION_PATCH 0
 /*! \brief The current F.A.T.E version's build metadata, conforming to 
  *         point 10 of
