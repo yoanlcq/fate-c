@@ -24,9 +24,8 @@ void Cube_init(Cube *c, GLuint prog) {
         255, 255, 0,
         255, 255, 0
     };
-    GLubyte indices[17] = {
+    GLubyte indices[16] = {
         0, 1, 2, 3, 4, 5, 6, 7,
-        0xFF,
         5, 3, 7, 1, 6, 0, 4, 2
     };
 
@@ -72,9 +71,9 @@ void Cube_draw(Cube *c) {
     glUseProgram(c->prog);
     glBindVertexArray(c->vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
-    glPrimitiveRestartIndex(0xFF);
-    glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_BYTE, NULL);
-    //draw_some_image(NULL);
+    const GLsizei counts[2] = {8, 8};
+    const GLvoid *const offsets[2] = {(GLvoid*)0, (GLvoid*)8};
+    glMultiDrawElements(GL_TRIANGLE_STRIP, counts, GL_UNSIGNED_BYTE, offsets, 2);
 }
 
 void draw_some_image(plane2d *p) {

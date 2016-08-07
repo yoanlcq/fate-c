@@ -8,7 +8,9 @@ fe_timestamp fe_gl_src_get_build_timestamp(void) {
 }
 
 const char *const fe_gl_src_tri_330_vert =
-    "#version 330 core\n"
+    "#version 110\n"
+    "#extension GL_ARB_explicit_attrib_location : require\n"
+    //"#version 330 core\n"
     "\n"
     "uniform mat4 MVPMatrix;\n"
     "layout(location = 0) in vec4 position;\n"
@@ -22,7 +24,9 @@ const char *const fe_gl_src_tri_330_vert =
 ;
 
 const char *const fe_gl_src_tri_330_frag =
-    "#version 330 core\n"
+    "#version 110\n"
+    "#extension GL_ARB_explicit_attrib_location : require\n"
+    //"#version 330 core\n"
     "\n"
     "in vec4 vColor;\n"
     "/* See http://stackoverflow.com/a/9222588 */\n"
