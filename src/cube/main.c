@@ -238,7 +238,6 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube_init(&m->cube, progid);
 
-    glEnable(GL_PRIMITIVE_RESTART); /* Since OpenGL 3.1 */
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE);
