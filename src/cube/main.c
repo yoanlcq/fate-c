@@ -230,8 +230,9 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_mkprog_setup(&gl_version);
     GLuint progid = glCreateProgram();
     fe_gl_shader_source_set ss = {{0}};
-    ss.vert.base = fe_gl_src_tri_330_vert;
-    ss.frag.base = fe_gl_src_tri_330_frag;
+    ss.vert.base = fe_gl_src_tri_130_vert;
+    ss.frag.base = fe_gl_src_tri_130_frag;
+    ss.before_linking = fe_gl_src_before_linking;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program.\n");
     fe_gl_mkprog_cleanup();
@@ -254,8 +255,8 @@ void cube_main_init(struct cube_main *m) {
     m->up[0] = 0.0f;
     m->up[1] = 1.0f;
     m->up[2] = 0.0f;
-    m->MVPMatrixLoc = glGetUniformLocation(m->cube.prog, "MVPMatrix");
-    m->ufInvertLoc  = glGetUniformLocation(m->cube.prog, "ufInvert");
+    m->MVPMatrixLoc = glGetUniformLocation(m->cube.prog, "u_mvp");
+    m->ufInvertLoc  = glGetUniformLocation(m->cube.prog, "u_invert");
 
 #define UPDATE_VIEW() \
     mat4_identity(m->Model); \
