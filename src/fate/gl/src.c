@@ -7,7 +7,7 @@ fe_timestamp fe_gl_src_get_build_timestamp(void) {
     return timestamp ? timestamp : (timestamp = fe_timestamp_here());
 }
 
-void fe_gl_src_prelinkage_callback(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time) {
+void fe_gl_src_before_linking(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time) {
 	glBindAttribLocation(prog, 0, "a_pos");
 	glBindAttribLocation(prog, 1, "a_col");
 }
