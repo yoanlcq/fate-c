@@ -48,7 +48,8 @@
 #include <fate/timestamp.h>
 
 /*! \brief TODO */
-typedef struct {
+typedef struct fe_gl_shader_source_set fe_gl_shader_source_set;
+struct fe_gl_shader_source_set {
     fe_iov_readonly vert; /*!< GL_VERTEX_SHADER */
     fe_iov_readonly frag; /*!< GL_FRAGMENT_SHADER */
     fe_iov_readonly tesc; /*!< GL_TESS_CONTROL_SHADER */
@@ -56,7 +57,7 @@ typedef struct {
     fe_iov_readonly geom; /*!< GL_GEOMETRY_SHADER */
     fe_iov_readonly comp; /*!< GL_COMPUTE_SHADER */
     void (*before_linking)(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time);
-} fe_gl_shader_source_set;
+};
 
 /*! \brief TODO */
 void fe_gl_mkprog_setup(const fe_gl_version *v);
