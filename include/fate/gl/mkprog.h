@@ -55,6 +55,7 @@ typedef struct {
     fe_iov_readonly tese; /*!< GL_TESS_EVALUATION_SHADER */
     fe_iov_readonly geom; /*!< GL_GEOMETRY_SHADER */
     fe_iov_readonly comp; /*!< GL_COMPUTE_SHADER */
+    void (*before_linking)(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time);
 } fe_gl_shader_source_set;
 
 /*! \brief TODO */
