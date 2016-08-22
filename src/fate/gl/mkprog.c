@@ -141,6 +141,22 @@ static const fgm_shader_type_entry shader_types_db_actual[] = {
 
 static const fgm_shader_type_entry *shader_types_db = NULL;
 
+static const char *fgm_shader_enum_to_str(GLenum e) {
+	switch(e) {
+#define CASE(s) case s: return #s
+#ifndef FE_TARGET_EMSCRIPTEN
+    CASE(GL_COMPUTE_SHADER);
+#endif
+    CASE(GL_TESS_CONTROL_SHADER);
+    CASE(GL_TESS_EVALUATION_SHADER);
+    CASE(GL_GEOMETRY_SHADER);
+    CASE(GL_VERTEX_SHADER);
+    CASE(GL_FRAGMENT_SHADER);
+#undef CASE
+	}
+	return "<unknown>";
+}
+
 GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype) 
 {
     /* Check hashtable */
@@ -171,7 +187,7 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         fgm_add_shader_entry(&res);
         return shid;
     }
-    /* fe_loge(TAG, "Could not compile \"%s\" :\n\t", path); XXX */
+    fe_loge(TAG, "Could not compile the %s :\n", fgm_shader_enum_to_str(shtype));
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
     glDeleteShader(shid);
