@@ -7,33 +7,33 @@ fe_timestamp fe_gl_src_get_build_timestamp(void) {
     return timestamp ? timestamp : (timestamp = fe_timestamp_here());
 }
 
-const char *const fe_gl_src_tri_330_vert =
-    "#version 110\n"
-    "#extension GL_ARB_explicit_attrib_location : require\n"
-    //"#version 330 core\n"
+void fe_gl_src_prelinkage_callback(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time) {
+	glBindAttribLocation(prog, 0, "a_pos");
+	glBindAttribLocation(prog, 1, "a_col");
+}
+
+const char *const fe_gl_src_tri_130_vert =
+    "#version 130\n"
     "\n"
-    "uniform mat4 MVPMatrix;\n"
-    "layout(location = 0) in vec4 position;\n"
-    "layout(location = 1) in vec4 color;\n"
-    "varying out vec4 vColor;\n"
+    "in vec4 a_pos;\n"
+    "in vec4 a_col;\n"
+    "varying out vec4 v_col;\n"
+    "uniform mat4 u_mvp;\n"
     "\n"
     "void main() {\n"
-    "    gl_Position = MVPMatrix * position;\n"
-    "    vColor = color;\n"
+    "    gl_Position = u_mvp * a_pos;\n"
+    "    v_col = a_col;\n"
     "}\n"
 ;
 
-const char *const fe_gl_src_tri_330_frag =
-    "#version 110\n"
-    "#extension GL_ARB_explicit_attrib_location : require\n"
-    //"#version 330 core\n"
+const char *const fe_gl_src_tri_130_frag =
+    "#version 130\n"
     "\n"
-    "in vec4 vColor;\n"
-    "/* See http://stackoverflow.com/a/9222588 */\n"
-    "layout(location = 0) varying out vec4 fColor;\n"
-    "uniform bool ufInvert;\n"
+    "in vec4 v_col;\n"
+    "out vec4 f_col;\n"
+	"uniform bool u_invert;\n"
     "\n"
     "void main() {\n"
-    "    fColor = vec4(ufInvert ? 1.0-vColor.rgb : vColor.rgb, 0.6);\n"
+    "    f_col = vec4(u_invert ? 1.0-v_col.rgb : v_col.rgb, 0.6);\n"
     "}"
 ;
