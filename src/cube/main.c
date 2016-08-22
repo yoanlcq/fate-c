@@ -150,7 +150,7 @@ void cube_main_init(struct cube_main *m) {
             "    Renderer  : %s\n"
             "    Vendor    : %s\n"
             "\n",
-            4, 1, 
+            3, 0, 
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
