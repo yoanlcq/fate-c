@@ -276,6 +276,8 @@ static bool fe_gl_mkprog_2_0(GLuint program,
 #endif
 #undef TRY_STAGE
 
+    if(ss->before_linking)
+        ss->before_linking(ss, program, last_build_time);
     glLinkProgram(program);
 
     /* Detach all shaders before doing anything else */
