@@ -47,7 +47,7 @@
 #include <fate/timestamp.h>
 #include <fate/hw.h>
 
-static const char *TAG = "fe_gl";
+static const char *TAG = "fe_gl_mkprog";
 
 struct fgm_shaders_db_entry {
     uint64_t hash;
@@ -166,8 +166,9 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         return entry->shader_id;
 
     GLuint shid = glCreateShader(shtype);
-    /* fe_gl_dbg_glObjectLabel(GL_SHADER, shid, -1, path); XXX */
-    /* fe_logv(TAG, "Compiling \"%s\"...\n", path); XXX */
+	size_t fllen = strchr(src->base, '\n') - ((const char*)src->base + 2);
+    fe_gl_dbg_glObjectLabel(GL_SHADER, shid, fllen, (const char*)src->base+2);
+    fe_logv(TAG, "Compiling \"%.*s\"...\n", fllen, (const char*)src->base+2);
 
     GLint lenarg = src->len ? src->len : -1;
 #ifdef FE_TARGET_EMSCRIPTEN
@@ -187,7 +188,7 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         fgm_add_shader_entry(&res);
         return shid;
     }
-    fe_loge(TAG, "Could not compile the %s :\n", fgm_shader_enum_to_str(shtype));
+    fe_loge(TAG, "Could not compile \"%.*s\" :\n", fllen, (const char*)src->base+2);
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
     glDeleteShader(shid);
@@ -233,11 +234,11 @@ static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
     if(err != GL_INVALID_ENUM) {
         glGetProgramiv(program, GL_LINK_STATUS, &status);
         if(status == GL_TRUE) {
-            /* fe_logv(TAG, "Successfully reused \"%s\".\n", save_path); XXX */
+            fe_logv(TAG, "Successfully reused the program binary.\n");
             return true;
         }
     }
-    /* fe_logw(TAG, "Could not reuse \"%s\" : \n\t", save_path); XXX */
+    fe_logw(TAG, "Could not reuse the program binary : \n");
     if(err != GL_INVALID_ENUM) {
         fe_gl_log_program_info(program, fe_logw);
         fe_logw(TAG, "\n");

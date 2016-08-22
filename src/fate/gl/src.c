@@ -13,11 +13,12 @@ void fe_gl_src_before_linking(const fe_gl_shader_source_set *ss, GLuint prog, fe
 }
 
 const char *const fe_gl_src_tri_130_vert =
+	"//tri.130.vert\n"
     "#version 130\n"
     "\n"
     "in vec4 a_pos;\n"
     "in vec4 a_col;\n"
-    "varying out vec4 v_col;\n"
+    "out vec4 v_col;\n" // XXX: removed 'varying' so it works on Intel HD Graphics
     "uniform mat4 u_mvp;\n"
     "\n"
     "void main() {\n"
@@ -27,6 +28,7 @@ const char *const fe_gl_src_tri_130_vert =
 ;
 
 const char *const fe_gl_src_tri_130_frag =
+	"//tri.130.frag\n"
     "#version 130\n"
     "\n"
     "in vec4 v_col;\n"

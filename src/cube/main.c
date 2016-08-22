@@ -234,7 +234,8 @@ void cube_main_init(struct cube_main *m) {
     ss.frag.base = fe_gl_src_tri_130_frag;
     ss.before_linking = fe_gl_src_before_linking;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
-        fe_fatal(TAG, "Could not build the OpenGL program.\n");
+        fe_fatal(TAG, "Could not build the OpenGL program!\n"
+		"More details on this error have been logged.\n");
     fe_gl_mkprog_cleanup();
     fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube_init(&m->cube, progid);
@@ -295,8 +296,9 @@ void cube_main_init(struct cube_main *m) {
     m->fps_ceil = FE_DEFAULT_FPS_CEIL;
     m->framerate_limit = 0;
 
-    if(m->framerate_limit <= 0) if(SDL_GL_SetSwapInterval(1) < 0)
-        fe_logw(TAG, "Warning : Vsync is disabled. The FPS may skyrocket.\n");
+    if(m->framerate_limit <= 0)
+		if(SDL_GL_SetSwapInterval(1) < 0)
+			fe_logw(TAG, "Warning : Vsync is disabled. The FPS may skyrocket.\n");
 
     m->frameno = 0;
     m->lim_last_time = SDL_GetTicks();
