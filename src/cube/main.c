@@ -140,6 +140,7 @@ void cube_main_init(struct cube_main *m) {
     if(glew != GLEW_OK)
         fe_fatal(TAG, "Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
+    glGetError();
 
     fe_logi(TAG,
             "--- OpenGL version ---\n"
