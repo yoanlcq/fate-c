@@ -89,7 +89,7 @@ static fgm_shaders_db_entry* fgm_find_shader_entry(uint64_t hash)
 static void fgm_add_shader_entry(const fgm_shaders_db_entry *en)
 {
     ++(fgm_shaders_db.top);
-    fgm_shaders_db.entries = fe_mem_xrealloc(
+    fgm_shaders_db.entries = fe_mem_xheaprealloc(
         fgm_shaders_db.entries,
         fgm_shaders_db.top,
         fgm_shaders_db_entry,
@@ -188,7 +188,7 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         fgm_add_shader_entry(&res);
         return shid;
     }
-    fe_loge(TAG, "Could not compile \"%.*s\" :\n", fllen, (const char*)src->base+2);
+    fe_loge(TAG, "Could not compile \"%.*s\" :\n", (int)fllen, (const char*)src->base+2);
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
     glDeleteShader(shid);
@@ -204,7 +204,7 @@ static void fe_gl_mkprog_cleanup_2_0(void)
     for(i=0 ; i<fgm_shaders_db.top ; ++i)
         glDeleteShader(fgm_shaders_db.entries[i].shader_id);
 
-    fe_mem_free(fgm_shaders_db.entries);
+    fe_mem_heapfree(fgm_shaders_db.entries);
     fgm_shaders_db.entries = NULL;
     fgm_shaders_db.top = 0;
 }
@@ -257,7 +257,7 @@ static void fgm_program_to_binary(GLuint program, fe_iov *binfile) {
     GLsizei binlen;
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
     binfile->len = header_size + binlen;
-    binfile->base = fe_mem_malloc(binfile->len, char, "fe_gl prog binary");
+    binfile->base = fe_mem_heapalloc(binfile->len, char, "fe_gl prog binary");
     GLenum binfmt;
     glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+header_size); // >= ES 3.0
     *(fe_timestamp*)binfile->base = fe_hw_swap64_host_to_net(fe_timestamp_get_now());
@@ -300,13 +300,13 @@ static bool fe_gl_mkprog_2_0(GLuint program,
     /* Detach all shaders before doing anything else */
     GLint num_shaders;
     glGetProgramiv(program, GL_ATTACHED_SHADERS, &num_shaders);
-    GLuint *shaders = fe_mem_malloc(num_shaders, GLuint, 
+    GLuint *shaders = fe_mem_heapalloc(num_shaders, GLuint, 
         "fe_gl detach shaders"
     );
     glGetAttachedShaders(program, num_shaders, &num_shaders, shaders);
     for( ; num_shaders ; --num_shaders)
         glDetachShader(program, shaders[num_shaders-1]);
-    fe_mem_free(shaders);
+    fe_mem_heapfree(shaders);
 
     GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);

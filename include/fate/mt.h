@@ -37,14 +37,10 @@
  * Hardware Transactional Memory, which F.A.T.E is able to use instead of
  * regular mutexes, if compiled with the appropriate compile-time switches.
  *
- * This module can also detect deadlocks, if compiled with
- * \c FE_MT_MUTEX_CHECK_DEADLOCKS.<br>
- * In that case, deadlock detection takes place no matter the mutex 
- * implementation (even with Transactional Memory).
  *
  * <b>Compile-time switches :</b>
  * <table>
- * <tr><td>FE_NO_MT</td>
+ * <tr><td>FE_MT_DISABLE</td>
  *     <td>If defined, guarantees a single threaded program, even preventing
  *         creation of other threads at runtime.<br>
  *         Most functionalities provided by this module then become macros that 
@@ -60,10 +56,7 @@
  *         to be performed asynchronously, but this is not exactly the same 
  *         thing.
  *         </td></tr>
- * <tr><td>FE_MT_MUTEX_CHECK_DEADLOCKS</td>
- *     <td>Check for deadlocks, regardless of the actual mutex implementation.
- *     </td></tr>
- * <tr><td>FE_MT_MUTEX_USE_GNUTM</td>
+ * <tr><td>FE_MT_MUTEX_TRY_GNUTM</td>
  *     <td>Compile on GCC with \c -fgnu-tm. The program then depends on
  *         a GCC runtime library called \c libitm.<br>
  *         GNU Transactional Memory is by far the most portable and safe 
@@ -126,15 +119,24 @@
 #define FE_MT_H
 
 #include <fate/defs.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <SDL2/SDL.h>
+
+#define FE_MT_MUTEX_TRY_GNUTM
+#define FE_MT_MUTEX_TRY_X86HLE
+#define FE_MT_MUTEX_TRY_X86RTM
 
 #ifdef FE_TARGET_EMSCRIPTEN
 /* It's not like we had the choice anyway. */
-#define FE_NO_MT
+#define FE_MT_DISABLE
 #endif
 
-void         fe_mt_setup(void);
-void         fe_mt_cleanup(void);
+
+typedef int fe_mt_thread;
+typedef SDL_SpinLock fe_mt_spinlock;
+typedef SDL_cond* fe_mt_cond;
+typedef SDL_mutex* fe_mt_mutex;
 
 typedef enum {
     FE_MT_THREADPRIO_LOW = SDL_THREAD_PRIORITY_LOW,
@@ -142,99 +144,117 @@ typedef enum {
     FE_MT_THREADPRIO_HIGH = SDL_THREAD_PRIORITY_HIGH
 } fe_mt_threadpriority;
 
-typedef int  fe_mt_thread;
+typedef union {
+    fe_mt_mutex as_mutex;
+    long        as_hle;
+} fe_mt_tsx;
+
+#define FE_MT_MAIN_THREAD_NAME "Main thread"
+
+#ifndef FE_MT_DISABLE
+
+/*! \brief Beware ! Needs fe_hw_setup() before. */
+void         fe_mt_setup(void);
+void         fe_mt_cleanup(void);
 
 size_t       fe_mt_get_thread_count(void);
-void         fe_mt_set_self_priority(unsigned priority);
+void         fe_mt_set_self_priority(fe_mt_threadpriority prio);
 fe_mt_thread fe_mt_thread_create(int (*func)(void*), const char *name, void *arg);
 void         fe_mt_thread_detach(fe_mt_thread t);
 int          fe_mt_thread_get_id(fe_mt_thread t);
 const char * fe_mt_thread_get_name(fe_mt_thread t);
 int          fe_mt_thread_wait(fe_mt_thread t);
 
-typedef SDL_Mutex* fe_mt_mutex;
-void fe_mt_mutex_init(fe_mt_mutex *mutex);
-void fe_mt_mutex_deinit(fe_mt_mutex *mutex);
+void fe_mt_mutex_init    (fe_mt_mutex *mutex);
+void fe_mt_mutex_deinit  (fe_mt_mutex *mutex);
 bool fe_mt_mutex_try_lock(fe_mt_mutex *mutex);
-void fe_mt_mutex_lock(fe_mt_mutex *mutex);
-void fe_mt_mutex_unlock(fe_mt_mutex *mutex);
+void fe_mt_mutex_lock    (fe_mt_mutex *mutex);
+void fe_mt_mutex_unlock  (fe_mt_mutex *mutex);
+
+/* You can't use them recursively. */
+bool fe_mt_spinlock_try_lock(fe_mt_spinlock *spinlock);
+void fe_mt_spinlock_lock    (fe_mt_spinlock *spinlock);
+void fe_mt_spinlock_unlock  (fe_mt_spinlock *spinlock);
+
+/* You can't nest transactions. */
+extern void (*fe_mt_tsx_init)  (fe_mt_tsx *t);
+extern void (*fe_mt_tsx_deinit)(fe_mt_tsx *t);
+extern void (*fe_mt_tsx_lock)  (fe_mt_tsx *t);
+extern void (*fe_mt_tsx_unlock)(fe_mt_tsx *t);
 
 
+void fe_mt_cond_init     (fe_mt_cond *cond);
+void fe_mt_cond_deinit   (fe_mt_cond *cond);
+void fe_mt_cond_wait     (fe_mt_cond *cond, 
+                          fe_mt_mutex *mutex, 
+                          uint32_t timeout_milliseconds);
+void fe_mt_cond_signal   (fe_mt_cond *cond);
+void fe_mt_cond_broadcast(fe_mt_cond *cond);
 
 #ifndef __GNUC__
-    #define NOPE
+    #define FE_MT_GNUTM_UNSUPPORTED
 #else
     #if FE_VERCMP_LT(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__,4,8,0)
-        #define NOPE
+        #define FE_MT_GNUTM_UNSUPPORTED
     #endif
 #endif
 
-#ifdef NOPE
-    #ifdef FE_MT_MUTEX_USE_GNUTM
-    #undef FE_MT_MUTEX_USE_GNUTM
-    #endif
-    #ifdef FE_MT_MUTEX_TRY_X86RTM
-    #undef FE_MT_MUTEX_TRY_X86RTM
-    #endif
-    #ifdef FE_MT_MUTEX_TRY_X86HLE
-    #undef FE_MT_MUTEX_TRY_X86HLE
-    #endif
-    #ifndef FE_MT_MUTEX_USE_SDL2
-    #define FE_MT_MUTEX_USE_SDL2
+#ifdef FE_MT_GNUTM_UNSUPPORTED
+    #ifdef FE_MT_TSX_TRY_GNUTM
+    #undef FE_MT_TSX_TRY_GNUTM
     #endif
 #endif
 
-#undef NOPE
+#include <fate/hw.h>
 
-
-/* Can we use x86 builtins at all ? */
-#ifndef FE_X86
-    #ifdef FE_MT_MUTEX_TRY_X86RTM
-    #undef FE_MT_MUTEX_TRY_X86RTM
+#ifndef FE_HW_TARGET_X86
+    #ifdef FE_MT_TSX_TRY_X86RTM
+    #undef FE_MT_TSX_TRY_X86RTM
     #endif
-    #ifdef FE_MT_MUTEX_TRY_X86HLE
-    #undef FE_MT_MUTEX_TRY_X86HLE
-    #endif
-    #ifndef FE_MT_MUTEX_USE_SDL2
-    #define FE_MT_MUTEX_USE_SDL2
+    #ifdef FE_MT_TSX_TRY_X86HLE
+    #undef FE_MT_TSX_TRY_X86HLE
     #endif
 #endif
-
 
 /* Implementation time ! */
 
-#ifdef FE_NO_MT
-
-    #define FE_MT_MUTEX_DECL(name) 
-    #define fe_mt_mutex_init(mutex)
-    #define fe_mt_mutex_deinit(mutex)
-    #define fe_mt_mutex_lock(mutex)
-    #define fe_mt_mutex_unlock(mutex)
-
-#elif defined(FE_MT_MUTEX_USE_GNUTM)
-#include "mt/mutex_gnutm.h"
-#elif defined(FE_MT_MUTEX_USE_SDL2)
-#include "mt/mutex_sdl2.h"
+#if defined(FE_MT_TSX_TRY_GNUTM)
+    #define fe_mt_tsx_init(tsx)
+    #define fe_mt_tsx_deinit(tsx)
+    #define fe_mt_tsx_lock(tsx)   __transaction_relaxed {
+    #define fe_mt_tsx_unlock(tsx) }
 #endif
 
-/* Nice documentation for x86 intrinsics : 
- * https://software.intel.com/sites/landingpage/IntrinsicsGuide */
 
-#if defined(FE_MT_MUTEX_TRY_X86HLE) || defined(FE_MT_MUTEX_TRY_X86RTM)
-    #ifdef _MSVC_VER
-        #include <intrin.h>
-    #else
-        #include <immintrin.h>
-    #endif
-#endif
+#else /* FE_MT_DISABLE */
 
-#ifdef FE_MT_MUTEX_TRY_X86HLE
-#include "mt/mutex_x86hle.h"
-#endif
+#define fe_mt_setup()
+#define fe_mt_cleanup()
 
-#ifdef FE_MT_MUTEX_TRY_X86RTM
-#include "mt/mutex_x86rtm.h"
-#endif
+#define fe_mt_get_thread_count() (1)
+#define fe_mt_set_self_priority()
+#define fe_mt_thread_create(f, n, a) (-1)
+#define fe_mt_thread_detach(t)
+#define fe_mt_thread_get_id(t) 0
+#define fe_mt_thread_get_name(t) FE_MT_MAIN_THREAD_NAME
+#define fe_mt_thread_wait(t)
+
+#define fe_mt_mutex_init(t)
+#define fe_mt_mutex_deinit(t)
+#define fe_mt_mutex_try_lock(t)
+#define fe_mt_mutex_lock(t)
+#define fe_mt_mutex_unlock(t)
+
+#define fe_mt_spinlock_try_lock(t)
+#define fe_mt_spinlock_lock(t)
+#define fe_mt_spinlock_unlock(t)
+
+#define fe_mt_tsx_init(t)
+#define fe_mt_tsx_deinit(t)
+#define fe_mt_tsx_lock(t)
+#define fe_mt_tsx_unlock(t)
+
+#endif /* FE_MT_DISABLE */
 
 /*! @} */
 

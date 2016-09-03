@@ -59,10 +59,6 @@ fe_iov_status  fe_persistent_exists(const char *idb_name,
 #endif
 }
 
-uintptr_t static_persistent_counter = 0;
-static void static_exists_oncheck(void *arg, int exists) {}
-static void static_exists_onerror(void *arg) {}
-
 fe_iov_promise fe_persistent_exists_async(const char *idb_name, 
                                           const char *filename,
                                           fe_iov_rootdir rd)

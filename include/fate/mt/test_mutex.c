@@ -1,19 +1,19 @@
-#include <fate/mt.h>
+#include <fe/mt.h>
 
 
 typedef struct vec2 {
-    FATE_MT_MUTEX_DECL(mutex)
+    FATE_MT_TSX_DECL(mutex)
     float x, y;
 } vec2;
 
 void vec2_init(vec2 *v, float x, float y) {
-    fate_mt_mutex_init(v->mutex);
+    fe_mt_tsx_init(v->mutex);
     v->x = x;
     v->y = y;
 }
 
 void vec2_deinit(vec2 *v) {
-    fate_mt_mutex_deinit(v->mutex);
+    fe_mt_tsx_deinit(v->mutex);
 }
 
 
@@ -23,9 +23,9 @@ int reader(void *arg) {
     unsigned long i;
     vec2 *v = arg;
     for(i=0 ; i<NUM_ITER ; ++i) {
-        fate_mt_mutex_lock(v->mutex);
+        fe_mt_tsx_lock(v->mutex);
         printf("%d%d\n", (int)v->x, (int)v->y);
-        fate_mt_mutex_unlock(v->mutex);
+        fe_mt_tsx_unlock(v->mutex);
     }
     return 0;
 }
@@ -34,12 +34,12 @@ int writer(void *arg) {
     unsigned long i;
     vec2 *v = arg;
     for(i=0 ; i<NUM_ITER ; ++i) {
-        fate_mt_mutex_lock(v->mutex);
+        fe_mt_tsx_lock(v->mutex);
         v->x = v->y = 0;
-        fate_mt_mutex_unlock(v->mutex);
-        fate_mt_mutex_lock(v->mutex);
+        fe_mt_tsx_unlock(v->mutex);
+        fe_mt_tsx_lock(v->mutex);
         v->x = v->y = 1;
-        fate_mt_mutex_unlock(v->mutex);
+        fe_mt_tsx_unlock(v->mutex);
     }
     return 0;
 }

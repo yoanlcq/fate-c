@@ -222,43 +222,160 @@ typedef struct {
  */
 extern const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo;
 
+typedef struct {
+    char vendor_id[13];
+    bool has_cmpxchg8b   : 1;
+    bool has_cmov        : 1;
+    bool has_mmx         : 1;
+    bool has_fxsave      : 1;
+    bool has_sse         : 1;
+    bool has_sse2        : 1;
 
-#if __DOXYGEN__ || (defined(FE_HW_TARGET_X86) && defined(__GNUC__) && !defined(__clang__))
-#define FE_HW_X86_FEATURE_CMOV   "cmov"
-#define FE_HW_X86_FEATURE_MMX    "mmx"
-#define FE_HW_X86_FEATURE_POPCNT "popcnt"
-#define FE_HW_X86_FEATURE_SSE    "sse"
-#define FE_HW_X86_FEATURE_SSE2   "sse2"
-#define FE_HW_X86_FEATURE_SSE3   "sse3"
-#define FE_HW_X86_FEATURE_SSSE3  "ssse3"
-#define FE_HW_X86_FEATURE_SSE4_1 "sse4.1"
-#define FE_HW_X86_FEATURE_SSE4_2 "sse4.2"
-#define FE_HW_X86_FEATURE_AVX    "avx"
-#define FE_HW_X86_FEATURE_AVX2   "avx2"
-/*! \brief Test our x86 CPU features.
- *
- * Currently, this is a wrapper around GCC's __builtin_cpu_supports().
- * This is a macro that expands to \c false if we're not compiling
- * for x86.
- *
- * Might be extended later.
- *
- * \param feature One of the FE_HW_X86_FEATURE_* constants.
- */
-#define fe_hw_x86_supports(feature) __builtin_cpu_supports(feature)
-#else
-#define FE_HW_X86_FEATURE_CMOV   NULL
-#define FE_HW_X86_FEATURE_MMX    NULL
-#define FE_HW_X86_FEATURE_POPCNT NULL
-#define FE_HW_X86_FEATURE_SSE    NULL
-#define FE_HW_X86_FEATURE_SSE2   NULL
-#define FE_HW_X86_FEATURE_SSE3   NULL
-#define FE_HW_X86_FEATURE_SSSE3  NULL
-#define FE_HW_X86_FEATURE_SSE4_1 NULL
-#define FE_HW_X86_FEATURE_SSE4_2 NULL
-#define FE_HW_X86_FEATURE_AVX    NULL
-#define FE_HW_X86_FEATURE_AVX2   NULL
-bool fe_hw_x86_supports(const char *feature);
+    bool has_sse3        : 1;
+    bool has_pclmul      : 1;
+    bool has_lzcnt       : 1;
+    bool has_ssse3       : 1;
+    bool has_fma         : 1;
+    bool has_cmpxchg16b  : 1;
+    bool has_sse4_1      : 1;
+    bool has_sse4_2      : 1;
+    bool has_movbe       : 1;
+    bool has_popcnt      : 1;
+    bool has_aes         : 1;
+    bool has_xsave       : 1;
+    bool has_osxsave     : 1;
+    bool has_avx         : 1;
+    bool has_f16c        : 1;
+    bool has_rdrnd       : 1;
+
+    bool has_fsgsbase    : 1;
+    bool has_bmi         : 1;
+    bool has_hle         : 1;
+    bool has_avx2        : 1;
+    bool has_bmi2        : 1;
+    bool has_rtm         : 1;
+    bool has_mpx         : 1;
+    bool has_avx512f     : 1;
+    bool has_avx512dq    : 1;
+    bool has_rdseed      : 1;
+    bool has_adx         : 1;
+    bool has_avx512ifma  : 1;
+    bool has_pcommit     : 1;
+    bool has_clflushopt  : 1;
+    bool has_clwb        : 1;
+    bool has_avx512pf    : 1;
+    bool has_avx512er    : 1;
+    bool has_avx512cd    : 1;
+    bool has_sha         : 1;
+    bool has_avx512bw    : 1;
+    bool has_avx512vl    : 1;
+
+    bool has_prefetchwt1 : 1;
+    bool has_avx512vbmi  : 1;
+    bool has_pku         : 1;
+    bool has_ospke       : 1;
+
+    bool has_lahf_lm     : 1;
+    bool has_abm         : 1;
+    bool has_sse4a       : 1;
+    bool has_prfchw      : 1;
+    bool has_xop         : 1;
+    bool has_lwp         : 1;
+    bool has_fma4        : 1;
+    bool has_tbm         : 1;
+    bool has_mwaitx      : 1;
+
+    bool has_mmxext      : 1;
+    bool has_lm          : 1;
+    bool has_3dnowext    : 1;
+    bool has_3dnow       : 1;
+} fe_hw_x86_features_struct;
+
+#if __DOXYGEN__ || FE_HW_TARGET_X86
+
+    #if defined(__GNUC__) || defined(__clang__)
+        #include <cpuid.h>
+    #endif
+
+    /*! \brief Check your x86 CPU's features. The data is filled by the
+    * CPUID instruction at the time of the call to #fe_hw_setup(). */
+    extern const fe_hw_x86_features_struct fe_hw_x86_cpu_info;
+
+    /*! \brief TODO */
+    void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
+                           uint32_t *eax, uint32_t *ebx, 
+                           uint32_t *ecx, uint32_t *edx);
+
+    /* Following definitons taken from GCC's cpuid.h. */
+
+    #define FE_HW_X86_CPUID_BIT_SSE3    (1 << 0)
+    #define FE_HW_X86_CPUID_BIT_PCLMUL  (1 << 1)
+    #define FE_HW_X86_CPUID_BIT_LZCNT   (1 << 5)
+    #define FE_HW_X86_CPUID_BIT_SSSE3   (1 << 9)
+    #define FE_HW_X86_CPUID_BIT_FMA     (1 << 12)
+    #define FE_HW_X86_CPUID_BIT_CMPXCHG16B  (1 << 13)
+    #define FE_HW_X86_CPUID_BIT_SSE4_1  (1 << 19)
+    #define FE_HW_X86_CPUID_BIT_SSE4_2  (1 << 20)
+    #define FE_HW_X86_CPUID_BIT_MOVBE   (1 << 22)
+    #define FE_HW_X86_CPUID_BIT_POPCNT  (1 << 23)
+    #define FE_HW_X86_CPUID_BIT_AES     (1 << 25)
+    #define FE_HW_X86_CPUID_BIT_XSAVE   (1 << 26)
+    #define FE_HW_X86_CPUID_BIT_OSXSAVE (1 << 27)
+    #define FE_HW_X86_CPUID_BIT_AVX     (1 << 28)
+    #define FE_HW_X86_CPUID_BIT_F16C    (1 << 29)
+    #define FE_HW_X86_CPUID_BIT_RDRND   (1 << 30)
+
+    #define FE_HW_X86_CPUID_BIT_CMPXCHG8B   (1 << 8)
+    #define FE_HW_X86_CPUID_BIT_CMOV    (1 << 15)
+    #define FE_HW_X86_CPUID_BIT_MMX     (1 << 23)
+    #define FE_HW_X86_CPUID_BIT_FXSAVE  (1 << 24)
+    #define FE_HW_X86_CPUID_BIT_SSE     (1 << 25)
+    #define FE_HW_X86_CPUID_BIT_SSE2    (1 << 26)
+
+    #define FE_HW_X86_CPUID_BIT_LAHF_LM (1 << 0)
+    #define FE_HW_X86_CPUID_BIT_ABM     (1 << 5)
+    #define FE_HW_X86_CPUID_BIT_SSE4a   (1 << 6)
+    #define FE_HW_X86_CPUID_BIT_PRFCHW  (1 << 8)
+    #define FE_HW_X86_CPUID_BIT_XOP         (1 << 11)
+    #define FE_HW_X86_CPUID_BIT_LWP     (1 << 15)
+    #define FE_HW_X86_CPUID_BIT_FMA4        (1 << 16)
+    #define FE_HW_X86_CPUID_BIT_TBM         (1 << 21)
+    #define FE_HW_X86_CPUID_BIT_MWAITX      (1 << 29)
+
+    #define FE_HW_X86_CPUID_BIT_MMXEXT  (1 << 22)
+    #define FE_HW_X86_CPUID_BIT_LM      (1 << 29)
+    #define FE_HW_X86_CPUID_BIT_3DNOWP  (1 << 30)
+    #define FE_HW_X86_CPUID_BIT_3DNOW   (1 << 31)
+
+    #define FE_HW_X86_CPUID_BIT_CLZERO  (1 << 0)
+
+    #define FE_HW_X86_CPUID_BIT_FSGSBASE    (1 << 0)
+    #define FE_HW_X86_CPUID_BIT_BMI (1 << 3)
+    #define FE_HW_X86_CPUID_BIT_HLE (1 << 4)
+    #define FE_HW_X86_CPUID_BIT_AVX2    (1 << 5)
+    #define FE_HW_X86_CPUID_BIT_BMI2    (1 << 8)
+    #define FE_HW_X86_CPUID_BIT_RTM (1 << 11)
+    #define FE_HW_X86_CPUID_BIT_MPX (1 << 14)
+    #define FE_HW_X86_CPUID_BIT_AVX512F (1 << 16)
+    #define FE_HW_X86_CPUID_BIT_AVX512DQ    (1 << 17)
+    #define FE_HW_X86_CPUID_BIT_RDSEED  (1 << 18)
+    #define FE_HW_X86_CPUID_BIT_ADX (1 << 19)
+    #define FE_HW_X86_CPUID_BIT_AVX512IFMA  (1 << 21)
+    #define FE_HW_X86_CPUID_BIT_PCOMMIT (1 << 22)
+    #define FE_HW_X86_CPUID_BIT_CLFLUSHOPT  (1 << 23)
+    #define FE_HW_X86_CPUID_BIT_CLWB    (1 << 24)
+    #define FE_HW_X86_CPUID_BIT_AVX512PF    (1 << 26)
+    #define FE_HW_X86_CPUID_BIT_AVX512ER    (1 << 27)
+    #define FE_HW_X86_CPUID_BIT_AVX512CD    (1 << 28)
+    #define FE_HW_X86_CPUID_BIT_SHA     (1 << 29)
+    #define FE_HW_X86_CPUID_BIT_AVX512BW    (1 << 30)
+    #define FE_HW_X86_CPUID_BIT_AVX512VL    (1 << 31)
+
+    #define FE_HW_X86_CPUID_BIT_PREFETCHWT1   (1 << 0)
+    #define FE_HW_X86_CPUID_BIT_AVX512VBMI  (1 << 1)
+    #define FE_HW_X86_CPUID_BIT_PKU (1 << 3)
+    #define FE_HW_X86_CPUID_BIT_OSPKE   (1 << 4)
+
 #endif
 
 #if __DOXYGEN__ || defined(FE_HW_TARGET_X86)
@@ -335,7 +452,6 @@ size_t fe_hw_get_cpu_count(void);
 #define fe_hw_swap64_le_to_host(x) SDL_SwapLE64(x)
 #define fe_hw_swapflt_le_to_host(x) SDL_SwapFloatLE(x)
 #endif
-
 
 /*! @} */
 

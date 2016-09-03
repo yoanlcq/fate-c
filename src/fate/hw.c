@@ -95,24 +95,6 @@ static void static_mm_pause(void) {
 void (*fe_hw_mm_pause)(void) = static_mm_pause_dummy;
 
 
-#ifdef FE_HW_TARGET_X86
-/* TODO: Use the CPUID intrinsics to detect features 
- * that __builtin_cpu_supports() can't report. 
- * Preferably call them once in fe_hw_setup(). */
-#ifdef __GNUC__
-#include <cpuid.h>
-/* Use __get_cpuid_max() and __get_cpuid(). */
-#elif defined(_MSC_VER)
-/* Use __cpuid() and __cpuidex(). */
-#endif
-#endif /* FE_HW_TARGET_X86 */
-
-#ifndef fe_hw_x86_supports
-FE_NIY bool fe_hw_x86_supports(const char *feature) {
-    return false;
-}
-#endif
-
 
 #ifdef FE_TARGET_ANDROID
 size_t fe_hw_get_cpu_count(void) {
@@ -129,19 +111,135 @@ FE_NIY size_t fe_hw_get_cpu_count(void) {
 }
 #endif
 
+
+#ifdef FE_HW_TARGET_X86
+
+    const fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
+
+    void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
+                           uint32_t *eax, uint32_t *ebx, 
+                           uint32_t *ecx, uint32_t *edx) {
+    #if defined(__GNUC__) || defined(__clang__)
+        __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
+    #elif defined(_MSC_VER)
+        int regs[4];
+        __cpuidex(regs, leaf, subleaf);
+        *eax = regs[0];
+        *ebx = regs[1];
+        *ecx = regs[2];
+        *edx = regs[3];
+    #endif
+    }
+
+    static void static_x86_cpuid_fill(void) {
+        fe_hw_x86_features_struct *cpuinfo = (void*)&fe_hw_x86_cpu_info;
+        uint32_t a=0, b=0, c=0, d=0;
+        uint32_t *vid = (void*)cpuinfo->vendor_id;
+        uint32_t basic_max=0, ext_max=0;
+
+        fe_hw_x86_cpuidex(0x00000000, 0, &basic_max, vid, vid+1, vid+2);
+        fe_hw_x86_cpuidex(0x80000000, 0, &ext_max, &b, &c, &d);
+
+        if(basic_max < 1)
+            return;
+
+        fe_hw_x86_cpuidex(1, 0, &a, &b, &c, &d);
+
+        cpuinfo->has_cmpxchg8b   = !!(d & FE_HW_X86_CPUID_BIT_CMPXCHG8B  );
+        cpuinfo->has_cmov        = !!(d & FE_HW_X86_CPUID_BIT_CMOV       ); 
+        cpuinfo->has_mmx         = !!(d & FE_HW_X86_CPUID_BIT_MMX        );
+        cpuinfo->has_fxsave      = !!(d & FE_HW_X86_CPUID_BIT_FXSAVE     );
+        cpuinfo->has_sse         = !!(d & FE_HW_X86_CPUID_BIT_SSE        );
+        cpuinfo->has_sse2        = !!(d & FE_HW_X86_CPUID_BIT_SSE2       );
+
+        cpuinfo->has_sse3        = !!(c & FE_HW_X86_CPUID_BIT_SSE3       );
+        cpuinfo->has_pclmul      = !!(c & FE_HW_X86_CPUID_BIT_PCLMUL     );
+        cpuinfo->has_lzcnt       = !!(c & FE_HW_X86_CPUID_BIT_LZCNT      );
+        cpuinfo->has_ssse3       = !!(c & FE_HW_X86_CPUID_BIT_SSSE3      );
+        cpuinfo->has_fma         = !!(c & FE_HW_X86_CPUID_BIT_FMA        );
+        cpuinfo->has_cmpxchg16b  = !!(c & FE_HW_X86_CPUID_BIT_CMPXCHG16B );
+        cpuinfo->has_sse4_1      = !!(c & FE_HW_X86_CPUID_BIT_SSE4_1     );
+        cpuinfo->has_sse4_2      = !!(c & FE_HW_X86_CPUID_BIT_SSE4_2     );
+        cpuinfo->has_movbe       = !!(c & FE_HW_X86_CPUID_BIT_MOVBE      );
+        cpuinfo->has_popcnt      = !!(c & FE_HW_X86_CPUID_BIT_POPCNT     );
+        cpuinfo->has_aes         = !!(c & FE_HW_X86_CPUID_BIT_AES        );
+        cpuinfo->has_xsave       = !!(c & FE_HW_X86_CPUID_BIT_XSAVE      );
+        cpuinfo->has_osxsave     = !!(c & FE_HW_X86_CPUID_BIT_OSXSAVE    );
+        cpuinfo->has_avx         = !!(c & FE_HW_X86_CPUID_BIT_AVX        );
+        cpuinfo->has_f16c        = !!(c & FE_HW_X86_CPUID_BIT_F16C       );
+        cpuinfo->has_rdrnd       = !!(c & FE_HW_X86_CPUID_BIT_RDRND      );
+
+        if(basic_max < 7)
+            return;
+
+        fe_hw_x86_cpuidex(7, 0, &a, &b, &c, &d);
+
+        cpuinfo->has_fsgsbase    = !!(b & FE_HW_X86_CPUID_BIT_FSGSBASE   );
+        cpuinfo->has_bmi         = !!(b & FE_HW_X86_CPUID_BIT_BMI        );
+        cpuinfo->has_hle         = !!(b & FE_HW_X86_CPUID_BIT_HLE        );
+        cpuinfo->has_avx2        = !!(b & FE_HW_X86_CPUID_BIT_AVX2       );
+        cpuinfo->has_bmi2        = !!(b & FE_HW_X86_CPUID_BIT_BMI2       );
+        cpuinfo->has_rtm         = !!(b & FE_HW_X86_CPUID_BIT_RTM        );
+        cpuinfo->has_mpx         = !!(b & FE_HW_X86_CPUID_BIT_MPX        );
+        cpuinfo->has_avx512f     = !!(b & FE_HW_X86_CPUID_BIT_AVX512F    );
+        cpuinfo->has_avx512dq    = !!(b & FE_HW_X86_CPUID_BIT_AVX512DQ   );
+        cpuinfo->has_rdseed      = !!(b & FE_HW_X86_CPUID_BIT_RDSEED     );
+        cpuinfo->has_adx         = !!(b & FE_HW_X86_CPUID_BIT_ADX        );
+        cpuinfo->has_avx512ifma  = !!(b & FE_HW_X86_CPUID_BIT_AVX512IFMA );
+        cpuinfo->has_pcommit     = !!(b & FE_HW_X86_CPUID_BIT_PCOMMIT    );
+        cpuinfo->has_clflushopt  = !!(b & FE_HW_X86_CPUID_BIT_CLFLUSHOPT );
+        cpuinfo->has_clwb        = !!(b & FE_HW_X86_CPUID_BIT_CLWB       );
+        cpuinfo->has_avx512pf    = !!(b & FE_HW_X86_CPUID_BIT_AVX512PF   );
+        cpuinfo->has_avx512er    = !!(b & FE_HW_X86_CPUID_BIT_AVX512ER   );
+        cpuinfo->has_avx512cd    = !!(b & FE_HW_X86_CPUID_BIT_AVX512CD   );
+        cpuinfo->has_sha         = !!(b & FE_HW_X86_CPUID_BIT_SHA        );
+        cpuinfo->has_avx512bw    = !!(b & FE_HW_X86_CPUID_BIT_AVX512BW   );
+        cpuinfo->has_avx512vl    = !!(b & FE_HW_X86_CPUID_BIT_AVX512VL   );
+
+        cpuinfo->has_prefetchwt1 = !!(c & FE_HW_X86_CPUID_BIT_PREFETCHWT1);
+        cpuinfo->has_avx512vbmi  = !!(c & FE_HW_X86_CPUID_BIT_AVX512VBMI );
+        cpuinfo->has_pku         = !!(c & FE_HW_X86_CPUID_BIT_PKU        );
+        cpuinfo->has_ospke       = !!(c & FE_HW_X86_CPUID_BIT_OSPKE      );
+
+        if(ext_max < 0x80000001)
+            return;
+
+        fe_hw_x86_cpuidex(0x80000001, 0, &a, &b, &c, &d);
+
+        cpuinfo->has_lahf_lm     = !!(c & FE_HW_X86_CPUID_BIT_LAHF_LM    );
+        cpuinfo->has_abm         = !!(c & FE_HW_X86_CPUID_BIT_ABM        );
+        cpuinfo->has_sse4a       = !!(c & FE_HW_X86_CPUID_BIT_SSE4a      );
+        cpuinfo->has_prfchw      = !!(c & FE_HW_X86_CPUID_BIT_PRFCHW     );
+        cpuinfo->has_xop         = !!(c & FE_HW_X86_CPUID_BIT_XOP        );
+        cpuinfo->has_lwp         = !!(c & FE_HW_X86_CPUID_BIT_LWP        );
+        cpuinfo->has_fma4        = !!(c & FE_HW_X86_CPUID_BIT_FMA4       );
+        cpuinfo->has_tbm         = !!(c & FE_HW_X86_CPUID_BIT_TBM        );
+        cpuinfo->has_mwaitx      = !!(c & FE_HW_X86_CPUID_BIT_MWAITX     );
+
+        cpuinfo->has_mmxext      = !!(d & FE_HW_X86_CPUID_BIT_MMXEXT     );
+        cpuinfo->has_lm          = !!(d & FE_HW_X86_CPUID_BIT_LM         );
+        cpuinfo->has_3dnowext    = !!(d & FE_HW_X86_CPUID_BIT_3DNOWP     );
+        cpuinfo->has_3dnow       = !!(d & FE_HW_X86_CPUID_BIT_3DNOW      );
+    }
+
+#endif
+
 void fe_hw_setup(void) {
     cacheinfo_fill(&static_cacheinfo);
-#if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
-    if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE)) {
-        fe_hw_prefetch_t0 = static_sse_prefetch_t0;
+#ifdef FE_HW_TARGET_X86
+    static_x86_cpuid_fill();
+#ifdef FE_HW_HAS_MULTIMEDIA_INTRINSICS
+    if(fe_hw_x86_cpu_info.has_sse) {
+        fe_hw_prefetch_t0  = static_sse_prefetch_t0;
         fe_hw_prefetch_t1  = static_sse_prefetch_t1;
         fe_hw_prefetch_t2  = static_sse_prefetch_t2;
         fe_hw_prefetch_nta = static_sse_prefetch_nta;
     }
-    if(fe_hw_x86_supports(FE_HW_X86_FEATURE_SSE2)) {
+    if(fe_hw_x86_cpu_info.has_sse2) {
         fe_hw_clflush = static_clflush;
         fe_hw_mm_pause = static_mm_pause;
     }
+#endif
 #endif
 }
 
