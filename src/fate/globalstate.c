@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <fate/sys.h>
 #include <fate/log.h>
-#include <fate/fs.h>
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
 
@@ -54,7 +53,7 @@ void fe_globalstate_init(fe_globalstate *gs) {
     if(!game_path)
         fe_fatal("globalstate", 
                    "Couldn't find the game's path.\nSorry.\n");
-    fe_fs_setcwd(game_path);
+    //fe_fs_setcwd(game_path);
     free(game_path);
 
     fe_sys_crash_handler_setup();

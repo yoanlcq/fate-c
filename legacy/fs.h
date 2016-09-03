@@ -44,14 +44,6 @@
 #include <fate/promise.h>
 
 /*! \brief TODO */
-FE_NIY fe_promise fe_userdata_exists(const char *filename);
-/*! \brief TODO */
-FE_NIY fe_promise fe_userdata_delete(const char *filename);
-/*! \brief TODO */
-bool fe_fs_exists(const char *filename);
-/*! \brief TODO */
-FE_NIY void fe_fs_delete(const char *filename);
-/*! \brief TODO */
 uint64_t fe_fs_get_last_write_time(const char *path);
 /*! \brief TODO */
 FE_NIY void fe_fs_move(const char *dst, const char *src);

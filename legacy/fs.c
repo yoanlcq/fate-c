@@ -40,9 +40,6 @@
 
 static const char *TAG = "fe_fs";
 
-fe_promise fe_userdata_exists(const char *filename) {return 0;}
-fe_promise fe_userdata_delete(const char *filename) {return 0;}
-
 
 /*
  *

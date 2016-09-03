@@ -84,12 +84,12 @@ typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...) FE_PRINTF_DECL
  *
  * This function also calls #fe_log_flags, with #FE_LOG_COLORED and #FE_LOG_TAG.
  */
-FE_NIY void fe_log_setup(void);
+void fe_log_setup(void);
 
 /*! \brief Clean-up this module.
  * 
  */
-FE_NIY void fe_log_cleanup(void);
+void fe_log_cleanup(void);
 
 
 /*! \brief Flags to be given to #fe_log_flags.
@@ -132,7 +132,7 @@ FE_NIY void fe_log_flags(unsigned long flags);
  * \see fe_log_flags
  * \see fe_log_flag 
  */
-FE_NIY unsigned long fe_log_getflags(void);
+unsigned long fe_log_getflags(void);
 
 /*! \brief Enumeration of log severities for #fe_log_multiplex().
  *

@@ -42,7 +42,7 @@
 #include <fate/globalstate.h>
 #include <fate/sys.h>
 #include <fate/log.h>
-#include <fate/fs.h>
+//#include <fate/fs.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
 #include <emscripten/emscripten.h>
@@ -233,11 +233,13 @@ char *fe_sys_getgamepath(void) {
         strcat(res,  PATHSEP"res");
         strcpy(data, expath);
         strcat(data, PATHSEP"data");
+        /* FIXME!!
         if(fe_fs_exists(res) && fe_fs_exists(data)) {
             free(res);
             free(data);
             return expath;
         }
+        */
     }
     free(res);
     free(data);

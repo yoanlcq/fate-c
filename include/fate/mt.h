@@ -126,32 +126,38 @@
 #define FE_MT_H
 
 #include <fate/defs.h>
+#include <SDL2/SDL.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
 /* It's not like we had the choice anyway. */
 #define FE_NO_MT
 #endif
 
-#ifdef FE_NO_MT
-#endif
+void         fe_mt_setup(void);
+void         fe_mt_cleanup(void);
 
-typedef int fe_mt_thread;
-typedef int fe_mt_mutex;
-FE_NIY void fe_mt_setup(void);
-FE_NIY size_t fe_mt_get_num_threads(void);
-FE_NIY fe_mt_thread* fe_mt_thread_create(int (*func)(void*), const char *name);
-FE_NIY void fe_mt_thread_detach(fe_mt_thread *t);
-FE_NIY int fe_mt_thread_getid(fe_mt_thread *t);
-FE_NIY const char *fe_mt_thread_getname(fe_mt_thread *t);
-FE_NIY void fe_mt_thread_setpriority(float priority);
-FE_NIY void fe_mt_thread_wait(fe_mt_thread *t);
+typedef enum {
+    FE_MT_THREADPRIO_LOW = SDL_THREAD_PRIORITY_LOW,
+    FE_MT_THREADPRIO_NORMAL = SDL_THREAD_PRIORITY_NORMAL,
+    FE_MT_THREADPRIO_HIGH = SDL_THREAD_PRIORITY_HIGH
+} fe_mt_threadpriority;
 
-FE_NIY void fe_mutex_setup(void);
-#define FE_MUTEX_DECL(name) something... 
-FE_NIY void fe_mutex_init(fe_mt_mutex *mutex);
-FE_NIY void fe_mutex_deinit(fe_mt_mutex *mutex);
-FE_NIY void fe_mutex_lock(fe_mt_mutex *mutex);
-FE_NIY void fe_mutex_unlock(fe_mt_mutex *mutex);
+typedef int  fe_mt_thread;
+
+size_t       fe_mt_get_thread_count(void);
+void         fe_mt_set_self_priority(unsigned priority);
+fe_mt_thread fe_mt_thread_create(int (*func)(void*), const char *name, void *arg);
+void         fe_mt_thread_detach(fe_mt_thread t);
+int          fe_mt_thread_get_id(fe_mt_thread t);
+const char * fe_mt_thread_get_name(fe_mt_thread t);
+int          fe_mt_thread_wait(fe_mt_thread t);
+
+typedef SDL_Mutex* fe_mt_mutex;
+void fe_mt_mutex_init(fe_mt_mutex *mutex);
+void fe_mt_mutex_deinit(fe_mt_mutex *mutex);
+bool fe_mt_mutex_try_lock(fe_mt_mutex *mutex);
+void fe_mt_mutex_lock(fe_mt_mutex *mutex);
+void fe_mt_mutex_unlock(fe_mt_mutex *mutex);
 
 
 

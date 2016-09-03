@@ -285,7 +285,8 @@ typedef enum {
     FE_IOV_STATUS_OK = 0,
     FE_IOV_STATUS_RESOLVING_HOST,
     FE_IOV_STATUS_NO_HOST,
-    FE_IOV_STATUS_NO_ENTRY
+    FE_IOV_STATUS_NO_ENTRY,
+    FE_IOV_STATUS_FAILED
 } fe_iov_status;
 
 /*! \brief TODO

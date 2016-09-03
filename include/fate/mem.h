@@ -47,7 +47,7 @@
 #define FE_MEM_H
 
 /*! \brief TODO */
-FE_NIY void fe_mem_setup(void);
+void fe_mem_setup(void);
 
 #include <fate/mem/heap.h>
 #include <fate/mem/stack.h>

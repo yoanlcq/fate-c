@@ -56,10 +56,14 @@
 
 */
 
+static unsigned long static_logflags = 0;
 void fe_log_setup(void) {}
 void fe_log_cleanup(void) {}
-void fe_log_flags(unsigned long flags) {}
-unsigned long fe_log_getflags(void) { return 0; }
+void fe_log_flags(unsigned long flags) {
+    static_logflags = flags;
+    /* TODO: flags should take effect. */
+}
+unsigned long fe_log_getflags(void) { return static_logflags; }
 void fe_log_no_console(const char *tag) {}
 void fe_log_on_console(const char *tag) {}
 void fe_log_file(const char *tag, const char *filename) {}
