@@ -141,6 +141,7 @@ static const fgm_shader_type_entry shader_types_db_actual[] = {
 
 static const fgm_shader_type_entry *shader_types_db = NULL;
 
+/*
 static const char *fgm_shader_enum_to_str(GLenum e) {
 	switch(e) {
 #define CASE(s) case s: return #s
@@ -156,6 +157,7 @@ static const char *fgm_shader_enum_to_str(GLenum e) {
 	}
 	return "<unknown>";
 }
+*/
 
 GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype) 
 {

@@ -455,4 +455,17 @@ size_t fe_hw_get_cpu_count(void);
 
 /*! @} */
 
+typedef struct {uint32_t val;} fe_hw_atomic_u32;
+typedef struct { int32_t val;} fe_hw_atomic_s32;
+typedef struct {uint64_t val;} fe_hw_atomic_u64;
+typedef struct { int64_t val;} fe_hw_atomic_s64;
+
+/* TODO
+
+#define fe_hw_atomic_u32_get()
+#define fe_hw_atomic_u32_set()
+#define fe_hw_atomic_u32_add()
+#define fe_hw_atomic_u32_sub()
+*/
+
 #endif /* FE_HW_H */

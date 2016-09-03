@@ -52,46 +52,46 @@ fe_iov_status  fe_persistent_exists(const char *idb_name,
                                     const char *filename, 
                                     fe_iov_rootdir rd)
 {
+    return 0;
+/*
 #ifdef FE_TARGET_EMSCRIPTEN
     int exists, error;
     emscripten_idb_exists(idb_name, filename, &exists, &error);
     return FE_IOV_STATUS_OK;
 #endif
+*/
 }
 
 fe_iov_promise fe_persistent_exists_async(const char *idb_name, 
                                           const char *filename,
                                           fe_iov_rootdir rd)
 {
+    return 0;
+/*
 #ifdef FE_TARGET_EMSCRIPTEN
-    /* XXX We're not locking the counter because the browser environment
-     * is not multi-threaded. */
-
-    /*
     emscripten_idb_async_exists(idb_name, filename, 
         static_persistent_counter, 
         static_exists_oncheck, 
         static_exists_onerror        
     );
     ++static_persistent_counter;
-    */
 #else
-    /* TODO */
 #endif
+*/
 }
 fe_iov_status  fe_persistent_delete(const char *idb_name,
                                     const char *filename,
                                     fe_iov_rootdir rd)
 {
-#ifdef FE_TARGET_EMSCRIPTEN
+    return 0;
     /*
+#ifdef FE_TARGET_EMSCRIPTEN
     int error;
     emscripten_idb_delete(idb_name, filename, &error);
     return error ? FE_IOV_ERR_FAILED : FE_IOV_ERR_OK;
-    */
 #else
-    /* TODO */
 #endif
+*/
 }
 
 fe_iov_promise fe_persistent_delete_async(const char *idb_name, const char *filename, fe_iov_rootdir rd) {return 0;}
