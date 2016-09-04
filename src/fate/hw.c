@@ -116,13 +116,16 @@ FE_NIY size_t fe_hw_get_cpu_count(void) {
 
     const fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
 
+    #if (defined(__GNUC__) || defined(__clang__))
+        #include <cpuid.h>
+    #endif
+
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
                            uint32_t *eax, uint32_t *ebx, 
                            uint32_t *ecx, uint32_t *edx) {
-    #if (defined(__GNUC__) || defined(__clang__)) \
-     && !defined(__MINGW64_VERSION_MAJOR)
+    #if (defined(__GNUC__) || defined(__clang__))
         __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-    #elif defined(_MSC_VER) || defined(__MINGW64_VERSION_MAJOR)
+    #elif defined(_MSC_VER)
         int regs[4];
         __cpuidex(regs, leaf, subleaf);
         *eax = regs[0];

@@ -293,11 +293,6 @@ typedef struct {
 
 #if __DOXYGEN__ || FE_HW_TARGET_X86
 
-    #if (defined(__GNUC__) || defined(__clang__)) \
-     && !defined(__MINGW64_VERSION_MAJOR)
-        #include <cpuid.h>
-    #endif
-
     /*! \brief Check your x86 CPU's features. The data is filled by the
     * CPUID instruction at the time of the call to #fe_hw_setup(). */
     extern const fe_hw_x86_features_struct fe_hw_x86_cpu_info;
@@ -465,7 +460,7 @@ typedef struct { int64_t val;} fe_hw_atomic_s64;
 #define fe_hw_atomic_u32_get(ptr)      __atomic_load_4(ptr, 0)
 #define fe_hw_atomic_u32_set(ptr, val) __atomic_store_4(ptr, val, 0)
 #define fe_hw_atomic_u32_xchg(ptr, val) __atomic_exchange_4(ptr, val, 0)
-#define fe_hw_atomic_u32_cmpxchg(ptr, val) __atomic_compare_exchange_4(ptr, val, 0)
+#define fe_hw_atomic_u32_cmpxchg(ptr, ptr_expected, val) __atomic_compare_exchange_4(ptr, val, 0)
 #define fe_hw_atomic_u32_add(ptr, val) __atomic_add_fetch_4(ptr, val, 0)
 #define fe_hw_atomic_u32_sub(ptr, val) __atomic_sub_fetch_4(ptr, val, 0)
 #endif
