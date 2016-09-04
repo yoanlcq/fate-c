@@ -5,6 +5,9 @@
 #include <string.h>
 #include <math.h>
 #include <fate/fate.h>
+#ifdef __MINGW64_VERSION_MAJOR
+#undef __MINGW64_VERSION_MAJOR
+#endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_revision.h>
 #include <linmath/linmath.h>
