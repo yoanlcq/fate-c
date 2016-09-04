@@ -146,7 +146,7 @@ typedef enum {
 
 typedef union {
     fe_mt_mutex as_mutex;
-    long        as_hle;
+    int32_t     as_hle;
 } fe_mt_tsx;
 
 #define FE_MT_MAIN_THREAD_NAME "Main thread"

@@ -164,7 +164,7 @@ static void fe_mt_tsx_lock_x86hle(fe_mt_tsx *tsx) {
     while(_InterlockedCompareExchange_HLEAcquire(&(tsx->as_hle), 1, 0))
         fe_hw_mm_pause();
 #else
-    while(__atomic_exchange_n(&(tsx->as_hle), 1, __ATOMIC_ACQUIRE
+    while(__atomic_exchange_4(&(tsx->as_hle), 1, __ATOMIC_ACQUIRE
                                                | __ATOMIC_HLE_ACQUIRE)) 
         fe_hw_mm_pause();
 #endif
@@ -174,7 +174,7 @@ static void fe_mt_tsx_unlock_x86hle(fe_mt_tsx *tsx) {
 #ifdef _MSVC_VER
     _InterlockedExchange_HLERelease(&(tsx->as_hle), 0);
 #else
-    __atomic_store_n(&(tsx->as_hle), 0, __ATOMIC_RELEASE 
+    __atomic_store_4(&(tsx->as_hle), 0, __ATOMIC_RELEASE 
                                       | __ATOMIC_HLE_RELEASE);
 #endif
 }

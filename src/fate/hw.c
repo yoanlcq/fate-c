@@ -114,11 +114,14 @@ FE_NIY size_t fe_hw_get_cpu_count(void) {
 
 #ifdef FE_HW_TARGET_X86
 
-    const fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
-
+    /* Note to self : I've included cpuid.h in this file only, because
+     * on Mingw64, it conflicts with intrin.h. Long story short, it 
+     * doesn't play well with SDL2 and breaks the build. */
     #if (defined(__GNUC__) || defined(__clang__))
         #include <cpuid.h>
     #endif
+
+    const fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
 
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
                            uint32_t *eax, uint32_t *ebx, 

@@ -449,20 +449,118 @@ size_t fe_hw_get_cpu_count(void);
 #define fe_hw_swapflt_le_to_host(x) SDL_SwapFloatLE(x)
 #endif
 
-/*! @} */
 
-typedef struct {uint32_t val;} fe_hw_atomic_u32;
-typedef struct { int32_t val;} fe_hw_atomic_s32;
-typedef struct {uint64_t val;} fe_hw_atomic_u64;
-typedef struct { int64_t val;} fe_hw_atomic_s64;
 
-#ifdef __GNUC__
-#define fe_hw_atomic_u32_get(ptr)      __atomic_load_4(ptr, 0)
-#define fe_hw_atomic_u32_set(ptr, val) __atomic_store_4(ptr, val, 0)
-#define fe_hw_atomic_u32_xchg(ptr, val) __atomic_exchange_4(ptr, val, 0)
-#define fe_hw_atomic_u32_cmpxchg(ptr, ptr_expected, val) __atomic_compare_exchange_4(ptr, val, 0)
-#define fe_hw_atomic_u32_add(ptr, val) __atomic_add_fetch_4(ptr, val, 0)
-#define fe_hw_atomic_u32_sub(ptr, val) __atomic_sub_fetch_4(ptr, val, 0)
+/* These are typedef-ed in case we have alignment requirements. 
+ * There's no unsigned counterpart because there are no intrinsics 
+ * for them with MSVC. */
+typedef void*   fe_hw_atomicptr;
+#ifdef _MSC_VER
+typedef long    fe_hw_atomic32; /* Still 32 bits, see LONG in MSDN. */
+#else
+typedef int32_t fe_hw_atomic32;
 #endif
+typedef int64_t fe_hw_atomic64;
+
+
+static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_load_4(ptr, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    return _InterlockedAdd(ptr, 0);
+#endif
+}
+static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_load_8(ptr, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    return _InterlockedAdd64(ptr, 0);
+#endif
+}
+
+static inline void fe_hw_atomic32_store(fe_hw_atomic32 *ptr, int32_t val) {
+#if defined(__GNUC__) || defined(__clang__)
+    __atomic_store_4(ptr, val, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    _InterlockedExchange(ptr, val);
+#endif
+}
+
+static inline void fe_hw_atomic64_store(fe_hw_atomic64 *ptr, int64_t val) {
+#if defined(__GNUC__) || defined(__clang__)
+    __atomic_store_8(ptr, val, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    _InterlockedExchange64(ptr, val);
+#endif
+}
+
+static inline void fe_hw_atomicptr_store(fe_hw_atomicptr *ptr, void* val) {
+#if defined(__GNUC__) || defined(__clang__)
+    __atomic_store(ptr, &val, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    _InterlockedExchangePointer(ptr, val);
+#endif
+}
+
+/* if(*ptr == expected)
+ *     *ptr = desired;    //return true
+ * else *expected = *ptr; //return false
+ * return *ptr != *expected;
+ */
+static inline bool fe_hw_atomic32_cmpxchg(fe_hw_atomic32 *ptr, 
+                                          int32_t expected, 
+                                          int32_t desired) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_compare_exchange_4(ptr, &expected, desired, 
+                false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    int64_t ptr_oldval = 
+        _InterlockedCompareExchange(ptr, desired, expected);
+    return ptr_oldval == expected;
+#endif
+}
+static inline bool fe_hw_atomic64_cmpxchg(fe_hw_atomic64 *ptr, 
+                                          int64_t expected, 
+                                          int64_t desired) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_compare_exchange_8(ptr, &expected, desired, 
+                false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    int64_t ptr_oldval = 
+        _InterlockedCompareExchange64(ptr, desired, expected);
+    return ptr_oldval == expected;
+#endif
+}
+static inline bool fe_hw_atomicptr_cmpxchg(fe_hw_atomicptr *ptr, 
+                                           void* expected, 
+                                           void* desired) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_compare_exchange(ptr, &expected, &desired, 
+                false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    int64_t ptr_oldval = 
+        _InterlockedCompareExchangePointer(ptr, desired, expected);
+    return ptr_oldval == expected;
+#endif
+}
+
+static inline int64_t fe_hw_atomic32_add(fe_hw_atomic32 *ptr, int32_t val) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    return _InterlockedAdd(ptr, val);
+#endif
+}
+static inline int64_t fe_hw_atomic64_add(fe_hw_atomic64 *ptr, int64_t val) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
+#elif defined(_MSC_VER)
+    return _InterlockedAdd64(ptr, val);
+#endif
+}
+
+#define fe_hw_atomic_compilerbarrier_rw() SDL_CompilerBarrier()
+
+/*! @} */
 
 #endif /* FE_HW_H */
