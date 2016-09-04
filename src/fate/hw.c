@@ -119,15 +119,18 @@ FE_NIY size_t fe_hw_get_cpu_count(void) {
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
                            uint32_t *eax, uint32_t *ebx, 
                            uint32_t *ecx, uint32_t *edx) {
-    #if defined(__GNUC__) || defined(__clang__)
+    #if (defined(__GNUC__) || defined(__clang__)) \
+     && !defined(__MINGW64_VERSION_MAJOR)
         __cpuid_count(leaf, subleaf, eax, ebx, ecx, edx);
-    #elif defined(_MSC_VER)
+    #elif defined(_MSC_VER) || defined(__MINGW64_VERSION_MAJOR)
         int regs[4];
         __cpuidex(regs, leaf, subleaf);
         *eax = regs[0];
         *ebx = regs[1];
         *ecx = regs[2];
         *edx = regs[3];
+    #else
+    #error "No cpuid intrinsic for this target !"
     #endif
     }
 

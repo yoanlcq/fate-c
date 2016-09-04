@@ -4,9 +4,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#ifdef __cpuid
-#undef __cpuid
-#endif
 #include <fate/fate.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_revision.h>

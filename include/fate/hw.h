@@ -293,7 +293,8 @@ typedef struct {
 
 #if __DOXYGEN__ || FE_HW_TARGET_X86
 
-    #if defined(__GNUC__) || defined(__clang__)
+    #if (defined(__GNUC__) || defined(__clang__)) \
+     && !defined(__MINGW64_VERSION_MAJOR)
         #include <cpuid.h>
     #endif
 
@@ -416,9 +417,7 @@ extern void (*fe_hw_mm_pause)(void);
 /*! \brief TODO */
 size_t fe_hw_get_cpu_count(void);
 
-/* Do not include SDL_cpuinfo on Mingw-w64.
- * Cause a build error. */
-#include <SDL2/SDL_endian.h>
+#include <SDL2/SDL.h>
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define fe_hw_swap16_host_to_net(x) SDL_Swap16(x)
 #define fe_hw_swap32_host_to_net(x) SDL_Swap32(x)
@@ -462,12 +461,13 @@ typedef struct { int32_t val;} fe_hw_atomic_s32;
 typedef struct {uint64_t val;} fe_hw_atomic_u64;
 typedef struct { int64_t val;} fe_hw_atomic_s64;
 
-/* TODO
-
-#define fe_hw_atomic_u32_get()
-#define fe_hw_atomic_u32_set()
-#define fe_hw_atomic_u32_add()
-#define fe_hw_atomic_u32_sub()
-*/
+#ifdef __GNUC__
+#define fe_hw_atomic_u32_get(ptr)      __atomic_load_4(ptr, 0)
+#define fe_hw_atomic_u32_set(ptr, val) __atomic_store_4(ptr, val, 0)
+#define fe_hw_atomic_u32_xchg(ptr, val) __atomic_exchange_4(ptr, val, 0)
+#define fe_hw_atomic_u32_cmpxchg(ptr, val) __atomic_compare_exchange_4(ptr, val, 0)
+#define fe_hw_atomic_u32_add(ptr, val) __atomic_add_fetch_4(ptr, val, 0)
+#define fe_hw_atomic_u32_sub(ptr, val) __atomic_sub_fetch_4(ptr, val, 0)
+#endif
 
 #endif /* FE_HW_H */
