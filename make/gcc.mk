@@ -8,6 +8,10 @@ ifneq ($(shell cat /usr/include/linux/hw_breakpoint.h > /dev/null 2>&1; echo $$?
 CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
 endif
 endif
+ifeq ($(OS),windows)
+CCFLAGS += -DUNICODE -D_UNICODE
+endif
+
 GLEWFLAGS = -DGLEW_STATIC -DGLEW_NO_GLU
 CCDEBUGFLAGS = $(CCFLAGS) -g -DFE_DEBUG_BUILD -DFE_ENABLE_TRACING $(GLEWFLAGS)
 CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG $(GLEWFLAGS)

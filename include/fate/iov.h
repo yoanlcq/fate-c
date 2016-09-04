@@ -33,7 +33,7 @@
  *
  * This module offers four major APIs :
  * - The generic #fe_iov struct, representing a buffer and a length, alongside with 
- *   utilities to make it behave like a dynamic memory stream.
+ *   utilities to make it behave like a dynamic null-terminated memory stream.
  *   "iov" stands for I/O Vector and reminds of the \c struct \c iovec used by
  *   the \c readv() system call;
  * - The fe_iov_load* and fe_iov_store* set of functions, for reading whole files into
@@ -111,7 +111,7 @@
  * -> The same applies to writev(), by the way.
  * -> On Emscripten, fe_fd_mmap() just returns a pointer to downloaded memory, avoiding the overhead of copying data.
  *    However, in other environments, this should be slower than a single read() since the OS has to manage an actual memory map.
- * -> Files are not guaranteed to be overwritten unless you call fe_fd_sync(). fe_fd_munmap() does not do implicitly do it.
+ * -> Files are not guaranteed to be overwritten unless you call fe_fd_sync(). fe_fd_munmap() does not do implicitly do it, nor does fe_fd_close().
  * -> You can provide more hints about your access patterns.
  *
  * Here's a good example usage :
@@ -223,6 +223,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 /*! \brief TODO*/
 void fe_iov_setup(void);
@@ -233,7 +234,8 @@ void fe_iov_cleanup(void);
  *
  * This is used internally by this module, and may prove useful to the user as well.
  */
-FE_NIY size_t fe_iov_get_printf_len(const char *fmt, ...);
+size_t fe_iov_get_printf_len(const char *fmt, ...);
+size_t fe_iov_get_vprintf_len(const char *fmt, va_list ap);
 
 /*! \brief A buffer+length combination (iov standing for I/O Vector) 
  *
@@ -247,11 +249,11 @@ FE_NIY size_t fe_iov_get_printf_len(const char *fmt, ...);
  * it must be dynamic.
  */
 typedef struct {
-    void *base;
+    char *base;
     size_t len;
 } fe_iov;
 typedef struct {
-    const void *base;
+    const char *base;
     size_t len;
 } fe_iov_readonly;
 
@@ -262,13 +264,18 @@ typedef struct {
  * fe_iov iov = {0};
  * \endcode
  */
-FE_NIY void    fe_iov_deinit(fe_iov *iov);
+void    fe_iov_deinit(fe_iov *iov);
 /*! \brief TODO */
-FE_NIY void    fe_iov_resize(fe_iov *iov, size_t len);
+bool    fe_iov_resize(fe_iov *iov, size_t len);
 /*! \brief TODO */
-FE_NIY int     fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
+size_t  fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
 /*! \brief TODO */
-FE_NIY void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
+void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
+
+
+
+
+
 
 /*! \brief TODO */
 typedef enum {
@@ -282,74 +289,26 @@ typedef enum {
 
 /*! \brief TODO */
 typedef enum {
-    FE_IOV_STATUS_OK = 0,
-    FE_IOV_STATUS_RESOLVING_HOST,
-    FE_IOV_STATUS_NO_HOST,
-    FE_IOV_STATUS_NO_ENTRY,
-    FE_IOV_STATUS_FAILED
-} fe_iov_status;
+    FE_IOV_SUCCESS = 0,
+    FE_IOV_PROGRESS_RESOLVING_HOST,
+    FE_IOV_FAILED_UNKNOWN,
+    FE_IOV_FAILED_NO_MEM,
+    FE_IOV_FAILED_NO_HOST,
+    FE_IOV_FAILED_NO_ENTRY
+} fe_iov_code;
 
-/*! \brief TODO
- *
- * The 3 promise states :
- * - Pending;
- * - Started;
- * - Completed : either fulfilled or broken. */
 typedef enum {
-    FE_IOV_PROMISE_FULFILLED = 0,
-    FE_IOV_PROMISE_PENDING,
-    FE_IOV_PROMISE_STARTED,
-    FE_IOV_PROMISE_BROKEN
-} fe_iov_promise_status;
+    FE_IOV_STEP_PENDING = 0,
+    FE_IOV_STEP_STARTED,
+    FE_IOV_STEP_COMPLETED
+} fe_iov_step;
 
-/*! \brief TODO */
 typedef struct {
-    size_t bytes_current; /*!< Downloaded, read or written. */
-    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
-                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
-    fe_iov_promise_status promise_status;
-    fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
-    * If you want to build a string to show to the user, you're on your own (any URL or
-    * filename is yours to keep track of). */
-} fe_iov_state;
-
-/*! \brief TODO */
-typedef struct fe_iov_promise_struct *fe_iov_promise;
-
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const char *url);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const char *url);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_load_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_load_res(fe_iov *iov, const char *url, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const char *url, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_store_file(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const char *idb_name, const char *filename, fe_iov_rootdir rd);
-
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_persistent_exists(const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_persistent_exists_async(const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_status  fe_persistent_delete(const char *idb_name, const char *filename, fe_iov_rootdir rd);
-/*! \brief TODO */
-FE_NIY fe_iov_promise fe_persistent_delete_async(const char *idb_name, const char *filename, fe_iov_rootdir rd);
-
+    fe_iov_step step     :  2;
+    fe_iov_code current  : 12; /* Valid only when step >= FE_IOV_STEP_STARTED. */
+    bool        success  :  1; /* Valid only when step == FE_IOV_STEP_COMPLETED.  */
+    bool        exists   :  1; /* Valid only when success and the request is 'exists()'. */
+} fe_iov_status;
 
 /*! \brief TODO */
 /* Anything in there, even the enum's values, may be platform-specific #defines. */
@@ -365,12 +324,14 @@ typedef enum {
     FE_FD_OPEN_LAZY_DOWNLOAD,
     FE_FD_OPEN_NOW
 } fe_fd_flags;
+
 /*! \brief TODO */
 typedef enum {
     FE_FD_SEEK_SET,
     FE_FD_SEEK_CUR,
     FE_FD_SEEK_END
 } fe_fd_seek_whence;
+
 #if defined(FE_TARGET_WINDOWS)
 #include <windows.h>
 typedef HANDLE fe_fd;
@@ -386,12 +347,78 @@ typedef off_t fe_fd_offset;
 #define FE_FD_SEEK_CUR SEEK_CUR
 #define FE_FD_SEEK_END SEEK_END
 #endif
+
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_file(const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+typedef struct {
+    size_t bytes_current; /*!< Downloaded, read or written. */
+    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
+                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
+    fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
+    * If you want to build a string to show to the user, you're on your own (any URL or
+    * filename is yours to keep track of). */
+} fe_iov_state;
+
+typedef void (*fe_iov_completion_callback)(const fe_iov_state *st, void *userdata);
+
+typedef struct {
+    const char                *organization; 
+    const char                *app_name;     
+    const char                *idb_name;     
+    const char                *file_url;     
+    const char                *file_name;
+    fe_iov_rootdir             rootdir;
+    fe_fd_flags                fd_flags;
+    fe_iov_completion_callback completion_callback;
+    void                      *completion_callback_arg; /* Must not go out of scope. */
+} fe_iov_params;
+
+
+
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_persistent(const char *idb_name, const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+typedef struct fe_iov_promise_struct *fe_iov_promise;
+
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_res(const char *url, const char *filename, fe_iov_rootdir rd, fe_fd_flags flags);
+FE_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_iov_load_res(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_params *params);
+
+/*! \brief TODO */
+FE_NIY fe_iov_status  fe_persistent_exists(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_persistent_exists_async(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_status  fe_persistent_delete(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_persistent_delete_async(const fe_iov_params *params);
+
+
+
+/*! \brief TODO */
+FE_NIY fe_fd          fe_fd_open_file(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_fd          fe_fd_open_persistent(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_fd          fe_fd_open_res(const fe_iov_params *params);
 /*! \brief TODO */
 FE_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
 /*! \brief TODO */
@@ -424,13 +451,9 @@ FE_NIY bool           fe_fd_truncate(fe_fd fd, size_t len);
 FE_NIY void           fe_fd_close(fe_fd fd);
 
 /*! \brief TODO */
-typedef void (*fe_iov_promise_completion_routine)(const fe_iov_state *st, void *userdata);
-/*! \brief TODO */
 FE_NIY bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st);
 /*! \brief TODO */
 FE_NIY bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds);
-/*! \brief TODO */
-FE_NIY void fe_iov_promise_notify(fe_iov_promise p, fe_iov_promise_completion_routine callback, void *userdata);
 /*! \brief TODO */
 FE_NIY void fe_iov_promise_cancel(fe_iov_promise p);
 

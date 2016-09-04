@@ -106,8 +106,8 @@ size_t fe_hw_get_cpu_count(void) {
     return conf*(conf>0);
 }
 #else
-FE_NIY size_t fe_hw_get_cpu_count(void) {
-    return 0;
+size_t fe_hw_get_cpu_count(void) {
+    return SDL_GetCPUCount();
 }
 #endif
 
@@ -115,8 +115,11 @@ FE_NIY size_t fe_hw_get_cpu_count(void) {
 #ifdef FE_HW_TARGET_X86
 
     /* Note to self : I've included cpuid.h in this file only, because
-     * on Mingw64, it conflicts with intrin.h. Long story short, it 
-     * doesn't play well with SDL2 and breaks the build. */
+     * on Mingw-w64, it conflicts with intrin.h. Long story short, it 
+     * doesn't play well with SDL2 and breaks the build.
+     * Don't include <cpuid.h> in any file that would be included by others,
+     * at least on Mingw-w64.
+     */
     #if (defined(__GNUC__) || defined(__clang__))
         #include <cpuid.h>
     #endif
