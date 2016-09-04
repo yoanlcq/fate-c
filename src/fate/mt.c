@@ -42,6 +42,10 @@ void          fe_mt_set_self_priority(fe_mt_threadpriority prio) {
     SDL_SetThreadPriority(prio);
 }
 
+fe_mt_threadid          fe_mt_get_self_id(void) {
+    return SDL_ThreadID();
+}
+
 fe_mt_thread  fe_mt_thread_create(int (*func)(void*), const char *name, void *arg) {
     SDL_Thread *th = SDL_CreateThread(func, name, arg);
     if(!th)
@@ -69,7 +73,7 @@ void          fe_mt_thread_detach(fe_mt_thread t) {
     pool.slots[t].taken = false;
     fe_mt_mutex_unlock(&pool_mutex);
 }
-int           fe_mt_thread_get_id(fe_mt_thread t) {
+fe_mt_threadid           fe_mt_thread_get_id(fe_mt_thread t) {
     return pool.slots[t].id;
 }
 const char *  fe_mt_thread_get_name(fe_mt_thread t) {

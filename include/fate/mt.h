@@ -134,6 +134,7 @@
 
 
 typedef int fe_mt_thread;
+typedef uint64_t fe_mt_threadid;
 typedef SDL_SpinLock fe_mt_spinlock;
 typedef SDL_cond* fe_mt_cond;
 typedef SDL_mutex* fe_mt_mutex;
@@ -159,9 +160,10 @@ void         fe_mt_cleanup(void);
 
 size_t       fe_mt_get_thread_count(void);
 void         fe_mt_set_self_priority(fe_mt_threadpriority prio);
+fe_mt_threadid fe_mt_get_self_id(void);
 fe_mt_thread fe_mt_thread_create(int (*func)(void*), const char *name, void *arg);
 void         fe_mt_thread_detach(fe_mt_thread t);
-int          fe_mt_thread_get_id(fe_mt_thread t);
+fe_mt_threadid fe_mt_thread_get_id(fe_mt_thread t);
 const char * fe_mt_thread_get_name(fe_mt_thread t);
 int          fe_mt_thread_wait(fe_mt_thread t);
 
