@@ -43,7 +43,7 @@
 #ifdef FE_TARGET_ANDROID
 #include <android/log.h>
 #elif defined(FE_TARGET_EMSCRIPTEN)
-#include <emscripten/emscripten.h>
+#include <emscripten.h>
 #endif
 
 /*

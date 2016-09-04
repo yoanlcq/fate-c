@@ -45,7 +45,7 @@
 //#include <fate/fs.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
-#include <emscripten/emscripten.h>
+#include <emscripten.h>
 #endif
 
 #if defined(FE_TARGET_WINDOWS)

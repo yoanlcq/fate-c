@@ -8,6 +8,40 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <string.h>
+
+
+#if defined(FE_TARGET_WINDOWS)
+#include <Windows.h>
+#elif defined(FE_TARGET_LINUX)
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <signal.h>
+#include <unistd.h>
+#include <errno.h>
+#elif defined(FE_TARGET_FREEBSD)
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <signal.h>
+#include <unistd.h>
+#include <errno.h>
+#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
+#include <stdint.h>
+#include <limits.h>
+#include <signal.h>
+#include <mach-o/dyld.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <sys/mount.h>
+#include <errno.h>
+#endif
+
+
+
+
 
 #if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
 #define NUL_FILE_PATH "/dev/null"
@@ -187,10 +221,160 @@ fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_params *params)
 }
 fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_params *params) {return NULL;}
 
-fe_iov_status  fe_persistent_exists(const fe_iov_params *params) {fe_iov_status status = {0}; return status;}
-fe_iov_promise fe_persistent_exists_async(const fe_iov_params *params) { return NULL; }
-fe_iov_status  fe_persistent_delete(const fe_iov_params *params) {fe_iov_status status = {0}; return status;}
-fe_iov_promise fe_persistent_delete_async(const fe_iov_params *params) { return NULL; }
+
+
+
+/*
+bool fe_fs_setcwd(const fe_iov_params *params) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    return false;
+#elif defined(FE_TARGET_WINDOWS)
+    return SetCurrentDirectory(path);
+#else
+    return !chdir(path);
+}
+
+char * fe_fs_getcwd(void) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    int size = 2048;
+    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
+    if(!path)
+        return NULL;
+    EM_ASM({
+        Module.stringToUTF8(FS.cwd(), $0, $1);
+    }, path, size);
+    return path;
+#elif defined(FE_TARGET_WINDOWS)
+    DWORD len = GetCurrentDirectoryW(0, NULL);
+    WCHAR *wpath = fe_mem_heapalloc(len, WCHAR, "");
+    if(!wpath)
+        return NULL;
+    GetCurrentDirectoryW(len, wpath);
+    const char *path = fe_utf8_from_win32unicode(wpath);
+    if(!path)
+        return NULL;
+    fe_mem_heapfree(wpath);
+    return path;
+#else
+    size_t size = 256;
+    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
+    if(!path)
+        return NULL;
+    while(!getcwd(path, size) && errno==ERANGE) {
+        size *= 2;
+        path = fe_mem_heaprealloc(path, size, char, "fe_fs_getcwd()");
+        if(!path)
+            return NULL;
+    }
+    return path;
+}
+
+uint64_t fe_fs_file_get_wtime(const char *path) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    return EM_ASM_INT({
+        var path = Module.UTF8ToString($0);
+        return FS.stat(path).mtime;
+    }, params->file_name);
+#elif defined(FE_TARGET_WINDOWS)
+    FILETIME ft;
+    HANDLE fh;
+    fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(fh==INVALID_HANDLE_VALUE) {
+        fe_loge(TAG, "Could not stat \"%s\".\n", path);
+        return 0;
+    }
+    GetFileTime(fh, NULL, NULL, &ft);
+    CloseHandle(fh);
+    return (((uint64_t)ft.dwHighDateTime)<<32)+(uint64_t)ft.dwLowDateTime;
+#else
+    struct stat st;
+    if(stat(path, &st)) {
+        fe_logw(TAG, "Could not stat \"%s\".\n", path);
+        return 0;
+    }
+    return st.st_mtime;
+#endif
+}
+
+*/
+
+fe_iov_status fe_fs_file_exists(const fe_iov_params *params) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    bool exists = EM_ASM_INT({
+        var path = Module.UTF8ToString($0);
+        return FS.exists(path);
+    }, params->file_name);
+    return exists;
+#else
+    fe_iov_status status;
+    status.step = FE_IOV_STEP_COMPLETED;
+    fe_iov fullpath = {0};
+    static_fullpath(&fullpath, params);
+#if defined(FE_TARGET_WINDOWS)
+    status.success = (GetFileAttributes(fullpath.base) != INVALID_FILE_ATTRIBUTES);
+#else
+    status.success = !access(fullpath.base, F_OK);
+#endif
+    status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
+    fe_mem_heapfree(fullpath.base);
+    return status;
+#endif
+}
+
+fe_iov_status  fe_fs_file_delete(const fe_iov_params *params) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    EM_ASM_ARGS({
+        var path = Module.UTF8ToString($0);
+        FS.unlink(path);
+    }, params->file_name);
+#else
+    fe_iov_status status;
+    status.step = FE_IOV_STEP_COMPLETED;
+    fe_iov fullpath = {0};
+    static_fullpath(&fullpath, params);
+#if defined(FE_TARGET_WINDOWS)
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
+    status.success = !!DeleteFileW(fullpath_w);
+    fe_mem_heapfree(fullpath_w);
+#else
+    status.success = !unlink(fullpath.base);
+#endif
+    status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
+    fe_mem_heapfree(fullpath.base);
+    return status;
+#endif
+}
+
+fe_iov_status  fe_fs_persistent_exists(const fe_iov_params *params) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    int exists, error;
+    emscripten_idb_exists(params->idb_name, params->file_name, &exists, &error);
+    fe_iov_status status = {0}; 
+    status.step = FE_IOV_STEP_COMPLETED;
+    status.exists = exists;
+    status.success = !error;
+    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+    return status;
+#else
+    return fe_fs_file_exists(params);
+#endif
+}
+fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_params *params) { return NULL; }
+fe_iov_status  fe_fs_persistent_delete(const fe_iov_params *params) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    int error;
+    emscripten_idb_delete(params->idb_name, params->file_name, &error);
+    fe_iov_status status = {0}; 
+    status.step = FE_IOV_STEP_COMPLETED;
+    status.success = !error;
+    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+    return status;
+#else
+    return fe_fs_file_delete(params);
+#endif
+}
+fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_params *params) { return NULL; }
 
 
 

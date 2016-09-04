@@ -43,6 +43,8 @@
 #include <windows.h>
 /*! \brief Free the string with #fe_mem_heapfree(). */
 WCHAR *fe_utf8_to_win32unicode(const char *utf8);
+/*! \brief Free the string with #fe_mem_heapfree(). */
+WCHAR *fe_utf8_from_win32unicode(const WCHAR *unicode);
 #endif
 
 /*! @} */

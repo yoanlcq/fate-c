@@ -402,14 +402,26 @@ fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_params *params)
 /*! \brief TODO */
 FE_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_params *params);
 
+
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_persistent_exists(const fe_iov_params *params);
+bool  fe_fs_setcwd(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_persistent_exists_async(const fe_iov_params *params);
+FE_NIY char* fe_fs_getcwd(void);
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_persistent_delete(const fe_iov_params *params);
+uint64_t fe_fs_file_get_wtime(const fe_iov_params *params);
+
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_persistent_delete_async(const fe_iov_params *params);
+FE_NIY fe_iov_status  fe_fs_file_exists(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_status  fe_fs_file_delete(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_status  fe_fs_persistent_exists(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_params *params);
+/*! \brief TODO */
+fe_iov_status  fe_fs_persistent_delete(const fe_iov_params *params);
+/*! \brief TODO */
+FE_NIY fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_params *params);
 
 
 
