@@ -416,7 +416,9 @@ extern void (*fe_hw_mm_pause)(void);
 /*! \brief TODO */
 size_t fe_hw_get_cpu_count(void);
 
-#include <SDL2/SDL.h>
+/* Do not include SDL_cpuinfo on Mingw-w64.
+ * Cause a build error. */
+#include <SDL2/SDL_endian.h>
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define fe_hw_swap16_host_to_net(x) SDL_Swap16(x)
 #define fe_hw_swap32_host_to_net(x) SDL_Swap32(x)
