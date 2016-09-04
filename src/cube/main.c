@@ -5,8 +5,8 @@
 #include <string.h>
 #include <math.h>
 #include <fate/fate.h>
-#ifdef __MINGW64_VERSION_MAJOR
-#undef __MINGW64_VERSION_MAJOR
+#ifdef __cpuid
+#undef __cpuid
 #endif
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_revision.h>
