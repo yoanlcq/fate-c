@@ -59,6 +59,7 @@ void fe_hw_setup(void);
  || defined(_M_IX86)
 /*! \brief Defined only if we're compiling for i386 hardware. */
 #define FE_HW_TARGET_I386 1
+#define FE_HW_TARGET_IA32 1
 #define FE_HW_TARGET_X86_32 1
 #define FE_HW_TARGET_X86_BITS 32
 #endif
