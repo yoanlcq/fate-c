@@ -40,9 +40,10 @@
 #include <inttypes.h>
 #include <fate/defs.h>
 #include <fate/globalstate.h>
+#include <fate/utf8.h>
+#include <fate/mem.h>
 #include <fate/sys.h>
 #include <fate/log.h>
-//#include <fate/fs.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
 #include <emscripten.h>
@@ -284,21 +285,22 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
 void fe_sys_log_win32_error(fe_logfunc logfunc, 
                               const char *funcstr, DWORD error) 
 {
-    LPTSTR lpMsgBuf;
+    LPWSTR lpMsgBuf;
 
-    FormatMessage(
+    FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         error,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPSTR) &lpMsgBuf,
+        (void*)&lpMsgBuf,
         0, NULL);
 
-    logfunc(TAG, "%s failed with error %lu : %s", funcstr, error, lpMsgBuf);
-
+    char *utf8 = fe_utf8_from_win32unicode(lpMsgBuf);
     LocalFree(lpMsgBuf);
+    logfunc(TAG, "%s failed with error %lu : %s", funcstr, error, utf8);
+    fe_mem_heapfree(utf8);
 }
 
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
@@ -308,7 +310,7 @@ static void fe_sys_log_stacktrace_win32(
                                    unsigned short nframes)
 {
     unsigned i, j;
-    TCHAR modname[FE_SYS_MODNAME_LEN];
+    WCHAR modname[FE_SYS_MODNAME_LEN];
     DWORD modname_len;
     SYMBOL_INFO *symbol;
     HANDLE process;
@@ -338,18 +340,20 @@ static void fe_sys_log_stacktrace_win32(
         }
 #if _WIN32_WINNT >= 0x0501
         if(symbol->ModBase) {
-            if(GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
-                                 (LPCSTR)(uintptr_t)(symbol->ModBase), 
+            if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
+                                 (LPWSTR)(uintptr_t)(symbol->ModBase), 
                                  &modhandle)) 
             {
-                modname_len = GetModuleFileName(modhandle, modname, 
+                modname_len = GetModuleFileNameW(modhandle, modname, 
                                   FE_SYS_MODNAME_LEN);
                 /* MS says that on Windows XP, the string is 
                  * not null-terminated. */
-                for(j=0 ; j<modname_len ; j++)
-                    logfunc(TAG, "%c", modname[j]);
+                modname[modname_len] = '\0';
+                char *modname_utf8 = fe_utf8_from_win32unicode(modname);
+                logfunc(TAG, "%s", modname_utf8);
+                fe_mem_heapfree(modname_utf8);
             } else {
-                fe_sys_log_win32_error(logfunc, "GetModuleHandleEx",
+                fe_sys_log_win32_error(logfunc, "GetModuleHandleExW",
                                          GetLastError());
             }
         }
