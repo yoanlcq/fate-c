@@ -99,6 +99,8 @@
 #if __DOXYGEN__
 /*! \brief Defined only if the target is Windows. */
 #define FE_TARGET_WINDOWS 1
+/*! \brief Defined only if the target is Windows RT. */
+#define FE_TARGET_WINDOWS_RT 1
 /*! \brief Defined only if the target is Linux. */
 #define FE_TARGET_LINUX 1
 /*! \brief Defined only if the target is Mac OS X. */
@@ -151,6 +153,7 @@
 
 #if !defined(FE_TARGET_LINUX) \
  && !defined(FE_TARGET_WINDOWS) \
+ && !defined(FE_TARGET_WINDOWSRT) \
  && !defined(FE_TARGET_OSX) \
  && !defined(FE_TARGET_FREEBSD) \
  && !defined(FE_TARGET_ANDROID) \

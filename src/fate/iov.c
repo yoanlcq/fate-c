@@ -142,7 +142,7 @@ void static_fullpath(fe_iov *fullpath, const fe_iov_params *params) {
 #ifdef FE_TARGET_ANDROID
     HELPER(FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE, SDL_AndroidGetInternalStoragePath())
     HELPER(FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE, SDL_AndroidGetExternalStoragePath())
-#elif defined(FE_TARGET_WINDOWS)
+#elif defined(FE_TARGET_WINDOWS_RT)
     HELPER(FE_IOV_ROOTDIR_WINRT_PATH_LOCAL_FOLDER, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_LOCAL_FOLDER))
     HELPER(FE_IOV_ROOTDIR_WINRT_PATH_INSTALLED_LOCATION, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_INSTALLED_LOCATION))
 #endif
@@ -313,7 +313,14 @@ fe_iov_status fe_fs_file_exists(const fe_iov_params *params) {
     fe_iov fullpath = {0};
     static_fullpath(&fullpath, params);
 #if defined(FE_TARGET_WINDOWS)
-    status.success = (GetFileAttributes(fullpath.base) != INVALID_FILE_ATTRIBUTES);
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
+    if(!fullpath_w) {
+        status.success = false;
+        status.current = FE_IOV_FAILED_NO_MEM;
+        return status;
+    }
+    status.success = (GetFileAttributesW(fullpath_w) != INVALID_FILE_ATTRIBUTES);
+    fe_mem_heapfree(fullpath_w);
 #else
     status.success = !access(fullpath.base, F_OK);
 #endif
