@@ -52,17 +52,18 @@ void fe_hw_setup(void);
  * See also :
  * https://sourceforge.net/p/predef/wiki/Architectures/ */
 
-#if __DOXYGEN__ \
+#if defined(__DOXYGEN__) \
  || defined(i386) \
  || defined(__i386) \
- || defined(__i386__)
+ || defined(__i386__) \
+ || defined(_M_IX86)
 /*! \brief Defined only if we're compiling for i386 hardware. */
 #define FE_HW_TARGET_I386 1
 #define FE_HW_TARGET_X86_32 1
 #define FE_HW_TARGET_X86_BITS 32
 #endif
 
-#if __DOXYGEN__ \
+#if defined(__DOXYGEN__) \
  || defined(__x86_64) \
  || defined(__x86_64__) \
  || defined(__amd64) \
@@ -71,13 +72,13 @@ void fe_hw_setup(void);
  || defined(_M_X64)
 /*! \brief Defined only if we're compiling for x86-64 hardware. */
 #define FE_HW_TARGET_AMD64 1
+#define FE_HW_TARGET_X64 1
 #define FE_HW_TARGET_X86_64 1
 #define FE_HW_TARGET_X86_BITS 64
 #endif
 
 #if defined(FE_HW_TARGET_X86_32) \
  || defined(FE_HW_TARGET_X86_64) \
- || defined(_M_IX86) \
  || defined(_X86_)
 /*! \brief Defined only if we're compiling for x86 hardware. */
 #define FE_HW_TARGET_X86 1
