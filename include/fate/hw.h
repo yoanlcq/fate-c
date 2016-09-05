@@ -538,7 +538,7 @@ static inline bool fe_hw_atomicptr_cmpxchg(fe_hw_atomicptr *ptr,
     return __atomic_compare_exchange(ptr, &expected, &desired, 
                 false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
-    int64_t ptr_oldval = 
+    void* ptr_oldval = 
         _InterlockedCompareExchangePointer(ptr, desired, expected);
     return ptr_oldval == expected;
 #endif

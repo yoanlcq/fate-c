@@ -5,6 +5,7 @@
 #ifdef FE_TARGET_EMSCRIPTEN
 #include <emscripten.h>
 #endif
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -381,9 +382,9 @@ fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_params *params) { retu
 
 
 
-fe_fd          fe_fd_open_file(const fe_iov_params *params) {return -1;}
-fe_fd          fe_fd_open_persistent(const fe_iov_params *params) {return -1;}
-fe_fd          fe_fd_open_res(const fe_iov_params *params) {return -1;}
+fe_fd          fe_fd_open_file(const fe_iov_params *params) {return (fe_fd)-1;}
+fe_fd          fe_fd_open_persistent(const fe_iov_params *params) {return (fe_fd)-1;}
+fe_fd          fe_fd_open_res(const fe_iov_params *params) {return (fe_fd)-1;}
 fe_iov_promise fe_fd_get_download_promise(fe_fd fd) {return NULL;}
 bool           fe_fd_is_valid(fe_fd fd) {return 0;}
 void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {return NULL;}
