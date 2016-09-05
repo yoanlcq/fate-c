@@ -73,10 +73,14 @@ void fe_gl_log_shader_info(GLuint shader, fe_logfunc log) {
     err = malloc((errlen+1)*sizeof(GLchar));
     glGetShaderInfoLog(shader, errlen, &errlen, err);
     err[errlen] = '\0';
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
+#endif
     log(TAG, err);
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
     free(err);
 }
 
@@ -87,9 +91,13 @@ void fe_gl_log_program_info(GLuint program, fe_logfunc log) {
     err = malloc((errlen+1)*sizeof(GLchar));
     glGetProgramInfoLog(program, errlen, &errlen, err);
     err[errlen] = '\0';
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
+#endif
     log(TAG, err);
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
     free(err);
 }

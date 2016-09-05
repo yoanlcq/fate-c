@@ -10,6 +10,8 @@
 #include <fate/ipv6.h>
 #include <fate/udp6.h>
 #include <fate/tcp6.h>
+#include <fate/mem.h>
+#include <fate/utf8.h>
 
 #ifdef FE_TARGET_WINDOWS
 #include <windows.h>
@@ -380,7 +382,14 @@ bool fe_ipv6_peer_from_host(fe_ipv6_peer *p, const char host[FE_IPV6_HOSTMAXLEN]
     struct addrinfo *info;
     int err = getaddrinfo(host, service, &hints, &info);
     if(err) {
-        fprintf(stderr, "%s\n", gai_strerror(err));
+#ifdef FE_TARGET_WINDOWS
+        WCHAR* errstr_w = gai_strerrorW(err);
+        char* errstr = fe_utf8_from_win32unicode(errstr_w);
+        fe_logv(TAG, "%s\n", errstr);
+        fe_mem_heapfree(errstr);
+#else
+        fe_logv(TAG, "%s\n", gai_strerror(err));
+#endif
         return false;
     }
     /* const struct addrinfo *cur;
@@ -396,8 +405,15 @@ void fe_ipv6_peer_get_host(const fe_ipv6_peer *p,
     int err = getnameinfo((void*) p, sizeof(*p), host, FE_IPV6_HOSTMAXLEN, 
                           NULL, 0, udp ? NI_DGRAM : 0);
     if(err) {
-        fprintf(stderr, "%s\n", gai_strerror(err));
         *host = '\0';
+#ifdef FE_TARGET_WINDOWS
+        WCHAR* errstr_w = gai_strerrorW(err);
+        char* errstr = fe_utf8_from_win32unicode(errstr_w);
+        fe_logv(TAG, "%s\n", errstr);
+        fe_mem_heapfree(errstr);
+#else
+        fe_logv(TAG, "%s\n", gai_strerror(err));
+#endif
     }
 }
 void fe_ipv6_peer_get_addr(const fe_ipv6_peer *p, char addr[FE_IPV6_ADDRSTRLEN]) {

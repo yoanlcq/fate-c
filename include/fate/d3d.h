@@ -39,6 +39,9 @@
 #ifndef FE_D3D_H
 #define FE_D3D_H
 
+#include <fate/defs.h>
+#ifdef FE_TARGET_WINDOWS
 #include <fate/d3d/defs.h>
+#endif
 
 #endif /* FE_D3D_H */

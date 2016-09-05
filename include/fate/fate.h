@@ -37,24 +37,32 @@
  * TODO
  */
 
-#include <fate/defs.h>
-#include <fate/hw.h>
+#include <fate/defs.h> /* Always include first. */
 #include <fate/al.h>
-#include <fate/gl.h>
-#ifdef FE_WINDOWS
 #include <fate/d3d.h>
-#endif
 #include <fate/dpyres.h>
+#include <fate/gameinfo.h>
+#include <fate/gl.h>
 #include <fate/globalstate.h>
+#include <fate/hash.h>
+#include <fate/hw.h>
 #include <fate/i18n.h>
 #include <fate/iov.h>
+#include <fate/ipv6.h>
+#include <fate/linuxperf.h>
 #include <fate/log.h>
 #include <fate/math.h>
 #include <fate/mem.h>
 #include <fate/mt.h>
 #include <fate/steam.h>
 #include <fate/sys.h>
+#include <fate/tcp6.h>
+#include <fate/timestamp.h>
 #include <fate/tracer.h>
+#include <fate/udp6.h>
 #include <fate/units.h>
+#include <fate/utf8.h>
+#include <fate/vk.h>
+#include <fate/wss13.h>
 
 #endif /* FE_H */

@@ -36,6 +36,8 @@
 #ifndef FE_D3D_DEFS_H
 #define FE_D3D_DEFS_H
 
+#include <fate/defs.h>
+#ifdef FE_TARGET_WINDOWS
 /*
  * This would only be necessary if we didn't link with 'dxguid.lib'.
 #ifndef INITGUID
@@ -48,5 +50,7 @@
         _OBJ_->lpVtbl->_METHOD_(_OBJ_)
 #define DXCALLV(_OBJ_, _METHOD_, ...) \
         _OBJ_->lpVtbl->_METHOD_(_OBJ_, __VA_ARGS__)
+
+#endif /* FE_TARGET_WINDOWS */
 
 #endif /* FE_D3D_DEFS_H */
