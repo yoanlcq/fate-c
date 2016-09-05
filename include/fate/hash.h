@@ -45,6 +45,11 @@
  */
 uint64_t fe_hash_sdbm(const char *str, size_t max_length);
 
+void fe_hash_setup(void);
+/*! \brief The CRC-32C function. */
+uint32_t (*fe_hash_crc32c)(const void *data, size_t len, uint32_t prev_crc32);
+#define FE_HASH_CRC32C_POLYNOMIAL 0x1EDC6F41 /* iSCSI CRC */
+
 /*! @} */
 
 #endif /* FE_HASH_H */

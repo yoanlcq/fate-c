@@ -1,4 +1,4 @@
-CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
+CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2 -msse4.2
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
