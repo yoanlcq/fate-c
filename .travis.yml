@@ -19,7 +19,7 @@ script:
 
 ---
 
-
+branch: {name: ToastFoo-CI, active: yes}
 sudo: required
 os:
     - linux
