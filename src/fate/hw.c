@@ -236,9 +236,93 @@ size_t fe_hw_get_cpu_count(void) {
 
 #endif
 
+#ifdef FE_HW_TARGET_ARM
+
+
+    #ifdef FE_HW_TARGET_ARM32
+    const fe_hw_arm32_features_struct fe_hw_arm32_cpu_info = {0};
+    #else
+    const fe_hw_arm64_features_struct fe_hw_arm64_cpu_info = {0};
+    #endif
+
+    static void static_arm_features_fill(void) {
+        #ifdef FE_HW_TARGET_ARM32
+            fe_hw_arm32_features_struct *arm32 = (void*)&fe_hw_arm32_cpu_info;
+        #else
+            fe_hw_arm64_features_struct *arm64 = (void*)&fe_hw_arm64_cpu_info;
+        #endif
+        #ifdef FE_TARGET_ANDROID
+            AndroidCpuFamily family = android_getCpuFamily();
+            uint64_t feats          = android_getCpuFeatures();
+
+            #ifdef FE_HW_TARGET_ARM32
+
+                assert(family == ANDROID_CPU_FAMILY_ARM);
+                arm32->cpuid = android_getCpuIdArm();
+                #define HELPER(CST,cst) \
+    if(feats & ANDROID_CPU_ARM_FEATURE_##CST) arm32->has_##cst = true
+                HELPER(ARMv7      , armv7      ); 
+                HELPER(VFPv3      , vfpv3      ); 
+                HELPER(NEON       , neon       ); 
+                HELPER(LDREX_STREX, ldrex_strex); 
+                HELPER(VFPv2      , vfpv2      ); 
+                HELPER(VFP_D32    , vfp_d32    ); 
+                HELPER(VFP_FP16   , vfp_fp16   ); 
+                HELPER(VFP_FMA    , vfp_fma    ); 
+                HELPER(NEON_FMA   , neon_fma   ); 
+                HELPER(IDIV_ARM   , idiv_arm   ); 
+                HELPER(IDIV_THUMB2, idiv_thumb2); 
+                HELPER(iWMMXt     , iwmmxt     ); 
+                HELPER(AES        , aes        ); 
+                HELPER(PMULL      , pmull      ); 
+                HELPER(SHA1       , sha1       ); 
+                HELPER(SHA2       , sha2       ); 
+                HELPER(CRC32      , crc32      );
+                #undef HELPER
+
+            #elif defined(FE_HW_TARGET_ARM64)
+
+                assert(family == ANDROID_CPU_FAMILY_ARM64);
+                arm64->cpuid = android_getCpuIdArm();
+                #define HELPER(CST,cst) \
+    if(feats & ANDROID_CPU_ARM64_FEATURE_##CST) arm64->has_##cst = true
+                HELPER(FP   , fp   );
+                HELPER(ASIMD, asimd);
+                HELPER(AES  , aes  );
+                HELPER(PMULL, pmull);
+                HELPER(SHA1 , sha1 );
+                HELPER(SHA2 , sha2 );
+                HELPER(CRC32, crc32);
+                #undef HELPER
+
+            #endif /* FE_HW_TARGET_ARM32 */
+
+        #elif defined(FE_TARGET_IOS)
+
+            /* On iOS, we don't have to check for cpu features support because
+             * our app gets compiled twice into a fat binary - one part with
+             * NEON support and the other part without.
+             * The OS decides which part to use at lauch-time. 
+             * See http://wanderingcoder.net/2010/07/19/ought-arm/
+             */
+            #ifdef FE_HW_TARGET_ARM_IWMMXT
+                arm32->has_wmmx = true;
+            #endif
+            #ifdef FE_HW_TARGET_ARM_NEON
+                arm32->has_neon = true;
+            #endif
+
+        #endif /* FE_TARGET_ANDROID */
+
+    }
+
+#endif
+
 void fe_hw_setup(void) {
     cacheinfo_fill(&static_cacheinfo);
-#ifdef FE_HW_TARGET_X86
+#ifdef FE_HW_TARGET_ARM
+    static_arm_features_fill();
+#elif defined(FE_HW_TARGET_X86)
     static_x86_cpuid_fill();
 #ifdef FE_HW_HAS_MULTIMEDIA_INTRINSICS
     if(fe_hw_x86_cpu_info.has_sse) {

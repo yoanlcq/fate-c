@@ -89,17 +89,24 @@ void fe_hw_setup(void);
 #error "Are we compiling for i386 or amd64 ??"
 #endif
 
-#if __DOXYGEN__ \
- || defined(_M_ARM) \
- || defined(_M_ARMT) \
- || defined(__arm__) \
- || defined(__thumb__)
+#if __DOXYGEN__ || defined(_M_ARM) || defined(__arm__)
+
 /*! \brief Defined only if we're compiling for ARM. */
     #define FE_HW_TARGET_ARM
+
     #if __DOXYGEN__ || defined(_M_ARMT) || defined(__thumb__)
-/*! \brief Defined only if we're compiling for ARM with Thumb  */
+/*! \brief Defined only if we're compiling for ARM with Thumb.  */
         #define FE_HW_TARGET_ARM_THUMB
     #endif
+    #if __DOXYGEN__ || defined(__ARM_NEON__)
+/*! \brief Defined only if we're compiling for ARM with NEON instructions. */
+        #define FE_HW_TARGET_ARM_NEON
+    #endif
+    #if __DOXYGEN__ || defined(__IWMMXT__)
+/*! \brief Defined only if we're compiling for ARM with iWMMXt instructions. */
+        #define FE_HW_TARGET_ARM_IWMMXT
+    #endif
+
 #endif
 
 #if __DOXYGEN__ || defined(__aarch64__)
@@ -107,27 +114,55 @@ void fe_hw_setup(void);
 #define FE_HW_TARGET_ARM64
 #endif
 
+#if defined(FE_HW_TARGET_ARM) && !defined(FE_HW_TARGET_ARM64)
+/*! \brief Defined only if we're compiling for ARM32. */
+#define FE_HW_TARGET_ARM32
+#endif
 
 
-/*! \brief Defined only if _mm_* intrinsics are provided. */
+#if __DOXYGEN__ \
+ || defined(_MIPS_ARCH_MIPS32) \
+ || defined(_MIPS_ARCH_MIPS32R2) \
+ || defined(_MIPS_ARCH_MIPS32R3) \
+ || defined(_MIPS_ARCH_MIPS32R5) \
+ || defined(_MIPS_ARCH_MIPS32R6)
+/*! \brief Defined only if we're compiling for MIPS32. */
+#define FE_HW_TARGET_MIPS32
+#endif
+
+#if __DOXYGEN__ \
+ || defined(_MIPS_ARCH_MIPS64) \
+ || defined(_MIPS_ARCH_MIPS64R2) \
+ || defined(_MIPS_ARCH_MIPS64R3) \
+ || defined(_MIPS_ARCH_MIPS64R5) \
+ || defined(_MIPS_ARCH_MIPS64R6)
+/*! \brief Defined only if we're compiling for MIPS64. */
+#define FE_HW_TARGET_MIPS64
+#endif
+
+
+#if defined(FE_HW_TARGET_MIPS32) || defined(FE_HW_TARGET_MIPS64)
+/*! \brief Defined only if we're compiling for MIPS. */
+#define FE_HW_TARGET_MIPS
+#endif
+
+
+/*! \brief Defined only if compiler intrinsics are provided. */
 #define FE_HW_HAS_MULTIMEDIA_INTRINSICS
 
 /* Shamelessly taken from http://stackoverflow.com/a/22291538 */
 #if defined(_MSC_VER)
-    /* Microsoft C/C++-compatible compiler */
     #include <intrin.h>
-#elif defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__))
-    /* GCC-compatible compiler, targeting x86/x86-64 */
+#elif defined(__GNUC__) && defined(FE_HW_TARGET_X86)
     #include <x86intrin.h>
-#elif defined(__GNUC__) && defined(__ARM_NEON__)
-    /* GCC-compatible compiler, targeting ARM with NEON */
+#elif defined(__GNUC__) && defined(FE_HW_TARGET_ARM_NEON)
     #include <arm_neon.h>
-#elif defined(__GNUC__) && defined(__IWMMXT__)
-    /* GCC-compatible compiler, targeting ARM with WMMX */
+#elif defined(__GNUC__) && defined(FE_HW_TARGET_ARM_WMMX)
     #include <mmintrin.h>
 #else
     #undef FE_HW_HAS_MULTIMEDIA_INTRINSICS
 #endif
+
 
 #ifdef FE_TARGET_ANDROID
 /* See https://developer.android.com/ndk/guides/cpu-features.html */
@@ -218,6 +253,9 @@ extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
 #endif /* FE_HW_HAS_MULTIMEDIA_INTRINSICS */
 #endif /* fe_hw_prefetch */
 
+
+
+
 #if defined(FE_HW_TARGET_X86)
 /*! \brief Defined only if \c _mm_malloc() and \c _mm_free() are available. */
 #define FE_HW_HAS_MM_MALLOC
@@ -231,6 +269,10 @@ extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
 #endif // defined(__GNUC__)
 
 #endif /* FE_HW_TARGET_X86 */
+
+
+
+
 
 /*! \brief Struct holding useful information about our CPU caches. */
 typedef struct {
@@ -396,6 +438,54 @@ typedef struct {
     #define FE_HW_X86_CPUID_BIT_OSPKE   (1 << 4)
 
 #endif
+
+
+
+typedef struct {
+    uint32_t cpuid;
+    bool has_armv7       : 1; 
+    bool has_vfpv3       : 1; 
+    bool has_neon        : 1; 
+    bool has_ldrex_strex : 1; 
+    bool has_vfpv2       : 1; 
+    bool has_vfp_d32     : 1; 
+    bool has_vfp_fp16    : 1; 
+    bool has_vfp_fma     : 1; 
+    bool has_neon_fma    : 1; 
+    bool has_idiv_arm    : 1; 
+    bool has_idiv_thumb2 : 1; 
+    bool has_iwmmxt      : 1; 
+    bool has_aes         : 1; 
+    bool has_pmull       : 1; 
+    bool has_sha1        : 1; 
+    bool has_sha2        : 1; 
+    bool has_crc32       : 1;
+} fe_hw_arm32_features_struct;
+
+typedef struct {
+    uint32_t cpuid;
+    bool has_fp    : 1;
+    bool has_asimd : 1;
+    bool has_aes   : 1;
+    bool has_pmull : 1;
+    bool has_sha1  : 1;
+    bool has_sha2  : 1;
+    bool has_crc32 : 1;
+} fe_hw_arm64_features_struct;
+
+
+#if __DOXYGEN__ || defined(FE_HW_TARGET_ARM32)
+/*! \brief Check your ARM CPU's features. The data is filled
+    *  at the time of the call to #fe_hw_setup(). */
+    extern const fe_hw_arm32_features_struct fe_hw_arm32_cpu_info;
+#endif
+#if __DOXYGEN__ || defined(FE_HW_TARGET_ARM64)
+/*! \brief Check your ARM64 CPU's features. The data is filled
+    *  at the time of the call to #fe_hw_setup(). */
+    extern const fe_hw_arm64_features_struct fe_hw_arm64_cpu_info;
+#endif
+
+
 
 #if __DOXYGEN__ || defined(FE_HW_TARGET_X86)
 /*! \brief Invalidates the cache line containing \p addr. */
