@@ -53,6 +53,45 @@ static uint32_t crc32c_halfbyte(const void* data, size_t len, uint32_t crc32c) {
     return ~crc32c;
 }
 
+
+#if defined(FE_HW_TARGET_ARM) /* ARMv8 */ && defined(__GNUC__)
+#define STATIC_HAS_CRC32_ARMV8
+#endif
+
+#ifdef STATIC_HAS_CRC32_ARMV8
+/* See https://wiki.linaro.org/LEG/Engineering/OPTIM/CRC#Optional_CRC_Instructions_in_ARMv8 */
+#define CRC32CX(crc, value) __asm__("crc32cx %w[c], %w[c], %x[v]":[c]"+r"(crc):[v]"r"(value))
+#define CRC32CW(crc, value) __asm__("crc32cw %w[c], %w[c], %w[v]":[c]"+r"(crc):[v]"r"(value))
+#define CRC32CH(crc, value) __asm__("crc32ch %w[c], %w[c], %w[v]":[c]"+r"(crc):[v]"r"(value))
+#define CRC32CB(crc, value) __asm__("crc32cb %w[c], %w[c], %w[v]":[c]"+r"(crc):[v]"r"(value))
+static uint32_t crc32c_armv8(const void *data, size_t len, uint32_t crc32c)
+{
+    const uint8_t *buffer = data;
+    uint64_t quotient = len / sizeof(uint64_t);
+    while(quotient--) {
+        FE_ALIGN(8) val = *(uint64_t*)buffer;
+        crc32c = CRC32CX(crc32c, val);
+        buffer += 8;
+    }
+    if(len & 4) {
+        FE_ALIGN(4) val = *(uint32_t*)buffer;
+        crc32c = CRC32CW(crc32c, val);
+        buffer += 4;
+    }
+    if(len & 2) {
+        FE_ALIGN(4) val = *(uint16_t*)buffer;
+        crc32c = CRC32CH(crc32c, val);
+        buffer += 2;
+    }
+    if(len & 1) {
+        FE_ALIGN(4) val = *(uint8_t*)buffer;
+        crc32c = CRC32CB(crc32c, val);
+    }
+    return crc32c;
+}
+#endif /* STATIC_HAS_CRC32_ARMV8 */
+
+
 #ifdef FE_HW_TARGET_X86
 /* See http://blog.jiubao.org/2012/07/sse42-crc32c.html */
 static uint32_t crc32c_sse4_2(const void *data, size_t len, uint32_t crc32c)
@@ -96,5 +135,11 @@ void fe_hash_setup(void) {
 #ifdef FE_HW_TARGET_X86
     if(fe_hw_x86_cpu_info.has_sse4_2)
         fe_hash_crc32c = crc32c_sse4_2;
+#elif defined(FE_HW_TARGET_ARM64) && STATIC_HAS_CRC32_ARMV8
+    if(fe_hw_arm64_cpu_info.has_crc32)
+        fe_hash_crc32c = crc32c_armv8;
+#elif defined(FE_HW_TARGET_ARM32) && STATIC_HAS_CRC32_ARMV8
+    if(fe_hw_arm32_cpu_info.has_crc32)
+        fe_hash_crc32c = crc32c_armv8;
 #endif
 }
