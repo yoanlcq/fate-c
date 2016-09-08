@@ -55,8 +55,7 @@ void (*fe_hw_prefetch_t2)(void *, bool)  = static_sse_prefetch_dummy;
 void (*fe_hw_prefetch_nta)(void *, bool) = static_sse_prefetch_dummy;
 
 
-static fe_hw_cacheinfo_struct static_cacheinfo;
-const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo = &static_cacheinfo;
+fe_hw_cacheinfo_struct fe_hw_cacheinfo;
 
 #if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
 #include <unistd.h>
@@ -124,7 +123,7 @@ size_t fe_hw_get_cpu_count(void) {
         #include <cpuid.h>
     #endif
 
-    const fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
+    fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
 
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
                            uint32_t *eax, uint32_t *ebx, 
@@ -240,9 +239,9 @@ size_t fe_hw_get_cpu_count(void) {
 
 
     #ifdef FE_HW_TARGET_ARM32
-    const fe_hw_arm32_features_struct fe_hw_arm32_cpu_info = {0};
+    fe_hw_arm32_features_struct fe_hw_arm32_cpu_info = {0};
     #else
-    const fe_hw_arm64_features_struct fe_hw_arm64_cpu_info = {0};
+    fe_hw_arm64_features_struct fe_hw_arm64_cpu_info = {0};
     #endif
 
     static void static_arm_features_fill(void) {
@@ -319,7 +318,7 @@ size_t fe_hw_get_cpu_count(void) {
 #endif
 
 void fe_hw_setup(void) {
-    cacheinfo_fill(&static_cacheinfo);
+    cacheinfo_fill(&fe_hw_cacheinfo);
 #ifdef FE_HW_TARGET_ARM
     static_arm_features_fill();
 #elif defined(FE_HW_TARGET_X86)

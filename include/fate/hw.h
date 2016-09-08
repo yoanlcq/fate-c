@@ -285,7 +285,7 @@ typedef struct {
  * 
  * The underlying object is filled by #fe_hw_setup().
  */
-extern const fe_hw_cacheinfo_struct *const fe_hw_cacheinfo;
+extern fe_hw_cacheinfo_struct fe_hw_cacheinfo;
 
 typedef struct {
     char vendor_id[13];
@@ -360,7 +360,7 @@ typedef struct {
 
     /*! \brief Check your x86 CPU's features. The data is filled by the
     * CPUID instruction at the time of the call to #fe_hw_setup(). */
-    extern const fe_hw_x86_features_struct fe_hw_x86_cpu_info;
+    extern fe_hw_x86_features_struct fe_hw_x86_cpu_info;
 
     /*! \brief TODO */
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
@@ -477,12 +477,12 @@ typedef struct {
 #if __DOXYGEN__ || defined(FE_HW_TARGET_ARM32)
 /*! \brief Check your ARM CPU's features. The data is filled
     *  at the time of the call to #fe_hw_setup(). */
-    extern const fe_hw_arm32_features_struct fe_hw_arm32_cpu_info;
+    extern fe_hw_arm32_features_struct fe_hw_arm32_cpu_info;
 #endif
 #if __DOXYGEN__ || defined(FE_HW_TARGET_ARM64)
 /*! \brief Check your ARM64 CPU's features. The data is filled
     *  at the time of the call to #fe_hw_setup(). */
-    extern const fe_hw_arm64_features_struct fe_hw_arm64_cpu_info;
+    extern fe_hw_arm64_features_struct fe_hw_arm64_cpu_info;
 #endif
 
 
