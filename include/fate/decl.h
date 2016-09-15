@@ -159,13 +159,22 @@
 
 
 #include <sal.h>
-#define FE_DECL_WARN_UNUSED_RESULT _Check_return_
-#define FE_DECL_DLLEXPORT __declspec(dllexport)
-#define FE_DECL_ALIGN(n) __declspec(align(n))
 #define FE_DECL_DEPRECATED(str) __declspec(deprecated(str))
+#define FE_DECL_MALLOC
+#define FE_DECL_PRINTF(fmt_index, args_index) 
+#define FE_DECL_NONNULL_PARAMS(arg_index,...) 
+#define FE_DECL_SENTINEL(pos) 
+#define FE_DECL_WARN_UNUSED_RESULT _Check_return_
+#define FE_DECL_PACKED_STRUCT
 #define FE_DECL_WARN_IF_USED(str) __declspec(deprecated(str))
+#define FE_DECL_DLLEXPORT __declspec(dllexport)
+#define FE_DECL_PURE
+#define FE_DECL_USED_OFTEN
+#define FE_DECL_USED_RARELY
+#define FE_DECL_ALIGN(n) __declspec(align(n))
 
-#else
+
+#else /* _MSC_VER */
 
 #define FE_DECL_DEPRECATED(msg) 
 #define FE_DECL_MALLOC
