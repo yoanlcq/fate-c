@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <fate/fate.h>
 
-static const char *TAG = "fe_globalstate";
+/* static const char *TAG = "fe_globalstate"; */
 fe_globalstate fe_gs_;
 fe_globalstate *fe_gs = &fe_gs_;
 

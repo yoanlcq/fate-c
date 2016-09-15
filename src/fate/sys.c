@@ -106,10 +106,10 @@ static const char *TAG = "fe_sys";
 void fe_sys_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
-    char *buf = malloc(size);
+    char *buf = fe_mem_heapmalloc(size);
     emscripten_get_callstack(flags, buf, size);
     logfunc(TAG, buf);
-    free(buf);
+    fe_mem_heapfree(buf);
 }
 #elif defined(FE_TARGET_WINDOWS)
 

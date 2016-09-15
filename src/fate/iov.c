@@ -320,14 +320,14 @@ static char *get_executable_path(void) {
         return realpath(str, NULL);
 #endif
     if(lstat("/proc/self/exe", &st) == 0) {
-        str = malloc(st.st_size+1);
+        str = fe_mem_heapalloc(st.st_size+1, char, "");
         if(readlink("/proc/self/exe", str, st.st_size) > 0) {
             str[st.st_size] = '\0';
             str2 = realpath(str, NULL);
-            free(str);
+            fe_mem_heapfree(str);
             return str2;
         }
-        free(str);
+        fe_mem_heapfree(str);
     }
     return NULL;
 }
@@ -346,14 +346,14 @@ static char *get_executable_path(void) {
     char *str, *str2;
     for(i=0 ; i<2 ; ++i) {
         if(lstat(procfs[i], &st) == 0) {
-            str = malloc(st.st_size+1);
+            str = fe_mem_heapalloc(st.st_size+1, char, "");
             if(readlink(procfs[i], str, st.st_size) > 0) {
                 str[st.st_size] = '\0';
                 str2 = realpath(str, NULL);
-                free(str);
+                fe_mem_heapfree(str);
                 return str2;
             }
-            free(str);
+            fe_mem_heapfree(str);
         }
     }
     if(sysctl(mib, 4, appdir, &size, NULL, 0) == 0)
@@ -370,10 +370,10 @@ static char *get_executable_path(void) {
     uint32_t size = MAXPATHLEN;
     if(_NSGetExecutablePath(appdir, &size) == 0)
         return realpath(appdir, NULL);
-    str = malloc(size);
+    str = fe_mem_heapalloc(size, char, "");
     _NSGetExecutablePath(str, &size);
     str2 = realpath(str, NULL);
-    free(str);
+    fe_mem_heapfree(str);
     return str2;
 }
 
@@ -405,8 +405,8 @@ char *fe_fs_get_executable_dir(void) {
     if(!expath)
         return NULL;
     size_t size = strlen(expath);
-    char *res  = malloc(size+strlen(PATHSEP"res")+1);
-    char *data = malloc(size+strlen(PATHSEP"data")+1);
+    char *res  = fe_mem_heapalloc(size+strlen(PATHSEP"res")+1, char, "");
+    char *data = fe_mem_heapalloc(size+strlen(PATHSEP"data")+1, char, "");
 
     int i;
     for(i=0 ; i<3 ; ++i) {
@@ -418,14 +418,14 @@ char *fe_fs_get_executable_dir(void) {
         strcat(data, PATHSEP"data");
         /* FIXME!!
         if(fe_fs_exists(res) && fe_fs_exists(data)) {
-            free(res);
-            free(data);
+            fe_mem_heapfree(res);
+            fe_mem_heapfree(data);
             return expath;
         }
         */
     }
-    free(res);
-    free(data);
+    fe_mem_heapfree(res);
+    fe_mem_heapfree(data);
     fe_loge(TAG, "Could not find res/ and data/ directories.\n");
     return NULL;
 }

@@ -37,6 +37,7 @@
 #include <stdbool.h>
 #include <fate/defs.h>
 #include <fate/log.h>
+#include <fate/mem.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/log.h>
 
@@ -70,7 +71,7 @@ void fe_gl_log_shader_info(GLuint shader, fe_logfunc log) {
     GLchar *err;
     GLint errlen;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &errlen);
-    err = malloc((errlen+1)*sizeof(GLchar));
+    err = fe_mem_heapalloc(errlen+1, GLchar, "");
     glGetShaderInfoLog(shader, errlen, &errlen, err);
     err[errlen] = '\0';
 #ifdef __GNUC__
@@ -81,14 +82,14 @@ void fe_gl_log_shader_info(GLuint shader, fe_logfunc log) {
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-    free(err);
+    fe_mem_heapfree(err);
 }
 
 void fe_gl_log_program_info(GLuint program, fe_logfunc log) {
     GLchar *err;
     GLsizei errlen;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &errlen);
-    err = malloc((errlen+1)*sizeof(GLchar));
+    err = fe_mem_heapalloc(errlen+1, GLchar, "");
     glGetProgramInfoLog(program, errlen, &errlen, err);
     err[errlen] = '\0';
 #ifdef __GNUC__
@@ -99,5 +100,5 @@ void fe_gl_log_program_info(GLuint program, fe_logfunc log) {
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
-    free(err);
+    fe_mem_heapfree(err);
 }
