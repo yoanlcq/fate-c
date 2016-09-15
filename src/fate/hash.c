@@ -69,22 +69,22 @@ static uint32_t crc32c_armv8(const void *data, size_t len, uint32_t crc32c)
     const uint8_t *buffer = data;
     uint64_t quotient = len / sizeof(uint64_t);
     while(quotient--) {
-        FE_ALIGN(8) val = *(uint64_t*)buffer;
+        FE_DECL_ALIGN(8) val = *(uint64_t*)buffer;
         crc32c = CRC32CX(crc32c, val);
         buffer += 8;
     }
     if(len & 4) {
-        FE_ALIGN(4) val = *(uint32_t*)buffer;
+        FE_DECL_ALIGN(4) val = *(uint32_t*)buffer;
         crc32c = CRC32CW(crc32c, val);
         buffer += 4;
     }
     if(len & 2) {
-        FE_ALIGN(4) val = *(uint16_t*)buffer;
+        FE_DECL_ALIGN(4) val = *(uint16_t*)buffer;
         crc32c = CRC32CH(crc32c, val);
         buffer += 2;
     }
     if(len & 1) {
-        FE_ALIGN(4) val = *(uint8_t*)buffer;
+        FE_DECL_ALIGN(4) val = *(uint8_t*)buffer;
         crc32c = CRC32CB(crc32c, val);
     }
     return crc32c;

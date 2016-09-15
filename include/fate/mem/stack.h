@@ -181,7 +181,7 @@
  *         data within the current function's scope, or NULL on failure.
  * \see fe_mem_stackfree
  */
-FE_NIY void *fe_mem_stackalloc(size_t size);
+FE_DECL_NIY void *fe_mem_stackalloc(size_t size);
 
 /*! \brief Confident (or foolish ?) alternative to #fe_mem_stackalloc().
  *
@@ -199,7 +199,7 @@ FE_NIY void *fe_mem_stackalloc(size_t size);
  *
  * \see fe_mem_stackalloc
  */
-FE_NIY void *fe_mem_stackalloc_confident(size_t size);
+FE_DECL_NIY void *fe_mem_stackalloc_confident(size_t size);
 
 /*! \brief Atomically frees memory returned by a call to
  *         #fe_mem_stackalloc(), in case the memory was allocated on the 
@@ -208,7 +208,7 @@ FE_NIY void *fe_mem_stackalloc_confident(size_t size);
  * Just like \c free(), it's a no-op if \p ptr is NULL.
  * \see fe_mem_stackalloc
  */
-FE_NIY void fe_mem_stackfree(void *ptr);
+FE_DECL_NIY void fe_mem_stackfree(void *ptr);
 
 /*! \brief Status codes returned by #fe_mem_stackavail(). 
  */
@@ -289,7 +289,7 @@ typedef enum {
  * \see fe_mem_stackalloc_confident
  * \see fe_mem_stackfree
  */
-FE_NIY fe_mem_stackavail_status fe_mem_stackavail(size_t *available);
+FE_DECL_NIY fe_mem_stackavail_status fe_mem_stackavail(size_t *available);
 
 /*! @} */
 

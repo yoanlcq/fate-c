@@ -76,7 +76,7 @@ static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 #else
 
 #include <string.h>
-FE_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
+FE_DECL_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
     memset(ci, 0, sizeof(*ci));
 }
 

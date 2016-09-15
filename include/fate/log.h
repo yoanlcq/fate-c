@@ -75,7 +75,7 @@
  * This is intended for use by other modules, which would like to expose
  * functions taking a log function as a parameter.
  */
-typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+typedef void (*fe_logfunc)(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 /*! \brief Setup this module.
  * 
@@ -124,7 +124,7 @@ typedef enum fe_log_flag fe_log_flag;
  * \param flags Bitwise OR combination of one or more flags, as defined in #fe_log_flag.
  * \see enum fe_log_flag
  */
-FE_NIY void fe_log_flags(unsigned long flags);
+FE_DECL_NIY void fe_log_flags(unsigned long flags);
 
 /*! \brief Atomically get the log module's current flags. 
  *
@@ -151,19 +151,19 @@ typedef enum fe_log_severity fe_log_severity;
 /*! \brief Prevents messages having the given tag from being displayed to the 
  *         console.
  */
-FE_NIY void fe_log_no_console(const char *tag);
+FE_DECL_NIY void fe_log_no_console(const char *tag);
 /*! \brief Requests that messages having the given tag be displayed to the 
  *         console (using stdout, stderr or Android's Logcat depending 
  *         on cases).
  */
-FE_NIY void fe_log_on_console(const char *tag);
+FE_DECL_NIY void fe_log_on_console(const char *tag);
 /*! \brief Requests that messages having the given tag be also displayed to 
  *         a file.
  *
  * Files are reference-counted within the \c fe_log module, so that no file
  * is fopen()-ed more than once.
  */
-FE_NIY void fe_log_file(const char *tag, const char *filename);
+FE_DECL_NIY void fe_log_file(const char *tag, const char *filename);
 
 /*! \brief Log Infos.
  *
@@ -174,7 +174,7 @@ FE_NIY void fe_log_file(const char *tag, const char *filename);
  * The default output stream is \c stdout.\n
  * The default color is green.
  */
-void fe_logi(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logi(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 /*! \brief Log Warnings.
  *
@@ -185,7 +185,7 @@ void fe_logi(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
  * The default output stream is \c stderr.\n
  * The default color is yellow.
  */
-void fe_logw(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logw(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 /*! \brief Log Errors.
  *
@@ -196,7 +196,7 @@ void fe_logw(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
  * The default output stream is \c stderr.\n
  * The default color is red.
  */
-void fe_loge(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_loge(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 /*! \brief Log Debug.
  *
@@ -208,13 +208,13 @@ void fe_loge(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
  * The default output stream is \c stdout.\n
  * The default color is cyan.
  */
-void fe_logd(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logd(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 /*! \brief Valid function pointer to #fe_logd.
  *
  * This function is for when you need to pass #fe_logd as a #fe_logfunc 
  * parameter.
  */
-void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 #ifndef FE_DEBUG_BUILD
 #define fe_logd(tag, fmt, ...) 
 #endif
@@ -228,13 +228,13 @@ void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3
  * The default output stream is \c stdout.\n
  * The default color is blue.
  */
-void fe_logv(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logv(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 /*! \brief Valid function pointer to #fe_logv.
  *
  * This function is for when you need to pass #fe_logv as a #fe_logfunc 
  * parameter.
  */
-void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 #ifndef FE_LOG_USE_VERBOSE
 /*! \brief Dummy macro to compile out calls to #fe_logv() when the 
@@ -263,7 +263,7 @@ void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3
  *
  * \see fe_fatal
  */
-void fe_logc(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_logc(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 #include <fate/globalstate.h>
 #include <fate/sys.h>
@@ -279,7 +279,7 @@ void fe_logc(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
  *
  * An alternative name would be "fe_panic".
  */
-void fe_fatal(const char *tag, const char *fmt, ...) FE_PRINTF_DECL(2,3);
+void fe_fatal(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 #define fe_fatal(tag, ...) \
     do { fe_sys_log_stacktrace(fe_loge); \
     fe_logc(tag, __VA_ARGS__); \

@@ -45,7 +45,7 @@ static pid_t gettid(void) { return syscall(SYS_gettid); }
 
 
 #ifndef HAS_GETTID
-FE_WARN_IF_USED("\n    Since _GNU_SOURCE is not defined, the gettid() "
+FE_DECL_WARN_IF_USED("\n    Since _GNU_SOURCE is not defined, the gettid() "
         "system call is unavailable.\n"
         "    This function won't open \"/proc/self/task/<tid>/stat\",\n"
         "    and therefore will fail immediately.\n"

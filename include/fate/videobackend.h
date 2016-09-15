@@ -81,18 +81,18 @@ typedef struct fe_gl_videobackend fe_gl_videobackend;
 
 
 /*! \brief TODO*/
-FE_NIY void fe_videobackend_get_default(fe_videobackend *out);
+FE_DECL_NIY void fe_videobackend_get_default(fe_videobackend *out);
 /*! \brief TODO
  * 
  * When it fails or is NIY, the obtained backend is Dummy. */
-FE_NIY void fe_videobackend_create(const fe_videobackend *requested,             
+FE_DECL_NIY void fe_videobackend_create(const fe_videobackend *requested,             
                                     fe_videobackend *obtained);
 /*! \brief TODO*/
-FE_NIY void fe_videobackend_delete(fe_videobackend *videobackend);
+FE_DECL_NIY void fe_videobackend_delete(fe_videobackend *videobackend);
 /*! \brief TODO*/
-FE_NIY void fe_videobackend_use(fe_videobackend *videobackend);
+FE_DECL_NIY void fe_videobackend_use(fe_videobackend *videobackend);
 /*! \brief TODO*/
-FE_NIY void fe_videobackend_copy(fe_videobackend *to,
+FE_DECL_NIY void fe_videobackend_copy(fe_videobackend *to,
                             const fe_videobackend *from);
 
 

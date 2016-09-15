@@ -378,96 +378,96 @@ typedef struct {
 typedef struct fe_iov_promise_struct *fe_iov_promise;
 
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_iov_load_res(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_params *params);
 
 
 /*! \brief TODO */
 bool  fe_fs_setcwd(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY char* fe_fs_getcwd(void);
+FE_DECL_NIY char* fe_fs_getcwd(void);
 /*! \brief TODO */
 uint64_t fe_fs_file_get_wtime(const fe_iov_params *params);
 
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_fs_file_exists(const fe_iov_params *params);
+FE_DECL_NIY fe_iov_status  fe_fs_file_exists(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_fs_file_delete(const fe_iov_params *params);
+FE_DECL_NIY fe_iov_status  fe_fs_file_delete(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_status  fe_fs_persistent_exists(const fe_iov_params *params);
+FE_DECL_NIY fe_iov_status  fe_fs_persistent_exists(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_params *params);
 /*! \brief TODO */
 fe_iov_status  fe_fs_persistent_delete(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_params *params);
+FE_DECL_NIY fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_params *params);
 
 
 
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_file(const fe_iov_params *params);
+FE_DECL_NIY fe_fd          fe_fd_open_file(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_persistent(const fe_iov_params *params);
+FE_DECL_NIY fe_fd          fe_fd_open_persistent(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_fd          fe_fd_open_res(const fe_iov_params *params);
+FE_DECL_NIY fe_fd          fe_fd_open_res(const fe_iov_params *params);
 /*! \brief TODO */
-FE_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
+FE_DECL_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
 /*! \brief TODO */
-FE_NIY bool           fe_fd_is_valid(fe_fd fd);
+FE_DECL_NIY bool           fe_fd_is_valid(fe_fd fd);
 /*! \brief TODO */
-FE_NIY void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
+FE_DECL_NIY void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
 /*! \brief TODO */
-FE_NIY void           fe_fd_munmap(void *addr, size_t len);
+FE_DECL_NIY void           fe_fd_munmap(void *addr, size_t len);
 /*! \brief TODO */
-FE_NIY fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
+FE_DECL_NIY fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
 /*! \brief TODO */
 #define        fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
+FE_DECL_NIY ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
+FE_DECL_NIY ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
+FE_DECL_NIY ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
+FE_DECL_NIY ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+FE_DECL_NIY ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
 /*! \brief TODO */
-FE_NIY ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+FE_DECL_NIY ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
 /*! \brief TODO */
-FE_NIY bool           fe_fd_sync(fe_fd fd);
+FE_DECL_NIY bool           fe_fd_sync(fe_fd fd);
 /*! \brief TODO */
-FE_NIY bool           fe_fd_truncate(fe_fd fd, size_t len);
+FE_DECL_NIY bool           fe_fd_truncate(fe_fd fd, size_t len);
 /*! \brief TODO */
-FE_NIY void           fe_fd_close(fe_fd fd);
+FE_DECL_NIY void           fe_fd_close(fe_fd fd);
 
 /*! \brief TODO */
-FE_NIY bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st);
+FE_DECL_NIY bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st);
 /*! \brief TODO */
-FE_NIY bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds);
+FE_DECL_NIY bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds);
 /*! \brief TODO */
-FE_NIY void fe_iov_promise_cancel(fe_iov_promise p);
+FE_DECL_NIY void fe_iov_promise_cancel(fe_iov_promise p);
 
 /*! @} */
 

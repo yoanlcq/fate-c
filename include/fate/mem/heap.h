@@ -80,14 +80,14 @@ static inline void fe_mem_handle_failure(const char *funcname, size_t nmemb,
 
 #if __DOXYGEN__ || defined(FE_MEM_DBG)
 
-FE_NIY void *fe_mem_heapalloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_DECL_NIY void *fe_mem_heapalloc_real(size_t nmemb, size_t size, const char *tag, 
                     const char *type_str, 
                     const char *filename, unsigned lineno) 
-                    FE_MALLOC_DECL;
-FE_NIY void *fe_mem_xheapalloc_real(size_t nmemb, size_t size, const char *tag, 
+                    FE_DECL_MALLOC;
+FE_DECL_NIY void *fe_mem_xheapalloc_real(size_t nmemb, size_t size, const char *tag, 
                     const char *type_str, 
                     const char *filename, unsigned lineno) 
-                    FE_MALLOC_DECL;
+                    FE_DECL_MALLOC;
 /*! \brief TODO */
 #define fe_mem_heapalloc(nmemb, type, tag) \
         fe_mem_heapalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
@@ -96,14 +96,14 @@ FE_NIY void *fe_mem_xheapalloc_real(size_t nmemb, size_t size, const char *tag,
         fe_mem_xheapalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 
 
-FE_NIY void *fe_mem_heapcalloc_real(size_t nmemb, size_t size, const char *tag, 
+FE_DECL_NIY void *fe_mem_heapcalloc_real(size_t nmemb, size_t size, const char *tag, 
                          const char *type_str,
                          const char *filename, unsigned lineno) 
-                         FE_MALLOC_DECL;
-FE_NIY void *fe_mem_xheapcalloc_real(size_t nmemb, size_t size, const char *tag, 
+                         FE_DECL_MALLOC;
+FE_DECL_NIY void *fe_mem_xheapcalloc_real(size_t nmemb, size_t size, const char *tag, 
                          const char *type_str,
                          const char *filename, unsigned lineno) 
-                         FE_MALLOC_DECL;
+                         FE_DECL_MALLOC;
 /*! \brief TODO */
 #define fe_mem_heapcalloc(nmemb, type, tag) \
         fe_mem_heapcalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
@@ -111,11 +111,11 @@ FE_NIY void *fe_mem_xheapcalloc_real(size_t nmemb, size_t size, const char *tag,
 #define fe_mem_xheapcalloc(nmemb, type, tag) \
         fe_mem_xheapcalloc_real(nmemb, sizeof(type), tag, #type, __FILE__, __LINE__)
 
-FE_NIY void *fe_mem_heaprealloc_real(void *ptr, 
+FE_DECL_NIY void *fe_mem_heaprealloc_real(void *ptr, 
                           size_t nmemb, size_t size, const char *tag, 
                           const char *type_str,
                           const char *filename, unsigned lineno);
-FE_NIY void *fe_mem_xheaprealloc_real(void *ptr, 
+FE_DECL_NIY void *fe_mem_xheaprealloc_real(void *ptr, 
                           size_t nmemb, size_t size, const char *tag, 
                           const char *type_str,
                           const char *filename, unsigned lineno);
@@ -128,13 +128,13 @@ FE_NIY void *fe_mem_xheaprealloc_real(void *ptr,
 
 
 /*! \brief TODO */
-FE_NIY void fe_mem_heapfree(void *ptr);
+FE_DECL_NIY void fe_mem_heapfree(void *ptr);
 
 /*! \brief TODO */
-FE_NIY void fe_mem_heaplock(void);
+FE_DECL_NIY void fe_mem_heaplock(void);
 
 /*! \brief TODO */
-FE_NIY void fe_mem_heapunlock(void);
+FE_DECL_NIY void fe_mem_heapunlock(void);
 
 /*! \brief Get blocks info.
  *
@@ -153,7 +153,7 @@ FE_NIY void fe_mem_heapunlock(void);
  *         \p nblocks.
  * \see fe_mem_getblockindex
  */
-FE_NIY size_t fe_mem_heap_get_block_count(void);
+FE_DECL_NIY size_t fe_mem_heap_get_block_count(void);
 /*! \brief Get blocks info.
  *
  * The caller <b>must</b> wrap their code in a 
@@ -171,7 +171,7 @@ FE_NIY size_t fe_mem_heap_get_block_count(void);
  *         \p nblocks.
  * \see fe_mem_getblockindex
  */
-FE_NIY fe_mem_heapblockinfo* fe_mem_heap_get_blocks_info(void);
+FE_DECL_NIY fe_mem_heapblockinfo* fe_mem_heap_get_blocks_info(void);
 
 /*! \brief Get a block index, given an arbitrary address. 
  *
@@ -181,7 +181,7 @@ FE_NIY fe_mem_heapblockinfo* fe_mem_heap_get_blocks_info(void);
  *              It may then be used for calls to #fe_mem_getblocksinfo().
  * \return Is \p addr indeed within a block ? 
  * \see fe_mem_getblocksinfo */
-FE_NIY size_t fe_mem_get_block_index(void *addr);
+FE_DECL_NIY size_t fe_mem_get_block_index(void *addr);
 
 /*! \brief Atomically simulates limits on the memory allocated 
  *         by #fe_mem_heapalloc() and friends.
@@ -207,14 +207,14 @@ FE_NIY size_t fe_mem_get_block_index(void *addr);
  *         0 Otherwise.
  * \see fe_mem_getlimits
  */
-FE_NIY size_t fe_mem_limits(size_t total_nbytes, size_t heap_size);
+FE_DECL_NIY size_t fe_mem_limits(size_t total_nbytes, size_t heap_size);
 
 /*! \brief Atomically gets the values set by the last call to 
  *         #fe_mem_limits().
  *
  * \see fe_mem_limits
  */
-FE_NIY void fe_mem_getlimits(size_t *total_nbytes, size_t *heap_size);
+FE_DECL_NIY void fe_mem_getlimits(size_t *total_nbytes, size_t *heap_size);
 
 #else /* ifdef FE_MEM_DBG */
 

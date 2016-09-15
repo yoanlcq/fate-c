@@ -193,6 +193,27 @@
 #endif
 
 
+/*
+ *
+ *
+ * Compiler detection macros
+ *
+ *
+ */
+
+#ifdef __GNUC__
+    #define FE_CC_GCC_COMPATIBLE
+    #ifdef __clang__
+        #define FE_CC_CLANG
+    #else
+        #define FE_CC_GCC
+    #endif
+#elif defined(_MSC_VER)
+    #define FE_CC_MSVC
+#else
+#error "This compiler was not expected. For now, we stick to GCC, Clang and MSVC."
+#endif
+
 
 /*
  *
@@ -299,100 +320,9 @@
  */
 #define MUST_BE_ARRAY(a) \
      BUILD_BUG_ON_ZERO(__builtin_types_compatible_p(typeof(a), typeof(&a[0])))
-/*! \brief Marks a function or object as deprecated, displaying a custom 
- *         message.
- *
- * This macro expands to nothing if the compiler is not GCC. */
-#define FE_DEPRECATED(msg) __attribute__((deprecated(msg)))
-/*! \brief Marks a function as malloc-like.
- *
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FE_MALLOC_DECL __attribute__((malloc))
-/*! \brief Marks a function as printf-like.
- *
- * This gives to the compiler the ability to check formats given to the marked
- * functions.
- *
- * This macro expands to nothing if the compiler is not GCC.
- *
- * \param fmt_index The index of the "format" parameter, starting from 1.
- * \param args_index The index of the "..." parameter, starting from 1.
- */
-/* We say __printf__ instead of printf because libintl.h may redefine printf as 
- * _libintl_printf. */
-#define FE_PRINTF_DECL(fmt_index, args_index) \
-            __attribute__((format(__printf__, fmt_index, args_index)))
-/*! \brief Instructs the compiler that some arguments to a function cannot be 
- *         NULL. 
- *
- * This macro expands to nothing if the compiler is not GCC.
- *
- * This macro takes a variable arguments list of indices which should indicate
- * which parameters are to be non-NULL.
- */
-#define FE_NONNULL_PARAMS(arg_index,...) \
-            __attribute__((nonnull(arg_index, __VA_ARGS__)))
-
-/*! \brief Instructs the compiler that the variable arguments given to a 
- *         function must be ended by NULL. 
- *
- * This macro expands to nothing if the compiler is not GCC.
- *
- * \param pos Where must the sentinel be located, counting backwards from the 
- *            end of the arguments list ? */
-#define FE_SENTINEL(pos) __attribute__((sentinel(pos)))
-/*! \brief Instructs the compiler that the function's result should not be
- *         ignored. 
- *
- * This macro includes \c sal.h and expands to \c _Check_return_ if the
- * compiler is MSVC.
- */
-#define FE_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-/*! \brief Asks the compiler to reduce the size taken by instances of the
- *         marked struct as much as possible. 
- *
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FE_PACKED_STRUCT __attribute__((packed))
-/*! \brief Expands to __attribute__((warning(...))) if supported.
- *
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FE_WARN_IF_USED(str) __attribute__((warning(str)))
-#ifdef __clang__
-#undef FE_WARN_IF_USED
-#define FE_WARN_IF_USED(str)
-#endif
-/*! \brief Marks a function as "NOT IMPLEMENTED YET"
- *
- * Use this for functions that are at most 50% finished.
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FE_NIY FE_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-/*! \brief Marks a function as "WORK IN PROGRESS"
- *
- * Use this for functions that are at least 50% finished.
- * This macro expands to nothing if the compiler is not GCC.
- */
-#define FE_WIP FE_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-
-#else /* ifdef __GNUC__ */
-
+#else
 #define MUST_BE_ARRAY(a) 0
-#define FE_DEPRECATED(msg) 
-#define FE_MALLOC_DECL
-#define FE_PRINTF_DECL(fmt_index, args_index) 
-#define FE_NONNULL_PARAMS(arg_index,...) 
-#define FE_SENTINEL(pos) 
-#define FE_WARN_UNUSED_RESULT 
-#define FE_PACKED_STRUCT
-#define FE_WARN_IF_USED(str)
-#define FE_NIY
-#define FE_WIP
-
-#endif /* ifdef __GNUC_ */
+#endif
 
 /*! \brief Compile-time assert macro. */
 #ifdef _MSC_VER
@@ -402,29 +332,6 @@
 #else
 #define FE_COMPILETIME_ASSERT(pred, str) \
     typedef char static_assertion_failed_at_line_##__LINE__[(pred && str)*2-1]
-#endif
-
-/*! \brief Compile-time specifier for a declaration (not a typedef) 
- *         requiring a specific alignment.
- *
- * This matters when using some low-level instructions such as _mm_stream_si128().
- */
-#ifdef FE_C11_SUPPORT
-#include <stdalign.h>
-#define FE_ALIGN(n) _Alignas(n)
-#elif defined(__GNUC__)
-#define FE_ALIGN(n) __attribute__((align(n)))
-#elif defined(_MSC_VER)
-#define FE_ALIGN(n) __declspec(align(n))
-#else
-#error "FE_ALIGN() can't be defined because your compiler doesn't support alignment specifiers."
-#endif
-
-
-#ifdef _MSC_VER
-#include <sal.h>
-#undef  FE_WARN_UNUSED_RESULT
-#define FE_WARN_UNUSED_RESULT _Check_return_
 #endif
 
 
@@ -456,6 +363,8 @@ typedef SSIZE_T ssize_t;
 #define PRIxsize_t "zx"
 #define PRIXsize_t "zX"
 #endif
+
+#include <fate/decl.h>
 
 /*! @} */
 
