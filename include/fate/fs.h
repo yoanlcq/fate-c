@@ -27,45 +27,44 @@
  *
  */
 
-
-#ifndef FE_H
-#define FE_H
-
-/*! \file fate.h
- *  \brief A single file for including all of F.A.T.E's interfaces.
+/*! \file fate/fs.h
+ *  \brief File system.
+ *  \defgroup fs File system.
  *
- * TODO
+ * @{
  */
 
-#include <fate/defs.h> /* Always include first. */
-#include <fate/decl.h>
-#include <fate/dbg.h>
-#include <fate/al.h>
-#include <fate/d3d.h>
-#include <fate/dpyres.h>
-#include <fate/fs.h>
-#include <fate/gameinfo.h>
-#include <fate/gl.h>
-#include <fate/globalstate.h>
-#include <fate/hash.h>
-#include <fate/hw.h>
-#include <fate/i18n.h>
-#include <fate/iov.h>
-#include <fate/ipv6.h>
-#include <fate/linuxperf.h>
-#include <fate/log.h>
-#include <fate/math.h>
-#include <fate/mem.h>
-#include <fate/mt.h>
-#include <fate/steam.h>
-#include <fate/sys.h>
-#include <fate/tcp6.h>
-#include <fate/timestamp.h>
-#include <fate/tracer.h>
-#include <fate/udp6.h>
-#include <fate/units.h>
-#include <fate/utf8.h>
-#include <fate/vk.h>
-#include <fate/wss13.h>
+#ifndef FE_FS_H
+#define FE_FS_H
 
-#endif /* FE_H */
+#include <fate/defs.h>
+#include <fate/iov.h>
+#include <stdbool.h>
+
+/*! \brief TODO */
+char *fe_fs_get_executable_dir(void);
+
+/*! \brief TODO */
+bool  fe_fs_setcwd(const fe_iov_locator *params);
+/*! \brief TODO */
+FE_DECL_NIY char* fe_fs_getcwd(void);
+/*! \brief TODO */
+uint64_t fe_fs_file_get_wtime(const fe_iov_locator *params);
+
+/*! \brief TODO */
+FE_DECL_NIY fe_iov_status  fe_fs_file_exists(const fe_iov_locator *params);
+/*! \brief TODO */
+FE_DECL_NIY fe_iov_status  fe_fs_file_delete(const fe_iov_locator *params);
+/*! \brief TODO */
+FE_DECL_NIY fe_iov_status  fe_fs_persistent_exists(const fe_iov_locator *params);
+/*! \brief TODO */
+FE_DECL_NIY fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_locator *params);
+/*! \brief TODO */
+fe_iov_status  fe_fs_persistent_delete(const fe_iov_locator *params);
+/*! \brief TODO */
+FE_DECL_NIY fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_locator *params);
+
+
+/*! @} */
+
+#endif /* FE_FS_H */

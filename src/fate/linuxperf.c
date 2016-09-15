@@ -458,6 +458,7 @@ void fe_linuxperf_state_visit(fe_linuxperf_state *res, void(*visit)(const char *
     HELPER(cache.local_memory.prefetch.misses  );
 }
 
+
 bool fe_linuxperf_setup(void) {
 #ifdef FE_LINUXPERF_UNSUPPORTED
     return false;

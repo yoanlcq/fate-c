@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
-#include <assert.h>
+#include <fate/dbg.h>
 #include <fate/defs.h>
 #include <fate/ipv6.h>
 #include <fate/udp6.h>
@@ -437,13 +437,13 @@ fe_ipv6_err fe_udp6_bind(fe_udp6 *s, uint16_t port) {
 
 
 ssize_t fe_udp6_send(fe_udp6 *s, fe_ipv6_peer *p, const void *data, size_t len) {
-    assert(p);
+    fe_dbg_assert(p);
     ssize_t res = sendto(*s, data, len, 0, (void*) p, sizeof(*p));
     return res>=0 ? res : fe_ipv6_systoerr(FE_IPV6_GETLASTERROR());
 }
 ssize_t fe_udp6_reply(fe_udp6 *s, fe_ipv6_peer *p, const void *data, size_t len) {
 #if defined(FE_TARGET_LINUX)
-    assert(p);
+    fe_dbg_assert(p);
     ssize_t res = sendto(*s, data, len, MSG_CONFIRM, (void*) p, sizeof(*p));
     return res>=0 ? res : fe_ipv6_systoerr(FE_IPV6_GETLASTERROR());
 #else

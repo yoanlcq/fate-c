@@ -284,6 +284,7 @@ void fe_fatal(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
     do { fe_sys_log_stacktrace(fe_loge); \
     fe_logc(tag, __VA_ARGS__); \
     fe_globalstate_deinit(fe_gs); \
+    /* Don't use abort(), it makes the crash handler go crazy. */ \
     exit(EXIT_FAILURE); } while(0)
 
 

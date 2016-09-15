@@ -20,7 +20,7 @@ static fe_mt_threadpool pool = {0};
 static fe_mt_mutex pool_mutex;
 
 
-static void fe_mt_tsx_setup(void);
+static void fe_mt_tsx_setup(void); /* Defined far below */
 
 void          fe_mt_setup(void) {
     fe_mt_mutex_init(&pool_mutex);

@@ -6,7 +6,7 @@
 #include <stdlib.h> /* strtoul() */
 #include <stdbool.h>
 #include <stdint.h> /* uintptr_t */
-#include <assert.h>
+#include <fate/dbg.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -80,7 +80,7 @@ retry_read:
             return false;
         }
     }
-    assert(bytes_read > 0);
+    fe_dbg_assert(bytes_read > 0);
     close(fd);
 
     /* I'm doing this because an executable name can legitimately contain

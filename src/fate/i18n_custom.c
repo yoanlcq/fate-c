@@ -2,8 +2,8 @@
 #ifndef FE_TARGET_WINDOWS
 #include <sys/types.h>
 #endif
+#include <fate/dbg.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -65,7 +65,7 @@ size_t fe_i18n_print_real(const char *fmt, const fe_i18n_param *params, size_t p
         }
         char *end;
         size_t idx = strtoul(dlr+1, &end, 10);
-        assert(idx<param_count && "Parameter index is out of bounds.");
+        fe_dbg_assert(idx<param_count && "Parameter index is out of bounds.");
         const fe_i18n_param *p = params+idx;
         char fmtbuf[256];
         if(p->precision)

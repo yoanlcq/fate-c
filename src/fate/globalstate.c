@@ -36,27 +36,45 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <fate/sys.h>
-#include <fate/log.h>
-#include <fate/globalstate.h>
-#include <fate/i18n.h>
+#include <fate/fate.h>
 
+static const char *TAG = "fe_globalstate";
 fe_globalstate fe_gs_;
 fe_globalstate *fe_gs = &fe_gs_;
 
-/* See https://kripken.github.io/emscripten-site/docs/api_reference/emscripten.h.html#emscripten-asynchronous-indexeddb-api */
-
 void fe_globalstate_init(fe_globalstate *gs) {
+    fe_hw_setup();
+    fe_mem_setup();
     fe_log_setup();
     fe_i18n_setup();
-    char *game_path = fe_sys_getgamepath();
-    if(!game_path)
-        fe_fatal("globalstate", 
-                   "Couldn't find the game's path.\nSorry.\n");
-    //fe_fs_setcwd(game_path);
-    free(game_path);
-
     fe_sys_crash_handler_setup();
+    fe_iov_setup();
+    fe_ipv6_setup();
+    fe_hash_setup();
+    fe_mt_setup();
+#ifdef FE_TARGET_LINUX
+    fe_linuxperf_setup();
+#endif
+#ifdef FE_TARGET_ENV_DESKTOP
+    /* XXX Giving up on it for now. */
+    /*
+    char *game_dir = fe_fs_get_executable_dir();
+    if(!game_dir)
+        fe_fatal("fe_globalstate", 
+            "Could not find the executable's directory.\n"
+            "This is required for loading resources. Sorry.\n"
+        );
+    fe_iov_locator locator = {0};
+    locator.file_name = game_dir;
+    fe_logd(TAG, "Game dir: %s\n", game_dir);
+    fe_fs_setcwd(&locator);
+    fe_mem_heapfree(game_dir);
+    */
+#endif
 }
 void fe_globalstate_deinit(fe_globalstate *gs) {
+    fe_mt_cleanup();
+    fe_ipv6_cleanup();
+    fe_iov_cleanup();
+    fe_log_cleanup();
 }

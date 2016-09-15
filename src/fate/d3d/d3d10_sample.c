@@ -37,7 +37,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <fate/dbg.h>
 #include <SFML/Window.h>
 #include <fate/defs.h>
 #include <fate/d3d/defs.h>
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     D3D10CreateDeviceAndSwapChain(0, D3D10_DRIVER_TYPE_HARDWARE,
             0, 0, D3D10_SDK_VERSION, &sd, &swap_chain, &dev);
 
-    assert(dev && swap_chain);
+    fe_dbg_assert(dev && swap_chain);
 
     // Create a render target view.
     DXCALLV(swap_chain, GetBuffer, 0, &IID_ID3D10Texture2D, &back_buffer);

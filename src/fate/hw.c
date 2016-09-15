@@ -256,7 +256,7 @@ size_t fe_hw_get_cpu_count(void) {
 
             #ifdef FE_HW_TARGET_ARM32
 
-                assert(family == ANDROID_CPU_FAMILY_ARM);
+                fe_dbg_assert(family == ANDROID_CPU_FAMILY_ARM);
                 arm32->cpuid = android_getCpuIdArm();
                 #define HELPER(CST,cst) \
     if(feats & ANDROID_CPU_ARM_FEATURE_##CST) arm32->has_##cst = true
@@ -281,7 +281,7 @@ size_t fe_hw_get_cpu_count(void) {
 
             #elif defined(FE_HW_TARGET_ARM64)
 
-                assert(family == ANDROID_CPU_FAMILY_ARM64);
+                fe_dbg_assert(family == ANDROID_CPU_FAMILY_ARM64);
                 arm64->cpuid = android_getCpuIdArm();
                 #define HELPER(CST,cst) \
     if(feats & ANDROID_CPU_ARM64_FEATURE_##CST) arm64->has_##cst = true

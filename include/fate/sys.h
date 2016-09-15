@@ -47,8 +47,6 @@
 #define FE_SYS_MODNAME_LEN 256
 
 /*! \brief TODO */
-char *fe_sys_getgamepath(void);
-/*! \brief TODO */
 void fe_sys_crash_handler_setup(void);
 /*! \brief Log a platform-specific stack trace, through the given log function.
  *

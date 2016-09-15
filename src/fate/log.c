@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <assert.h>
+#include <fate/dbg.h>
 #include <SDL2/SDL.h>
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
@@ -125,7 +125,7 @@ void fe_logc(const char *tag, const char *fmt, ...) {
 #ifdef FE_TARGET_EMSCRIPTEN
     const char *errstr = "F.A.T.E has encountered an error "
                            "from which it cannot recover.";
-    assert((strlen(errstr)+12) < 512);
+    fe_dbg_assert((strlen(errstr)+12) < 512);
     char script[512+sizeof(message)];
     snprintf(script, sizeof(script), "alert('%s\n%s');", errstr, message);
     emscripten_run_script(script);

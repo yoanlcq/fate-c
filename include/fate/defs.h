@@ -153,7 +153,7 @@
 
 #if !defined(FE_TARGET_LINUX) \
  && !defined(FE_TARGET_WINDOWS) \
- && !defined(FE_TARGET_WINDOWSRT) \
+ && !defined(FE_TARGET_WINDOWS_RT) \
  && !defined(FE_TARGET_OSX) \
  && !defined(FE_TARGET_FREEBSD) \
  && !defined(FE_TARGET_ANDROID) \
@@ -173,6 +173,26 @@
  || defined(FE_TARGET_IOS)
 #define FE_TARGET_IS_A_UNIX 1
 #endif
+
+#if __DOXYGEN__ \
+ || defined(FE_TARGET_WINDOWS) \
+ || defined(FE_TARGET_OSX) \
+ || (defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)) \
+ || defined(FE_TARGET_FREEBSD)
+#define FE_TARGET_ENV_DESKTOP 1
+#endif
+
+#if __DOXYGEN__ \
+ || defined(FE_TARGET_ANDROID) \
+ || defined(FE_TARGET_IOS) \
+ || defined(FE_TARGET_IOS_SIMULATOR)
+#define FE_TARGET_ENV_MOBILE 1
+#endif
+
+#if __DOXYGEN__ || defined(FE_TARGET_EMSCRIPTEN)
+#define FE_TARGET_ENV_BROWSER 1
+#endif
+
 
 #if __DOXYGEN__
 #define _WIN32_WINNT 0x0600
@@ -273,11 +293,11 @@
 #endif
 
 
-/*! \brief Define <tt>__func__</tt> to an empty string, only if the used
+/*! \brief Define <tt>__func__</tt> to something else, only if the used
  *         C standard does not support it. */
 #if __STDC_VERSION__ < 199901L
 #ifndef __GNUC__
-#define __func__ ""
+#define __func__ "<somefunction>"
 #endif
 #endif
 
@@ -365,6 +385,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include <fate/decl.h>
+
 
 /*! @} */
 

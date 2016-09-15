@@ -34,6 +34,11 @@
  *  \brief Declaration attributes wrappers.
  *  \defgroup decl Declaration attribute wrappers.
  *
+ * All macros in this header file expand to nothing whenever the
+ * compiler cannot implement them.
+ * With GCC and Clang, they are often defined to \c __attribute__((foo)).
+ * With MSVC, they may be defined to \c __declspec(foo).
+ *
  * @{
  */
 
@@ -45,12 +50,12 @@
 /*! \brief Marks a function or object as deprecated, displaying a custom 
  *         message.
  *
- * This macro expands to nothing if the compiler is not GCC. */
+ * GCC, Clang, MSVC. */
 #define FE_DECL_DEPRECATED(msg) __attribute__((deprecated(msg)))
 
 /*! \brief Marks a function as malloc-like.
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  */
 #define FE_DECL_MALLOC __attribute__((malloc))
 
@@ -59,7 +64,7 @@
  * This gives to the compiler the ability to check formats given to the marked
  * functions.
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  *
  * \param fmt_index The index of the "format" parameter, starting from 1.
  * \param args_index The index of the "..." parameter, starting from 1.
@@ -72,10 +77,11 @@
 /*! \brief Instructs the compiler that some arguments to a function cannot be 
  *         NULL. 
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  *
  * This macro takes a variable arguments list of indices which should indicate
  * which parameters are to be non-NULL.
+ * Indices start from 1.
  */
 #define FE_DECL_NONNULL_PARAMS(arg_index,...) \
             __attribute__((nonnull(arg_index, __VA_ARGS__)))
@@ -83,7 +89,7 @@
 /*! \brief Instructs the compiler that the variable arguments given to a 
  *         function must be ended by NULL. 
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  *
  * \param pos Where must the sentinel be located, counting backwards from the 
  *            end of the arguments list ? */
@@ -92,21 +98,20 @@
 /*! \brief Instructs the compiler that the function's result should not be
  *         ignored. 
  *
- * This macro includes \c sal.h and expands to \c _Check_return_ if the
- * compiler is MSVC.
+ * GCC, Clang, MSVC.
  */
 #define FE_DECL_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 
 /*! \brief Asks the compiler to reduce the size taken by instances of the
  *         marked struct as much as possible. 
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  */
 #define FE_DECL_PACKED_STRUCT __attribute__((packed))
 
 /*! \brief Expands to __attribute__((warning(...))) if supported.
  *
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC.
  */
 #define FE_DECL_WARN_IF_USED(str) __attribute__((warning(str)))
 #ifdef __clang__
@@ -114,21 +119,53 @@
 #define FE_DECL_WARN_IF_USED(str)
 #endif
 
-/*! \brief Marks a function as "NOT IMPLEMENTED YET"
+/*! \brief Marks a function as "export" when building a DLL. 
  *
- * Use this for functions that are at most 50% finished.
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang, MSVC.
  */
-#define FE_DECL_NIY FE_DECL_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-/*! \brief Marks a function as "WORK IN PROGRESS"
+#define FE_DECL_DLLEXPORT __attribute__((dllexport))
+
+/*! \brief Marks a function as "pure", that is, its return value is only
+ *         computed from its parameters and has no side-effects. 
  *
- * Use this for functions that are at least 50% finished.
- * This macro expands to nothing if the compiler is not GCC.
+ * GCC, Clang.
  */
-#define FE_DECL_WIP FE_DECL_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+#define FE_DECL_PURE __attribute__((pure))
+
+/*! \brief Marks a function as "hot", that is, used often.
+ *
+ * GCC, Clang.
+ */
+#define FE_DECL_USED_OFTEN __attribute__((hot))
+
+/*! \brief Marks a function as "cold", that is, used rarely.
+ *
+ * GCC, Clang.
+ */
+#define FE_DECL_USED_RARELY __attribute__((cold))
+
+/*! \brief Compile-time specifier for a declaration (not a typedef) 
+ *         requiring a specific alignment.
+ *
+ * GCC, Clang, MSVC.
+ *
+ * This matters when using some low-level instructions such as 
+ * _mm_stream_si128().
+ */
+#define FE_DECL_ALIGN(n) __attribute__((align(n)))
 
 
-#else /* ifdef __GNUC__ */
+#elif defined(_MSC_VER) /* ifdef __GNUC__ */
+
+
+#include <sal.h>
+#define FE_DECL_WARN_UNUSED_RESULT _Check_return_
+#define FE_DECL_DLLEXPORT __declspec(dllexport)
+#define FE_DECL_ALIGN(n) __declspec(align(n))
+#define FE_DECL_DEPRECATED(str) __declspec(deprecated(str))
+#define FE_DECL_WARN_IF_USED(str) __declspec(deprecated(str))
+
+#else
 
 #define FE_DECL_DEPRECATED(msg) 
 #define FE_DECL_MALLOC
@@ -138,33 +175,31 @@
 #define FE_DECL_WARN_UNUSED_RESULT 
 #define FE_DECL_PACKED_STRUCT
 #define FE_DECL_WARN_IF_USED(str)
-#define FE_DECL_NIY
-#define FE_DECL_WIP
+#define FE_DECL_DLLEXPORT
+#define FE_DECL_PURE
+#define FE_DECL_USED_OFTEN
+#define FE_DECL_USED_RARELY
+/* Fail on this because this is very important. */
+#error "FE_DECL_ALIGN() can't be defined because your compiler doesn't support alignment specifiers."
 
 #endif /* ifdef __GNUC_ */
 
-#ifdef _MSC_VER
-#include <sal.h>
-#undef  FE_DECL_WARN_UNUSED_RESULT
-#define FE_DECL_WARN_UNUSED_RESULT _Check_return_
-#endif
-
-
-/*! \brief Compile-time specifier for a declaration (not a typedef) 
- *         requiring a specific alignment.
+/*! \brief Marks a function as "NOT IMPLEMENTED YET"
  *
- * This matters when using some low-level instructions such as _mm_stream_si128().
+ * Use this for functions that are at most 50% finished.
+ * This macro expands to nothing if the compiler is not GCC.
  */
-#ifdef FE_C11_SUPPORT
-#include <stdalign.h>
-#define FE_DECL_ALIGN(n) _Alignas(n)
-#elif defined(__GNUC__)
-#define FE_DECL_ALIGN(n) __attribute__((align(n)))
-#elif defined(_MSC_VER)
-#define FE_DECL_ALIGN(n) __declspec(align(n))
-#else
-#error "FE_DECL_ALIGN() can't be defined because your compiler doesn't support alignment specifiers."
-#endif
+#define FE_DECL_NIY FE_DECL_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NOT IMPLEMENTED YET~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+/*! \brief Marks a function as "WORK IN PROGRESS"
+ *
+ * Use this for functions that are at least 50% finished.
+ * This macro expands to nothing if the compiler is not GCC.
+ */
+#define FE_DECL_WIP FE_DECL_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+
+
+/*! @} */
 
 #endif /* FE_DECL_H */
