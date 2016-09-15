@@ -41,6 +41,7 @@
 #include <fate/decl.h>
 #include <fate/dbg.h>
 #include <fate/al.h>
+#include <fate/crash.h>
 #include <fate/d3d.h>
 #include <fate/dpyres.h>
 #include <fate/fs.h>
@@ -58,7 +59,6 @@
 #include <fate/mem.h>
 #include <fate/mt.h>
 #include <fate/steam.h>
-#include <fate/sys.h>
 #include <fate/tcp6.h>
 #include <fate/timestamp.h>
 #include <fate/tracer.h>

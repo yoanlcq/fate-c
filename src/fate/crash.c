@@ -42,7 +42,7 @@
 #include <fate/globalstate.h>
 #include <fate/utf8.h>
 #include <fate/mem.h>
-#include <fate/sys.h>
+#include <fate/crash.h>
 #include <fate/log.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
@@ -80,7 +80,7 @@
 #include <execinfo.h>
 #endif
 
-static const char *TAG = "fe_sys";
+static const char *TAG = "fe_crash";
 
 
 /*
@@ -91,7 +91,7 @@ static const char *TAG = "fe_sys";
  *
  *
  *
- *    fe_sys_log_stacktrace()
+ *    fe_crash_log_stacktrace()
  *
  *
  *
@@ -103,7 +103,7 @@ static const char *TAG = "fe_sys";
 
 
 #ifdef FE_TARGET_EMSCRIPTEN
-void fe_sys_log_stacktrace(fe_logfunc logfunc) {
+void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
     char *buf = fe_mem_heapmalloc(size);
@@ -113,7 +113,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
 }
 #elif defined(FE_TARGET_WINDOWS)
 
-void fe_sys_log_win32_error(fe_logfunc logfunc, 
+void fe_crash_log_win32_error(fe_logfunc logfunc, 
                               const char *funcstr, DWORD error) 
 {
     LPWSTR lpMsgBuf;
@@ -135,13 +135,13 @@ void fe_sys_log_win32_error(fe_logfunc logfunc,
 }
 
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
-static void fe_sys_log_stacktrace_win32(
+static void fe_crash_log_stacktrace_win32(
                                    fe_logfunc logfunc, 
                                    const DWORD64 *stack, 
                                    unsigned short nframes)
 {
     unsigned i, j;
-    WCHAR modname[FE_SYS_MODNAME_LEN];
+    WCHAR modname[FE_CRASH_MODNAME_LEN];
     DWORD modname_len;
     SYMBOL_INFO *symbol;
     HANDLE process;
@@ -149,7 +149,7 @@ static void fe_sys_log_stacktrace_win32(
 
     process = GetCurrentProcess();
     if(!SymInitialize(process, NULL, TRUE)) {
-        fe_sys_log_win32_error(logfunc, "SymInitialize", GetLastError());
+        fe_crash_log_win32_error(logfunc, "SymInitialize", GetLastError());
         return;
     }
 
@@ -166,7 +166,7 @@ static void fe_sys_log_stacktrace_win32(
 
     for(i=0 ; i<nframes ; ++i) {
         if(!SymFromAddr(process, stack[i], 0, symbol)) {
-            fe_sys_log_win32_error(logfunc, "SymFromAddr", GetLastError());
+            fe_crash_log_win32_error(logfunc, "SymFromAddr", GetLastError());
             continue;
         }
 #if _WIN32_WINNT >= 0x0501
@@ -176,7 +176,7 @@ static void fe_sys_log_stacktrace_win32(
                                  &modhandle)) 
             {
                 modname_len = GetModuleFileNameW(modhandle, modname, 
-                                  FE_SYS_MODNAME_LEN);
+                                  FE_CRASH_MODNAME_LEN);
                 /* MS says that on Windows XP, the string is 
                  * not null-terminated. */
                 modname[modname_len] = '\0';
@@ -184,7 +184,7 @@ static void fe_sys_log_stacktrace_win32(
                 logfunc(TAG, "%s", modname_utf8);
                 fe_mem_heapfree(modname_utf8);
             } else {
-                fe_sys_log_win32_error(logfunc, "GetModuleHandleExW",
+                fe_crash_log_win32_error(logfunc, "GetModuleHandleExW",
                                          GetLastError());
             }
         }
@@ -198,7 +198,7 @@ static void fe_sys_log_stacktrace_win32(
         else {
             DWORD err = GetLastError();
             if(err != 487)
-                fe_sys_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
+                fe_crash_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
         }
 
         logfunc(TAG, "[0x%"PRIx64"] ", symbol->Address);
@@ -212,31 +212,31 @@ static void fe_sys_log_stacktrace_win32(
     free(symbol);
     SymCleanup(process);
 }
-void fe_sys_log_stacktrace(fe_logfunc logfunc)
+void fe_crash_log_stacktrace(fe_logfunc logfunc)
 {
-    PVOID stack[FE_SYS_STACK_LEN];
-    DWORD64 stack_dw[FE_SYS_STACK_LEN];
+    PVOID stack[FE_CRASH_STACK_LEN];
+    DWORD64 stack_dw[FE_CRASH_STACK_LEN];
 
     unsigned short i, nframes;
-    nframes = CaptureStackBackTrace(0, FE_SYS_STACK_LEN,
+    nframes = CaptureStackBackTrace(0, FE_CRASH_STACK_LEN,
                                     stack, NULL);
     for(i=0 ; i<nframes ; ++i)
         stack_dw[i] = (DWORD64)(uintptr_t)stack[i];
-    fe_sys_log_stacktrace_win32(logfunc, stack_dw, nframes);
+    fe_crash_log_stacktrace_win32(logfunc, stack_dw, nframes);
 }
 
 #else /* !FE_TARGET_WINDOWS */
 
 
-void fe_sys_log_stacktrace(fe_logfunc logfunc) {
+void fe_crash_log_stacktrace(fe_logfunc logfunc) {
 #ifdef FE_TARGET_ANDROID
     logfunc(TAG, "TODO : Support stacktraces on Android.\n");
 #else
-    void *buffer[FE_SYS_STACK_LEN];
+    void *buffer[FE_CRASH_STACK_LEN];
     char **strings;
     int i, num_strings;
 
-    num_strings = backtrace(buffer, FE_SYS_STACK_LEN);
+    num_strings = backtrace(buffer, FE_CRASH_STACK_LEN);
     strings = backtrace_symbols(buffer, num_strings);
     if(!strings) {
         logfunc(TAG, "Could not get a stacktrace.\n");
@@ -259,7 +259,7 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
  *
  *
  *
- *    fe_sys_crash_handler_setup()
+ *    fe_crash_setup()
  *
  *
  *
@@ -270,13 +270,13 @@ void fe_sys_log_stacktrace(fe_logfunc logfunc) {
  */
 
 #ifdef FE_TARGET_EMSCRIPTEN
-void fe_sys_crash_handler_setup(void) {
+void fe_crash_setup(void) {
     /* FIXME */
 }
 #elif defined(FE_TARGET_WINDOWS)
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
-LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
+LONG CALLBACK fe_crash_win32_exception_handler(EXCEPTION_POINTERS *ep)
 {
     fe_loge(TAG, "Process received ");
 #define HELPER(_S) \
@@ -333,7 +333,7 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
 
-        DWORD64 stack[FE_SYS_STACK_LEN];
+        DWORD64 stack[FE_CRASH_STACK_LEN];
         unsigned short nframes;
         // StackWalk64() may modify context record passed to it, so we will
         // use a copy.
@@ -366,11 +366,11 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
                            &SymFunctionTableAccess64,
                            &SymGetModuleBase64,
                            NULL) 
-                && nframes < FE_SYS_STACK_LEN) {
+                && nframes < FE_CRASH_STACK_LEN) {
             stack[nframes++] = stack_frame.AddrPC.Offset;
         }
 
-        fe_sys_log_stacktrace_win32(fe_loge, stack, nframes);
+        fe_crash_log_stacktrace_win32(fe_loge, stack, nframes);
     }
 
     fe_globalstate_deinit(fe_gs);
@@ -379,9 +379,9 @@ LONG CALLBACK fe_sys_win32_exception_handler(EXCEPTION_POINTERS *ep)
     return EXCEPTION_CONTINUE_SEARCH;
 }
  
-void fe_sys_crash_handler_setup(void) {
-    /* SetUnhandledExceptionFilter(fe_sys_win32_exception_handler); */
-    AddVectoredExceptionHandler(1, fe_sys_win32_exception_handler);
+void fe_crash_setup(void) {
+    /* SetUnhandledExceptionFilter(fe_crash_win32_exception_handler); */
+    AddVectoredExceptionHandler(1, fe_crash_win32_exception_handler);
 }
 
 #else /* Unices */
@@ -389,7 +389,7 @@ void fe_sys_crash_handler_setup(void) {
 #if !(_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE)
 
 /* Very unlikely, but since it is most often compiled out, it causes no harm. */
-void fe_sys_crash_handler_setup(void) {
+void fe_crash_setup(void) {
     fe_loge(TAG, "The POSIX signal handler was not available "
                   "at compilation.\n");
 }
@@ -397,9 +397,9 @@ void fe_sys_crash_handler_setup(void) {
 #else  /* _POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _POSIX_SOURCE */
 
 #if _POSIX_C_SOURCE >= 199309L
-void fe_sys_sigaction(int signum, siginfo_t *siginfo, void *ucontext)
+void fe_crash_sigaction(int signum, siginfo_t *siginfo, void *ucontext)
 #else
-void fe_sys_sighandler(int signum)
+void fe_crash_sighandler(int signum)
 #endif
 {
     int btrace, fatal;
@@ -476,7 +476,7 @@ void fe_sys_sighandler(int signum)
 
     fe_loge(TAG, ".\n");
     if(btrace)
-        fe_sys_log_stacktrace(fe_loge);
+        fe_crash_log_stacktrace(fe_loge);
 
     fe_globalstate_deinit(fe_gs);
 
@@ -484,7 +484,7 @@ void fe_sys_sighandler(int signum)
          exit(EXIT_FAILURE); /* Not abort(). It will send a signal too. */
 }
 
-void fe_sys_crash_handler_setup(void) {
+void fe_crash_setup(void) {
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(struct sigaction));
@@ -492,9 +492,9 @@ void fe_sys_crash_handler_setup(void) {
     sa.sa_flags = SA_RESTART;
 #if _POSIX_C_SOURCE >= 199309L
     sa.sa_flags |= SA_SIGINFO;
-    sa.sa_sigaction = &fe_sys_sigaction;
+    sa.sa_sigaction = &fe_crash_sigaction;
 #else
-    sa.sa_handler = &fe_sys_sighandler;
+    sa.sa_handler = &fe_crash_sighandler;
 #endif
     sigaction(SIGHUP,  &sa, NULL);
     sigaction(SIGINT,  &sa, NULL);
@@ -518,7 +518,7 @@ void fe_sys_crash_handler_setup(void) {
 unsigned recursive(unsigned d) {
     if(d==1) {
         fe_loge(TAG, "--- Early stack trace ---\n");
-        fe_sys_log_stacktrace(&fe_loge);
+        fe_crash_log_stacktrace(&fe_loge);
         fe_loge(TAG, "--- Stack trace ---\n");
     }
     unsigned foo = 100/(d--);
@@ -526,7 +526,7 @@ unsigned recursive(unsigned d) {
 }
 
 int main(void) {
-    fe_sys_crash_handler_setup();
+    fe_crash_setup();
     fe_loge(TAG, "%u\n", recursive(4));
     return 0;
 }

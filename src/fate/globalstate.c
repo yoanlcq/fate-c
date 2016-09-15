@@ -47,7 +47,7 @@ void fe_globalstate_init(fe_globalstate *gs) {
     fe_mem_setup();
     fe_log_setup();
     fe_i18n_setup();
-    fe_sys_crash_handler_setup();
+    fe_crash_setup();
     fe_iov_setup();
     fe_ipv6_setup();
     fe_hash_setup();

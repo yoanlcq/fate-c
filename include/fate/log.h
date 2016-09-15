@@ -266,7 +266,7 @@ void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3
 void fe_logc(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 
 #include <fate/globalstate.h>
-#include <fate/sys.h>
+#include <fate/crash.h>
 
 /*! \brief Abort on a fatal error.
  *
@@ -281,7 +281,7 @@ void fe_logc(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
  */
 void fe_fatal(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3);
 #define fe_fatal(tag, ...) \
-    do { fe_sys_log_stacktrace(fe_loge); \
+    do { fe_crash_log_stacktrace(fe_loge); \
     fe_logc(tag, __VA_ARGS__); \
     fe_globalstate_deinit(fe_gs); \
     /* Don't use abort(), it makes the crash handler go crazy. */ \

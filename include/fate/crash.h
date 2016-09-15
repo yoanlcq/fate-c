@@ -27,31 +27,31 @@
  *
  */
 
-/*! \file fate/sys.h
+/*! \file fate/crash.h
  *  \brief Crash handling, stack traces, and more.
- *  \defgroup sys Sys : Crash handling, stack traces, and more.
+ *  \defgroup crash Crash handling, stack traces, and more.
  *
  * TODO
  *
  * @{
  */
 
-#ifndef FE_SYS_H
-#define FE_SYS_H
+#ifndef FE_CRASH_H
+#define FE_CRASH_H
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <fate/log.h>
 
-#define FE_SYS_STACK_LEN 128
-#define FE_SYS_MODNAME_LEN 256
+#define FE_CRASH_STACK_LEN 128
+#define FE_CRASH_MODNAME_LEN 256
 
 /*! \brief TODO */
-void fe_sys_crash_handler_setup(void);
+void fe_crash_setup(void);
 /*! \brief Log a platform-specific stack trace, through the given log function.
  *
  */
-void fe_sys_log_stacktrace(fe_logfunc logfunc);
+void fe_crash_log_stacktrace(fe_logfunc logfunc);
 
 /* @} */
-#endif /* FE_SYS_H */
+#endif /* FE_CRASH_H */
