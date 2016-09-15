@@ -350,7 +350,7 @@ static void fgl_dbg_setup_arb(bool enable) {
     HELPER(glDebugMessageInsert);
     HELPER(glGetDebugMessageLog);
 #undef HELPER
-    if(GLEW_EXT_debug_label) {
+    if(GLAD_GL_EXT_debug_label) {
         fe_gl_dbg_glObjectLabel = glLabelObjectEXT;
         fe_gl_dbg_glGetObjectLabel = glGetObjectLabelEXT;
     } else {
@@ -383,7 +383,7 @@ static void fgl_dbg_setup_amd(bool enable) {
     
     fe_gl_dbg_glDebugMessageInsert = fe_gl_dbg_glDebugMessageInsertAMD;
     
-    if(GLEW_EXT_debug_label) {
+    if(GLAD_GL_EXT_debug_label) {
         fe_gl_dbg_glObjectLabel = glLabelObjectEXT;
         fe_gl_dbg_glGetObjectLabel = glGetObjectLabelEXT;
     }
@@ -410,20 +410,20 @@ void fe_gl_dbg_setup(const fe_gl_version *v, bool enable) {
 #ifdef FE_GL_DBG
     bool khr_supported = (v->es 
         ? v->major > 3 || (v->major == 3 && v->minor >= 2)
-        : v->major > 4 || (v->major == 4 && v->minor >= 3) || GLEW_KHR_debug
+        : v->major > 4 || (v->major == 4 && v->minor >= 3) || GLAD_GL_KHR_debug
     );
     if(khr_supported)
         fgl_dbg_setup_khr(enable);
     else {
-        if(GLEW_ARB_debug_output)
+        if(GLAD_GL_ARB_debug_output)
             fgl_dbg_setup_arb(enable);
-        else if(GLEW_AMD_debug_output)
+        else if(GLAD_GL_AMD_debug_output)
             fgl_dbg_setup_amd(enable);
         else enable = false;
     }
-    if(GLEW_EXT_debug_marker)
+    if(GLAD_GL_EXT_debug_marker)
         fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_ext;
-    else if(GLEW_GREMEDY_string_marker)
+    else if(GLAD_GL_GREMEDY_string_marker)
         fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_gremedy;
     else
         fe_gl_dbg_insert_marker = fgl_dbg_insert_marker_dummy;

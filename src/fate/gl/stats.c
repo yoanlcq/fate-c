@@ -102,7 +102,7 @@ void (*fe_gl_stats_get_stats)(fe_gl_stats *s) = fgl_stats_get_stats_dummy;
 
 void fe_gl_stats_setup(void) {
     unsigned i;
-    if(GLEW_ARB_pipeline_statistics_query) {
+    if(GLAD_GL_ARB_pipeline_statistics_query) {
         glGenQueries(11, fgl_stats.names);
         for(i=0 ; i<11 ; ++i)
             glGetQueryiv(fgl_stats.targets[i], GL_QUERY_COUNTER_BITS, 

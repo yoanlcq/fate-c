@@ -43,8 +43,8 @@
 
 /*! \brief TODO */
 #define GL_GLEXT_PROTOTYPES
-#include <GL/glew.h>
-#include <SDL2/SDL_opengl.h>
+#include <glad/glad.h>
+#define GLAPIENTRY APIENTRY
 /*! \brief TODO */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)
 

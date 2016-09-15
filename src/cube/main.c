@@ -134,12 +134,18 @@ void cube_main_init(struct cube_main *m) {
     if(!m->glctx)
         fe_fatal(TAG, "SDL_GL_CreateContext failed : %s\n", SDL_GetError());
 
+    /*
     glewExperimental = GL_TRUE;
     fe_logi(TAG, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
     GLenum glew = glewInit();
     if(glew != GLEW_OK)
         fe_fatal(TAG, "Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
+    */
+
+    /* It returns false on my laptop, even though functions are properly loaded.
+     * Seen it though GDB. */
+    gladLoadGLLoader(SDL_GL_GetProcAddress);
     glGetError();
 
     fe_logi(TAG,
