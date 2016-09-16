@@ -1,5 +1,5 @@
 CCFLAGS = -std=c11 -idirafter include -idirafter include/contrib -Wall -Wno-format-security \
-		 --emrun -s USE_SDL=2 -s ASYNCIFY=1 -s ASSERTIONS=1 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
+		 --emrun -s USE_SDL=2 -s ASYNCIFY=1 -s ASSERTIONS=2 -s EMTERPRETIFY=1 -s EMTERPRETIFY_ASYNC=1
 CCDEBUGFLAGS = $(CCFLAGS) -O0 -g4 \
 			   -DFE_DEBUG_BUILD -DFE_ENABLE_TRACING
 GLEWFLAGS = -O0 -DGLEW_STATIC -DGLEW_NO_GLU

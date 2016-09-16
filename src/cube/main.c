@@ -153,15 +153,18 @@ void cube_main_init(struct cube_main *m) {
         fe_fatal(TAG, "Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
     */
+    fe_logi(TAG, "Still here !\n");
 
     /* It returns false on my laptop, even though functions are properly loaded.
      * Seen it though GDB. */
 #ifdef FE_GL_TARGET_DESKTOP
     gladLoadGLLoader(SDL_GL_GetProcAddress);
-#else
+#elif !defined(FE_TARGET_EMSCRIPTEN)
     gladLoadGLES2Loader(SDL_GL_GetProcAddress);
 #endif
-    glGetError();
+    fe_logi(TAG, "Still here 1 !\n");
+    glGetError(); // Causes an error on Emscripten.
+    fe_logi(TAG, "Still here 2 !\n");
 
     fe_logi(TAG,
             "--- OpenGL version ---\n"
@@ -180,6 +183,9 @@ void cube_main_init(struct cube_main *m) {
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
+
+
+    fe_logi(TAG, "Still here 3 !\n");
 
     fe_gl_version gl_version;
     if(!fe_gl_version_query(&gl_version))
@@ -206,6 +212,9 @@ void cube_main_init(struct cube_main *m) {
             GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil_bits);
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
+
+
+    fe_logi(TAG, "Still here 4 !\n");
 
     fe_logi(TAG,
         "--- Active OpenGL context settings ---\n"
@@ -273,6 +282,9 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_mkprog_cleanup();
     fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube_init(&m->cube, progid);
+
+
+    fe_logi(TAG, "Still here 5 !\n");
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

@@ -41,13 +41,6 @@
 
 #include <fate/defs.h>
 
-/*! \brief TODO */
-#define GL_GLEXT_PROTOTYPES
-#include <glad/glad.h>
-#define GLAPIENTRY APIENTRY
-/*! \brief TODO */
-#define BUFFER_OFFSET(_i_) ((void*)_i_)
-
 #if __DOXYGEN__
 /*! \brief TODO */
 #define FE_GL_USE_GLAD 1
@@ -57,7 +50,7 @@
 
 #if 0 /* defined(FE_TARGET_EMSCRIPTEN) */
 #define FE_GL_USE_GLEW 1
-#else
+#else /* elif !defined(FE_TARGET_EMSCRIPTEN) */
 #define FE_GL_USE_GLAD 1
 #endif
 
@@ -74,6 +67,8 @@
 #define fe_gl_has(ext) (GLAD_GL_##ext)
 #elif defined(FE_GL_USE_GLEW)
 #define fe_gl_has(ext) (GLEW_##ext)
+#else
+#define fe_gl_has(ext) (0)
 #endif
 
 #if __DOXYGEN__
@@ -88,6 +83,19 @@
 #else
 #define FE_GL_TARGET_ES 1
 #endif
+
+
+/*! \brief TODO */
+#define GL_GLEXT_PROTOTYPES
+#ifdef FE_GL_USE_GLAD
+    #include <glad/glad.h>
+    #define GLAPIENTRY APIENTRY
+#else
+    #include <GLES2/gl2.h>
+#endif
+/*! \brief TODO */
+#define BUFFER_OFFSET(_i_) ((void*)_i_)
+
 
 /*! @} */
 #endif /* FE_GL_DEFS */
