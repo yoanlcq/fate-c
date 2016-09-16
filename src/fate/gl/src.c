@@ -12,40 +12,6 @@ void fe_gl_src_before_linking(const fe_gl_shader_source_set *ss, GLuint prog, fe
 	glBindAttribLocation(prog, 1, "a_col");
 }
 
-/*
-
-const char *const fe_gl_src_tri_130_vert =
-	"// tri.130.vert\n"
-    "#version 130\n"
-    "\n"
-    "in vec4 a_pos;\n"
-    "in vec4 a_col;\n"
-    "out vec4 v_col;\n"
-    "uniform mat4 u_mvp;\n"
-    "\n"
-    "void main() {\n"
-    "    gl_Position = u_mvp * a_pos;\n"
-    "    v_col = a_col;\n"
-    "}\n"
-;
-
-const char *const fe_gl_src_tri_130_frag =
-	"// tri.130.frag\n"
-    "#version 130\n"
-    "\n"
-    "in vec4 v_col;\n"
-    "out vec4 f_col;\n"
-	"uniform bool u_invert;\n"
-    "\n"
-    "void main() {\n"
-    "    f_col = vec4(u_invert ? 1.0-v_col.rgb : v_col.rgb, 0.6);\n"
-    "}"
-;
-
-*/
-
-
-
 void fe_gl_src_get_tri_vert(fe_iov *iov, const fe_gl_src_config *cfg) {
 
     unsigned version = cfg->es ? 100 : 130;

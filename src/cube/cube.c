@@ -33,10 +33,6 @@ void Cube_init(Cube *c, GLuint prog) {
     c->prog = prog;
     glUseProgram(c->prog);
 
-    static GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
     glGenBuffers(1, &c->ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     fe_gl_dbg_glObjectLabel(GL_BUFFER, c->ebo, -1, "\"Cube EBO\"");
