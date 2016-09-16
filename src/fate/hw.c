@@ -28,6 +28,7 @@
  */
 
 #include <fate/defs.h>
+#include <fate/dbg.h>
 #include <fate/hw.h>
 
 #if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
@@ -84,12 +85,16 @@ FE_DECL_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 
 static void static_clflush_dummy(void const *addr) {}
 static void static_clflush(void const *addr) {
+#ifdef FE_HW_TARGET_X86
     _mm_clflush(addr);
+#endif
 }
 void (*fe_hw_clflush)(void const *addr) = static_clflush_dummy;
 static void static_mm_pause_dummy(void) {}
 static void static_mm_pause(void) {
+#ifdef FE_HW_TARGET_X86
     _mm_pause();
+#endif
 }
 void (*fe_hw_mm_pause)(void) = static_mm_pause_dummy;
 

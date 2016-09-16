@@ -7,6 +7,8 @@ LOCAL_MODULE := main
 
 LOCAL_CFLAGS := GAME_CFLAGS
 
+LOCAL_ARM_MODE := arm
+
 SDL_PATH := ../SDL
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
                     $(LOCAL_PATH)/../include \

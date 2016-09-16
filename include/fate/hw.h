@@ -85,7 +85,7 @@ void fe_hw_setup(void);
 #define FE_HW_TARGET_X86 1
 #endif
 
-#ifndef FE_HW_TARGET_X86_BITS
+#if defined(FE_HW_TARGET_X86) && !defined(FE_HW_TARGET_X86_BITS)
 #error "Are we compiling for i386 or amd64 ??"
 #endif
 
