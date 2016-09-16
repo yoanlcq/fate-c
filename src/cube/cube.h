@@ -4,7 +4,7 @@
 #include <fate/gl.h>
 
 struct Cube {
-    GLuint ebo, vao, vbo, prog;
+    GLuint ebo, vbo, prog;
 };
 typedef struct Cube Cube;
 
@@ -13,7 +13,7 @@ void Cube_free(Cube *c);
 void Cube_draw(Cube *c);
 
 struct plane2d {
-    GLuint ebo, vao, vbo, prog;
+    GLuint ebo, vbo, prog;
 };
 typedef struct plane2d plane2d;
 
