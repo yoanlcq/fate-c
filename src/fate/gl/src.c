@@ -78,7 +78,7 @@ void fe_gl_src_get_tri_vert(fe_iov *iov, const fe_gl_src_config *cfg) {
 void fe_gl_src_get_tri_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
 
     unsigned version = cfg->es ? 100 : 130;
-    const char *varying = cfg->es ? "varying" : "out";
+    const char *varying = cfg->es ? "varying" : "in";
     fe_iov_printf(iov, iov->len, 
         "// tri.%u%s.frag\n"
         "#version %u\n"

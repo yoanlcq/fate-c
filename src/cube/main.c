@@ -264,6 +264,8 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_shader_source_set ss = {{0}};
     fe_gl_src_get_tri_vert(&ss.vert, &scfg);
     fe_gl_src_get_tri_frag(&ss.frag, &scfg);
+    fe_logi(TAG, "Vertex source :\n%s\nFragment source :\n%s\n", 
+                  ss.vert.base, ss.frag.base);
     ss.before_linking = fe_gl_src_before_linking;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program!\n"
