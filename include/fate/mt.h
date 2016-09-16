@@ -154,13 +154,16 @@ typedef union {
 
 #ifndef FE_MT_DISABLE
 
-/*! \brief Beware ! Needs fe_hw_setup() before. */
+/*! \brief Beware ! Needs fe_hw_setup() first. 
+ * It also needs to be called from the main thread, because its ID is used
+ * by later calls to #fe_mt_get_main_id().*/
 void         fe_mt_setup(void);
 void         fe_mt_cleanup(void);
 
 size_t       fe_mt_get_thread_count(void);
 void         fe_mt_set_self_priority(fe_mt_threadpriority prio);
 fe_mt_threadid fe_mt_get_self_id(void);
+fe_mt_threadid fe_mt_get_main_id(void);
 fe_mt_thread fe_mt_thread_create(int (*func)(void*), const char *name, void *arg);
 void         fe_mt_thread_detach(fe_mt_thread t);
 fe_mt_threadid fe_mt_thread_get_id(fe_mt_thread t);

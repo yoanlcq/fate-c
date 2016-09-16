@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <fate/dbg.h>
+#include <fate/mt.h>
 #include <SDL2/SDL.h>
 #include <fate/globalstate.h>
 #include <fate/i18n.h>
@@ -130,7 +131,19 @@ void fe_logc(const char *tag, const char *fmt, ...) {
     snprintf(script, sizeof(script), "alert('%s\n%s');", errstr, message);
     emscripten_run_script(script);
 #else
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        "F.A.T.E internal error", message, NULL);
+    int button_id = 0xdead;
+    const SDL_MessageBoxButtonData button = {
+        SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, button_id, "OK"
+    };
+    const SDL_MessageBoxData mbdat = {
+        SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, NULL, 
+        "F.A.T.E internal error", message, 1, &button, NULL
+    };
+#ifndef FE_MT_DISABLE
+    /* XXX if fe_logc is called from any thread other than the main thread,
+     * then we should enqueue the message box as a request to the main thread. */
+    fe_dbg_hope(fe_mt_get_self_id() == fe_mt_get_main_id());
+#endif
+    SDL_ShowMessageBox(&mbdat, &button_id);
 #endif
 }

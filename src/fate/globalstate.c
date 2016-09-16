@@ -51,7 +51,9 @@ void fe_globalstate_init(fe_globalstate *gs) {
     fe_iov_setup();
     fe_ipv6_setup();
     fe_hash_setup();
+#ifndef FE_MT_DISABLE
     fe_mt_setup();
+#endif
 #ifdef FE_TARGET_LINUX
     fe_linuxperf_setup();
 #endif
@@ -73,7 +75,9 @@ void fe_globalstate_init(fe_globalstate *gs) {
 #endif
 }
 void fe_globalstate_deinit(fe_globalstate *gs) {
+#ifndef FE_MT_DISABLE
     fe_mt_cleanup();
+#endif
     fe_ipv6_cleanup();
     fe_iov_cleanup();
     fe_log_cleanup();

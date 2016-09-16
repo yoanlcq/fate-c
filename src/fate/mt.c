@@ -22,10 +22,13 @@ static fe_mt_mutex pool_mutex;
 
 static void fe_mt_tsx_setup(void); /* Defined far below */
 
+static fe_mt_threadid main_id = 0;
+
 void          fe_mt_setup(void) {
     fe_mt_mutex_init(&pool_mutex);
     pool.slots = fe_mem_heapalloc(1, fe_mt_threadpool_slot, "Thread pool");
     pool.count = 1;
+    main_id = fe_mt_get_self_id();
     fe_mt_tsx_setup();
 }
 void fe_mt_cleanup(void) {
@@ -42,6 +45,9 @@ void          fe_mt_set_self_priority(fe_mt_threadpriority prio) {
     SDL_SetThreadPriority(prio);
 }
 
+fe_mt_threadid          fe_mt_get_main_id(void) {
+    return main_id;
+}
 fe_mt_threadid          fe_mt_get_self_id(void) {
     return SDL_ThreadID();
 }

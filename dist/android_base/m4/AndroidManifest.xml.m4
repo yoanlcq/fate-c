@@ -12,7 +12,7 @@
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="12" />
 
     <!-- OpenGL ES 2.0 -->
-    <uses-feature android:glEsVersion="0x00020000" />
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 
     <!-- Allow writing to external storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

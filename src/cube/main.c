@@ -19,7 +19,7 @@
 struct cube_main {
     SDL_Window *window;
     SDL_DisplayMode current_display_mode;
-    SDL_GLContext glctx;
+    SDL_GLContext glctx; 
     uint16_t win_w, win_h;
     uint16_t old_win_w, old_win_h;
     Cube cube;
@@ -130,6 +130,10 @@ void cube_main_init(struct cube_main *m) {
     if(SDL_GetCurrentDisplayMode(0, &m->current_display_mode))
         fe_fatal(TAG, "SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
 
+    /* Seems redundant, but actually creating an SDL2 window
+     * does not imply GL context creation.
+     * SDL2's docs states that you need to call SDL_GL_CreateContext() before
+     * any GL calls. */
     m->glctx = SDL_GL_CreateContext(m->window);
     if(!m->glctx)
         fe_fatal(TAG, "SDL_GL_CreateContext failed : %s\n", SDL_GetError());
@@ -145,6 +149,7 @@ void cube_main_init(struct cube_main *m) {
 
     /* It returns false on my laptop, even though functions are properly loaded.
      * Seen it though GDB. */
+    //gladLoadGLES2Loader(SDL_GL_GetProcAddress);
     gladLoadGLLoader(SDL_GL_GetProcAddress);
     glGetError();
 
@@ -319,7 +324,7 @@ void cube_main_clean_then_exit(void *arg) {
     glDeleteProgram(m->cube.prog);
     Cube_free(&m->cube);
     fe_globalstate_deinit(fe_gs);
-    SDL_GL_DeleteContext(m->glctx);
+    SDL_GL_DeleteContext(m->glctx); 
     SDL_DestroyWindow(m->window);
     SDL_Quit();
     exit(EXIT_SUCCESS);
