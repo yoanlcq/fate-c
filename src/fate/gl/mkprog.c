@@ -220,12 +220,12 @@ static void fe_gl_mkprog_cleanup_4_1(void)
 
 void (*fe_gl_mkprog_cleanup)(void);
 
-static const size_t header_size = sizeof(fe_timestamp) + sizeof(GLenum);
+#define HEADER_SIZE (sizeof(fe_timestamp) + sizeof(GLenum))
 
 static bool fgm_program_from_binary(GLuint program, fe_iov *binfile) {
 #ifndef FE_TARGET_EMSCRIPTEN
-    GLsizei binlen = binfile->len - header_size;
-    char *bin = ((char*)binfile->base) + header_size;
+    GLsizei binlen = binfile->len - HEADER_SIZE;
+    char *bin = ((char*)binfile->base) + HEADER_SIZE;
     GLenum binfmt = fe_hw_swap32_net_to_host(
         *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp))
     );
@@ -259,10 +259,10 @@ static void fgm_program_to_binary(GLuint program, fe_iov *binfile) {
 #ifndef FE_TARGET_EMSCRIPTEN
     GLsizei binlen;
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binlen);
-    binfile->len = header_size + binlen;
+    binfile->len = HEADER_SIZE + binlen;
     binfile->base = fe_mem_heapalloc(binfile->len, char, "fe_gl prog binary");
     GLenum binfmt;
-    glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+header_size); // >= ES 3.0
+    glGetProgramBinary(program, binlen, NULL, &binfmt, ((char*)binfile->base)+HEADER_SIZE); // >= ES 3.0
     *(fe_timestamp*)binfile->base = fe_hw_swap64_host_to_net(fe_timestamp_get_now());
     *(GLenum*)(((char*)binfile->base)+sizeof(fe_timestamp)) = fe_hw_swap32_host_to_net(binfmt);
     fe_logv(TAG, "Saved binary with format 0x%x.\n", binfmt);

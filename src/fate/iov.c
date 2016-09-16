@@ -52,7 +52,7 @@ static const char *TAG = "fe_iov";
 #endif
 #define NUL_FILE_FALLBACK_NAME ".nul"
 static FILE *nul_file = NULL;
-static const char *nul_file_path = "";
+static char *nul_file_path = "";
 
 void fe_iov_setup(void) {
 #ifdef NUL_FILE_PATH
@@ -90,7 +90,9 @@ void fe_iov_setup(void) {
 void fe_iov_cleanup(void) {
     fclose(nul_file);
 #ifndef NUL_FILE_PATH
+#ifndef FE_TARGET_EMSCRIPTEN
     unlink(nul_file_path);
+#endif
     fe_mem_heapfree(nul_file_path);
 #endif
 }
@@ -149,7 +151,8 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src) {
 fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     int len, error;
-    emscripten_wget_data(params->url, &iov->base, &len, &error);
+    void *ptr = iov->base; /* Warning for incompatible ptr types. */
+    emscripten_wget_data(params->file_url, &ptr, &len, &error);
     iov->len = len;
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
@@ -205,7 +208,8 @@ fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_locator *params)
 fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     int len, error;
-    emscripten_idb_load(params->idb_name, params->file_name, &iov->base, &len, &error);
+    void *ptr = iov->base; /* For incompatible ptr types warning. */
+    emscripten_idb_load(params->idb_name, params->file_name, &ptr, &len, &error);
     iov->len = len;
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
@@ -537,11 +541,12 @@ uint64_t fe_fs_file_get_wtime(const char *path) {
 
 fe_iov_status fe_fs_file_exists(const fe_iov_locator *params) {
 #if defined(FE_TARGET_EMSCRIPTEN)
-    bool exists = EM_ASM_INT({
+    fe_iov_status status = {0};
+    status.exists = EM_ASM_INT({
         var path = Module.UTF8ToString($0);
         return FS.exists(path);
     }, params->file_name);
-    return exists;
+    return status;
 #else
     fe_iov_status status;
     status.step = FE_IOV_STEP_COMPLETED;
@@ -566,27 +571,27 @@ fe_iov_status fe_fs_file_exists(const fe_iov_locator *params) {
 }
 
 fe_iov_status  fe_fs_file_delete(const fe_iov_locator *params) {
+    fe_iov_status status = {0};
+    status.step = FE_IOV_STEP_COMPLETED;
 #if defined(FE_TARGET_EMSCRIPTEN)
     EM_ASM_ARGS({
         var path = Module.UTF8ToString($0);
         FS.unlink(path);
     }, params->file_name);
 #else
-    fe_iov_status status;
-    status.step = FE_IOV_STEP_COMPLETED;
     fe_iov fullpath = {0};
     static_fullpath(&fullpath, params);
-#if defined(FE_TARGET_WINDOWS)
-    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
-    status.success = !!DeleteFileW(fullpath_w);
-    fe_mem_heapfree(fullpath_w);
-#else
-    status.success = !unlink(fullpath.base);
+    #if defined(FE_TARGET_WINDOWS)
+        WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
+        status.success = !!DeleteFileW(fullpath_w);
+        fe_mem_heapfree(fullpath_w);
+    #else
+        status.success = !unlink(fullpath.base);
+    #endif
+    fe_mem_heapfree(fullpath.base);
 #endif
     status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
-    fe_mem_heapfree(fullpath.base);
     return status;
-#endif
 }
 
 fe_iov_status  fe_fs_persistent_exists(const fe_iov_locator *params) {

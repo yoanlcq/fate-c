@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 
+#ifndef FE_MT_DISABLE
 
 typedef struct {
     SDL_Thread *thread;
@@ -259,3 +260,6 @@ static void fe_mt_tsx_setup(void) {
     }
 #endif
 }
+
+
+#endif /* FE_MT_DISABLE */

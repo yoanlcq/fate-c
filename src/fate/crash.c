@@ -106,7 +106,7 @@ static const char *TAG = "fe_crash";
 void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
-    char *buf = fe_mem_heapmalloc(size);
+    char *buf = fe_mem_heapalloc(size, char, "");
     emscripten_get_callstack(flags, buf, size);
     logfunc(TAG, buf);
     fe_mem_heapfree(buf);
