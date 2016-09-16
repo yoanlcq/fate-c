@@ -76,9 +76,9 @@ void (*fe_gl_meminfo_query)(fe_gl_meminfo *m);
 
 void fe_gl_meminfo_setup(const fe_gl_version *v) {
     /* XXX: OpenGL ES ? */
-    if(GLAD_GL_NVX_gpu_memory_info)
+    if(fe_gl_has(NVX_gpu_memory_info))
         fe_gl_meminfo_query = fgl_meminfo_query_nvx;
-    else if(GLAD_GL_ATI_meminfo)
+    else if(fe_gl_has(ATI_meminfo))
         fe_gl_meminfo_query = fgl_meminfo_query_ati;
     else fe_gl_meminfo_query = fgl_meminfo_query_dummy;
 }

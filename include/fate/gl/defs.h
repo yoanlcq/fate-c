@@ -48,5 +48,46 @@
 /*! \brief TODO */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)
 
+#if __DOXYGEN__
+/*! \brief TODO */
+#define FE_GL_USE_GLAD 1
+/*! \brief TODO */
+#define FE_GL_USE_GLEW 1
+#endif
+
+#if 0 /* defined(FE_TARGET_EMSCRIPTEN) */
+#define FE_GL_USE_GLEW 1
+#else
+#define FE_GL_USE_GLAD 1
+#endif
+
+/*! \brief TODO 
+ *
+ * This macro exists to wrap the behaviour of GLEW (or GLAD)
+ *
+ * Example :
+ * fe_gl_has(KHR_debug);
+ *
+ * \param ext The GL extension name, without the GL_ suffix.
+ */
+#ifdef FE_GL_USE_GLAD
+#define fe_gl_has(ext) (GLAD_GL_##ext)
+#elif defined(FE_GL_USE_GLEW)
+#define fe_gl_has(ext) (GLEW_##ext)
+#endif
+
+#if __DOXYGEN__
+/*! \brief TODO */
+#define FE_GL_TARGET_DESKTOP 1
+/*! \brief TODO */
+#define FE_GL_TARGET_ES 1
+#endif
+
+#ifdef FE_TARGET_ENV_DESKTOP
+#define FE_GL_TARGET_DESKTOP 1
+#else
+#define FE_GL_TARGET_ES 1
+#endif
+
 /*! @} */
 #endif /* FE_GL_DEFS */
