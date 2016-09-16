@@ -252,10 +252,6 @@ typedef struct {
     char *base;
     size_t len;
 } fe_iov;
-typedef struct {
-    const char *base;
-    size_t len;
-} fe_iov_readonly;
 
 
 /*! \brief Deinitializes a #fe_iov (Actually calls #fe_mem_heapfree() on its buffer).

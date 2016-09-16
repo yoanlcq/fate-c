@@ -149,8 +149,11 @@ void cube_main_init(struct cube_main *m) {
 
     /* It returns false on my laptop, even though functions are properly loaded.
      * Seen it though GDB. */
-    //gladLoadGLES2Loader(SDL_GL_GetProcAddress);
+#ifdef FE_GL_TARGET_DESKTOP
     gladLoadGLLoader(SDL_GL_GetProcAddress);
+#else
+    gladLoadGLES2Loader(SDL_GL_GetProcAddress);
+#endif
     glGetError();
 
     fe_logi(TAG,
@@ -241,9 +244,15 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_dbg_setup(&gl_version, true);
     fe_gl_mkprog_setup(&gl_version);
     GLuint progid = glCreateProgram();
+    fe_gl_src_config scfg = {0};
+#ifdef FE_GL_TARGET_ES
+    scfg.es = true;
+#endif
+    scfg.debug = true;
+    scfg.optimize = true;
     fe_gl_shader_source_set ss = {{0}};
-    ss.vert.base = fe_gl_src_tri_130_vert;
-    ss.frag.base = fe_gl_src_tri_130_frag;
+    fe_gl_src_get_tri_vert(&ss.vert, &scfg);
+    fe_gl_src_get_tri_frag(&ss.frag, &scfg);
     ss.before_linking = fe_gl_src_before_linking;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program!\n"

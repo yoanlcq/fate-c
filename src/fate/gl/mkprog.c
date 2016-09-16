@@ -159,7 +159,7 @@ static const char *fgm_shader_enum_to_str(GLenum e) {
 }
 */
 
-GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype) 
+GLuint fgm_find_or_compile_shader(const fe_iov *src, GLenum shtype) 
 {
     /* Check hashtable */
     uint64_t hash = fe_hash_sdbm(src->base, src->len ? src->len : ~(size_t)0);
@@ -168,9 +168,10 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         return entry->shader_id;
 
     GLuint shid = glCreateShader(shtype);
-	size_t fllen = strchr(src->base, '\n') - ((const char*)src->base + 2);
-    fe_gl_dbg_glObjectLabel(GL_SHADER, shid, fllen, (const char*)src->base+2);
-    fe_logv(TAG, "Compiling \"%.*s\"...\n", fllen, (const char*)src->base+2);
+    static const size_t name_offset = 3;
+	size_t fllen = strchr(src->base, '\n') - ((const char*)src->base + name_offset);
+    fe_gl_dbg_glObjectLabel(GL_SHADER, shid, fllen, (const char*)src->base+name_offset);
+    fe_logv(TAG, "Compiling \"%.*s\"...\n", fllen, (const char*)src->base+name_offset);
 
     GLint lenarg = src->len ? src->len : -1;
 #ifdef FE_TARGET_EMSCRIPTEN
@@ -190,7 +191,7 @@ GLuint fgm_find_or_compile_shader(const fe_iov_readonly *src, GLenum shtype)
         fgm_add_shader_entry(&res);
         return shid;
     }
-    fe_loge(TAG, "Could not compile \"%.*s\" :\n", (int)fllen, (const char*)src->base+2);
+    fe_loge(TAG, "Could not compile \"%.*s\" :\n", (int)fllen, (const char*)src->base+name_offset);
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
     glDeleteShader(shid);

@@ -142,7 +142,7 @@ void fe_logc(const char *tag, const char *fmt, ...) {
 #ifndef FE_MT_DISABLE
     /* XXX if fe_logc is called from any thread other than the main thread,
      * then we should enqueue the message box as a request to the main thread. */
-    fe_dbg_hope(fe_mt_get_self_id() == fe_mt_get_main_id());
+    //fe_dbg_hope(fe_mt_get_self_id() == fe_mt_get_main_id());
 #endif
     SDL_ShowMessageBox(&mbdat, &button_id);
 #endif

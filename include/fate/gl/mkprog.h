@@ -50,12 +50,12 @@
 /*! \brief TODO */
 typedef struct fe_gl_shader_source_set fe_gl_shader_source_set;
 struct fe_gl_shader_source_set {
-    fe_iov_readonly vert; /*!< GL_VERTEX_SHADER */
-    fe_iov_readonly frag; /*!< GL_FRAGMENT_SHADER */
-    fe_iov_readonly tesc; /*!< GL_TESS_CONTROL_SHADER */
-    fe_iov_readonly tese; /*!< GL_TESS_EVALUATION_SHADER */
-    fe_iov_readonly geom; /*!< GL_GEOMETRY_SHADER */
-    fe_iov_readonly comp; /*!< GL_COMPUTE_SHADER */
+    fe_iov vert; /*!< GL_VERTEX_SHADER */
+    fe_iov frag; /*!< GL_FRAGMENT_SHADER */
+    fe_iov tesc; /*!< GL_TESS_CONTROL_SHADER */
+    fe_iov tese; /*!< GL_TESS_EVALUATION_SHADER */
+    fe_iov geom; /*!< GL_GEOMETRY_SHADER */
+    fe_iov comp; /*!< GL_COMPUTE_SHADER */
     void (*before_linking)(const fe_gl_shader_source_set *ss, GLuint prog, fe_timestamp last_build_time);
 };
 
