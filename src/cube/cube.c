@@ -73,7 +73,12 @@ void Cube_draw(Cube *c) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     const GLsizei counts[2] = {8, 8};
     const GLvoid *const offsets[2] = {(GLvoid*)0, (GLvoid*)8};
+#ifdef FE_GL_TARGET_DESKTOP
     glMultiDrawElements(GL_TRIANGLE_STRIP, counts, GL_UNSIGNED_BYTE, offsets, 2);
+#else
+    glDrawElements(GL_TRIANGLE_STRIP, counts[0], GL_UNSIGNED_BYTE, offsets[0]);
+    glDrawElements(GL_TRIANGLE_STRIP, counts[1], GL_UNSIGNED_BYTE, offsets[1]);
+#endif
 }
 
 void draw_some_image(plane2d *p) {

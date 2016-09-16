@@ -92,17 +92,24 @@ void cube_main_init(struct cube_main *m) {
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); //??
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
-                        0//SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
-#ifdef FE_GL_DBG
-                       |SDL_GL_CONTEXT_DEBUG_FLAG
+                        0 //SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
+#if defined(FE_GL_DBG) && defined(FE_GL_TARGET_DESKTOP)
+                       | SDL_GL_CONTEXT_DEBUG_FLAG
 #endif
                         );
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 
-                        SDL_GL_CONTEXT_PROFILE_CORE);
+#ifdef FE_GL_TARGET_DESKTOP
+                        SDL_GL_CONTEXT_PROFILE_CORE
+#else
+                        SDL_GL_CONTEXT_PROFILE_ES
+#endif
+    );
+#ifdef FE_GL_TARGET_ES
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#endif
 /*
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -165,7 +172,11 @@ void cube_main_init(struct cube_main *m) {
             "    Renderer  : %s\n"
             "    Vendor    : %s\n"
             "\n",
+#ifdef FE_GL_TARGET_DESKTOP
             3, 0, 
+#else
+            2, 0, 
+#endif
             glGetString(GL_VERSION),
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));

@@ -125,8 +125,12 @@
  * \endcode
  */
 #define fe_dbg_hope(cond) \
-    do { fe_fatal("fe_dbg", "%s:%s:%u: Hoped that `%s' would be true.\n", \
-            __FILE__,__func__,__LINE__,#cond); } while(0)
+    do { \
+        if(!(cond)) { \
+            fe_fatal("fe_dbg", "%s:%s:%u: Hoped that `%s' would be true.\n", \
+                     __FILE__, __func__, __LINE__, #cond); \
+        }  \
+    } while(0)
 
 /*! @} */
 

@@ -78,6 +78,7 @@ void fe_gl_src_get_tri_vert(fe_iov *iov, const fe_gl_src_config *cfg) {
 void fe_gl_src_get_tri_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
 
     unsigned version = cfg->es ? 100 : 130;
+    const char *varying = cfg->es ? "varying" : "out";
     fe_iov_printf(iov, iov->len, 
         "// tri.%u%s.frag\n"
         "#version %u\n"
@@ -86,9 +87,13 @@ void fe_gl_src_get_tri_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
         "#pragma debug(%s)\n"
         "\n"
         "#ifdef GL_ES\n"
+        "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+        "precision highp float;\n"
+        "#else\n"
         "precision mediump float;\n"
         "#endif\n"
-        "in vec4 v_col;\n"
+        "#endif\n"
+        "%s vec4 v_col;\n"
         "#ifdef GL_ES\n"
         "#define f_col gl_FragColor\n"
         "#else\n"
@@ -98,10 +103,11 @@ void fe_gl_src_get_tri_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
         "\n"
         "void main() {\n"
         "    f_col = vec4(u_invert ? 1.0-v_col.rgb : v_col.rgb, 0.6);\n"
-        "}"
+        "}\n"
         ,
         version, cfg->es ? "es" : "", version,
         cfg->optimize ? "on" : "off", 
-        cfg->debug    ? "on" : "off"
+        cfg->debug    ? "on" : "off",
+        varying
     );
 }

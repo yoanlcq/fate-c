@@ -50,28 +50,48 @@ static const char *TAG = "fe_iov";
 #elif defined(FE_TARGET_WINDOWS)
 #define NUL_FILE_PATH "nul"
 #endif
+#define NUL_FILE_FALLBACK_NAME ".nul"
 static FILE *nul_file = NULL;
-
-#ifdef FE_DEBUG_BUILD
-static bool iov_was_setup = false;
-#endif
+static const char *nul_file_path = "";
 
 void fe_iov_setup(void) {
-#ifdef FE_DEBUG_BUILD
-    fe_dbg_assert(!iov_was_setup);
-    iov_was_setup = true;
-#endif
 #ifdef NUL_FILE_PATH
-    nul_file = fopen(NUL_FILE_PATH, "wb");
+    nul_file_path = NUL_FILE_PATH;
+#elif defined(FE_TARGET_ANDROID)
+    static const char *nul_name = "/" NUL_FILE_FALLBACK_NAME;
+    const size_t nul_name_len = strlen(nul_name);
+    const char *internal = SDL_AndroidGetInternalStoragePath();
+    const size_t internal_len = strlen(internal);
+    nul_file_path = fe_mem_heapalloc(nul_name_len+internal_len+1, char, "");
+    fe_dbg_hope(nul_file_path);
+    strcpy(nul_file_path, internal);
+    strcat(nul_file_path, nul_name);
+
+    /* XXX might want to get more rigourous about this later. */
+    mkdir(internal, 0755);
+    /*
+    struct stat sb;
+    int status = stat(internal, &sb);
+    if(status || (!status && !S_ISDIR(sb.st_mode))) {
+        unlink(internal);
+        ...
+    }
+    */
 #else
-    nul_file = tmpfile();
+    nul_file_path = fe_mem_heapalloc(strlen(NUL_FILE_FALLBACK_NAME)+1, char, "");
+    fe_dbg_hope(nul_file_path);
+    strcpy(nul_file_path, NUL_FILE_FALLBACK_NAME);
 #endif
-    fe_dbg_assert(nul_file);
+    fe_logi(TAG, "Attempting to open `%s' as the null file "
+                 "for fe_iov_get_vprintf_len().\n", nul_file_path);
+    nul_file = fopen(nul_file_path, "wb");
+    fe_dbg_hope(nul_file);
 }
 void fe_iov_cleanup(void) {
     fclose(nul_file);
-#ifdef FE_DEBUG_BUILD
-    iov_was_setup = false;
+#ifndef NUL_FILE_PATH
+    unlink(nul_file_path);
+    fe_mem_heapfree(nul_file_path);
 #endif
 }
 
@@ -147,7 +167,7 @@ fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_locator *params)
 void static_fullpath(fe_iov *fullpath, const fe_iov_locator *params) {
 #define HELPER(cst, call) \
     if(params->rootdir & cst) { \
-        fe_iov_printf(fullpath, 0, "%s%s", call, params->file_name); \
+        fe_iov_printf(fullpath, 0, "%s/%s", call, params->file_name); \
         return; \
     }
     HELPER(FE_IOV_ROOTDIR_SDL2_GETPREFPATH, SDL_GetPrefPath(params->organization, params->app_name))
