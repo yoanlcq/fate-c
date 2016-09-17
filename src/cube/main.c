@@ -25,8 +25,8 @@ struct cube_main {
     Cube cube;
     float distance;
     vec3 eye, center, up;
+    GLint cubemapLoc;
     GLint MVPMatrixLoc;
-    GLint ufInvertLoc;
     mat4 MVPMatrix, Projection, View, Model;
     int mousex, mousey;
     bool mousein, mousedown;
@@ -274,9 +274,9 @@ void cube_main_init(struct cube_main *m) {
     scfg.debug = true;
     scfg.optimize = true;
     fe_gl_shader_source_set ss = {{0}};
-    fe_gl_src_get_tri_vert(&ss.vert, &scfg);
-    fe_gl_src_get_tri_frag(&ss.frag, &scfg);
-    ss.before_linking = fe_gl_src_before_linking;
+    fe_gl_src_get_cube_vert(&ss.vert, &scfg);
+    fe_gl_src_get_cube_frag(&ss.frag, &scfg);
+    ss.before_linking = fe_gl_src_cube_prelink;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program!\n"
 		"More details on this error have been logged.\n");
@@ -302,7 +302,7 @@ void cube_main_init(struct cube_main *m) {
     m->up[1] = 1.0f;
     m->up[2] = 0.0f;
     m->MVPMatrixLoc = glGetUniformLocation(m->cube.prog, "u_mvp");
-    m->ufInvertLoc  = glGetUniformLocation(m->cube.prog, "u_invert");
+    m->cubemapLoc  = glGetUniformLocation(m->cube.prog, "u_cubemap");
 
 #define UPDATE_VIEW() \
     mat4_identity(m->Model); \
@@ -570,24 +570,11 @@ void cube_main_loop_iteration(void *arg) {
         }
     }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.3f, 0.7f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_SCISSOR_TEST);
-
-    glScissor(0, 0, m->splitx*(float)m->win_w, m->win_h);
-    glClearColor(0.3f, 0.9f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUniform1i(m->ufInvertLoc, 0);
+    glUniform1i(m->cubemapLoc, 0);
     Cube_draw(&m->cube);
-
-    glScissor(m->splitx*(float)m->win_w, 0, m->win_w-m->splitx*(float)m->win_w, m->win_h);
-    glClearColor(0.7f, 0.1f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUniform1i(m->ufInvertLoc, 1);
-    Cube_draw(&m->cube);
-    
-    glDisable(GL_SCISSOR_TEST); 
 
     if(m->framerate_limit > 0) {
         current_time = SDL_GetTicks();

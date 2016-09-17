@@ -13,6 +13,7 @@ static const GLbyte vertices[24] = {
      127, -127,  127,
      127,  127,  127
 };
+/*
 static const GLubyte colors[24] = {
     255, 0, 0,
     255, 0, 0,
@@ -22,12 +23,6 @@ static const GLubyte colors[24] = {
     0, 0, 255,
     255, 255, 0,
     255, 255, 0
-};
-/*
- * Wrong winding
-static const GLubyte indices[16] = {
-    0, 1, 2, 3, 4, 5, 6, 7,
-    5, 3, 7, 1, 6, 0, 4, 2
 };
 */
 static const GLubyte indices[16] = {
@@ -50,25 +45,45 @@ void Cube_init(Cube *c, GLuint prog) {
     glGenBuffers(1, &c->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);
     fe_gl_dbg_glObjectLabel(GL_BUFFER, c->vbo, -1, "\"Cube VBO\"");
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)+sizeof(colors), NULL, 
-            GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glGenTextures(1, &c->tex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, c->tex);
+    const GLint lod = 0;
+    const GLsizei w = 1, h = 1;
+    GLubyte data[6][1*1][4] = {
+        { {255,   0,   0, 255} },
+        { {255, 255,   0, 255} },
+        { {  0, 255,   0, 255} },
+        { {  0, 255, 255, 255} },
+        { {  0,   0, 255, 255} },
+        { {255,   0, 255, 255} }
+    };
+#define HELPER(sign,axis,data) \
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_##sign##_##axis, lod, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data)
+    HELPER(POSITIVE,X,data[0]);
+    HELPER(NEGATIVE,X,data[1]);
+    HELPER(POSITIVE,Y,data[2]);
+    HELPER(NEGATIVE,Y,data[3]);
+    HELPER(POSITIVE,Z,data[4]);
+    HELPER(NEGATIVE,Z,data[5]);
+#undef HELPER
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 void Cube_free(Cube *c) {
     glDeleteBuffers(1, &c->ebo);
     glDeleteBuffers(1, &c->vbo);
+    glDeleteTextures(1, &c->tex);
 }
 void Cube_draw(Cube *c) {
     glUseProgram(c->prog);
 
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);
     glVertexAttribPointer(0, 3, GL_BYTE, GL_TRUE, 0, BUFFER_OFFSET(0));
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, 
-            BUFFER_OFFSET(sizeof(vertices)));
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->ebo);
     const GLsizei counts[2] = {8, 8};
@@ -77,7 +92,6 @@ void Cube_draw(Cube *c) {
     glDrawElements(GL_TRIANGLE_STRIP, counts[1], GL_UNSIGNED_BYTE, offsets[1]);
 
     glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
 }
 
 void draw_some_image(plane2d *p) {

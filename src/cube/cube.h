@@ -4,7 +4,7 @@
 #include <fate/gl.h>
 
 struct Cube {
-    GLuint ebo, vbo, prog;
+    GLuint ebo, vbo, tex, prog;
 };
 typedef struct Cube Cube;
 
