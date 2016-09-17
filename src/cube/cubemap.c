@@ -16,15 +16,15 @@ GLuint cubemap_build_grouse(void) {
 #define HELPER(sign,axis,face) \
     glTexImage2D(GL_TEXTURE_CUBE_MAP_##sign##_##axis, lod, GL_RGBA, \
                  1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, grouse_##face##_rgba)
-    HELPER(POSITIVE,X,ft); //rt
-    HELPER(NEGATIVE,Z,lf); //ft
-    HELPER(NEGATIVE,X,bk); //lf
-    HELPER(POSITIVE,Z,rt); //bk
+    HELPER(POSITIVE,X,ft);
+    HELPER(NEGATIVE,Z,lf); 
+    HELPER(NEGATIVE,X,bk); 
+    HELPER(POSITIVE,Z,rt); 
     HELPER(POSITIVE,Y,up);
     HELPER(NEGATIVE,Y,dn);
 #undef HELPER
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);

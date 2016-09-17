@@ -24,7 +24,7 @@ struct cube_main {
     SDL_GLContext glctx; 
     uint16_t win_w, win_h;
     uint16_t old_win_w, old_win_h;
-    Cube cube, skybox;
+    Cube cube, skybox, gizmo;
     GLuint cubemap_6cols, cubemap_grouse;
     float distance;
     vec3 eye, center, up;
@@ -94,6 +94,8 @@ void cube_main_init(struct cube_main *m) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); //??
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
                         0 //SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
 #if defined(FE_GL_DBG) && defined(FE_GL_TARGET_DESKTOP)
@@ -122,8 +124,6 @@ void cube_main_init(struct cube_main *m) {
     SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
     SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
 */
     m->win_w = 640;
@@ -271,6 +271,7 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_mkprog_cleanup();
     Cube_init(&m->cube);
     Cube_init(&m->skybox);
+    Cube_init(&m->gizmo);
 
     m->cubemap_6cols = cubemap_build_6cols();
     m->cubemap_grouse = cubemap_build_grouse();
@@ -284,6 +285,9 @@ void cube_main_init(struct cube_main *m) {
     m->skybox.see_inside = true;
     m->cube.tex_unit = 2;
     m->cube.see_inside = false;
+    m->gizmo.tex_unit = 2;
+    m->gizmo.see_inside = false;
+
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -293,10 +297,10 @@ void cube_main_init(struct cube_main *m) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     
-    m->distance = 6.0f;
+    m->distance = 10.0f;
     m->eye[0] = 0.0f;
     m->eye[1] = 0.0f;
-    m->eye[2] = -m->distance;
+    m->eye[2] = m->distance;
     memset(m->center, 0, sizeof(vec3));
     m->up[0] = 0.0f;
     m->up[1] = 1.0f;
@@ -312,15 +316,28 @@ void cube_main_init(struct cube_main *m) {
     mat4_look_at(m->View, m->eye, m->center, m->up)
 
 #define UPDATE_MVP() \
-    mat4_mul(m->cube.mvp, m->Projection, m->View); \
-    mat4_mul(m->skybox.mvp, m->Projection, m->View); \
-    mat4_identity(m->Model); \
-    mat4_mul(m->cube.mvp, m->cube.mvp, m->Model); \
+    { \
+        mat4 fake_view; \
+        vec3 fake_eye; \
+        vec3_norm(fake_eye, m->eye); \
+        vec3_scale(fake_eye, fake_eye, 14.f); \
+        mat4_look_at(fake_view, fake_eye, m->center, m->up); \
+        mat4_identity(m->gizmo.mvp); \
+        mat4_translate(m->gizmo.mvp, -.8f, -.8f, 0.f); \
+        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, m->Projection); \
+        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, fake_view); \
+        mat4_identity(m->Model); \
+        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, m->Model); \
+    } \
     mat4_identity(m->Model); \
     mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
     mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f); \
+    mat4_mul(m->skybox.mvp, m->Projection, m->View); \
     mat4_mul(m->skybox.mvp, m->skybox.mvp, m->Model); \
-   
+    mat4_identity(m->Model); \
+    mat4_mul(m->cube.mvp, m->Projection, m->View); \
+    mat4_mul(m->cube.mvp, m->cube.mvp, m->Model);
+
 
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
@@ -364,6 +381,7 @@ void cube_main_clean_then_exit(void *arg) {
 
     Cube_deinit(&m->cube);
     Cube_deinit(&m->skybox);
+    Cube_deinit(&m->gizmo);
     Cube_cleanup();
     bgmus_cleanup();
     fe_globalstate_deinit(fe_gs);
@@ -468,7 +486,7 @@ void cube_main_loop_iteration(void *arg) {
                     m->mousein = true;
                 }
                 if(m->mousedown) {
-                    m->h_angle += (event.motion.x - m->mousex)*M_PI/180.0f;
+                    m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
                     m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
                     if(m->v_angle >= M_PI/2)
                         m->v_angle = M_PI/2 - M_PI/180.0f;
@@ -476,7 +494,7 @@ void cube_main_loop_iteration(void *arg) {
                         m->v_angle = -M_PI/2 + M_PI/180.0f;
                     m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
                     m->eye[1] =  m->distance*sinf(m->v_angle);
-                    m->eye[2] = -m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+                    m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
 
                     UPDATE_VIEW();
                     UPDATE_MVP();
@@ -542,7 +560,7 @@ void cube_main_loop_iteration(void *arg) {
     if(dirty) {
         m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
         m->eye[1] =  m->distance*sinf(m->v_angle);
-        m->eye[2] = -m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+        m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
         UPDATE_VIEW();
         UPDATE_MVP();
         dirty = false;
@@ -583,6 +601,10 @@ void cube_main_loop_iteration(void *arg) {
 
     const Cube * cubes[2] = {&m->cube, &m->skybox};
     Cube_multidraw(cubes, 2);
+    const Cube *cube_ptr = &m->gizmo;
+    glDisable(GL_DEPTH_TEST);
+    Cube_multidraw(&cube_ptr, 1);
+    glEnable(GL_DEPTH_TEST);
 
     if(m->framerate_limit > 0) {
         current_time = SDL_GetTicks();
