@@ -24,7 +24,7 @@ struct cube_main {
     uint16_t win_w, win_h;
     uint16_t old_win_w, old_win_h;
     Cube cube, skybox;
-    GLuint cubemap_6cols;
+    GLuint cubemap_6cols, cubemap_grouse;
     float distance;
     vec3 eye, center, up;
     mat4 Projection, View, Model;
@@ -272,8 +272,9 @@ void cube_main_init(struct cube_main *m) {
     Cube_init(&m->skybox);
 
     m->cubemap_6cols = cubemap_build_6cols();
+    m->cubemap_grouse = cubemap_build_grouse();
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_6cols);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_grouse);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_6cols);
     glActiveTexture(GL_TEXTURE0);
@@ -300,6 +301,12 @@ void cube_main_init(struct cube_main *m) {
     m->up[1] = 1.0f;
     m->up[2] = 0.0f;
 
+#define FE_FALLBACK_REFRESH_RATE 60
+#define FE_DEFAULT_FPS_CEIL 256
+#define FE_DEFAULT_NEAR 0.25
+#define FE_DEFAULT_FAR  1024.0
+#define FE_DEFAULT_FOV  (75.0*M_PI/180.0)
+
 #define UPDATE_VIEW() \
     mat4_look_at(m->View, m->eye, m->center, m->up)
 
@@ -308,20 +315,11 @@ void cube_main_init(struct cube_main *m) {
     mat4_mul(m->skybox.mvp, m->Projection, m->View); \
     mat4_identity(m->Model); \
     mat4_mul(m->cube.mvp, m->cube.mvp, m->Model); \
-    { \
-        mat4 translation; \
-        mat4_identity(translation); \
-        mat4_scale_aniso(translation, translation, 80.f, 80.f, 80.f); \
-        mat4_mul(m->Model, m->Model, translation); \
-    } \
+    mat4_identity(m->Model); \
+    mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
+    mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f); \
     mat4_mul(m->skybox.mvp, m->skybox.mvp, m->Model); \
-
    
-#define FE_FALLBACK_REFRESH_RATE 60
-#define FE_DEFAULT_FPS_CEIL 256
-#define FE_DEFAULT_NEAR 0.25
-#define FE_DEFAULT_FAR  1024.0
-#define FE_DEFAULT_FOV  (75.0*M_PI/180.0)
 
 #define RESIZE(_W_,_H_) \
     glViewport(0, 0, _W_, _H_); \
