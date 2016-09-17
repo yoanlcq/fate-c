@@ -12,6 +12,7 @@
 #include <emscripten.h>
 #endif
 #include "cube.h"
+#include "cubemap.h"
 
 #define FE_GAME_NAME "Rainbow Dice"
 #define FE_GAME_ID "Rainbow_Dice"
@@ -22,12 +23,11 @@ struct cube_main {
     SDL_GLContext glctx; 
     uint16_t win_w, win_h;
     uint16_t old_win_w, old_win_h;
-    Cube cube;
+    Cube cube, skybox;
+    GLuint cubemap_6cols;
     float distance;
     vec3 eye, center, up;
-    GLint cubemapLoc;
-    GLint MVPMatrixLoc;
-    mat4 MVPMatrix, Projection, View, Model;
+    mat4 Projection, View, Model;
     int mousex, mousey;
     bool mousein, mousedown;
     float h_angle, v_angle;
@@ -266,24 +266,22 @@ void cube_main_init(struct cube_main *m) {
 
     fe_gl_dbg_setup(&gl_version, true);
     fe_gl_mkprog_setup(&gl_version);
-    GLuint progid = glCreateProgram();
-    fe_gl_src_config scfg = {0};
-#ifdef FE_GL_TARGET_ES
-    scfg.es = true;
-#endif
-    scfg.debug = true;
-    scfg.optimize = true;
-    fe_gl_shader_source_set ss = {{0}};
-    fe_gl_src_get_cube_vert(&ss.vert, &scfg);
-    fe_gl_src_get_cube_frag(&ss.frag, &scfg);
-    ss.before_linking = fe_gl_src_cube_prelink;
-    if(!fe_gl_mkprog_no_binary(progid, &ss))
-        fe_fatal(TAG, "Could not build the OpenGL program!\n"
-		"More details on this error have been logged.\n");
+    Cube_setup();
     fe_gl_mkprog_cleanup();
-    fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
-    Cube_init(&m->cube, progid);
+    Cube_init(&m->cube);
+    Cube_init(&m->skybox);
 
+    m->cubemap_6cols = cubemap_build_6cols();
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_6cols);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_6cols);
+    glActiveTexture(GL_TEXTURE0);
+
+    m->skybox.tex_unit = 1;
+    m->skybox.see_inside = true;
+    m->cube.tex_unit = 2;
+    m->cube.see_inside = false;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -301,17 +299,23 @@ void cube_main_init(struct cube_main *m) {
     m->up[0] = 0.0f;
     m->up[1] = 1.0f;
     m->up[2] = 0.0f;
-    m->MVPMatrixLoc = glGetUniformLocation(m->cube.prog, "u_mvp");
-    m->cubemapLoc  = glGetUniformLocation(m->cube.prog, "u_cubemap");
 
 #define UPDATE_VIEW() \
-    mat4_identity(m->Model); \
     mat4_look_at(m->View, m->eye, m->center, m->up)
 
 #define UPDATE_MVP() \
-    mat4_mul(m->MVPMatrix, m->Projection, m->View); \
-    mat4_mul(m->MVPMatrix, m->Model, m->MVPMatrix); \
-    glUniformMatrix4fv(m->MVPMatrixLoc, 1, GL_FALSE, &m->MVPMatrix[0][0])
+    mat4_mul(m->cube.mvp, m->Projection, m->View); \
+    mat4_mul(m->skybox.mvp, m->Projection, m->View); \
+    mat4_identity(m->Model); \
+    mat4_mul(m->cube.mvp, m->cube.mvp, m->Model); \
+    { \
+        mat4 translation; \
+        mat4_identity(translation); \
+        mat4_scale_aniso(translation, translation, 80.f, 80.f, 80.f); \
+        mat4_mul(m->Model, m->Model, translation); \
+    } \
+    mat4_mul(m->skybox.mvp, m->skybox.mvp, m->Model); \
+
    
 #define FE_FALLBACK_REFRESH_RATE 60
 #define FE_DEFAULT_FPS_CEIL 256
@@ -356,8 +360,9 @@ void cube_main_init(struct cube_main *m) {
 void cube_main_clean_then_exit(void *arg) {
     struct cube_main *m = arg;
 
-    glDeleteProgram(m->cube.prog);
-    Cube_free(&m->cube);
+    Cube_deinit(&m->cube);
+    Cube_deinit(&m->skybox);
+    Cube_cleanup();
     fe_globalstate_deinit(fe_gs);
     SDL_GL_DeleteContext(m->glctx); 
     SDL_DestroyWindow(m->window);
@@ -573,8 +578,8 @@ void cube_main_loop_iteration(void *arg) {
     glClearColor(0.3f, 0.7f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUniform1i(m->cubemapLoc, 0);
-    Cube_draw(&m->cube);
+    const Cube * cubes[2] = {&m->cube, &m->skybox};
+    Cube_multidraw(cubes, 2);
 
     if(m->framerate_limit > 0) {
         current_time = SDL_GetTicks();

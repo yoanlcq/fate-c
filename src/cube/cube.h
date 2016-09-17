@@ -2,15 +2,20 @@
 #define CUBE_H
 
 #include <fate/gl.h>
+#include <linmath/linmath.h>
 
 struct Cube {
-    GLuint ebo, vbo, tex, prog;
+    GLuint tex_unit;
+    mat4 mvp;
+    bool see_inside;
 };
 typedef struct Cube Cube;
 
-void Cube_init(Cube *c, GLuint prog);
-void Cube_free(Cube *c);
-void Cube_draw(Cube *c);
+void Cube_setup(void);
+void Cube_cleanup(void);
+void Cube_init(Cube *c);
+void Cube_deinit(Cube *c);
+void Cube_multidraw(const Cube * const* cubes, size_t count);
 
 struct plane2d {
     GLuint ebo, vbo, prog;

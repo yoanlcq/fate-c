@@ -72,7 +72,7 @@ void fe_gl_src_get_cube_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
         "uniform samplerCube u_cubemap;\n"
         "\n"
         "void main() {\n"
-        "    f_col = texture(u_cubemap, v_norm);\n"
+        "    f_col = textureCube(u_cubemap, v_norm);\n"
         "}\n"
         ,
         version, cfg->es ? "es" : "", version,
