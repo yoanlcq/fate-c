@@ -145,26 +145,23 @@ void cube_main_init(struct cube_main *m) {
     if(!m->glctx)
         fe_fatal(TAG, "SDL_GL_CreateContext failed : %s\n", SDL_GetError());
 
-    /*
+#ifdef FE_GL_USE_GLAD
+    /* It returns false on my laptop, even though functions are properly loaded.
+     * Seen it though GDB. */
+    #ifdef FE_GL_TARGET_DESKTOP
+    gladLoadGLLoader(SDL_GL_GetProcAddress);
+    #else
+    gladLoadGLES2Loader(SDL_GL_GetProcAddress);
+    #endif
+#elif defined(FE_GL_USE_GLEW)
     glewExperimental = GL_TRUE;
     fe_logi(TAG, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
     GLenum glew = glewInit();
     if(glew != GLEW_OK)
         fe_fatal(TAG, "Could not initialize GLEW :\n%s\n", 
                 glewGetErrorString(glew));
-    */
-    fe_logi(TAG, "Still here !\n");
-
-    /* It returns false on my laptop, even though functions are properly loaded.
-     * Seen it though GDB. */
-#ifdef FE_GL_TARGET_DESKTOP
-    gladLoadGLLoader(SDL_GL_GetProcAddress);
-#elif !defined(FE_TARGET_EMSCRIPTEN)
-    gladLoadGLES2Loader(SDL_GL_GetProcAddress);
 #endif
-    fe_logi(TAG, "Still here 1 !\n");
-    glGetError(); // Causes an error on Emscripten.
-    fe_logi(TAG, "Still here 2 !\n");
+    glGetError();
 
     fe_logi(TAG,
             "--- OpenGL version ---\n"
@@ -177,6 +174,8 @@ void cube_main_init(struct cube_main *m) {
             "\n",
 #ifdef FE_GL_TARGET_DESKTOP
             3, 0, 
+#elif defined(FE_TARGET_EMSCRIPTEN)
+            1, 0, 
 #else
             2, 0, 
 #endif
@@ -194,12 +193,14 @@ void cube_main_init(struct cube_main *m) {
         unsigned maj, min, es;
         maj = gl_version.major;
         min = gl_version.minor;
-        es  = gl_version.es;
-        fe_logi(TAG, "Parsed OpenGL version : %u.%u%s\n", maj, min, es ? "ES" : "");
+        es = gl_version.es;
         bool supported = (es ? maj>=2 : maj>=3);
         if(!supported)
-            fe_fatal(TAG, "The OpenGL version reported by your driver is "
-                       "not supported yet.\nSorry. I'm working on it.\n");
+            fe_fatal(TAG, 
+                    "The OpenGL version reported by your driver is not "
+                    "supported because it is too low.\n"
+                    "Please let me know about it so I see how many people"
+                    "need suport for it.\n");
     }
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
@@ -213,8 +214,6 @@ void cube_main_init(struct cube_main *m) {
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
 
-
-    fe_logi(TAG, "Still here 4 !\n");
 
     fe_logi(TAG,
         "--- Active OpenGL context settings ---\n"
@@ -283,8 +282,6 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_dbg_glObjectLabel(GL_PROGRAM, progid, -1, "\"Cube program\"");
     Cube_init(&m->cube, progid);
 
-
-    fe_logi(TAG, "Still here 5 !\n");
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

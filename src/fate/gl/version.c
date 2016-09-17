@@ -36,6 +36,9 @@ bool fe_gl_version_query(fe_gl_version *v) {
      * But on OpenGL ES 3 :
      * "<major>.<minor>"
      *
+     * And on WebGL :
+     * "WebGL <major>.<minor>"
+     *
      * OpenGL wiki states that, for desktop GL < 3.0, you have to parse
      * the version string instead of using glGetIntegerv().
      */
@@ -44,9 +47,19 @@ bool fe_gl_version_query(fe_gl_version *v) {
         fe_logw(TAG, "glGetString(GL_VERSION) returned NULL !\n");
         return false;
     }
-    while(!isdigit(*version_s)) ++version_s;
+    bool webgl = false;
+    if(!strncmp(version_s, "OpenGL ES ", 10))
+        v->es = true;
+    if(!strncmp(version_s, "WebGL ", 6)) {
+        v->es = true;
+        webgl = true;
+    }
+    while(!isdigit(*version_s)) 
+        ++version_s;
     v->major = strtoul(version_s, NULL, 10);
     v->minor = strtoul(strchr(version_s, '.')+1, NULL, 10);
+    if(webgl)
+        ++(v->major);
     return true;
 }
 

@@ -40,6 +40,7 @@
 #ifndef FE_GL_DBG_H
 #define FE_GL_DBG_H
 
+#include <fate/defs.h>
 #include <fate/gl/defs.h>
 #include <fate/gl/version.h>
 #include <stdbool.h>
@@ -47,7 +48,7 @@
 /*! \brief TODO */
 void fe_gl_dbg_setup(const fe_gl_version *v, bool enable);
 
-#ifdef FE_DEBUG_BUILD
+#if defined(FE_DEBUG_BUILD) && !defined(FE_TARGET_EMSCRIPTEN)
 #define FE_GL_DBG
 #endif
 

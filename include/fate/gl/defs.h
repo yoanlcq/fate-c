@@ -50,8 +50,10 @@
 
 #if 0 /* defined(FE_TARGET_EMSCRIPTEN) */
 #define FE_GL_USE_GLEW 1
-#else /* elif !defined(FE_TARGET_EMSCRIPTEN) */
+#elif !defined(FE_TARGET_EMSCRIPTEN)
 #define FE_GL_USE_GLAD 1
+#else
+#define FE_GL_USE_GLEW 1
 #endif
 
 /*! \brief TODO 
@@ -90,8 +92,8 @@
 #ifdef FE_GL_USE_GLAD
     #include <glad/glad.h>
     #define GLAPIENTRY APIENTRY
-#else
-    #include <GLES2/gl2.h>
+#elif defined(FE_GL_USE_GLEW)
+    #include <GL/glew.h>
 #endif
 /*! \brief TODO */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)

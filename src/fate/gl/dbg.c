@@ -40,8 +40,8 @@
 
 
 
-#ifdef FE_GL_DBG
 static const char *TAG = "fe_gl_dbg";
+#ifdef FE_GL_DBG
 
 
 static void GLAPIENTRY fe_gl_dbg_glDebugMessageCallback_dummy(GLDEBUGPROC callback, 
@@ -430,6 +430,6 @@ void fe_gl_dbg_setup(const fe_gl_version *v, bool enable) {
 #else
     enable = false;
 #endif
-    fe_logd(TAG, "OpenGL debug is %s.\n", enable ? "enabled" : "disabled");
+    fe_logi(TAG, "OpenGL debug is %s.\n", enable ? "enabled" : "disabled");
 }
 
