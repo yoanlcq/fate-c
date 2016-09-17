@@ -23,10 +23,18 @@ static const GLubyte colors[24] = {
     255, 255, 0,
     255, 255, 0
 };
+/*
+ * Wrong winding
 static const GLubyte indices[16] = {
     0, 1, 2, 3, 4, 5, 6, 7,
     5, 3, 7, 1, 6, 0, 4, 2
 };
+*/
+static const GLubyte indices[16] = {
+    1, 0, 3, 2, 5, 4, 7, 6,
+    4, 2, 6, 0, 7, 1, 5, 3
+};
+
 
 
 void Cube_init(Cube *c, GLuint prog) {
@@ -53,9 +61,6 @@ void Cube_free(Cube *c) {
     glDeleteBuffers(1, &c->vbo);
 }
 void Cube_draw(Cube *c) {
-    //glDisable(GL_CULL_FACE);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE_STRIP);
-    glCullFace(GL_FRONT);
     glUseProgram(c->prog);
 
     glBindBuffer(GL_ARRAY_BUFFER, c->vbo);

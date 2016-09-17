@@ -191,13 +191,15 @@ void cube_main_init(struct cube_main *m) {
         maj = gl_version.major;
         min = gl_version.minor;
         es = gl_version.es;
+        fe_logi(TAG, "Parsed OpenGL version : %u.%u%s\n", 
+                     maj, min, es ? " ES" : "");
         bool supported = (es ? maj>=2 : maj>=3);
         if(!supported)
             fe_fatal(TAG, 
                     "The OpenGL version reported by your driver is not "
                     "supported because it is too low.\n"
                     "Please let me know about it so I see how many people"
-                    "need suport for it.\n");
+                    "require support for it.\n");
     }
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
