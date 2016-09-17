@@ -13,6 +13,7 @@
 #endif
 #include "cube.h"
 #include "cubemap.h"
+#include "bgmus.h"
 
 #define FE_GAME_NAME "Rainbow Dice"
 #define FE_GAME_ID "Rainbow_Dice"
@@ -352,6 +353,9 @@ void cube_main_init(struct cube_main *m) {
     m->frameno = 0;
     m->lim_last_time = SDL_GetTicks();
     m->last_time = SDL_GetTicks();
+
+    bgmus_setup();
+    bgmus_play();
 }
 
 
@@ -361,6 +365,7 @@ void cube_main_clean_then_exit(void *arg) {
     Cube_deinit(&m->cube);
     Cube_deinit(&m->skybox);
     Cube_cleanup();
+    bgmus_cleanup();
     fe_globalstate_deinit(fe_gs);
     SDL_GL_DeleteContext(m->glctx); 
     SDL_DestroyWindow(m->window);
