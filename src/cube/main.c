@@ -183,9 +183,6 @@ void cube_main_init(struct cube_main *m) {
             glGetString(GL_RENDERER),
             glGetString(GL_VENDOR));
 
-
-    fe_logi(TAG, "Still here 3 !\n");
-
     fe_gl_version gl_version;
     if(!fe_gl_version_query(&gl_version))
         fe_fatal(TAG, "Could not parse the OpenGL version and profile mask.\n");
@@ -205,6 +202,7 @@ void cube_main_init(struct cube_main *m) {
     GLint ctxflags, ctxpflags, depth_bits, stencil_bits;
     GLboolean double_buffer, stereo_buffers;
 
+#ifndef FE_TARGET_EMSCRIPTEN
     glGetIntegerv(GL_CONTEXT_FLAGS, &ctxflags);
     glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &ctxpflags);
     glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_DEPTH, 
@@ -213,6 +211,10 @@ void cube_main_init(struct cube_main *m) {
             GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil_bits);
     glGetBooleanv(GL_DOUBLEBUFFER, &double_buffer);
     glGetBooleanv(GL_STEREO, &stereo_buffers);
+#else
+    ctxflags=0, ctxpflags=0, depth_bits=24, stencil_bits=8;
+    double_buffer=true, stereo_buffers=false;
+#endif
 
 
     fe_logi(TAG,
@@ -272,8 +274,6 @@ void cube_main_init(struct cube_main *m) {
     fe_gl_shader_source_set ss = {{0}};
     fe_gl_src_get_tri_vert(&ss.vert, &scfg);
     fe_gl_src_get_tri_frag(&ss.frag, &scfg);
-    fe_logi(TAG, "Vertex source :\n%s\nFragment source :\n%s\n", 
-                  ss.vert.base, ss.frag.base);
     ss.before_linking = fe_gl_src_before_linking;
     if(!fe_gl_mkprog_no_binary(progid, &ss))
         fe_fatal(TAG, "Could not build the OpenGL program!\n"
@@ -339,9 +339,11 @@ void cube_main_init(struct cube_main *m) {
     m->fps_ceil = FE_DEFAULT_FPS_CEIL;
     m->framerate_limit = 0;
 
+#ifndef FE_TARGET_EMSCRIPTEN
     if(m->framerate_limit <= 0)
 		if(SDL_GL_SetSwapInterval(1) < 0)
 			fe_logw(TAG, "Warning : Vsync is disabled. The FPS may skyrocket.\n");
+#endif
 
     m->frameno = 0;
     m->lim_last_time = SDL_GetTicks();
@@ -612,7 +614,7 @@ int main(int argc, char *argv[])
     cube_main_init(&m);
     cube_main_framefuncptr = cube_main_loop_iteration;
 #ifdef FE_TARGET_EMSCRIPTEN
-    emscripten_set_main_loop_arg(cube_main_framefuncptr, &m, 0, true);
+    emscripten_set_main_loop_arg(cube_main_framefuncptr, &m, -1, true);
 #else
     for(;;)
         cube_main_framefuncptr(&m);
