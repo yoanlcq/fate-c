@@ -27,23 +27,24 @@
  *
  */
 
-/*! \file fate/gl.h
- *  \brief Interface to the OpenGL rendering backend.
- *  \defgroup gl OpenGL video backend
+#ifndef FE_GL_TC_H
+#define FE_GL_TC_H
+
+/*! \file fate/gl/tc.h
+ *  \brief Texture compression utils.
+ *  \ingroup gl
  *
  * TODO
+ *
+ *  @{
  */
 
-#ifndef FE_GL_H
-#define FE_GL_H
+#include <fate/gl.h>
 
-#include <fate/gl/defs.h>
-#include <fate/gl/dbg.h>
-#include <fate/gl/log.h>
-#include <fate/gl/stats.h>
-#include <fate/gl/mkprog.h>
-#include <fate/gl/src.h>
-#include <fate/gl/version.h>
-#include <fate/gl/tc.h>
+#ifndef FE_GL_TC_DISABLE_FORMAT_TO_NAME
+const char *fe_gl_tc_format_to_name(GLint fmt);
+#endif
 
-#endif /* FE_GL_H */
+/*! @} */
+
+#endif /* FE_GL_TC_H */

@@ -32,19 +32,19 @@ static void locs_fill(void) {
     glUseProgram(prog); 
     size_t i;
     for(i=0 ; i<locs.light_count ; ++i) {
-        glUniform1i(locs.lights[i].is_enabled, false);
+        glUniform1i(locs.lights[i].is_enabled, true);
         glUniform1i(locs.lights[i].is_local, true);
         glUniform1i(locs.lights[i].is_spot, false);
-        glUniform3f(locs.lights[i].ambient, 0.2f, 0.4f, 0.9f);
+        glUniform3f(locs.lights[i].ambient, 1.0f, 1.0f, 1.0f);
         glUniform3f(locs.lights[i].color, 1.0f, 0.f, 0.f);
-        glUniform3f(locs.lights[i].position, 3.0f, 3.0f, 3.0f);
+        glUniform3f(locs.lights[i].position, 2.0f, 2.0f, 2.0f);
         glUniform3f(locs.lights[i].half_vector, 5.0f, 5.0f, 5.0f);
         glUniform3f(locs.lights[i].cone_direction, 5.0f, 5.0f, 5.0f);
-        glUniform1f(locs.lights[i].spot_cos_cutoff, 0.f);
+        glUniform1f(locs.lights[i].spot_cos_cutoff, 0.5f);
         glUniform1f(locs.lights[i].spot_exponent, 1.f);
-        glUniform1f(locs.lights[i].constant_attenuation, 0.5f);
-        glUniform1f(locs.lights[i].linear_attenuation, 0.5f);
-        glUniform1f(locs.lights[i].quadratic_attenuation, 0.5f);
+        glUniform1f(locs.lights[i].constant_attenuation, .6f);
+        glUniform1f(locs.lights[i].linear_attenuation, 0.f);
+        glUniform1f(locs.lights[i].quadratic_attenuation, 0.f);
     }
 
     cubemap_grouse = cubemap_build_grouse();
@@ -58,12 +58,12 @@ static void locs_fill(void) {
     for(i=0 ; i<locs.material_count ; ++i) {
         glUniform1i(locs.materials[i].is_affected_by_lights, i>0);
         glUniform1i(locs.materials[i].cubemap, i+1);
-        glUniform3f(locs.materials[i].emission, 1.f, 1.f, 1.f);
+        glUniform3f(locs.materials[i].emission, 0.f, 0.f, 0.f);
         glUniform3f(locs.materials[i].ambient,  1.f, 1.f, 1.f);
         glUniform3f(locs.materials[i].diffuse,  1.f, 1.f, 1.f);
         glUniform3f(locs.materials[i].specular, 1.f, 1.f, 1.f);
-        glUniform1f(locs.materials[i].shininess, 1.f);
-        glUniform1f(locs.materials[i].strength, 1.f);
+        glUniform1f(locs.materials[i].shininess, .5f);
+        glUniform1f(locs.materials[i].strength, .5f);
     }
     glUseProgram(0);
 }
@@ -77,7 +77,7 @@ void Cube_setup(void) {
 #endif
     scfg.debug = true;
     scfg.optimize = true;
-    scfg.light_count = 4;
+    scfg.light_count = 1;
     scfg.material_count = 4;
     fe_gl_shader_source_set ss = {{0}};
     fe_gl_src_get_cube_vert(&ss.vert, &scfg);

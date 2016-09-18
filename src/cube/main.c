@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <string.h>
 #include <math.h>
 #include <fate/fate.h>
@@ -250,20 +251,39 @@ void cube_main_init(struct cube_main *m) {
         stencil_bits
     );
 
-#ifndef FE_TARGET_EMSCRIPTEN /* glGetStringi(): unresolved symbol */
-    GLint num_glexts, i;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
+    size_t i;
     fe_logi(TAG, "    Extensions :\n");
-    for(i=0 ; i<num_glexts ; i++) {
-        fe_logi(TAG, "%-38s", glGetStringi(GL_EXTENSIONS, i));
-        if(i+1<num_glexts) {
-            ++i;
-            fe_logi(TAG, " %-38s", glGetStringi(GL_EXTENSIONS, i));
-        }
-        fe_logi(TAG, "\n");
+#ifdef FE_GL_TARGET_DESKTOP
+    GLint num_glexts;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &num_glexts);
+    for(i=0 ; i<num_glexts ; i++)
+        fe_logi(TAG, "%s\n", glGetStringi(GL_EXTENSIONS, i));
+#else
+    char *cur = glGetString(GL_EXTENSIONS);
+    for(;;) {
+        char *spc = strchr(cur, ' ');
+        if(!spc)
+            spc = strchr(cur, '\0');
+        fe_logi(TAG, "%.*s\n", (int)(spc-cur), cur);
+        if(!*spc)
+            break;
+        cur = spc+1;
     }
-    fe_logi(TAG, "\n");
 #endif
+
+    {
+        GLint num_glfmts;
+        glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &num_glfmts);
+        GLint *fmts = fe_mem_heapalloc(num_glfmts, GLint, "");
+        fe_dbg_hope(fmts);
+        glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, fmts);
+        fe_logi(TAG, "\n    Compressed texture formats :\n\n");
+        for(i=0 ; i<num_glfmts ; i++)
+            fe_logi(TAG, "0x%.4"PRIx32": %s\n", (int32_t)fmts[i],
+                    fe_gl_tc_format_to_name(fmts[i]));
+        fe_mem_heapfree(fmts);
+    }
+
 
     fe_gl_dbg_setup(&gl_version, true);
     fe_gl_mkprog_setup(&gl_version);
@@ -338,7 +358,7 @@ void cube_main_init(struct cube_main *m) {
     } {\
         mat4_identity(m->Model); \
         mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
-        mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f); \
+        mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/2.f, FE_DEFAULT_FAR/2.f, FE_DEFAULT_FAR/2.f); \
         mat4_mul(m->skybox.mvp_matrix, m->Projection, m->View); \
         mat4_mul(m->skybox.mvp_matrix, m->skybox.mvp_matrix, m->Model); \
         mat4 tmp_inv_matrix; \
