@@ -284,7 +284,7 @@ void cube_main_init(struct cube_main *m) {
     m->cube.ambient[1] = 0.5f;
     m->cube.ambient[2] = 1.0f;
     m->cube.ambient[3] = 1.0f;
-    m->gizmo.cullface = CUBE_FACE_FRONT;
+    m->gizmo.cullface = CUBE_FACE_BACK;
     m->gizmo.material_for_front = 1;
     m->gizmo.ambient[0] = m->gizmo.ambient[1] = 1.0f;
     m->gizmo.ambient[2] = m->gizmo.ambient[3] = 1.0f;

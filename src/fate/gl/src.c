@@ -93,7 +93,7 @@ void fe_gl_src_get_cube_vert(fe_iov *iov, const fe_gl_src_config *cfg) {
         "uniform mat4 u_normal_matrix;\n"
         "\n"
         "void main() {\n"
-        "    v_norm = normalize(u_normal_matrix * a_pos).xyz;\n"
+        "    v_norm = normalize(/*u_normal_matrix * */ a_pos).xyz;\n"
         "    v_pos = u_mv_matrix * a_pos;\n"
         "    gl_Position = u_mvp_matrix * a_pos;\n"
         "}\n"
