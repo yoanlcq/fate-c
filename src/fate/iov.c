@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #elif defined(FE_TARGET_FREEBSD)
@@ -26,11 +27,13 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
 #include <stdint.h>
 #include <limits.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <mach-o/dyld.h>
 #include <unistd.h>
@@ -260,23 +263,164 @@ fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_locator *params
 fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
 
 
-fe_fd          fe_fd_open_file(const fe_iov_locator *params) {return (fe_fd)-1;}
-fe_fd          fe_fd_open_persistent(const fe_iov_locator *params) {return (fe_fd)-1;}
-fe_fd          fe_fd_open_res(const fe_iov_locator *params) {return (fe_fd)-1;}
-fe_iov_promise fe_fd_get_download_promise(fe_fd fd) {return NULL;}
-bool           fe_fd_is_valid(fe_fd fd) {return 0;}
-void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {return NULL;}
-void           fe_fd_munmap(void *addr, size_t len) {}
-fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence) {return 0;}
-ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {return 0;}
-ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {return 0;}
-ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count) {return 0;}
-ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count) {return 0;}
-ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {return 0;}
-ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {return 0;}
-bool           fe_fd_sync(fe_fd fd) {return 0;}
-bool           fe_fd_truncate(fe_fd fd, size_t len) {return 0;}
-void           fe_fd_close(fe_fd fd) {}
+fe_fd          fe_fd_open_file(const fe_iov_locator *params) {
+    fe_fd fd = FE_FD_INVALID_FD;
+    fe_iov fullpath;
+    static_fullpath(&fullpath, params);
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+    int flags = 0;
+    switch(params->fd_flags & FE_FD_OPEN_READWRITE) {
+    case FE_FD_OPEN_READONLY: flags |= O_RDONLY; break;
+    case FE_FD_OPEN_WRITEONLY: flags |= O_WRONLY | O_CREAT; break;
+    case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
+    }
+    flags |= O_APPEND*!!(params->fd_flags & FE_FD_OPEN_APPEND);
+    flags |= O_EXCL*!!(params->fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
+    flags |= O_TRUNC*!!(params->fd_flags & FE_FD_OPEN_TRUNCATE);
+
+    fd = open(fullpath.base, flags, 0666);
+    #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+        if(params->fd_flags & FE_FD_OPEN_RANDOM_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
+        if(params->fd_flags & FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+        if(params->fd_flags & FE_FD_OPEN_SINGLE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+        if(params->fd_flags & FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
+        if(params->fd_flags & FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+    #endif
+#endif
+    fe_mem_heapfree(fullpath.base);
+    return fd;
+}
+fe_fd          fe_fd_open_persistent(const fe_iov_locator *params) {
+    fe_fd fd = FE_FD_INVALID_FD;
+    fe_iov fullpath;
+    static_fullpath(&fullpath, params);
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    fe_mem_heapfree(fullpath.base);
+    return fd;
+}
+fe_fd          fe_fd_open_res(const fe_iov_locator *params) {
+    fe_fd fd = FE_FD_INVALID_FD;
+    fe_iov fullpath;
+    static_fullpath(&fullpath, params);
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif   
+    fe_mem_heapfree(fullpath.base);
+    return fd;
+}
+fe_iov_promise fe_fd_get_download_promise(fe_fd fd) {
+    fe_dbg_hope(0 && "This is not implemented yet !");
+    return NULL;
+}
+void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return NULL;
+}
+void           fe_fd_munmap(void *addr, size_t len) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+}
+fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+bool           fe_fd_sync(fe_fd fd) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+bool           fe_fd_truncate(fe_fd fd, size_t len) {
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+    return 0;
+}
+void           fe_fd_close(fe_fd fd) {
+    /* Log a waring if fe_fd_sync() was not called. */
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_dbg_hope(0 && "This is not implemented yet !");
+#elif defined(FE_TARGET_WINDOWS)
+#else
+#endif
+}
 
 bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st) {return 0;}
 bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds) {return 0;}

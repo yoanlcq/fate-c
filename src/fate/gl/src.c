@@ -1,5 +1,7 @@
 #include <fate/fate.h>
 
+static const char *TAG = "fe_gl_src";
+
 static fe_timestamp timestamp = 0;
 
 fe_timestamp fe_gl_src_get_build_timestamp(void) {
@@ -23,7 +25,15 @@ void fe_gl_src_cube_locs_init(fe_gl_src_cube_locs *locs, const fe_gl_src_config 
     fe_dbg_hope(locs->materials);
     locs->material_count = cfg->material_count;
 
-#define HELPER(var) locs->var = glGetUniformLocation(prog, "u_"#var)
+    bool all_uniforms_locations_are_good = true;
+
+#define HELPER(var) \
+    locs->var = glGetUniformLocation(prog, "u_"#var); \
+    if(locs->var == -1) { \
+        fe_loge(TAG, "glGetUniformLocation(\"%s\") returned -1 !\n", "u_"#var);\
+        all_uniforms_locations_are_good = false; \
+    }
+
     HELPER(mvp_matrix);
     HELPER(mv_matrix);
     HELPER(normal_matrix);
@@ -37,8 +47,12 @@ void fe_gl_src_cube_locs_init(fe_gl_src_cube_locs *locs, const fe_gl_src_config 
     char buf[128];
     size_t i;
 #define HELPER(ary, var) \
-    sprintf(buf, "u_%ss[%"PRIsize_t"].%s", #ary, i, #var);\
-    locs->ary##s[i].var = glGetUniformLocation(prog, buf)
+    sprintf(buf, "u_%ss[%"PRIsize_t"].%s", #ary, i, #var); \
+    locs->ary##s[i].var = glGetUniformLocation(prog, buf); \
+    if(locs->ary##s[i].var == -1) { \
+        fe_loge(TAG, "glGetUniformLocation(\"%s\") returned -1 !\n", buf); \
+        all_uniforms_locations_are_good = false; \
+    }
     for(i=0 ; i<locs->light_count ; ++i) {
         HELPER(light,is_enabled);
         HELPER(light,is_local);
@@ -65,6 +79,8 @@ void fe_gl_src_cube_locs_init(fe_gl_src_cube_locs *locs, const fe_gl_src_config 
         HELPER(material,strength);
     }
 #undef HELPER
+    // XXX Uncomment this in the near future!
+    //fe_dbg_hope(all_uniforms_locations_are_good);
 }
 
 void fe_gl_src_cube_locs_deinit(fe_gl_src_cube_locs *locs) {
@@ -117,11 +133,11 @@ void fe_gl_src_get_cube_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
         "#pragma debug(%s)\n"
         "\n"
         "#ifdef GL_ES\n"
-            "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-                "precision highp float;\n"
-            "#else\n"
-                "precision mediump float;\n"
-            "#endif\n"
+        "    #ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+        "        precision highp float;\n"
+        "    #else\n"
+        "        precision mediump float;\n"
+        "    #endif\n"
         "#endif\n"
         "\n"
         "struct lightprops {\n"
@@ -172,7 +188,11 @@ void fe_gl_src_get_cube_frag(fe_iov *iov, const fe_gl_src_config *cfg) {
         "#endif //GL_ES\n"
         "\n"
         "void main() {\n"
+        "    #ifndef GL_ES\n"
         "    int m = (gl_FrontFacing ? u_material_for_front : u_material_for_back);\n"
+        "    #else\n"
+        "        #define m 0\n" /* XXX Dynamic indexing is not mandated. WTF.*/
+        "    #endif //GL_ES\n"
         "    vec3 scattered_light = u_ambient_global.xyz;\n"
         "    vec3 reflected_light = vec3(0.0);\n"
         "    for(int l=0 ; l<LIGHT_MAX ; ++l) {\n"

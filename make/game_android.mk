@@ -108,7 +108,7 @@ $(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
 	android update project --path $(BUILDPATH)
 	cd $(BUILDPATH) && ndk-build -j$(NCPUS) $(NDKARGS)
 	cd $(BUILDPATH) && ant clean debug
-	@echo "Test the app with: cd $(BUILDPATH) && ant debug install"
+	@echo "Test the app with: cd $(BUILDPATH) && ant debug install && cd -"
 
 GAMES += $(GAME_DEBUG_APK)
 

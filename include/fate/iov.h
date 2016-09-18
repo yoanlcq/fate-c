@@ -309,16 +309,20 @@ typedef struct {
 /*! \brief TODO */
 /* Anything in there, even the enum's values, may be platform-specific #defines. */
 typedef enum {
-    FE_FD_OPEN_READONLY,
-    FE_FD_OPEN_WRITEONLY,
-    FE_FD_OPEN_READWRITE,
-    FE_FD_OPEN_APPEND,
-    FE_FD_OPEN_ENSURE_NONEXISTENT,
-    FE_FD_OPEN_TRUNCATE,
-    FE_FD_OPEN_SPARSE_ACCESS_HINT,
-    FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT,
-    FE_FD_OPEN_LAZY_DOWNLOAD,
-    FE_FD_OPEN_NOW
+    FE_FD_OPEN_READONLY                = 1,
+    FE_FD_OPEN_WRITEONLY               = 1<<1,
+    FE_FD_OPEN_READWRITE               = 1 | 1<<1,
+    FE_FD_OPEN_APPEND                  = 1<<3,
+    FE_FD_OPEN_ENSURE_NONEXISTENT      = 1<<4,
+    FE_FD_OPEN_TRUNCATE                = 1<<5,
+    FE_FD_OPEN_SPARSE_ACCESS_HINT      = 1<<6, //Maybe deprecated ?
+    FE_FD_OPEN_RANDOM_ACCESS_HINT      = 1<<7,
+    FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT  = 1<<8,
+    FE_FD_OPEN_SINGLE_ACCESS_HINT      = 1<<9,
+    FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT = 1<<10,
+    FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT  = 1<<11,
+    FE_FD_OPEN_LAZY_DOWNLOAD           = 1<<12,
+    FE_FD_OPEN_NOW                     = 1<<13
 } fe_fd_flags;
 
 /*! \brief TODO */
@@ -331,6 +335,7 @@ typedef enum {
 #if defined(FE_TARGET_WINDOWS)
 #include <windows.h>
 typedef HANDLE fe_fd;
+#define FE_FD_INVALID_FD INVALID_HANDLE_VALUE
 typedef int64_t fe_fd_offset;
 #define FE_FD_SEEK_SET FILE_BEGIN
 #define FE_FD_SEEK_CUR FILE_CURRENT
@@ -338,10 +343,15 @@ typedef int64_t fe_fd_offset;
 #else
 #include <sys/types.h>
 typedef int fe_fd;
+#define FE_FD_INVALID_FD (-1)
 typedef off_t fe_fd_offset;
 #define FE_FD_SEEK_SET SEEK_SET
 #define FE_FD_SEEK_CUR SEEK_CUR
 #define FE_FD_SEEK_END SEEK_END
+#endif
+
+#ifndef FE_FD_INVALID_FD
+#define FE_FD_INVALID_FD ((fe_fd)(-1))
 #endif
 
 /*! \brief TODO */
@@ -409,7 +419,7 @@ FE_DECL_NIY fe_fd          fe_fd_open_res(const fe_iov_locator *params);
 /*! \brief TODO */
 FE_DECL_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
 /*! \brief TODO */
-FE_DECL_NIY bool           fe_fd_is_valid(fe_fd fd);
+#define fe_fd_is_valid(fd) ((fd) != FE_FD_INVALID_FD)
 /*! \brief TODO */
 FE_DECL_NIY void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
 /*! \brief TODO */

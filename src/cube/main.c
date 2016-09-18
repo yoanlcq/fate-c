@@ -219,6 +219,9 @@ void cube_main_init(struct cube_main *m) {
     ctxflags=0, ctxpflags=0, depth_bits=24, stencil_bits=8;
     double_buffer=true, stereo_buffers=false;
 #endif
+#ifdef FE_GL_TARGET_ES
+    ctxpflags = 0;
+#endif
 
 
     fe_logi(TAG,
@@ -259,9 +262,9 @@ void cube_main_init(struct cube_main *m) {
     for(i=0 ; i<num_glexts ; i++)
         fe_logi(TAG, "%s\n", glGetStringi(GL_EXTENSIONS, i));
 #else
-    char *cur = glGetString(GL_EXTENSIONS);
+    const char *cur = glGetString(GL_EXTENSIONS);
     for(;;) {
-        char *spc = strchr(cur, ' ');
+        const char *spc = strchr(cur, ' ');
         if(!spc)
             spc = strchr(cur, '\0');
         fe_logi(TAG, "%.*s\n", (int)(spc-cur), cur);
@@ -282,6 +285,29 @@ void cube_main_init(struct cube_main *m) {
             fe_logi(TAG, "0x%.4"PRIx32": %s\n", (int32_t)fmts[i],
                     fe_gl_tc_format_to_name(fmts[i]));
         fe_mem_heapfree(fmts);
+    }
+
+    {
+        fe_logi(TAG, "\n    Limits :\n\n");
+        GLint val;
+#define HELPER(CST, req) \
+        glGetIntegerv(GL_MAX_##CST, &val); \
+        fe_logi(TAG, "GL_MAX_%-28s : %d (standard: %d)\n", #CST, (int)val, req)
+        HELPER(RENDERBUFFER_SIZE           ,   1);
+        HELPER(TEXTURE_IMAGE_UNITS         ,   8);
+        HELPER(COMBINED_TEXTURE_IMAGE_UNITS,   8);
+        HELPER(TEXTURE_SIZE                ,  64);
+        HELPER(CUBE_MAP_TEXTURE_SIZE       ,  16);
+        HELPER(VERTEX_ATTRIBS              ,   8);
+        HELPER(VERTEX_TEXTURE_IMAGE_UNITS  ,   0);
+        HELPER(VERTEX_UNIFORM_VECTORS      , 128);
+        HELPER(VARYING_VECTORS             ,   8);
+        HELPER(FRAGMENT_UNIFORM_VECTORS    ,  16);
+#undef HELPER
+        GLint dims[2];
+        glGetIntegerv(GL_MAX_VIEWPORT_DIMS, dims);
+        fe_logi(TAG, "GL_MAX_%-28s : %dx%d\n", "VIEWPORT_DIMS", 
+                (int)dims[0], (int)dims[1]);
     }
 
 
@@ -566,7 +592,10 @@ void cube_main_loop_iteration(void *arg) {
             case SDL_FINGERMOTION: break;
             case SDL_DOLLARGESTURE: break;
             case SDL_DOLLARRECORD: break;
-            case SDL_MULTIGESTURE: break;
+            case SDL_MULTIGESTURE: 
+                m->distance -= event.mgesture.dDist;
+                dirty = true;
+                break;
             case SDL_CLIPBOARDUPDATE: break;
             case SDL_DROPFILE: break;
          /* case SDL_AUDIODEVICEADDED: break;

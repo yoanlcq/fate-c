@@ -29,7 +29,6 @@ static GLuint cubemap_6cols = 0;
 static GLuint cubemap_grouse = 0;
 
 static void locs_fill(void) {
-    glUseProgram(prog); 
     size_t i;
     for(i=0 ; i<locs.light_count ; ++i) {
         glUniform1i(locs.lights[i].is_enabled, true);
@@ -65,7 +64,6 @@ static void locs_fill(void) {
         glUniform1f(locs.materials[i].shininess, .5f);
         glUniform1f(locs.materials[i].strength, .5f);
     }
-    glUseProgram(0);
 }
 
 void Cube_setup(void) {
@@ -78,7 +76,7 @@ void Cube_setup(void) {
     scfg.debug = true;
     scfg.optimize = true;
     scfg.light_count = 1;
-    scfg.material_count = 4;
+    scfg.material_count = 2;
     fe_gl_shader_source_set ss = {{0}};
     fe_gl_src_get_cube_vert(&ss.vert, &scfg);
     fe_gl_src_get_cube_frag(&ss.frag, &scfg);
@@ -87,8 +85,10 @@ void Cube_setup(void) {
         fe_fatal(TAG, "Could not build the OpenGL program!\n"
 		"More details on this error have been logged.\n");
 
+    glUseProgram(prog); 
     fe_gl_src_cube_locs_init(&locs, &scfg, prog);
     locs_fill();
+    glUseProgram(0);
 
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
