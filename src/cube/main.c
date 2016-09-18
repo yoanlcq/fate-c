@@ -12,7 +12,6 @@
 #include <emscripten.h>
 #endif
 #include "cube.h"
-#include "cubemap.h"
 #include "bgmus.h"
 
 #define FE_GAME_NAME "Rainbow Dice"
@@ -25,7 +24,6 @@ struct cube_main {
     uint16_t win_w, win_h;
     uint16_t old_win_w, old_win_h;
     Cube cube, skybox, gizmo;
-    GLuint cubemap_6cols, cubemap_grouse;
     float distance;
     vec3 eye, center, up;
     mat4 Projection, View, Model;
@@ -94,8 +92,10 @@ void cube_main_init(struct cube_main *m) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8); //??
+    /*
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    */
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
                         0 //SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
 #if defined(FE_GL_DBG) && defined(FE_GL_TARGET_DESKTOP)
@@ -273,20 +273,21 @@ void cube_main_init(struct cube_main *m) {
     Cube_init(&m->skybox);
     Cube_init(&m->gizmo);
 
-    m->cubemap_6cols = cubemap_build_6cols();
-    m->cubemap_grouse = cubemap_build_grouse();
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_grouse);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m->cubemap_6cols);
-    glActiveTexture(GL_TEXTURE0);
-
-    m->skybox.tex_unit = 1;
-    m->skybox.see_inside = true;
-    m->cube.tex_unit = 2;
-    m->cube.see_inside = false;
-    m->gizmo.tex_unit = 2;
-    m->gizmo.see_inside = false;
+    m->skybox.cullface = CUBE_FACE_FRONT;
+    m->skybox.material_for_back = 0;
+    m->skybox.ambient[0] = m->skybox.ambient[1] = 1.0f;
+    m->skybox.ambient[2] = m->skybox.ambient[3] = 1.0f;
+    m->cube.cullface = CUBE_FACE_NONE;
+    m->cube.material_for_front = 1;
+    m->cube.material_for_back = 0;
+    m->cube.ambient[0] = 0.3f;
+    m->cube.ambient[1] = 0.5f;
+    m->cube.ambient[2] = 1.0f;
+    m->cube.ambient[3] = 1.0f;
+    m->gizmo.cullface = CUBE_FACE_FRONT;
+    m->gizmo.material_for_front = 1;
+    m->gizmo.ambient[0] = m->gizmo.ambient[1] = 1.0f;
+    m->gizmo.ambient[2] = m->gizmo.ambient[3] = 1.0f;
 
 
     glEnable(GL_DEPTH_TEST);
@@ -322,21 +323,36 @@ void cube_main_init(struct cube_main *m) {
         vec3_norm(fake_eye, m->eye); \
         vec3_scale(fake_eye, fake_eye, 14.f); \
         mat4_look_at(fake_view, fake_eye, m->center, m->up); \
-        mat4_identity(m->gizmo.mvp); \
-        mat4_translate(m->gizmo.mvp, -.8f, -.8f, 0.f); \
-        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, m->Projection); \
-        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, fake_view); \
+        mat4_identity(m->gizmo.mvp_matrix); \
+        mat4_translate(m->gizmo.mvp_matrix, -.8f, -.8f, 0.f); \
+        memcpy(m->gizmo.mv_matrix, m->gizmo.mvp_matrix, sizeof(mat4)); \
         mat4_identity(m->Model); \
-        mat4_mul(m->gizmo.mvp, m->gizmo.mvp, m->Model); \
-    } \
-    mat4_identity(m->Model); \
-    mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
-    mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f); \
-    mat4_mul(m->skybox.mvp, m->Projection, m->View); \
-    mat4_mul(m->skybox.mvp, m->skybox.mvp, m->Model); \
-    mat4_identity(m->Model); \
-    mat4_mul(m->cube.mvp, m->Projection, m->View); \
-    mat4_mul(m->cube.mvp, m->cube.mvp, m->Model);
+        mat4_mul(m->gizmo.mvp_matrix, m->gizmo.mvp_matrix, m->Projection); \
+        mat4_mul(m->gizmo.mvp_matrix, m->gizmo.mvp_matrix, fake_view); \
+        mat4_mul(m->gizmo.mvp_matrix, m->gizmo.mvp_matrix, m->Model); \
+        mat4_mul(m->gizmo.mv_matrix, m->gizmo.mv_matrix, fake_view); \
+        mat4_mul(m->gizmo.mv_matrix, m->gizmo.mv_matrix, m->Model); \
+        mat4 tmp_inv_matrix; \
+        mat4_invert(tmp_inv_matrix, m->gizmo.mv_matrix); \
+        mat4_transpose(m->gizmo.normal_matrix, tmp_inv_matrix); \
+    } {\
+        mat4_identity(m->Model); \
+        mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
+        mat4_scale_aniso(m->Model, m->Model, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f, FE_DEFAULT_FAR/4.f); \
+        mat4_mul(m->skybox.mvp_matrix, m->Projection, m->View); \
+        mat4_mul(m->skybox.mvp_matrix, m->skybox.mvp_matrix, m->Model); \
+        mat4 tmp_inv_matrix; \
+        mat4_invert(tmp_inv_matrix, m->skybox.mv_matrix); \
+        mat4_transpose(m->skybox.normal_matrix, tmp_inv_matrix); \
+    } {\
+        mat4_identity(m->Model); \
+        mat4_mul(m->cube.mvp_matrix, m->Projection, m->View); \
+        mat4_mul(m->cube.mvp_matrix, m->cube.mvp_matrix, m->Model); \
+        mat4_mul(m->cube.mv_matrix, m->View, m->Model); \
+        mat4 tmp_inv_matrix; \
+        mat4_invert(tmp_inv_matrix, m->cube.mv_matrix); \
+        mat4_transpose(m->cube.normal_matrix, tmp_inv_matrix); \
+    }
 
 
 #define RESIZE(_W_,_H_) \
@@ -599,11 +615,13 @@ void cube_main_loop_iteration(void *arg) {
     glClearColor(0.3f, 0.7f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    vec3 eye_direction;
+    vec3_sub(eye_direction, m->eye, m->center);
     const Cube * cubes[2] = {&m->cube, &m->skybox};
-    Cube_multidraw(cubes, 2);
+    Cube_multidraw(cubes, 2, eye_direction);
     const Cube *cube_ptr = &m->gizmo;
     glDisable(GL_DEPTH_TEST);
-    Cube_multidraw(&cube_ptr, 1);
+    Cube_multidraw(&cube_ptr, 1, eye_direction);
     glEnable(GL_DEPTH_TEST);
 
     if(m->framerate_limit > 0) {

@@ -194,6 +194,18 @@ GLuint fgm_find_or_compile_shader(const fe_iov *src, GLenum shtype)
     fe_loge(TAG, "Could not compile \"%.*s\" :\n", (int)fllen, (const char*)src->base+name_offset);
     fe_gl_log_shader_info(shid, fe_loge);
     fe_loge(TAG, "\n");
+    fe_loge(TAG, " ___ SOURCE DUMP ___\n");
+    const char *str = src->base;
+    size_t i;
+    int line_len;
+    unsigned line_no;
+    for(line_no=1, i=0 ; i<src->len ; i+=line_len+1, ++line_no) {
+        line_len = 0;
+        while(str[i+line_len]!='\n' && i+line_len<src->len) 
+            ++line_len;
+        fe_loge(TAG, "%.3u: %.*s\n", line_no, line_len, str+i);
+    }
+    fe_loge(TAG, " ___ END SOURCE DUMP ___\n");
     glDeleteShader(shid);
     return 0;
 }
