@@ -30,6 +30,7 @@ struct cube_main {
     mat4 Projection, View, Model;
     int mousex, mousey;
     bool mousein, mousedown;
+    SDL_FingerID finger_id;
     float h_angle, v_angle;
     float R_x;
     float R_y;
@@ -48,9 +49,11 @@ static const char *TAG = "cube_main";
 void cube_main_init(struct cube_main *m) {
 
 #if SDL_VERSION_ATLEAST(2, 0, 4)
-    SDL_SetHintWithPriority("SDL_HINT_NO_SIGNAL_HANDLERS", "1", 
+    SDL_SetHintWithPriority(SDL_HINT_NO_SIGNAL_HANDLERS, "1", 
                             SDL_HINT_OVERRIDE);
 #endif
+
+    SDL_SetHintWithPriority(SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1", SDL_HINT_OVERRIDE);
 
     fe_logi(TAG, "Initializing SDL...");
     if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
@@ -381,6 +384,7 @@ void cube_main_init(struct cube_main *m) {
         mat4 tmp_inv_matrix; \
         mat4_invert(tmp_inv_matrix, m->gizmo.mv_matrix); \
         mat4_transpose(m->gizmo.normal_matrix, tmp_inv_matrix); \
+        mat4_identity(m->gizmo.normal_matrix); /* XXX HACK */\
     } {\
         mat4_identity(m->Model); \
         mat4_translate(m->Model, m->eye[0], m->eye[1], m->eye[2]); \
@@ -390,6 +394,7 @@ void cube_main_init(struct cube_main *m) {
         mat4 tmp_inv_matrix; \
         mat4_invert(tmp_inv_matrix, m->skybox.mv_matrix); \
         mat4_transpose(m->skybox.normal_matrix, tmp_inv_matrix); \
+        mat4_identity(m->skybox.normal_matrix); /* XXX HACK */\
     } {\
         mat4_identity(m->Model); \
         mat4_mul(m->cube.mvp_matrix, m->Projection, m->View); \
@@ -398,6 +403,7 @@ void cube_main_init(struct cube_main *m) {
         mat4 tmp_inv_matrix; \
         mat4_invert(tmp_inv_matrix, m->cube.mv_matrix); \
         mat4_transpose(m->cube.normal_matrix, tmp_inv_matrix); \
+        mat4_identity(m->cube.normal_matrix); /* XXX HACK */\
     }
 
 
@@ -540,6 +546,13 @@ void cube_main_loop_iteration(void *arg) {
                 break;
             case SDL_TEXTEDITING: break;
             case SDL_TEXTINPUT: break;
+            case SDL_FINGERMOTION: 
+                if(event.tfinger.fingerId != m->finger_id)
+                    break;
+                SDL_Event fake_ev = {0};
+                fake_ev.motion.x = event.tfinger.x;
+                fake_ev.motion.y = event.tfinger.y;
+                event = fake_ev;
             case SDL_MOUSEMOTION: 
                 
                 if(!m->mousein) {
@@ -564,9 +577,16 @@ void cube_main_loop_iteration(void *arg) {
                 m->mousex = event.motion.x;
                 m->mousey = event.motion.y;
                 break;
+            case SDL_FINGERDOWN: 
+                if(m->mousedown)
+                    break;
+                m->finger_id = event.tfinger.fingerId;
             case SDL_MOUSEBUTTONDOWN: 
                 m->mousedown = true;                  
                 break;
+            case SDL_FINGERUP: 
+                if(event.tfinger.fingerId != m->finger_id) 
+                    break;
             case SDL_MOUSEBUTTONUP: 
                 m->mousedown = false;
                 break;
@@ -587,13 +607,10 @@ void cube_main_loop_iteration(void *arg) {
             case SDL_CONTROLLERDEVICEADDED: break;
             case SDL_CONTROLLERDEVICEREMOVED: break;
             case SDL_CONTROLLERDEVICEREMAPPED: break;
-            case SDL_FINGERDOWN: break;
-            case SDL_FINGERUP: break;
-            case SDL_FINGERMOTION: break;
             case SDL_DOLLARGESTURE: break;
             case SDL_DOLLARRECORD: break;
             case SDL_MULTIGESTURE: 
-                m->distance -= event.mgesture.dDist;
+                m->distance -= 20.f*event.mgesture.dDist;
                 dirty = true;
                 break;
             case SDL_CLIPBOARDUPDATE: break;

@@ -108,7 +108,16 @@ $(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
 	android update project --path $(BUILDPATH)
 	cd $(BUILDPATH) && ndk-build -j$(NCPUS) $(NDKARGS)
 	cd $(BUILDPATH) && ant clean debug
-	@echo "Test the app with: cd $(BUILDPATH) && ant debug install && cd -"
+	@echo "Test the app specifying 'debug-install' as a recipe."
 
 GAMES += $(GAME_DEBUG_APK)
 
+.PHONY: clean re mrproper debug_install
+clean:
+	rm -rf $(BUILDPATH)/bin/*
+
+re: clean all
+mrproper: re
+
+debug-install: all
+	cd $(BUILDPATH) && ant debug install
