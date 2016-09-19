@@ -554,7 +554,17 @@ void cube_main_loop_iteration(void *arg) {
                     break;
                 m->h_angle -= 4.2f*event.tfinger.dx;
                 m->v_angle += 4.2f*event.tfinger.dy;
-                dirty = true;
+
+                    if(m->v_angle >= M_PI/2.f)
+                        m->v_angle = M_PI/2.f - M_PI/180.0f;
+                    else if(m->v_angle <= -M_PI/2.f)
+                        m->v_angle = -M_PI/2.f + M_PI/180.0f;
+                    m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
+                    m->eye[1] =  m->distance*sinf(m->v_angle);
+                    m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+                    UPDATE_VIEW();
+                    UPDATE_MVP();
+
                 break;
             case SDL_MOUSEMOTION: 
                 
@@ -564,10 +574,8 @@ void cube_main_loop_iteration(void *arg) {
                     m->mousein = true;
                 }
                 if(m->mousedown) {
-                    if(event.type==SDL_MOUSEMOTION) {
-                        m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
-                        m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
-                    }
+                    m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
+                    m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
                     if(m->v_angle >= M_PI/2.f)
                         m->v_angle = M_PI/2.f - M_PI/180.0f;
                     else if(m->v_angle <= -M_PI/2.f)
