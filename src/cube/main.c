@@ -419,6 +419,9 @@ void cube_main_init(struct cube_main *m) {
 
     m->mousex = m->mousey = 0;
     m->mousein = m->mousedown = false;
+#if defined(FE_TARGET_ANDROID) || defined(FE_TARGET_IOS)
+    m->mousein = true;
+#endif
     m->h_angle = m->v_angle = 0.0f;
     m->R_x = m->R_y = 0.0f;
     m->zoom_in = m->zoom_out = false;
@@ -549,10 +552,10 @@ void cube_main_loop_iteration(void *arg) {
             case SDL_FINGERMOTION: 
                 if(event.tfinger.fingerId != m->finger_id)
                     break;
-                SDL_Event fake_ev = {0};
-                fake_ev.motion.x = event.tfinger.x;
-                fake_ev.motion.y = event.tfinger.y;
-                event = fake_ev;
+                m->h_angle -= 4.2f*event.tfinger.dx;
+                m->v_angle += 4.2f*event.tfinger.dy;
+                dirty = true;
+                break;
             case SDL_MOUSEMOTION: 
                 
                 if(!m->mousein) {
@@ -561,12 +564,14 @@ void cube_main_loop_iteration(void *arg) {
                     m->mousein = true;
                 }
                 if(m->mousedown) {
-                    m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
-                    m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
-                    if(m->v_angle >= M_PI/2)
-                        m->v_angle = M_PI/2 - M_PI/180.0f;
-                    else if(m->v_angle <= -M_PI/2)
-                        m->v_angle = -M_PI/2 + M_PI/180.0f;
+                    if(event.type==SDL_MOUSEMOTION) {
+                        m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
+                        m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
+                    }
+                    if(m->v_angle >= M_PI/2.f)
+                        m->v_angle = M_PI/2.f - M_PI/180.0f;
+                    else if(m->v_angle <= -M_PI/2.f)
+                        m->v_angle = -M_PI/2.f + M_PI/180.0f;
                     m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
                     m->eye[1] =  m->distance*sinf(m->v_angle);
                     m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
@@ -610,7 +615,8 @@ void cube_main_loop_iteration(void *arg) {
             case SDL_DOLLARGESTURE: break;
             case SDL_DOLLARRECORD: break;
             case SDL_MULTIGESTURE: 
-                m->distance -= 20.f*event.mgesture.dDist;
+                m->mousedown = false;
+                m->distance -= 42.f*event.mgesture.dDist;
                 dirty = true;
                 break;
             case SDL_CLIPBOARDUPDATE: break;
@@ -640,9 +646,16 @@ void cube_main_loop_iteration(void *arg) {
         dirty = true;
     }
     if(dirty) {
+        vec3 old_eye = {m->eye[0], m->eye[1], m->eye[2]};
         m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
         m->eye[1] =  m->distance*sinf(m->v_angle);
         m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
+        /* Hack to prevent having a clear-color fullscreen. */
+        if(m->eye[0]==0.f && m->eye[1]==0.f && m->eye[2]==0.f) {
+            m->eye[0] = old_eye[0]*0.0001f;
+            m->eye[1] = old_eye[1]*0.0001f;
+            m->eye[2] = old_eye[2]*0.0001f;
+        }
         UPDATE_VIEW();
         UPDATE_MVP();
         dirty = false;

@@ -52,6 +52,8 @@ $(BUILDPATH)/AndroidManifest.xml: dist/android_base/m4/AndroidManifest.xml.m4 | 
 	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY=$(GAME_ACTIVITY) $< > $@
 $(BUILDPATH)/build.xml: dist/android_base/m4/build.xml.m4 | $(BUILDPATH)
 	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" $< > $@
+$(BUILDPATH)/res/%/ic_launcher.png: dist/android_base/res/%/ic_launcher.png | $(BUILDPATH) $(BUILDPATH)/res/%
+	cp $< $@
 $(BUILDPATH)/res/values/strings.xml: dist/android_base/m4/strings.xml.m4 | $(BUILDPATH) $(BUILDPATH)/res/values
 	m4 -DGAME_APP_NAME="$(GAME_APP_NAME)" $< > $@
 $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR):
@@ -93,6 +95,10 @@ GAME_DEBUG_APK=$(BUILDPATH)/bin/$(GAME_APP_DOMAIN)-debug.apk
 $(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
 				   $(BUILDPATH)/AndroidManifest.xml \
 				   $(BUILDPATH)/build.xml \
+				   $(BUILDPATH)/res/drawable-mdpi/ic_launcher.png \
+				   $(BUILDPATH)/res/drawable-hdpi/ic_launcher.png \
+				   $(BUILDPATH)/res/drawable-xhdpi/ic_launcher.png \
+				   $(BUILDPATH)/res/drawable-xxhdpi/ic_launcher.png \
 				   $(BUILDPATH)/res/values/strings.xml \
 				   $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR)/$(GAME_ACTIVITY).java \
 				   $(BUILDPATH)/jni/src/main.c \
