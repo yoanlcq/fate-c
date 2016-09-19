@@ -140,7 +140,7 @@
  * #fe_fd_open_res() will synchronously return an identifier to a Wget download on Emscripten.
  * Unless the FE_FD_OPEN_LAZY_DOWNLOAD was set, a download promise for it is enqueued.
  * Get the promise with fe_fd_get_download_promise(fe_fd fd) and wait for it to complete.
- * If you don't feel like bothering with it, you can use the FE_FD_OPEN_NOW flag, which
+ * If you don't feel like bothering with it, you can use the FE_FD_OPEN_EAGER_DOWNLOAD flag, which
  * will cause the open() operation to synchronously download the file.
  *
  * So here's an example for opening a res file :
@@ -224,6 +224,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 /*! \brief TODO*/
 void fe_iov_setup(void);
@@ -249,7 +251,11 @@ size_t fe_iov_get_vprintf_len(const char *fmt, va_list ap);
  * it must be dynamic.
  */
 typedef struct {
-    char *base;
+    union {
+        char *base;
+        void *base_voidp; /* 'base' must take as much space as a void*. Required by readv(). */
+        char *base_charp;
+    };
     size_t len;
 } fe_iov;
 
@@ -322,7 +328,7 @@ typedef enum {
     FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT = 1<<10,
     FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT  = 1<<11,
     FE_FD_OPEN_LAZY_DOWNLOAD           = 1<<12,
-    FE_FD_OPEN_NOW                     = 1<<13
+    FE_FD_OPEN_EAGER_DOWNLOAD          = 1<<13
 } fe_fd_flags;
 
 /*! \brief TODO */
@@ -332,22 +338,37 @@ typedef enum {
     FE_FD_SEEK_END
 } fe_fd_seek_whence;
 
-#if defined(FE_TARGET_WINDOWS)
-#include <windows.h>
-typedef HANDLE fe_fd;
-#define FE_FD_INVALID_FD INVALID_HANDLE_VALUE
-typedef int64_t fe_fd_offset;
-#define FE_FD_SEEK_SET FILE_BEGIN
-#define FE_FD_SEEK_CUR FILE_CURRENT
-#define FE_FD_SEEK_END FILE_END
+#if defined(FE_TARGET_EMSCRIPTEN)
+    typedef void *fe_fd;
+    #define FE_FD_INVALID_FD NULL
+    typedef size_t fe_fd_offset;
+    #define FE_FD_SEEK_SET SEEK_SET
+    #define FE_FD_SEEK_CUR SEEK_CUR
+    #define FE_FD_SEEK_END SEEK_END
+#elif defined(FE_TARGET_WINDOWS)
+    #include <windows.h>
+    typedef HANDLE fe_fd;
+    #define FE_FD_INVALID_FD INVALID_HANDLE_VALUE
+    typedef int64_t fe_fd_offset;
+    #define FE_FD_SEEK_SET FILE_BEGIN
+    #define FE_FD_SEEK_CUR FILE_CURRENT
+    #define FE_FD_SEEK_END FILE_END
+#elif defined(FE_TARGET_ANDROID)
+    #include <SDL2/SDL.h>
+    typedef SDL_RWops *fe_fd;
+    #define FE_FD_INVALID_FD NULL
+    typedef Sint64 fe_fd_offset;
+    #define FE_FD_SEEK_SET RW_SEEK_SET
+    #define FE_FD_SEEK_CUR RW_SEEK_CUR
+    #define FE_FD_SEEK_END RW_SEEK_END
 #else
-#include <sys/types.h>
-typedef int fe_fd;
-#define FE_FD_INVALID_FD (-1)
-typedef off_t fe_fd_offset;
-#define FE_FD_SEEK_SET SEEK_SET
-#define FE_FD_SEEK_CUR SEEK_CUR
-#define FE_FD_SEEK_END SEEK_END
+    #include <sys/types.h>
+    typedef int fe_fd;
+    #define FE_FD_INVALID_FD (-1)
+    typedef off_t fe_fd_offset;
+    #define FE_FD_SEEK_SET SEEK_SET
+    #define FE_FD_SEEK_CUR SEEK_CUR
+    #define FE_FD_SEEK_END SEEK_END
 #endif
 
 #ifndef FE_FD_INVALID_FD
