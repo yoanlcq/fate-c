@@ -11,6 +11,8 @@
 #include <fate/dbg.h>
 #include <string.h>
 
+/* Some of the included headers are probably useless for
+ * this file, but I'm too lazy to find which. */
 
 #if defined(FE_TARGET_WINDOWS)
 #include <Windows.h>
@@ -47,7 +49,7 @@
 
 
 
-static const char *TAG = "fe_iov";
+#define TAG "fe_iov"
 
 
 #if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
@@ -74,6 +76,8 @@ void fe_iov_setup(void) {
 
     /* XXX might want to get more rigourous about this later. */
     mkdir(internal, 0755);
+    /* BTW, while we're at it... */
+    mkdir(SDL_AndroidGetExternalStoragePath(), 0755);
     /*
     struct stat sb;
     int status = stat(internal, &sb);
@@ -87,7 +91,7 @@ void fe_iov_setup(void) {
     fe_dbg_hope(nul_file_path);
     strcpy(nul_file_path, NUL_FILE_FALLBACK_NAME);
 #endif
-    fe_logi(TAG, "Attempting to open `%s' as the null file "
+    fe_logi(TAG, "Opening `%s' as the null file "
                  "for fe_iov_get_vprintf_len().\n", nul_file_path);
     nul_file = fopen(nul_file_path, "wb");
     fe_dbg_hope(nul_file);
@@ -95,9 +99,9 @@ void fe_iov_setup(void) {
 void fe_iov_cleanup(void) {
     fclose(nul_file);
 #ifndef NUL_FILE_PATH
-#ifndef FE_TARGET_EMSCRIPTEN
-    unlink(nul_file_path);
-#endif
+    #ifndef FE_TARGET_EMSCRIPTEN
+        unlink(nul_file_path);
+    #endif
     fe_mem_heapfree(nul_file_path);
 #endif
 }
@@ -133,7 +137,8 @@ size_t     fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...) {
     size_t len = fe_iov_get_vprintf_len(fmt, ap);
     va_end(ap);
 
-    fe_iov_resize(iov, iov->len+len);
+    if(offset+len < iov->len)
+        fe_iov_resize(iov, offset+len);
     
     va_start(ap, fmt);
     vsprintf(iov->base+offset, fmt, ap);
@@ -149,9 +154,44 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src) {
 }
 
 
+#ifdef FE_DEBUG_BUILD
 
+typedef struct {
+    bool correct : 1;
+    bool android_bad : 1;
+    bool winrt_bad : 1;
+} static_rootdir_validation;
+
+static static_rootdir_validation static_rootdir_validate(fe_iov_rootdir rootdir) {
+    static_rootdir_validation v = {0};
+    if((rootdir & FE_IOV_ROOTDIR_SDL2_GETPREFPATH)
+    || (rootdir & FE_IOV_ROOTDIR_SDL2_GETBASEPATH)) {
+        v.correct = true;
+        return v;
+    }
+    bool android_good = (rootdir & FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE)
+                     || (rootdir & FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE);
+    if(!android_good)
+        v.android_bad = true;
+    /* XXX What about WinRT ? */
+    return v;
+}
+#endif
 
 static void static_fullpath(fe_iov *fullpath, const fe_iov_locator *params) {
+#ifdef FE_DEBUG_BUILD
+    static_rootdir_validation v = static_rootdir_validate(params->rootdir);
+    if(!v.correct) {
+        fe_fatal(TAG, "Did not attempt to open `%s', because "
+                "rootdir flags are incomplete :\n%s%s",
+                params->file_name,
+                v.android_bad ? "On Android, specifying whether to use "
+                "internal or external storage is required, and you "
+                "didn't use the flags for "
+                "SDL2's GetBasePath() and GetPrefPath() either.\n" : "",
+                v.winrt_bad ? "" : "");
+    }
+#endif
 #define HELPER(cst, call) \
     if(params->rootdir & cst) { \
         fe_iov_printf(fullpath, 0, "%s/%s", call, params->file_name); \
@@ -214,9 +254,7 @@ fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
 fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
 
 
-
-
-fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params) {
+static fe_iov_status static_iov_load(fe_iov *iov, const fe_iov_locator *params, fe_fd (*do_open)(const fe_iov_locator*)) {
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
     fe_iov_locator params_real = *params;
@@ -225,7 +263,7 @@ fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params) {
     params_real.fd_flags |= FE_FD_OPEN_SINGLE_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_EAGER_DOWNLOAD;
-    fe_fd fd = fe_fd_open_file(&params_real);
+    fe_fd fd = do_open(&params_real);
     if(!fe_fd_is_valid(fd)) {
         status.current = FE_IOV_FAILED_UNKNOWN;
         return status;
@@ -240,6 +278,10 @@ fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params) {
     fe_fd_close(fd);
     status.success = true;
     return status;
+}
+
+fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params) {
+    return static_iov_load(iov, params, fe_fd_open_file);
 }
 
 fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
@@ -268,6 +310,8 @@ fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_locator *p
 fe_iov_status  fe_iov_load_res(fe_iov *iov, const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     return fe_iov_load_wget(iov, params);
+#elif defined(FE_TARGET_ANDROID)
+    return static_iov_load(iov, params, fe_fd_open_res);
 #else
     return fe_iov_load_file(iov, params);
 #endif
@@ -317,6 +361,112 @@ fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_locator *params
 fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
 
 
+#ifdef FE_TARGET_WINDOWS
+static fe_fd static_fe_fd_open_file_windows(const char *fullpath, fe_fd_flags fd_flags) {
+    DWORD desired_access = 0;
+    desired_access |= GENERIC_READ  * !!(fd_flags & FE_FD_OPEN_READONLY);
+    desired_access |= GENERIC_WRITE * !!(fd_flags & FE_FD_OPEN_WRITEONLY);
+    DWORD share = 0;
+    share |= FILE_ALLOW_DELETE * !!(fd_flags & FE_FD_OPEN_W32_SHARE_DELETE);
+    share |= FILE_ALLOW_READ   * !!(fd_flags & FE_FD_OPEN_W32_SHARE_READ);
+    share |= FILE_ALLOW_WRITE  * !!(fd_flags & FE_FD_OPEN_W32_SHARE_WRITE);
+    DWORD creation_disposition = 0;
+    creation_disposition |= OPEN_ALWAYS * !!(fd_flags & FE_FD_OPEN_WRITEONLY);
+    creation_disposition |= CREATE_NEW  * !!(fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
+    DWORD attrs = FILE_ATTRIBUTE_NORMAL;
+    DWORD flags = 0;
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath);
+    fe_dbg_hope(fullpath_w);
+    fe_fd fd = CreateFileW(fullpath_w, desired_access, share, 
+            NULL, creation_disposition, flags | attrs, NULL);
+    fe_mem_heapfree(fullpath_w);
+    return fd;
+}
+#else
+static fe_fd static_fe_fd_open_file_unix(const char *fullpath, fe_fd_flags fd_flags) {
+    int flags = 0;
+    switch(fd_flags & FE_FD_OPEN_READWRITE) {
+    case FE_FD_OPEN_READONLY: flags |= O_RDONLY; break;
+    case FE_FD_OPEN_WRITEONLY: flags |= O_WRONLY | O_CREAT; break;
+    case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
+    }
+    flags |= O_APPEND*!!(fd_flags & FE_FD_OPEN_APPEND);
+    flags |= O_EXCL  *!!(fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
+    flags |= O_TRUNC *!!(fd_flags & FE_FD_OPEN_TRUNCATE);
+
+    fe_fd fd = open(fullpath, flags, 0666);
+    #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+        if(fd_flags & FE_FD_OPEN_RANDOM_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
+        if(fd_flags & FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+        if(fd_flags & FE_FD_OPEN_SINGLE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+        if(fd_flags & FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
+        if(fd_flags & FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT)
+            posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+    #endif
+    return fd;
+}
+#endif /* FE_TARGET_WINDOWS */
+
+#ifdef FE_TARGET_ANDROID
+
+static void static_sdlrwops_setcallbacks(SDL_rwops *rw);
+
+static fe_fd static_fe_fd_open_file_android(const char *fullpath, fe_fd_flags fd_flags) {
+    int unix_fd = static_fe_fd_open_file_unix(fullpath, fd_flags);
+    if(unix_fd < 0)
+        return FE_FD_INVALID_FD;
+    fe_fd fd = SDL_AllocRW();
+    fd->type  = SDL_RWOPS_UNKNOWN;
+    fd->hidden.unknown.data1 = (void*)(uintptr_t) unix_fd;
+    #define static_sdlrwops_has_unix_fd(fd) ((fd)->type == SDL_RWOPS_UNKNOWN)
+    #define static_sdlrwops_get_unix_fd(fd) ((unsigned)(uintptr_t)(fd)->hidden.unkown.data1)
+    fd->hidden.unknown.data2 = NULL;
+    static_sdlrwops_setcallbacks(fd);
+}
+
+static Sint64 SDLCALL static_sdlrwops_size(struct SDL_RWops * context) {
+    Sint64 cur = lseek(static_sdlrwops_get_unix_fd(context), 0, SEEK_CUR);
+    Sint64 end = lseek(static_sdlrwops_get_unix_fd(context), 0, SEEK_END);
+    lseek(static_sdlrwops_get_unix_fd(context), cur, SEEK_SET);
+    return end;
+}
+
+static Sint64 SDLCALL static_sdlrwops_seek(struct SDL_RWops * context, Sint64 offset,
+                             int whence) {
+    return lseek(static_sdlrwops_get_unix_fd(context), offset, whence);
+}
+
+static size_t SDLCALL static_sdlrwops_read(struct SDL_RWops * context, void *ptr,
+                             size_t size, size_t maxnum) {
+    ssize_t bytes_read = read(static_sdlrwops_get_unix_fd(context), ptr, size*maxnum);
+    return bytes_read<=0 ? 0 : bytes_read/size;
+}
+
+static size_t SDLCALL static_sdlrwops_write(struct SDL_RWops * context, const void *ptr,
+                          size_t size, size_t num) {
+    ssize_t bytes_written = write(static_sdlrwops_get_unix_fd(context), ptr, size*num);
+    return bytes_written<=0 ? 0 : bytes_written/size;
+}
+
+static int SDLCALL static_sdlrwops_close(struct SDL_RWops * context) {
+    int ret = close(static_sdlrwops_get_unix_fd(context));
+    SDL_FreeRW(context);
+    return ret;
+}
+
+static void static_sdlrwops_setcallbacks(SDL_rwops *fd) {
+    fd->size  = static_sdlrwops_size;
+    fd->seek  = static_sdlrwops_seek;
+    fd->read  = static_sdlrwops_read;
+    fd->write = static_sdlrwops_write;
+    fd->close = static_sdlrwops_close;
+}
+
+#endif
 
 
 fe_fd          fe_fd_open_file(const fe_iov_locator *params) {
@@ -326,63 +476,11 @@ fe_fd          fe_fd_open_file(const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
-    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
-    DWORD desired_access = 0;
-    desired_access |= GENERIC_READ  * !!(params->fd_flags & FE_FD_OPEN_READONLY);
-    desired_access |= GENERIC_WRITE * !!(params->fd_flags & FE_FD_OPEN_WRITEONLY);
-    DWORD share = 0;
-    share |= FILE_ALLOW_DELETE * !!(params->fd_flags & FE_FD_OPEN_SHARE_DELETE);
-    share |= FILE_ALLOW_READ   * !!(params->fd_flags & FE_FD_OPEN_SHARE_READ);
-    share |= FILE_ALLOW_WRITE  * !!(params->fd_flags & FE_FD_OPEN_SHARE_WRITE);
-    DWORD creation_disposition = 0;
-    creation_disposition |= OPEN_ALWAYS * !!(params->fd_flags & FE_FD_OPEN_WRITEONLY);
-    creation_disposition |= CREATE_NEW * !!(params->fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
-    DWORD attrs = FILE_ATTRIBUTE_NORMAL;
-    DWORD flags = 0;
-    fd = CreateFileW(fullpath_w, desired_access, share, NULL, creation_disposition, flags | attrs, NULL);
-    fe_mem_heapfree(fullpath_w);
+    fd = static_fe_fd_open_file_windows(fullpath.base, params->fd_flags);
+#elif defined(FE_TARGET_ANDROID)
+    fd = static_fe_fd_open_file_android(fullpath.base, params->fd_flags);
 #else
-    int flags = 0;
-    switch(params->fd_flags & FE_FD_OPEN_READWRITE) {
-    case FE_FD_OPEN_READONLY: flags |= O_RDONLY; break;
-    case FE_FD_OPEN_WRITEONLY: flags |= O_WRONLY | O_CREAT; break;
-    case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
-    }
-    flags |= O_APPEND*!!(params->fd_flags & FE_FD_OPEN_APPEND);
-    flags |= O_EXCL*!!(params->fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
-    flags |= O_TRUNC*!!(params->fd_flags & FE_FD_OPEN_TRUNCATE);
-
-    #ifdef FE_TARGET_ANDROID
-        int unix_fd = -1;
-        #define fd unix_fd
-    #endif
-    fd = open(fullpath.base, flags, 0666);
-    #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-        if(params->fd_flags & FE_FD_OPEN_RANDOM_ACCESS_HINT)
-            posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
-        if(params->fd_flags & FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT)
-            posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-        if(params->fd_flags & FE_FD_OPEN_SINGLE_ACCESS_HINT)
-            posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
-        if(params->fd_flags & FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT)
-            posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
-        if(params->fd_flags & FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT)
-            posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
-    #endif
-    #ifdef FE_TARGET_ANDROID
-        #undef fd
-        fd = SDL_AllocRW();
-        fd->size  = static_sdlrwops_size;
-        fd->seek  = static_sdlrwops_seek;
-        fd->read  = static_sdlrwops_read;
-        fd->write = static_sdlrwops_write;
-        fd->close = static_sdlrwops_close; /* Must also call SDL_FreeRW() and unregister fd. */
-        fd->type  = SDL_RWOPS_UNKNOWN;
-        fd->hidden.unknown.data1 = (void*) unix_fd;
-        #define static_sdlrwops_has_unix_fd(fd) ((fd)->type == SDL_RWOPS_UNKNOWN)
-        #define static_sdlrwops_get_unix_fd(fd) ((int)(fd)->hidden.unkown.data1)
-        fd->hidden.unknown.data2 = (void*) 0;
-    #endif
+    fd = static_fe_fd_open_file_unix(fullpath.base, params->fd_flags);
 #endif
     fe_mem_heapfree(fullpath.base);
     return fd;
@@ -400,17 +498,19 @@ fe_fd          fe_fd_open_res(const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_ANDROID)
-    /* SDL2 checks internal storage first, and only falls back to assets
-     * if the file is not in internal storage. However we are expected to
-     * return a handle to a resource, which is in our case an Android asset.
-     * Plus, what if a file has the same relative path across assets and
-     * internal storage ? The one in internal storage would be returned instead
-     * of the one in assets.
+    /* XXX
+     * SDL2 checks internal storage first, and only falls back to assets/
+     * if the file is not in internal storage. 
+     * Writes are denied in the assets/ folder, unlike internal storage.
+     * Also, files in assets/ are closer to being 'resources' than
+     * files in internal storage.
+     * The only reasonable thing to do is assume that the API's user
+     * distinguishes resources and regular files by storing them in
+     * distinct directories. Something like :
+     * "All resources start with res/"
+     * "All regular files start with files/".
+     * This behaviour needs to be documented.
      */
-    fe_iov_locator proxy = *params;
-    proxy.rootdir = FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE;
-    if(fe_fs_file_exists(&proxy))
-        return FE_FD_INVALID_FD;
     return SDL_RWFromFile(
         params->file_name, 
         static_fd_flags_to_stdio_mode(params->fd_flags)
@@ -425,35 +525,71 @@ fe_iov_promise fe_fd_get_download_promise(fe_fd fd) {
     return NULL;
 }
 
-void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {
+bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
-    return NULL;
+    fe_dbg_assert(fe_fd_get_length(fd) > 0);
+    /* XXX MSDN suggests that the file should be opened with exclusive access, to prevent
+     * other processes from writing to it. */
+    v->filemapping = CreateFileMapping(fd, NULL, 
+            /* There are a lot of other nice-looking flags that we should inspect. */
+            rw ? PAGE_READWRITE : PAGE_READONLY,
+            sizeof(len)>4 ? len>>32 : 0, len,
+            NULL /* Optional name for the system-wide file mapping object */
+    );
+    if(!v->filemapping)
+        return false; /* Info in GetLastError(). */
+    static DWORD dwSysGran = 0;
+    if(!dwSysGran) {
+        SYSTEM_INFO si;
+        GetSystemInfo(&si);
+        dwSysGran = si.dwAllocationGranularity;
+    }
+    uint64_t fileMapStart = (offset / dwSysGran) * dwSysGran;
+    DWORD dwMapViewSize = (offset % dwSysGran) + len;
+    void *iViewDelta = offset - dwFileMapStart;
+    v->view_base = MapViewOfFile(fmap, 
+            FILE_MAP_READ | (rw*FILE_MAP_WRITE),
+            fileMapStart>>32, fileMapStart, dwMapViewSize
+    );
+    if(!v->view_base)
+        return false;
+    v->base = v->view_base + iViewDelta;
+    v->len = len;
+    return true;
 #elif defined(FE_TARGET_ANDROID)
     if(!static_sdlrwops_has_unix_fd(fd))
-        return NULL; /* Can't mmap() a compressed file. */
-    return rw 
-        ? mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, static_sdlrwops_get_unix_fd(fd), offset) 
-        : mmap(NULL, len, PROT_READ, MAP_PRIVATE, static_sdlrwops_get_unix_fd(fd), offset) ;
+        return false; /* Can't mmap() a compressed file. */
+    v->base = mmap(NULL, len, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, static_sdlrwops_get_unix_fd(fd), offset);
+    v->len = len;
+    return v->base != MAP_FAILED;
 #else
-    return rw 
-        ? mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, offset) 
-        : mmap(NULL, len, PROT_READ, MAP_PRIVATE, fd, offset) ;
+    v->base = mmap(NULL, len, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, fd, offset);
+    v->len = len;
+    return v->base != MAP_FAILED;
 #endif
 }
-void           fe_fd_munmap(void *addr, size_t len) {
+void fe_fd_munmap(fe_filemapview *v) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    UnmapViewOfFile(v->view_base);
+    CloseHandle(v->filemapping);
 #else
-    munmap(addr, len);
+    munmap(v->base, v->len);
 #endif
 }
+
 fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    LARGE_INTEGER req_offset, new_offset;
+    req_offset.QuadPart = offset;
+    BOOL success = SetFilePointerEx(fd, req_offset, &new_offset, whence);
+    fe_dbg_hope(success); /* XXX */
+    return new_offset.QuadPart;
 #elif defined(FE_TARGET_ANDROID)
     return SDL_RWSeek(fd, offset, whence);
 #else
@@ -464,6 +600,9 @@ ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    DWORD bytes_read;
+    BOOL success = ReadFile(fd, buf, len, &bytes_read, NULL);
+    return success ? bytes_read : -1;
 #elif defined(FE_TARGET_ANDROID)
     return SDL_RWread(fd, buf, 1, len);
 #else
@@ -474,6 +613,9 @@ ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    DWORD bytes_written;
+    BOOL success = WriteFile(fd, buf, len, &bytes_written, NULL);
+    return success ? bytes_read : -1;
 #elif defined(FE_TARGET_ANDROID)
     return SDL_RWwrite(fd, buf, 1, len);
 #else
@@ -483,8 +625,14 @@ ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {
 ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS)
-#elif defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+    /* ReadFileScatter() doesn't do what we want. It can only fill 
+     * page-sized buffers, and it is asynchronous. */
+    ssize_t bytes_read;
+    size_t i;
+    for(bytes_read=i=0 ; i<iov_count ; ++i)
+        bytes_read += fe_fd_read(fd, iov_array[i].base, iov_array[i].len);
+    return bytes_read;
 #else
     return readv(fd, (struct iovec*)iov_array, iov_count);
 #endif
@@ -492,8 +640,12 @@ ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count) {
 ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS)
-#elif defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+    ssize_t bytes_written;
+    size_t i;
+    for(bytes_written=i=0 ; i<iov_count ; ++i)
+        bytes_written += fe_fd_write(fd, iov_array[i].base, iov_array[i].len);
+    return bytes_written;
 #else
     return writev(fd, (struct iovec*)iov_array, iov_count);
 #endif
@@ -501,8 +653,12 @@ ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count)
 ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS)
-#elif defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+    fe_fd_offset old = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
+    fe_fd_seek(fd, offset, FE_FD_SEEK_SET);
+    ssize_t bytes_read = fe_fd_readv(fd, iov_array, iov_count);
+    fe_fd_seek(fd, old, FE_FD_SEEK_SET);
+    return bytes_read;
 #else
     return preadv(fd, (struct iovec*)iov_array, iov_count, offset);
 #endif
@@ -510,8 +666,12 @@ ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd
 ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS)
-#elif defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+    fe_fd_offset old = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
+    fe_fd_seek(fd, offset, FE_FD_SEEK_SET);
+    ssize_t bytes_written = fe_fd_writev(fd, iov_array, iov_count);
+    fe_fd_seek(fd, old, FE_FD_SEEK_SET);
+    return bytes_written;
 #else
     return pwritev(fd, (struct iovec*)iov_array, iov_count, offset);
 #endif
@@ -520,6 +680,7 @@ bool           fe_fd_sync(fe_fd fd) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    return FlushFileBuffers(fd);
 #elif defined(FE_TARGET_ANDROID)
     if(!static_sdlrwops_has_unix_fd(fd))
         return false;
@@ -532,16 +693,24 @@ bool           fe_fd_truncate(fe_fd fd, size_t len) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    fe_fd_offset cur = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
+    fe_fd_seek(fd, len, FE_FD_SEEK_SET);
+    SetEndOfFile(fd);
+    fe_fd_seek(fd, 0, cur);
 #elif defined(FE_TARGET_ANDROID)
+    if(!static_sdlrwops_has_unix_fd(fd))
+        return false;
+    return !ftruncate(static_sdlrwops_get_unix_fd(fd), len);
 #else
     return !ftruncate(fd, len);
 #endif
 }
 void           fe_fd_close(fe_fd fd) {
-    /* Log a waring if fe_fd_sync() was not called. */
 #ifdef FE_TARGET_EMSCRIPTEN
+    /* XXX Should Log a warning if fe_fd_sync() was not called. */
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
+    CloseHandle(fd);
 #elif defined(FE_TARGET_ANDROID)
     SDL_RWclose(fd);
 #else

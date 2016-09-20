@@ -270,8 +270,12 @@ void    fe_iov_deinit(fe_iov *iov);
 /*! \brief TODO */
 bool    fe_iov_resize(fe_iov *iov, size_t len);
 /*! \brief TODO */
-size_t  fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
+static inline bool fe_iov_grow(fe_iov *iov, size_t len) {
+    return fe_iov_resize(iov, iov->len+len);
+}
 /*! \brief TODO */
+size_t  fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
+/*! \brief \p offset is relative to \p iov. */
 void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
 
 
@@ -328,7 +332,10 @@ typedef enum {
     FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT = 1<<10,
     FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT  = 1<<11,
     FE_FD_OPEN_LAZY_DOWNLOAD           = 1<<12,
-    FE_FD_OPEN_EAGER_DOWNLOAD          = 1<<13
+    FE_FD_OPEN_EAGER_DOWNLOAD          = 1<<13,
+    FE_FD_OPEN_W32_SHARE_READ          = 1<<14,
+    FE_FD_OPEN_W32_SHARE_WRITE         = 1<<15,
+    FE_FD_OPEN_W32_SHARE_DELETE        = 1<<16
 } fe_fd_flags;
 
 /*! \brief TODO */
@@ -371,6 +378,21 @@ typedef enum {
     #define FE_FD_SEEK_END SEEK_END
 #endif
 
+#ifdef FE_TARGET_WINDOWS
+typedef struct {
+    void *base;
+    size_t len;
+    void *view_base;
+    HANDLE filemapping;
+} fe_filemapview;
+#else
+/*! \brief TODO*/
+typedef struct {
+    void *base;
+    size_t len;
+} fe_filemapview;
+#endif
+
 #ifndef FE_FD_INVALID_FD
 #define FE_FD_INVALID_FD ((fe_fd)(-1))
 #endif
@@ -395,14 +417,14 @@ typedef struct {
     const char                *file_name;
     fe_iov_rootdir             rootdir;
     fe_fd_flags                fd_flags;
-    fe_iov_completion_callback completion_callback;
-    void                      *completion_callback_arg; /* Must not go out of scope. */
+    fe_iov_completion_callback async_completion_callback;
+    void                      *async_completion_callback_arg; /* Must not go out of scope. */
 } fe_iov_locator;
 
 
 
 /*! \brief TODO */
-typedef struct fe_iov_promise_struct *fe_iov_promise;
+typedef void *fe_iov_promise;
 
 /*! \brief TODO */
 FE_DECL_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params);
@@ -429,44 +451,51 @@ fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_locator *params
 /*! \brief TODO */
 FE_DECL_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *params);
 
+#ifdef FE_TARGET_EMSCRIPTEN
+#define FE_DECL_NIY_EMSCRIPTEN FE_DECL_NIY
+#else
+#define FE_DECL_NIY_EMSCRIPTEN
+#endif
+
+
 
 
 /*! \brief TODO */
-FE_DECL_NIY fe_fd          fe_fd_open_file(const fe_iov_locator *params);
+FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_file(const fe_iov_locator *params);
 /*! \brief TODO */
-FE_DECL_NIY fe_fd          fe_fd_open_persistent(const fe_iov_locator *params);
+FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_persistent(const fe_iov_locator *params);
 /*! \brief TODO */
-FE_DECL_NIY fe_fd          fe_fd_open_res(const fe_iov_locator *params);
+FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_res(const fe_iov_locator *params);
 /*! \brief TODO */
 FE_DECL_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
 /*! \brief TODO */
 #define fe_fd_is_valid(fd) ((fd) != FE_FD_INVALID_FD)
 /*! \brief TODO */
-FE_DECL_NIY void*          fe_fd_mmap(fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
+FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
 /*! \brief TODO */
-FE_DECL_NIY void           fe_fd_munmap(void *addr, size_t len);
+FE_DECL_NIY_EMSCRIPTEN void           fe_fd_munmap(fe_filemapview *v);
 /*! \brief TODO */
-FE_DECL_NIY fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
+FE_DECL_NIY_EMSCRIPTEN fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
 /*! \brief TODO */
 #define        fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
 /*! \brief TODO */
-FE_DECL_NIY ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
 /*! \brief TODO */
-FE_DECL_NIY bool           fe_fd_sync(fe_fd fd);
+FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_sync(fe_fd fd);
 /*! \brief TODO */
-FE_DECL_NIY bool           fe_fd_truncate(fe_fd fd, size_t len);
+FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_truncate(fe_fd fd, size_t len);
 /*! \brief TODO */
-FE_DECL_NIY void           fe_fd_close(fe_fd fd);
+FE_DECL_NIY_EMSCRIPTEN void           fe_fd_close(fe_fd fd);
 
 /*! \brief TODO */
 FE_DECL_NIY bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st);
