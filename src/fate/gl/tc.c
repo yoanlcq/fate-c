@@ -22,6 +22,7 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_COMPRESSED_SIGNED_RED_RGTC1                                       );
     CASE(GL_COMPRESSED_RG_RGTC2                                               );
     CASE(GL_COMPRESSED_SIGNED_RG_RGTC2                                        );
+#ifndef FE_TARGET_EMSCRIPTEN
     CASE(GL_COMPRESSED_RGBA_BPTC_UNORM                                        );
     CASE(GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM                                  );
     CASE(GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT                                  );
@@ -133,6 +134,7 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_PALETTE8_R5_G6_B5_OES                                             );
     CASE(GL_PALETTE8_RGBA4_OES                                                );
     CASE(GL_PALETTE8_RGB5_A1_OES                                              );
+#endif /* !FE_TARGET_EMSCRIPTEN */
     }
     return "<unknown_format>";
 }

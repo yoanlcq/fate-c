@@ -265,7 +265,7 @@ void cube_main_init(struct cube_main *m) {
     for(i=0 ; i<num_glexts ; i++)
         fe_logi(TAG, "%s\n", glGetStringi(GL_EXTENSIONS, i));
 #else
-    const char *cur = glGetString(GL_EXTENSIONS);
+    const char *cur = (const char*) glGetString(GL_EXTENSIONS);
     for(;;) {
         const char *spc = strchr(cur, ' ');
         if(!spc)

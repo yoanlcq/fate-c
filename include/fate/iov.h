@@ -259,11 +259,13 @@ typedef struct {
     size_t len;
 } fe_iov;
 
+/*! \brief TODO */
+#define FE_IOV_ZERO_INITIALIZER {{0}}
 
 /*! \brief Deinitializes a #fe_iov (Actually calls #fe_mem_heapfree() on its buffer).
  * To initialize a fe_iov struct, just clear it to zero :
  * \code{.c}
- * fe_iov iov = {0};
+ * fe_iov iov = FE_IOV_ZERO_INITIALIZER;
  * \endcode
  */
 void    fe_iov_deinit(fe_iov *iov);
@@ -346,6 +348,7 @@ typedef enum {
 } fe_fd_seek_whence;
 
 #if defined(FE_TARGET_EMSCRIPTEN)
+    #include <sys/types.h>
     typedef void *fe_fd;
     #define FE_FD_INVALID_FD NULL
     typedef size_t fe_fd_offset;

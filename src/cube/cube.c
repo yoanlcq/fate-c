@@ -134,7 +134,7 @@ void Cube_setup(void) {
     scfg.optimize = true;
     scfg.light_count = sizeof(fe_gl_src_light_datatex_line)/sizeof(u8vec4); /* To have a POT texture. */
     scfg.material_count = sizeof(fe_gl_src_mtl_datatex_line)/sizeof(u8vec4); /* Idem. */
-    fe_gl_shader_source_set ss = {{0}};
+    fe_gl_shader_source_set ss = {{{0}}};
     fe_gl_src_get_cube_vert(&ss.vert, &scfg);
     fe_gl_src_get_cube_frag(&ss.frag, &scfg);
     ss.before_linking = fe_gl_src_cube_prelink;

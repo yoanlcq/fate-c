@@ -15,7 +15,7 @@ GLuint cubemap_build_grouse(void) {
     const GLint lod = 0;
 #define HELPER(sign,axis,face) \
     glTexImage2D(GL_TEXTURE_CUBE_MAP_##sign##_##axis, lod, GL_RGBA, \
-                 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, grouse_##face##_rgba)
+                 grouse_##face##_w, grouse_##face##_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, grouse_##face##_rgba)
     HELPER(POSITIVE,X,ft);
     HELPER(NEGATIVE,Z,lf); 
     HELPER(NEGATIVE,X,bk); 

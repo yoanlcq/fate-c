@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "van_syla__i_want_to_know.c.array"
+#include "silence.c.array"
 static size_t pos = 0;
-static const uint8_t *mus = Van_Syla___I_want_to_know_raw;
-#define mus_len Van_Syla___I_want_to_know_raw_len
+static const uint8_t *mus = silence_raw;
+#define mus_len silence_raw_len
 static SDL_AudioDeviceID dev = 0;
 static const char *TAG = "bgmus";
 

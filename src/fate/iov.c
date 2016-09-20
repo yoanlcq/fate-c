@@ -61,7 +61,12 @@
 static FILE *nul_file = NULL;
 static char *nul_file_path = "";
 
+static char *static_sdl_basepath = NULL;
+
 void fe_iov_setup(void) {
+    static_sdl_basepath = SDL_GetBasePath();
+    if(!static_sdl_basepath)
+        static_sdl_basepath = SDL_strdup("./");
 #ifdef NUL_FILE_PATH
     nul_file_path = NUL_FILE_PATH;
 #elif defined(FE_TARGET_ANDROID)
@@ -97,6 +102,7 @@ void fe_iov_setup(void) {
     fe_dbg_hope(nul_file);
 }
 void fe_iov_cleanup(void) {
+    SDL_free(static_sdl_basepath);
     fclose(nul_file);
 #ifndef NUL_FILE_PATH
     #ifndef FE_TARGET_EMSCRIPTEN
@@ -137,7 +143,7 @@ size_t     fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...) {
     size_t len = fe_iov_get_vprintf_len(fmt, ap);
     va_end(ap);
 
-    if(offset+len < iov->len)
+    if(offset+len > iov->len)
         fe_iov_resize(iov, offset+len);
     
     va_start(ap, fmt);
@@ -192,19 +198,21 @@ static void static_fullpath(fe_iov *fullpath, const fe_iov_locator *params) {
                 v.winrt_bad ? "" : "");
     }
 #endif
-#define HELPER(cst, call) \
+#define HELPER(cst, call, free_maybe) \
     if(params->rootdir & cst) { \
-        fe_iov_printf(fullpath, 0, "%s/%s", call, params->file_name); \
+        char *ppath = call;\
+        fe_iov_printf(fullpath, 0, "%s/%s", ppath, params->file_name); \
+        free_maybe(ppath);\
         return; \
     }
-    HELPER(FE_IOV_ROOTDIR_SDL2_GETPREFPATH, SDL_GetPrefPath(params->organization, params->app_name))
-    HELPER(FE_IOV_ROOTDIR_SDL2_GETBASEPATH, SDL_GetBasePath())
+    HELPER(FE_IOV_ROOTDIR_SDL2_GETPREFPATH, SDL_GetPrefPath(params->organization, params->app_name), SDL_free)
+    HELPER(FE_IOV_ROOTDIR_SDL2_GETBASEPATH, static_sdl_basepath, (void))
 #ifdef FE_TARGET_ANDROID
-    HELPER(FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE, SDL_AndroidGetInternalStoragePath())
-    HELPER(FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE, SDL_AndroidGetExternalStoragePath())
+    HELPER(FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE, SDL_AndroidGetInternalStoragePath(), (void))
+    HELPER(FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE, SDL_AndroidGetExternalStoragePath(), (void))
 #elif defined(FE_TARGET_WINDOWS_RT)
-    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_LOCAL_FOLDER, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_LOCAL_FOLDER))
-    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_INSTALLED_LOCATION, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_INSTALLED_LOCATION))
+    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_LOCAL_FOLDER, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_LOCAL_FOLDER), (void))
+    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_INSTALLED_LOCATION, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_INSTALLED_LOCATION), (void))
 #endif
 #undef HELPER
 }
@@ -382,11 +390,15 @@ static fe_fd static_fe_fd_open_file_windows(const char *fullpath, fe_fd_flags fd
     fe_mem_heapfree(fullpath_w);
     return fd;
 }
+#elif defined(FE_TARGET_EMSCRIPTEN)
+static fe_fd static_fe_fd_open_file_stdio(const char *fullpath, fe_fd_flags fd_flags) {
+    fe_dbg_hope(0 == "This is not implemented yet!");
+}
 #else
 static fe_fd static_fe_fd_open_file_unix(const char *fullpath, fe_fd_flags fd_flags) {
     int flags = 0;
     switch(fd_flags & FE_FD_OPEN_READWRITE) {
-    case FE_FD_OPEN_READONLY: flags |= O_RDONLY; break;
+    case FE_FD_OPEN_READONLY:  flags |= O_RDONLY; break;
     case FE_FD_OPEN_WRITEONLY: flags |= O_WRONLY | O_CREAT; break;
     case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
     }
@@ -905,7 +917,7 @@ char *fe_fs_get_executable_dir(void) {
 
 
 bool fe_fs_setcwd(const fe_iov_locator *params) {
-    fe_iov fullpath = {0};
+    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
     static_fullpath(&fullpath, params);
 #if defined(FE_TARGET_EMSCRIPTEN)
     bool ret = false; /* TODO */
@@ -995,7 +1007,7 @@ fe_iov_status fe_fs_file_exists(const fe_iov_locator *params) {
 #else
     fe_iov_status status;
     status.step = FE_IOV_STEP_COMPLETED;
-    fe_iov fullpath = {0};
+    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
     static_fullpath(&fullpath, params);
 #if defined(FE_TARGET_WINDOWS)
     WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
@@ -1024,7 +1036,7 @@ fe_iov_status  fe_fs_file_delete(const fe_iov_locator *params) {
         FS.unlink(path);
     }, params->file_name);
 #else
-    fe_iov fullpath = {0};
+    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
     static_fullpath(&fullpath, params);
     #if defined(FE_TARGET_WINDOWS)
         WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
