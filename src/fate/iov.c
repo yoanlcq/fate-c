@@ -379,6 +379,8 @@ fe_fd          fe_fd_open_file(const fe_iov_locator *params) {
         fd->close = static_sdlrwops_close; /* Must also call SDL_FreeRW() and unregister fd. */
         fd->type  = SDL_RWOPS_UNKNOWN;
         fd->hidden.unknown.data1 = (void*) unix_fd;
+        #define static_sdlrwops_has_unix_fd(fd) ((fd)->type == SDL_RWOPS_UNKNOWN)
+        #define static_sdlrwops_get_unix_fd(fd) ((int)(fd)->hidden.unkown.data1)
         fd->hidden.unknown.data2 = (void*) 0;
     #endif
 #endif
@@ -398,6 +400,17 @@ fe_fd          fe_fd_open_res(const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_ANDROID)
+    /* SDL2 checks internal storage first, and only falls back to assets
+     * if the file is not in internal storage. However we are expected to
+     * return a handle to a resource, which is in our case an Android asset.
+     * Plus, what if a file has the same relative path across assets and
+     * internal storage ? The one in internal storage would be returned instead
+     * of the one in assets.
+     */
+    fe_iov_locator proxy = *params;
+    proxy.rootdir = FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE;
+    if(fe_fs_file_exists(&proxy))
+        return FE_FD_INVALID_FD;
     return SDL_RWFromFile(
         params->file_name, 
         static_fd_flags_to_stdio_mode(params->fd_flags)
