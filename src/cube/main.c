@@ -48,12 +48,15 @@ static const char *TAG = "cube_main";
 
 void cube_main_init(struct cube_main *m) {
 
-#if !SDL_VERSION_ATLEAST(2, 0, 4)
-#error "SDL 2.0.4 is required."
-#endif
+#if SDL_VERSION_ATLEAST(2, 0, 4)
     SDL_SetHintWithPriority(SDL_HINT_NO_SIGNAL_HANDLERS, "1", 
                             SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1", SDL_HINT_OVERRIDE);
+#else
+    /* XXX We should issue a compile-time error here, but I'm not doing
+     * it because it would break Travis builds (and some older Ubuntu
+     * versions) */
+#endif
 
     fe_logi(TAG, "Initializing SDL...");
     if(SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_TIMER|SDL_INIT_HAPTIC)) < 0)
