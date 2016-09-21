@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #ifdef FE_TARGET_EMSCRIPTEN
     #include <emscripten.h>
@@ -161,7 +162,7 @@ static static_rootdir_validation static_rootdir_validate(fe_iov_rootdir rootdir)
                      || (rootdir & FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE);
     if(!android_good)
         v.android_bad = true;
-    /* XXX What about WinRT ? */
+    /* XXX What about WinRT ? We need a tester. */
     return v;
 }
 #endif
@@ -203,12 +204,12 @@ static void static_fullpath(fe_iov *fullpath, const fe_iov_locator *params) {
 #ifdef FE_TARGET_ANDROID
 static const char* static_fd_flags_to_stdio_mode(fe_fd_flags flags) {
     if(flags & FE_FD_OPEN_APPEND) {
-        if(flags & FE_FD_OPEN_READONLY)
+        if(flags & FE_FD_OPEN_READ)
             return "a+b";
         return "ab";
     }
     if(flags & FE_FD_OPEN_TRUNCATE) {
-        if(flags & FE_FD_OPEN_READONLY)
+        if(flags & FE_FD_OPEN_READ)
             return "w+b";
         return "wb";
     }
@@ -235,9 +236,82 @@ fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
     status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
     return status;
 #else
-    /* TODO */
-    fe_dbg_hope(0 && "This has not yet been implemented!!");
-    fe_iov_status status = {0}; return status;
+    fe_tcp6 s;
+    fe_ipv6_peer peer;
+    fe_iov msg = FE_IOV_ZERO_INITIALIZER;
+    fe_urlparts urlparts;
+    if(!fe_urlparts_from_url(&urlparts, params->file_url))
+        goto fail;
+    if(!fe_ipv6_peer_from_tcp6_host(&peer, urlparts.host, 80)) {
+        fe_urlparts_deinit(&urlparts);
+        goto fail;
+    }
+    fe_iov_printf(&msg, 0, 
+        "GET %s HTTP/1.1\r\nHost: %s\r\nAccept: application/octet-stream\r\n\r\n",
+        urlparts.path, urlparts.host
+    );
+    fe_urlparts_deinit(&urlparts);
+
+    if(!fe_tcp6_init(&s))
+        goto fail;
+    if(fe_tcp6_connect(&s, &peer))
+        goto fail;
+    fe_tcp6_block(&s);
+    fe_tcp6_send(&s, msg.base, msg.len);
+    fe_iov_deinit(&msg);
+    /*
+     * Typical response header : 
+     * Date: Wed, 21 Sep 2016 14:00:31 GMT<CRLF>
+     * Server: Apache<CRLF>
+     * Last-Modified: Fri, 29 Jan 2016 10:05:04 GMT<CRLF>
+     * Accept-Ranges: bytes<CRLF>
+     * Content-Length: 63855<CRLF>
+     * Connection: close<CRLF>
+     * Content-Type: application/pdf<CRLF>
+     * Content-Language: fr<CRLF>
+     * <CRLF>
+     * <binary-data>
+     */
+
+    /* Receive header */
+    size_t prev_offset=0, offset=0, chunksize=1024;
+    fe_iov header = FE_IOV_ZERO_INITIALIZER;
+    fe_iov_resize(&header, chunksize);
+    char *bin_startptr = NULL;
+    size_t bin_len = 0;
+    for(;;) {
+        ssize_t bytes_rcvd = fe_tcp6_recv(&s, header.base+offset, chunksize);
+        if(bytes_rcvd <= 0) {
+            fe_iov_deinit(&header);
+            goto fail; /* Should not happen! */
+        }
+        char *end = strstr(header.base+prev_offset, "\r\n\r\n");
+        if(end) {
+            bin_startptr = end+4;
+            bin_len = bytes_rcvd-(bin_startptr-header.base);
+            break;
+        }
+        prev_offset = offset;
+        offset += bytes_rcvd;
+        fe_iov_resize(&header, offset+chunksize);
+    }
+    /* For now we only care about the Content-Length field. */
+    char *ctlen = strstr(header.base, "Content-Length:");
+    if(!ctlen) {
+        fe_iov_deinit(&header);
+        goto fail;
+    }
+    ctlen += strlen("Content-Length:");
+    size_t total_bin_len = strtoull(ctlen, NULL, 10);
+    fe_iov_resize(iov, total_bin_len);
+    memcpy(iov->base, bin_startptr, bin_len);
+    fe_iov_deinit(&header);
+    fe_tcp6_recv(&s, iov->base+bin_len, total_bin_len-bin_len);
+    fe_tcp6_deinit(&s);
+    fe_iov_status status = {0}; 
+    return status;
+fail:
+    return status;
 #endif
 }
 
@@ -248,7 +322,7 @@ static fe_iov_status static_iov_load(fe_iov *iov, const fe_iov_locator *params, 
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
     fe_iov_locator params_real = *params;
-    params_real.fd_flags |= FE_FD_OPEN_READONLY;
+    params_real.fd_flags |= FE_FD_OPEN_READ;
     params_real.fd_flags |= FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_SINGLE_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT;
@@ -315,7 +389,7 @@ fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_locator *params) {
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
     fe_iov_locator params_real = *params;
-    params_real.fd_flags |= FE_FD_OPEN_WRITEONLY;
+    params_real.fd_flags |= FE_FD_OPEN_WRITE;
     params_real.fd_flags |= FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_SINGLE_ACCESS_HINT;
     params_real.fd_flags |= FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT;
@@ -354,14 +428,14 @@ fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *
 #ifdef FE_TARGET_WINDOWS
 static fe_fd static_fe_fd_open_file_windows(const char *fullpath, fe_fd_flags fd_flags) {
     DWORD desired_access = 0;
-    desired_access |= GENERIC_READ  * !!(fd_flags & FE_FD_OPEN_READONLY);
-    desired_access |= GENERIC_WRITE * !!(fd_flags & FE_FD_OPEN_WRITEONLY);
+    desired_access |= GENERIC_READ  * !!(fd_flags & FE_FD_OPEN_READ);
+    desired_access |= GENERIC_WRITE * !!(fd_flags & FE_FD_OPEN_WRITE);
     DWORD share = 0;
     share |= FILE_ALLOW_DELETE * !!(fd_flags & FE_FD_OPEN_W32_SHARE_DELETE);
     share |= FILE_ALLOW_READ   * !!(fd_flags & FE_FD_OPEN_W32_SHARE_READ);
     share |= FILE_ALLOW_WRITE  * !!(fd_flags & FE_FD_OPEN_W32_SHARE_WRITE);
     DWORD creation_disposition = 0;
-    creation_disposition |= OPEN_ALWAYS * !!(fd_flags & FE_FD_OPEN_WRITEONLY);
+    creation_disposition |= OPEN_ALWAYS * !!(fd_flags & FE_FD_OPEN_WRITE);
     creation_disposition |= CREATE_NEW  * !!(fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
     DWORD attrs = FILE_ATTRIBUTE_NORMAL;
     DWORD flags = 0;
@@ -380,8 +454,8 @@ static fe_fd static_fe_fd_open_file_stdio(const char *fullpath, fe_fd_flags fd_f
 static fe_fd static_fe_fd_open_file_unix(const char *fullpath, fe_fd_flags fd_flags) {
     int flags = 0;
     switch(fd_flags & FE_FD_OPEN_READWRITE) {
-    case FE_FD_OPEN_READONLY:  flags |= O_RDONLY; break;
-    case FE_FD_OPEN_WRITEONLY: flags |= O_WRONLY | O_CREAT; break;
+    case FE_FD_OPEN_READ:  flags |= O_RDONLY; break;
+    case FE_FD_OPEN_WRITE: flags |= O_WRONLY | O_CREAT; break;
     case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
     }
     flags |= O_APPEND*!!(fd_flags & FE_FD_OPEN_APPEND);

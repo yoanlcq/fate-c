@@ -321,8 +321,8 @@ typedef struct {
 /*! \brief TODO */
 /* Anything in there, even the enum's values, may be platform-specific #defines. */
 typedef enum {
-    FE_FD_OPEN_READONLY                = 1,
-    FE_FD_OPEN_WRITEONLY               = 1<<1,
+    FE_FD_OPEN_READ                    = 1,
+    FE_FD_OPEN_WRITE                   = 1<<1,
     FE_FD_OPEN_READWRITE               = 1 | 1<<1,
     FE_FD_OPEN_APPEND                  = 1<<3,
     FE_FD_OPEN_ENSURE_NONEXISTENT      = 1<<4,

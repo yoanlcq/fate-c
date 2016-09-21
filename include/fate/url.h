@@ -27,46 +27,42 @@
  *
  */
 
+#ifndef FE_URL_H
+#define FE_URL_H
 
-#ifndef FE_H
-#define FE_H
-
-/*! \file fate.h
- *  \brief A single file for including all of F.A.T.E's interfaces.
+/*! \file fate/url.h
+ *  \brief URL utilities.
+ *  \defgroup url URL utilities.
  *
- * TODO
+ * @{
  */
 
-#include <fate/defs.h> /* Always include first. */
+#include <stdint.h>
+#include <stdbool.h>
 #include <fate/decl.h>
-#include <fate/dbg.h>
-#include <fate/al.h>
-#include <fate/crash.h>
-#include <fate/d3d.h>
-#include <fate/dpyres.h>
-#include <fate/fs.h>
-#include <fate/gameinfo.h>
-#include <fate/gl.h>
-#include <fate/globalstate.h>
-#include <fate/hash.h>
-#include <fate/hw.h>
-#include <fate/i18n.h>
-#include <fate/iov.h>
-#include <fate/ipv6.h>
-#include <fate/linuxperf.h>
-#include <fate/log.h>
-#include <fate/math.h>
-#include <fate/mem.h>
-#include <fate/mt.h>
-#include <fate/steam.h>
-#include <fate/tcp6.h>
-#include <fate/timestamp.h>
-#include <fate/tracer.h>
-#include <fate/udp6.h>
-#include <fate/units.h>
-#include <fate/utf8.h>
-#include <fate/url.h>
-#include <fate/vk.h>
-#include <fate/wss13.h>
 
-#endif /* FE_H */
+/*! \brief TODO 
+ *
+ * The strings are all UTF-8. They're encoded according
+ * by #fe_urlparts_to_url(); */
+typedef struct {
+    char *scheme; /* http | https | file */
+    char *user;
+    char *password;
+    char *host; /* www.example.com */
+    uint16_t port;
+    char *path; /* /foo/index.html */
+    char *query; /* ?foo=2&bar=3 */
+    char *fragment; /* #anchor */
+} fe_urlparts;
+
+/*! \brief You should then free the returned URL with #fe_mem_heapfree(). */
+FE_DECL_NIY char *fe_urlparts_to_url(const fe_urlparts *parts);
+/*! \brief You should then free the URL parts' members with #fe_urlparts_deinit(). */
+FE_DECL_NIY bool fe_urlparts_from_url(fe_urlparts *parts, const char *url);
+/*! \brief TODO */
+FE_DECL_NIY void fe_urlparts_deinit(fe_urlparts *parts);
+
+/*! @} */
+
+#endif /* FE_URL_H */
