@@ -1,52 +1,34 @@
-#include <fate/defs.h>
-#include <fate/iov.h>
-#include <fate/mem.h>
-#include <fate/utf8.h>
-#ifdef FE_TARGET_EMSCRIPTEN
-#include <emscripten.h>
-#endif
+#include <fate/fate.h>
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <fate/dbg.h>
 #include <string.h>
-
-/* Some of the included headers are probably useless for
- * this file, but I'm too lazy to find which. */
-
-#if defined(FE_TARGET_WINDOWS)
-#include <Windows.h>
-#elif defined(FE_TARGET_LINUX)
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/uio.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#elif defined(FE_TARGET_FREEBSD)
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
 #include <stdint.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <mach-o/dyld.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <sys/mount.h>
-#include <errno.h>
+
+#ifdef FE_TARGET_EMSCRIPTEN
+    #include <emscripten.h>
 #endif
 
+#if defined(FE_TARGET_WINDOWS)
+    #include <windows.h>
+#else
+    #include <errno.h>
+    #include <limits.h>
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <sys/mman.h>
+    #include <sys/uio.h>
+    #include <fcntl.h>
+#endif
+
+#if defined(FE_TARGET_FREEBSD)
+    #include <sys/sysctl.h>
+#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
+    #include <mach-o/dyld.h>
+    #include <sys/param.h>
+    #include <sys/mount.h>
+#endif
 
 
 #define TAG "fe_iov"
@@ -665,7 +647,8 @@ ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count)
 ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID) \
+   || defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
     fe_fd_offset old = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
     fe_fd_seek(fd, offset, FE_FD_SEEK_SET);
     ssize_t bytes_read = fe_fd_readv(fd, iov_array, iov_count);
@@ -678,7 +661,8 @@ ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd
 ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID)
+#elif defined(FE_TARGET_WINDOWS) || defined(FE_TARGET_ANDROID) \
+   || defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
     fe_fd_offset old = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
     fe_fd_seek(fd, offset, FE_FD_SEEK_SET);
     ssize_t bytes_written = fe_fd_writev(fd, iov_array, iov_count);

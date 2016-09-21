@@ -48,11 +48,11 @@ static const char *TAG = "cube_main";
 
 void cube_main_init(struct cube_main *m) {
 
-#if SDL_VERSION_ATLEAST(2, 0, 4)
+#if !SDL_VERSION_ATLEAST(2, 0, 4)
+#error "SDL 2.0.4 is required."
+#endif
     SDL_SetHintWithPriority(SDL_HINT_NO_SIGNAL_HANDLERS, "1", 
                             SDL_HINT_OVERRIDE);
-#endif
-
     SDL_SetHintWithPriority(SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1", SDL_HINT_OVERRIDE);
 
     fe_logi(TAG, "Initializing SDL...");
