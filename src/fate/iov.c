@@ -95,6 +95,13 @@ void fe_iov_cleanup(void) {
 #endif
 }
 
+
+
+
+
+
+
+
 size_t  fe_iov_get_vprintf_len(const char *fmt, va_list ap) {
     int cnt = vfprintf(nul_file, fmt, ap);
     fe_dbg_assert(cnt >= 0);
@@ -143,95 +150,206 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src) {
 }
 
 
-#ifdef FE_DEBUG_BUILD
 
-typedef struct {
-    bool correct : 1;
-    bool android_bad : 1;
-    bool winrt_bad : 1;
-} static_rootdir_validation;
 
-static static_rootdir_validation static_rootdir_validate(fe_iov_rootdir rootdir) {
-    static_rootdir_validation v = {0};
-    if((rootdir & FE_IOV_ROOTDIR_SDL2_GETPREFPATH)
-    || (rootdir & FE_IOV_ROOTDIR_SDL2_GETBASEPATH)) {
-        v.correct = true;
-        return v;
-    }
-    bool android_good = (rootdir & FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE)
-                     || (rootdir & FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE);
-    if(!android_good)
-        v.android_bad = true;
-    /* XXX What about WinRT ? We need a tester. */
-    return v;
-}
-#endif
 
-static void static_fullpath(fe_iov *fullpath, const fe_iov_locator *params) {
-#ifdef FE_DEBUG_BUILD
-    static_rootdir_validation v = static_rootdir_validate(params->rootdir);
-    if(!v.correct) {
-        fe_fatal(TAG, "Did not attempt to open `%s', because "
-                "rootdir flags are incomplete :\n%s%s",
-                params->file_name,
-                v.android_bad ? "On Android, specifying whether to use "
-                "internal or external storage is required, and you "
-                "didn't use the flags for "
-                "SDL2's GetBasePath() and GetPrefPath() either.\n" : "",
-                v.winrt_bad ? "" : "");
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+bool fe_fs_setcwd(const char *path) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    return false; /* No way to do this for now. */
+#elif defined(FE_TARGET_WINDOWS)
+    return SetCurrentDirectory(path);
+#else
+    return !chdir(path);
 #endif
-#define HELPER(cst, call, free_maybe) \
-    if(params->rootdir & cst) { \
-        char *ppath = call;\
-        fe_iov_printf(fullpath, 0, "%s/%s", ppath, params->file_name); \
-        free_maybe(ppath);\
-        return; \
-    }
-    HELPER(FE_IOV_ROOTDIR_SDL2_GETPREFPATH, SDL_GetPrefPath(params->organization, params->app_name), SDL_free)
-    HELPER(FE_IOV_ROOTDIR_SDL2_GETBASEPATH, static_sdl_basepath, (void))
-#ifdef FE_TARGET_ANDROID
-    HELPER(FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE, SDL_AndroidGetInternalStoragePath(), (void))
-    HELPER(FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE, SDL_AndroidGetExternalStoragePath(), (void))
-#elif defined(FE_TARGET_WINDOWS_RT)
-    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_LOCAL_FOLDER, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_LOCAL_FOLDER), (void))
-    HELPER(FE_IOV_ROOTDIR_WINRT_PATH_INSTALLED_LOCATION, SDL_WinRTGetFSPathUTF8(SDL_WINRT_PATH_INSTALLED_LOCATION), (void))
-#endif
-#undef HELPER
 }
 
-
-#ifdef FE_TARGET_ANDROID
-static const char* static_fd_flags_to_stdio_mode(fe_fd_flags flags) {
-    if(flags & FE_FD_OPEN_APPEND) {
-        if(flags & FE_FD_OPEN_READ)
-            return "a+b";
-        return "ab";
+char * fe_fs_getcwd(void) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    int size = FE_FS_EMSCRIPTEN_GETCWD_MAXLEN;
+    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
+    if(!path)
+        return NULL;
+    EM_ASM({
+        Module.stringToUTF8(FS.cwd(), $0, $1);
+    }, path, size);
+    return path;
+#elif defined(FE_TARGET_WINDOWS)
+    DWORD len = GetCurrentDirectoryW(0, NULL);
+    WCHAR *wpath = fe_mem_heapalloc(len, WCHAR, "");
+    if(!wpath)
+        return NULL;
+    GetCurrentDirectoryW(len, wpath);
+    const char *path = fe_utf8_from_win32unicode(wpath);
+    fe_mem_heapfree(wpath);
+    return path;
+#else
+    size_t size = FE_FS_UNIX_GETCWD_CHUNKSIZE;
+    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
+    if(!path)
+        return NULL;
+    for(;;) {
+        char *cwd = getcwd(path, size);
+        if(cwd)
+            break;
+        if(errno != ERANGE) {
+            fe_mem_heapfree(path);
+            path = NULL;
+            break;
+        }
+        size *= 2;
+        path = fe_mem_heaprealloc(path, size, char, "fe_fs_getcwd()");
+        if(!path)
+            break;
     }
-    if(flags & FE_FD_OPEN_TRUNCATE) {
-        if(flags & FE_FD_OPEN_READ)
-            return "w+b";
-        return "wb";
-    }
-    if(flags & FE_FD_OPEN_READWRITE)
-        return "r+b"; /* XXX This can't create a file, but it's not 
-                       *  a problem for now because our use of this
-                       *  function is limited to Android assets which 
-                       *  are read-only. */
-    return "r";
+    return path;
+#endif
 }
-#endif /* FE_TARGET_ANDROID */
+
+uint64_t fe_fs_get_mtime(const fe_fpath fpath) {
+#if defined(FE_TARGET_EMSCRIPTEN)
+    fe_dbg_assert(fpath.type == FE_FPATH_EMSCRIPTEN_MEMFS);
+    return EM_ASM_INT({
+        var path = Module.UTF8ToString($0);
+        return FS.stat(path).mtime;
+    }, fpath.memfs.path);
+#elif defined(FE_TARGET_WINDOWS)
+    FILETIME ft;
+    HANDLE fh;
+    fh = CreateFile(fpath.path, GENERIC_READ, FILE_SHARE_READ, NULL, 
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(fh==INVALID_HANDLE_VALUE)
+        return 0;
+    GetFileTime(fh, NULL, NULL, &ft);
+    CloseHandle(fh);
+    return (((uint64_t)ft.dwHighDateTime)<<32ull)+(uint64_t)ft.dwLowDateTime;
+#else
+    struct stat st;
+    if(stat(fpath.path, &st))
+        return 0;
+    return st.st_mtime;
+#endif
+}
+
+
+fe_iov_status fe_fs_exists(const fe_fpath fpath) {
+    fe_iov_status status = {0};
+    status.step = FE_IOV_STEP_COMPLETED;
+
+#if defined(FE_TARGET_EMSCRIPTEN)
+    /* XXX We could try investigating more about a way to perform
+     * a Wget-exists on Emscripten.*/
+    fe_dbg_hope(fpath.type != FE_FPATH_EMSCRIPTEN_WGET);
+
+    if(fpath.type == FE_FPATH_EMSCRIPTEN_MEMFS) {
+        status.success = true;
+        status.current = FE_IOV_SUCCESS;
+        status.exists  = EM_ASM_INT({
+            var path = Module.UTF8ToString($0);
+            return FS.exists(path);
+        }, fpath.memfs.path);
+        return status;
+    }
+
+    fe_dbg_assert(fpath.type == FE_FPATH_EMSCRIPTEN_IDB);
+    int exists, error;
+    emscripten_idb_exists(fpath.db_name, fpath.key, &exists, &error);
+    fe_iov_status status = {0}; 
+    status.exists = exists;
+    status.success = !error;
+    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+#elif defined(FE_TARGET_WINDOWS)
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
+    if(!fullpath_w) {
+        status.current = FE_IOV_FAILED_NO_MEM;
+        return status;
+    }
+    status.exists = (GetFileAttributesW(fullpath_w) != INVALID_FILE_ATTRIBUTES);
+    fe_mem_heapfree(fullpath_w);
+    status.success = true;
+    status.current = FE_IOV_SUCCESS;
+#else
+    status.exists = !access(fpath.path, F_OK);
+    status.success = true;
+    status.current = FE_IOV_SUCCESS;
+#endif
+    return status;
+}
+
+
+fe_iov_promise fe_fs_exists_async(const fe_fpath fpath) { return NULL; }
 
 
 
-fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
+fe_iov_status  fe_fs_delete(const fe_fpath fpath) {
+    fe_iov_status status = {0};
+    status.step = FE_IOV_STEP_COMPLETED;
+#if defined(FE_TARGET_EMSCRIPTEN)
+    fe_dbg_assert(fpath.type != FE_FPATH_EMSCRIPTEN_WGET);
+    if(fpath.type == FE_FPATH_EMSCRIPTEN_MEMFS) {
+        /* FS.unlink() does not seem to return a value :( */
+        EM_ASM_ARGS({
+            var path = Module.UTF8ToString($0);
+            FS.unlink(path);
+        }, fpath.memfs.path); 
+        status.success = true;
+        status.current = FE_IOV_SUCCESS;
+        return status;
+    }
+    int error;
+    emscripten_idb_delete(fpath.db_name, fpath.key, &error);
+    status.success = !error;
+    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+#elif defined(FE_TARGET_WINDOWS)
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
+    if(!fullpath_w) {
+        status.current = FE_IOV_FAILED_NO_MEM;
+        return status;
+    }
+    status.success = DeleteFileW(fullpath_w);
+    status.current = status.success ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+    fe_mem_heapfree(fullpath_w);
+#else
+    status.success = !unlink(fpath.path);
+    status.current = status.success ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+#endif
+    return status;
+}
+
+fe_iov_promise fe_fs_delete_async(const fe_fpath fpath) { return NULL; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fe_iov_status  fe_wget(fe_iov *iov, const char *url) {
+    fe_iov_status status = {0};
+    status.step = FE_IOV_STEP_COMPLETED;
 #ifdef FE_TARGET_EMSCRIPTEN
     int len, error;
     void *ptr = iov->base; /* Warning for incompatible ptr types. */
-    emscripten_wget_data(params->file_url, &ptr, &len, &error);
+    emscripten_wget_data(url, &ptr, &len, &error);
     iov->len = len;
-    fe_iov_status status = {0};
-    status.step = FE_IOV_STEP_COMPLETED;
     status.success = !error;
     status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
     return status;
@@ -240,21 +358,25 @@ fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
     fe_ipv6_peer peer;
     fe_iov msg = FE_IOV_ZERO_INITIALIZER;
     fe_urlparts urlparts;
-    if(!fe_urlparts_from_url(&urlparts, params->file_url))
+    if(!fe_urlparts_from_url(&urlparts, url))
         goto fail;
     if(!fe_ipv6_peer_from_tcp6_host(&peer, urlparts.host, 80)) {
         fe_urlparts_deinit(&urlparts);
         goto fail;
     }
+    char *epath = fe_percent_encode(urlparts.path);
+    char *ehost = fe_punycode_encode(urlparts.host);
     fe_iov_printf(&msg, 0, 
         "GET %s HTTP/1.1\r\nHost: %s\r\nAccept: application/octet-stream\r\n\r\n",
-        urlparts.path, urlparts.host
+        epath, ehost
     );
+    fe_mem_heapfree(epath);
+    fe_mem_heapfree(ehost);
     fe_urlparts_deinit(&urlparts);
 
     if(!fe_tcp6_init(&s))
         goto fail;
-    if(fe_tcp6_connect(&s, &peer))
+    if(!fe_tcp6_connect(&s, &peer))
         goto fail;
     fe_tcp6_block(&s);
     fe_tcp6_send(&s, msg.base, msg.len);
@@ -308,92 +430,107 @@ fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params) {
     fe_iov_deinit(&header);
     fe_tcp6_recv(&s, iov->base+bin_len, total_bin_len-bin_len);
     fe_tcp6_deinit(&s);
-    fe_iov_status status = {0}; 
-    return status;
+    status.success = true;
 fail:
+    status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
     return status;
 #endif
 }
 
-fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
+fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_fpath fpath) {return NULL;}
 
 
-static fe_iov_status static_iov_load(fe_iov *iov, const fe_iov_locator *params, fe_fd (*do_open)(const fe_iov_locator*)) {
+
+
+static inline fe_fd_mode fe_fd_modeflags_compile1(fe_fd_modeflags f) {
+    fe_fd_mode m;
+    fe_fd_modeflags_compile(&m, f);
+    return m;
+}
+
+
+fe_iov_status  fe_fs_load(fe_iov *iov, const fe_fpath fpath) {
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
-    fe_iov_locator params_real = *params;
-    params_real.fd_flags |= FE_FD_OPEN_READ;
-    params_real.fd_flags |= FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT;
-    params_real.fd_flags |= FE_FD_OPEN_SINGLE_ACCESS_HINT;
-    params_real.fd_flags |= FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT;
-    params_real.fd_flags |= FE_FD_OPEN_EAGER_DOWNLOAD;
-    fe_fd fd = do_open(&params_real);
+#ifdef FE_TARGET_EMSCRIPTEN
+    switch(fpath.type) {
+    case FE_FPATH_EMSCRIPTEN_IDB: 
+        int len, error;
+        void *ptr = iov->base; /* For incompatible ptr types warning. */
+        emscripten_idb_load(params->idb_name, params->file_name, &ptr, &len, &error);
+        iov->len = len;
+        fe_iov_status status = {0};
+        status.step = FE_IOV_STEP_COMPLETED;
+        status.success = !error;
+        status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+        return status;
+    case FE_FPATH_EMSCRIPTEN_WGET: 
+        return fe_wget(iov, fpath);
+    case FE_FPATH_EMSCRIPTEN_MEMFS: 
+        /* Just keep going below, don't return */
+        break;
+    }
+#endif
+    fe_fd_mode mode = fe_fd_modeflags_compile1(
+          FE_FD_READ
+        | FE_FD_HINT_SEQUENTIAL_ACCESS
+        | FE_FD_HINT_SINGLE_ACCESS
+        | FE_FD_HINT_EARLY_ACCESS
+    );
+    fe_fd fd = fe_fd_open(fpath, mode);
     if(!fe_fd_is_valid(fd)) {
         status.current = FE_IOV_FAILED_UNKNOWN;
         return status;
     }
-    size_t len = fe_fd_seek(fd, FE_FD_SEEK_END, 0);
-    fe_fd_seek(fd, FE_FD_SEEK_SET, 0);
-    if(!fe_iov_resize(iov, len)) {
+    size_t offset = iov->len;
+    size_t len = fe_fd_size(fd);
+    if(!fe_iov_grow(iov, len)) {
         status.current = FE_IOV_FAILED_NO_MEM;
         return status;
     }
-    fe_fd_read(fd, iov->base, len);
+    fe_fd_read(fd, iov->base+offset, len);
     fe_fd_close(fd);
     status.success = true;
+    status.current = FE_IOV_SUCCESS;
     return status;
 }
 
-fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params) {
-    return static_iov_load(iov, params, fe_fd_open_file);
-}
-
-fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
+fe_iov_promise fe_fs_load_async(fe_iov *iov, const fe_fpath fpath) {return NULL;}
 
 
 
-fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    int len, error;
-    void *ptr = iov->base; /* For incompatible ptr types warning. */
-    emscripten_idb_load(params->idb_name, params->file_name, &ptr, &len, &error);
-    iov->len = len;
+
+
+fe_iov_status  fe_fs_store(fe_iov *iov, const fe_fpath fpath) {
     fe_iov_status status = {0};
     status.step = FE_IOV_STEP_COMPLETED;
-    status.success = !error;
-    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
-    return status;
-#else
-    return fe_iov_load_file(iov, params);
-#endif
-}
-
-fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
-
-
-fe_iov_status  fe_iov_load_res(fe_iov *iov, const fe_iov_locator *params) {
 #ifdef FE_TARGET_EMSCRIPTEN
-    return fe_iov_load_wget(iov, params);
-#elif defined(FE_TARGET_ANDROID)
-    return static_iov_load(iov, params, fe_fd_open_res);
-#else
-    return fe_iov_load_file(iov, params);
+    switch(fpath.type) {
+    case FE_FPATH_EMSCRIPTEN_IDB: 
+        int error;
+        emscripten_idb_store(fpath.db_name, fpath.key, iov->base, iov->len, &error);
+        fe_iov_status status = {0};
+        status.success = !error;
+        status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
+        return status;
+
+    case FE_FPATH_EMSCRIPTEN_WGET: 
+        status.success = false;
+        status.current = FE_IOV_FAILED_UNKNOWN;
+        return status;
+    case FE_FPATH_EMSCRIPTEN_MEMFS: 
+        /* Just keep going below, don't return */
+        break;
+    }
 #endif
-}
 
-fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
-
-
-
-fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_locator *params) {
-    fe_iov_status status = {0};
-    status.step = FE_IOV_STEP_COMPLETED;
-    fe_iov_locator params_real = *params;
-    params_real.fd_flags |= FE_FD_OPEN_WRITE;
-    params_real.fd_flags |= FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT;
-    params_real.fd_flags |= FE_FD_OPEN_SINGLE_ACCESS_HINT;
-    params_real.fd_flags |= FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT;
-    fe_fd fd = fe_fd_open_file(&params_real);
+    fe_fd_mode mode = fe_fd_modeflags_compile1(
+          FE_FD_WRITE
+        | FE_FD_HINT_SEQUENTIAL_ACCESS
+        | FE_FD_HINT_SINGLE_ACCESS
+        | FE_FD_HINT_EARLY_ACCESS
+    );
+    fe_fd fd = fe_fd_open(fpath, mode);
     if(!fe_fd_is_valid(fd)) {
         status.current = FE_IOV_FAILED_UNKNOWN;
         return status;
@@ -401,205 +538,300 @@ fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_locator *params) {
     fe_fd_write(fd, iov->base, iov->len);
     fe_fd_close(fd);
     status.success = true;
+    status.current = FE_IOV_SUCCESS;
     return status;
 }
 
-fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
+fe_iov_promise fe_fs_store_async(fe_iov *iov, const fe_fpath fpath) {return NULL;}
 
 
+#ifdef FE_TARGET_ANDROID
+static const char *static_modeflags_to_stdio_mode(fe_fd_modeflags f) {
+    bool read = !!(f & FE_FD_READ);
+    bool write = !!(f & FE_FD_WRITE);
+    bool append = !!(f & FE_FD_APPEND);
+    bool create = !!(f & FE_FD_CREATE);
+    bool truncate = !!(f & FE_FD_TRUNCATE);
+    bool nonexistent = !!(f & FE_FD_NONEXISTENT);
+    if(read && !write && !append && !create && !truncate && !nonexistent)
+        return "rb";
+    if(read && write && !append && create && truncate)
+        return "wb";
+    if(!read && append && create)
+        return "ab";
+    if(read && append && create)
+        return "a+b";
+    if(read && write && !append && !create && !nonexistent)
+        return "r+b";
+    if(read && write && !append && create && truncate)
+        return "w+b";
+    fe_dbg_hope(0 && "No valid stdio mode for these flags!");
+    return "";
+}
+#endif /* FE_TARGET_ANDROID */
 
-fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    int error;
-    emscripten_idb_store(params->idb_name, params->file_name, iov->base, iov->len, &error);
-    fe_iov_status status = {0};
-    status.step = FE_IOV_STEP_COMPLETED;
-    status.success = !error;
-    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
-    return status;
+
+void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f) {
+    v->valid = true;
+    if(!(f & FE_FD_READWRITE))
+        v->valid=false, v->e_neither_read_nor_write = true;
+    if((f & FE_FD_APPEND) && !(f & FE_FD_WRITE))
+        v->valid=false, v->e_append_without_write = true;
+    if((f & FE_FD_TRUNCATE) && !(f & FE_FD_WRITE))
+        v->valid=false, v->e_truncate_without_write = true;
+    if((f & FE_FD_APPEND) && (f & FE_FD_TRUNCATE))
+        v->valid=false, v->e_append_and_truncate = true;
+    if((f & FE_FD_NONEXISTENT) && !(f & FE_FD_CREATE))
+        v->w_nonexistent_without_create = true;
+    if((f & FE_FD_TRUNCATE))
+        v->w_linux_truncate_on_nonexistent = true;
+    if((f & FE_FD_CREATE) && !(  (f & FE_FD_APPEND) || (f & FE_FD_TRUNCATE)  ))
+        v->w_stdio_create_implies_append_or_truncate = true;
+    if((f & FE_FD_APPEND))
+        v->w_windows_no_actual_append_mode = true;
+    if((f & FE_FD_WIN32_SHARE_WRITE)|| (f & FE_FD_WIN32_SHARE_DELETE))
+        v->w_windows_filemapping_write_shared = true;
+    if((f & FE_FD_HINT_EARLY_ACCESS) && (f & FE_FD_HINT_SEQUENTIAL_ACCESS))
+        v->w_hint_both_random_and_sequential = true;
+    if((f & FE_FD_HINT_EARLY_ACCESS) && (f & FE_FD_HINT_LATE_ACCESS))
+        v->w_hint_both_early_and_late_access = true;
+}
+
+char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status) {
+    fe_iov iov = FE_IOV_ZERO_INITIALIZER;
+    fe_iov_printf(&iov, iov.len, "%s%s%s%s%s%s%s%s%s%s%s",
+        !status.e_neither_read_nor_write ? "" :
+        "[E] File is missing read/write access flags.\n"
+        "    Use FE_FD_READ, FE_FD_WRITE, or both (a.k.a FE_FD_READWRITE).\n",
+        !status.e_append_without_write ? "" :
+        "[E] Appending requires write access. Add FE_FD_WRITE.\n",
+        !status.e_truncate_without_write ? "" :
+        "[E] Truncating requires write access. Add FE_FD_WRITE.\n",
+        !status.e_append_and_truncate ? "" :
+        "[E] Can't truncate an append-mode file.\n"
+        "    Remove either FE_FD_TRUNCATE or FE_FD_APPEND.\n",
+        !status.w_nonexistent_without_create ? "" :
+        "[W] Under Linux, the behaviour of O_EXCL without O_CREAT is undefined.\n"
+        "    FE_FD_NONEXISTENT makes no sense without FE_FD_CREATE anyway.\n",
+        !status.w_linux_truncate_on_nonexistent ? "" :
+        "[W] Under Linux, the behaviour of O_TRUNC on a non-existent file is unspecified.\n"
+        "    Here are your options:\n"
+        "    - Pray that it works as expected;\n"
+        "    - Just use fe_fd_truncate();\n"
+        "    - Test the existence of the file before attempting to open it with these flags;\n"
+        "    Altogether, it seems wiser to use fe_fd_truncate() instead of the FE_FD_TRUNCATE flag.\n",
+        !status.w_stdio_create_implies_append_or_truncate ? "" :
+        "[W] There's no stdio mode allowing file creation without either appending or truncating.\n"
+        "    This matters on Android, because SDL_RWops are used, and on Emscripten because the stdio API is used.\n"
+        "    Add FE_FD_APPEND or FE_FD_TRUNCATE.\n",
+        !status.w_windows_no_actual_append_mode ? "" :
+        "[W] Under Windows, there's no actual append mode - You have to use fe_fd_seek() to the end of file to emulate the expected behaviour.\n"
+        "    Avoiding use of the append flag altogether prevents you from having to deal with this.\n",
+        !status.w_windows_filemapping_write_shared ? "" : 
+        "[W] MSDN discourages use of CreateFileMapping() on write-shared files.\n"
+        "    If you plan to use fe_fd_mmap(), either be extra cautious or disallow "
+        "file write share altogether, by removing both FE_FD_WIN32_SHARE_DELETE and FE_FD_WIN32_SHARE_WRITE.\n",
+        !status.w_hint_both_random_and_sequential ? "" : 
+        "[W] Both random and sequential access hints are specified, but they're conceptually mutually exclusive.\n",
+        !status.w_hint_both_early_and_late_access ? "" : 
+        "[W] Both early and late access hints are specified, but they're conceptually mutually exclusive.\n"
+    );
+    return iov.base;
+}
+
+void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f) {
+#ifdef FE_TARGET_WINDOWS
+    m->desired_access = 
+        (FILE_GENERIC_READ  * !!(f & FE_FD_READ))
+      | (FILE_GENERIC_WRITE * !!(f & FE_FD_WRITE));
+    /* append is implied by GENERIC_WRITE. We have to seek manually 
+     * to the end of file, which is a lot cleaner IMO. */
+    m->share = 
+        (FILE_SHARE_DELETE * !!(f & FE_FD_WIN32_SHARE_DELETE))
+      | (FILE_SHARE_READ   * !!(f & FE_FD_WIN32_SHARE_READ))
+      | (FILE_SHARE_WRITE  * !!(f & FE_FD_WIN32_SHARE_WRITE));
+    if(f & FE_FD_CREATE) {
+        if(f & FE_FD_TRUNCATE)
+            m->creation_disposition = CREATE_ALWAYS;
+        else {
+            if(f & FE_FD_NONEXISTENT)
+                m->creation_disposition = CREATE_NEW;
+            else
+                m->creation_disposition = OPEN_ALWAYS;
+        }
+    } else {
+        if(f & FE_FD_TRUNCATE)
+            m->creation_disposition = TRUNCATE_EXISTING;
+        else
+            m->creation_disposition = OPEN_EXISTING;
+    }
+    m->attrs_and_flags = 
+         FILE_ATTRIBUTE_NORMAL
+      | (FILE_FLAG_DELETE_ON_CLOSE * !!(f & FE_FD_WIN32_DELETE_ON_CLOSE))
+      | (FILE_FLAG_SEQUENTIAL_SCAN * !!(f & FE_FD_HINT_SEQUENTIAL_ACCESS))
+      | (FILE_FLAG_RANDOM_ACCESS   * !!(f & FE_FD_HINT_RANDOM_ACCESS))
+      | (FILE_FLAG_WRITE_THROUGH   * !!(f & FE_FD_WIN32_WRITE_THROUGH));
 #else
-    return fe_iov_store_file(iov, params);
+    switch(f & FE_FD_READWRITE) {
+    case FE_FD_READ:      m->flags = O_RDONLY; break;
+    case FE_FD_WRITE:     m->flags = O_WRONLY; break;
+    case FE_FD_READWRITE: m->flags = O_RDWR;   break;
+    }
+    m->flags |= 
+        (O_APPEND * !!(f & FE_FD_APPEND))
+      | (O_CREAT  * !!(f & FE_FD_CREATE))
+      | (O_EXCL   * !!(f & FE_FD_NONEXISTENT))
+      | (O_TRUNC  * !!(f & FE_FD_TRUNCATE))
+        ;
+    m->posix_fadv_random     = !!(f & FE_FD_HINT_RANDOM_ACCESS);
+    m->posix_fadv_sequential = !!(f & FE_FD_HINT_SEQUENTIAL_ACCESS);
+    m->posix_fadv_noreuse    = !!(f & FE_FD_HINT_SINGLE_ACCESS);
+    m->posix_fadv_willneed   = !!(f & FE_FD_HINT_EARLY_ACCESS);
+    m->posix_fadv_dontneed   = !!(f & FE_FD_HINT_LATE_ACCESS);
+    #ifdef FE_TARGET_ANDROID
+        m->stdio_mode = static_mode_to_stdio_mode(f);
+    #endif
 #endif
-
 }
-fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *params) {return NULL;}
+
+
+
+
 
 
 #ifdef FE_TARGET_WINDOWS
-static fe_fd static_fe_fd_open_file_windows(const char *fullpath, fe_fd_flags fd_flags) {
-    DWORD desired_access = 0;
-    desired_access |= GENERIC_READ  * !!(fd_flags & FE_FD_OPEN_READ);
-    desired_access |= GENERIC_WRITE * !!(fd_flags & FE_FD_OPEN_WRITE);
-    DWORD share = 0;
-    share |= FILE_ALLOW_DELETE * !!(fd_flags & FE_FD_OPEN_W32_SHARE_DELETE);
-    share |= FILE_ALLOW_READ   * !!(fd_flags & FE_FD_OPEN_W32_SHARE_READ);
-    share |= FILE_ALLOW_WRITE  * !!(fd_flags & FE_FD_OPEN_W32_SHARE_WRITE);
-    DWORD creation_disposition = 0;
-    creation_disposition |= OPEN_ALWAYS * !!(fd_flags & FE_FD_OPEN_WRITE);
-    creation_disposition |= CREATE_NEW  * !!(fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
-    DWORD attrs = FILE_ATTRIBUTE_NORMAL;
-    DWORD flags = 0;
-    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath);
-    fe_dbg_hope(fullpath_w);
-    fe_fd fd = CreateFileW(fullpath_w, desired_access, share, 
-            NULL, creation_disposition, flags | attrs, NULL);
+static fe_fd static_fe_fd_open_win32(const fe_fpath fpath, fe_fd_mode mode) {
+    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
+    if(!fullpath_w)
+        return FE_FD_INVALID_FD;
+    fe_fd fd = CreateFileW(fullpath_w, mode.desired_access, mode.share, 
+            NULL, mode.creation_disposition, mode.attrs_and_flags, NULL);
     fe_mem_heapfree(fullpath_w);
     return fd;
 }
-#elif defined(FE_TARGET_EMSCRIPTEN)
-static fe_fd static_fe_fd_open_file_stdio(const char *fullpath, fe_fd_flags fd_flags) {
-    fe_dbg_hope(0 == "This is not implemented yet!");
-}
 #else
-static fe_fd static_fe_fd_open_file_unix(const char *fullpath, fe_fd_flags fd_flags) {
-    int flags = 0;
-    switch(fd_flags & FE_FD_OPEN_READWRITE) {
-    case FE_FD_OPEN_READ:  flags |= O_RDONLY; break;
-    case FE_FD_OPEN_WRITE: flags |= O_WRONLY | O_CREAT; break;
-    case FE_FD_OPEN_READWRITE: flags |= O_RDWR | O_CREAT; break;
-    }
-    flags |= O_APPEND*!!(fd_flags & FE_FD_OPEN_APPEND);
-    flags |= O_EXCL  *!!(fd_flags & FE_FD_OPEN_ENSURE_NONEXISTENT);
-    flags |= O_TRUNC *!!(fd_flags & FE_FD_OPEN_TRUNCATE);
+    #define HAS_POSIX_FADVISE (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
 
-    fe_fd fd = open(fullpath, flags, 0666);
-    #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-        if(fd_flags & FE_FD_OPEN_RANDOM_ACCESS_HINT)
+static fe_fd static_fe_fd_open_unix(const fe_fpath fpath, fe_fd_mode mode) {
+    fe_fd fd = open(fpath.path, mode.flags, 0666);
+    #if HAS_POSIX_FADVISE
+        if(mode.posix_fadv_random)
             posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
-        if(fd_flags & FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT)
+        if(mode.posix_fadv_sequential)
             posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-        if(fd_flags & FE_FD_OPEN_SINGLE_ACCESS_HINT)
+        if(mode.posix_fadv_noreuse)
             posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
-        if(fd_flags & FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT)
+        if(mode.posix_fadv_willneed)
             posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
-        if(fd_flags & FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT)
+        if(mode.posix_fadv_dontneed)
             posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
     #endif
     return fd;
 }
-#endif /* FE_TARGET_WINDOWS */
+#endif
+
 
 #ifdef FE_TARGET_ANDROID
 
-static void static_sdlrwops_setcallbacks(SDL_rwops *rw);
+static void static_androidsdlrwops_setcallbacks(SDL_rwops *rw);
 
-static fe_fd static_fe_fd_open_file_android(const char *fullpath, fe_fd_flags fd_flags) {
-    int unix_fd = static_fe_fd_open_file_unix(fullpath, fd_flags);
+static fe_fd static_fe_fd_open_android(fe_fpath fpath, fe_fd_mode mode) {
+    fe_fd fd = SDL_RWFromFile(fpath.path, mode.stdio_mode);
+    if(fd)
+        return fd;
+    int unix_fd = static_fe_fd_open_unix(fpath, mode);
     if(unix_fd < 0)
         return FE_FD_INVALID_FD;
-    fe_fd fd = SDL_AllocRW();
+    fd = SDL_AllocRW();
     fd->type  = SDL_RWOPS_UNKNOWN;
     fd->hidden.unknown.data1 = (void*)(uintptr_t) unix_fd;
-    #define static_sdlrwops_has_unix_fd(fd) ((fd)->type == SDL_RWOPS_UNKNOWN)
-    #define static_sdlrwops_get_unix_fd(fd) ((unsigned)(uintptr_t)(fd)->hidden.unkown.data1)
+    #define static_androidsdlrwops_has_unix_fd(fd) ((fd)->type == SDL_RWOPS_UNKNOWN)
+    #define static_androidsdlrwops_get_unix_fd(fd) ((unsigned)(uintptr_t)(fd)->hidden.unkown.data1)
     fd->hidden.unknown.data2 = NULL;
-    static_sdlrwops_setcallbacks(fd);
+    static_androidsdlrwops_setcallbacks(fd);
 }
 
-static Sint64 SDLCALL static_sdlrwops_size(struct SDL_RWops * context) {
-    Sint64 cur = lseek(static_sdlrwops_get_unix_fd(context), 0, SEEK_CUR);
-    Sint64 end = lseek(static_sdlrwops_get_unix_fd(context), 0, SEEK_END);
-    lseek(static_sdlrwops_get_unix_fd(context), cur, SEEK_SET);
+static Sint64 SDLCALL static_androidsdlrwops_size(struct SDL_RWops * context) {
+    Sint64 cur = lseek(static_androidsdlrwops_get_unix_fd(context), 0, SEEK_CUR);
+    Sint64 end = lseek(static_androidsdlrwops_get_unix_fd(context), 0, SEEK_END);
+    lseek(static_androidsdlrwops_get_unix_fd(context), cur, SEEK_SET);
     return end;
 }
 
-static Sint64 SDLCALL static_sdlrwops_seek(struct SDL_RWops * context, Sint64 offset,
+static Sint64 SDLCALL static_androidsdlrwops_seek(struct SDL_RWops * context, Sint64 offset,
                              int whence) {
-    return lseek(static_sdlrwops_get_unix_fd(context), offset, whence);
+    return lseek(static_androidsdlrwops_get_unix_fd(context), offset, whence);
 }
 
-static size_t SDLCALL static_sdlrwops_read(struct SDL_RWops * context, void *ptr,
+static size_t SDLCALL static_androidsdlrwops_read(struct SDL_RWops * context, void *ptr,
                              size_t size, size_t maxnum) {
-    ssize_t bytes_read = read(static_sdlrwops_get_unix_fd(context), ptr, size*maxnum);
+    ssize_t bytes_read = read(static_androidsdlrwops_get_unix_fd(context), ptr, size*maxnum);
     return bytes_read<=0 ? 0 : bytes_read/size;
 }
 
-static size_t SDLCALL static_sdlrwops_write(struct SDL_RWops * context, const void *ptr,
+static size_t SDLCALL static_androidsdlrwops_write(struct SDL_RWops * context, const void *ptr,
                           size_t size, size_t num) {
-    ssize_t bytes_written = write(static_sdlrwops_get_unix_fd(context), ptr, size*num);
+    ssize_t bytes_written = write(static_androidsdlrwops_get_unix_fd(context), ptr, size*num);
     return bytes_written<=0 ? 0 : bytes_written/size;
 }
 
-static int SDLCALL static_sdlrwops_close(struct SDL_RWops * context) {
-    int ret = close(static_sdlrwops_get_unix_fd(context));
+static int SDLCALL static_androidsdlrwops_close(struct SDL_RWops * context) {
+    int ret = close(static_androidsdlrwops_get_unix_fd(context));
     SDL_FreeRW(context);
     return ret;
 }
 
-static void static_sdlrwops_setcallbacks(SDL_rwops *fd) {
-    fd->size  = static_sdlrwops_size;
-    fd->seek  = static_sdlrwops_seek;
-    fd->read  = static_sdlrwops_read;
-    fd->write = static_sdlrwops_write;
-    fd->close = static_sdlrwops_close;
+static void static_androidsdlrwops_setcallbacks(SDL_rwops *fd) {
+    fd->size  = static_androidsdlrwops_size;
+    fd->seek  = static_androidsdlrwops_seek;
+    fd->read  = static_androidsdlrwops_read;
+    fd->write = static_androidsdlrwops_write;
+    fd->close = static_androidsdlrwops_close;
 }
 
 #endif
 
+typedef struct {
+    enum {
+        STATIC_EMSCRIPTEN_MEMFS=0,
+        STATIC_EMSCRIPTEN_IDB,
+        STATIC_EMSCRIPTEN_WGET
+    } type;
+    struct { FILE *fp; } memfs;
+    struct { fe_iov iov; } idb;
+    struct { fe_iov iov; } wget;
+} static_emscripten_fd;
 
-fe_fd          fe_fd_open_file(const fe_iov_locator *params) {
+
+fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
     fe_fd fd = FE_FD_INVALID_FD;
-    fe_iov fullpath;
-    static_fullpath(&fullpath, params);
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
-    fd = static_fe_fd_open_file_windows(fullpath.base, params->fd_flags);
+    fd = static_fe_fd_open_win32(fpath, mode);
 #elif defined(FE_TARGET_ANDROID)
-    fd = static_fe_fd_open_file_android(fullpath.base, params->fd_flags);
+    fd = static_fe_fd_open_android(fpath, mode);
 #else
-    fd = static_fe_fd_open_file_unix(fullpath.base, params->fd_flags);
+    fd = static_fe_fd_open_unix(fpath, mode);
 #endif
-    fe_mem_heapfree(fullpath.base);
     return fd;
 }
 
-fe_fd          fe_fd_open_persistent(const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    fe_dbg_hope(0 && "This is not implemented yet !");
-#else
-    return fe_fd_open_file(params);
-#endif
-}
 
-fe_fd          fe_fd_open_res(const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    fe_dbg_hope(0 && "This is not implemented yet !");
-#elif defined(FE_TARGET_ANDROID)
-    /* XXX
-     * SDL2 checks internal storage first, and only falls back to assets/
-     * if the file is not in internal storage. 
-     * Writes are denied in the assets/ folder, unlike internal storage.
-     * Also, files in assets/ are closer to being 'resources' than
-     * files in internal storage.
-     * The only reasonable thing to do is assume that the API's user
-     * distinguishes resources and regular files by storing them in
-     * distinct directories. Something like :
-     * "All resources start with res/"
-     * "All regular files start with files/".
-     * This behaviour needs to be documented.
-     */
-    return SDL_RWFromFile(
-        params->file_name, 
-        static_fd_flags_to_stdio_mode(params->fd_flags)
-    );
-#else
-    return fe_fd_open_file(params);
-#endif   
-}
 
-fe_iov_promise fe_fd_get_download_promise(fe_fd fd) {
-    fe_dbg_hope(0 && "This is not implemented yet !");
-    return NULL;
-}
 
+
+
+
+
+/* Windows: len can be 0 (to go as far as possible) 
+ * for CreateFileMapping() and also for MapViewOfFile(). 
+ * But Unix mmap() does not accept this. */
 bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
 #elif defined(FE_TARGET_WINDOWS)
-    fe_dbg_assert(fe_fd_get_length(fd) > 0);
-    /* XXX MSDN suggests that the file should be opened with exclusive access, to prevent
-     * other processes from writing to it. */
+    fe_dbg_assert(fe_fd_size(fd) > 0);
     v->filemapping = CreateFileMapping(fd, NULL, 
             /* There are a lot of other nice-looking flags that we should inspect. */
             rw ? PAGE_READWRITE : PAGE_READONLY,
@@ -626,16 +858,39 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
     v->base = v->view_base + iViewDelta;
     v->len = len;
     return true;
-#elif defined(FE_TARGET_ANDROID)
-    if(!static_sdlrwops_has_unix_fd(fd))
-        return false; /* Can't mmap() a compressed file. */
-    v->base = mmap(NULL, len, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, static_sdlrwops_get_unix_fd(fd), offset);
-    v->len = len;
-    return v->base != MAP_FAILED;
 #else
-    v->base = mmap(NULL, len, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, fd, offset);
+    #if defined(FE_TARGET_ANDROID)
+        if(!static_androidsdlrwops_has_unix_fd(fd))
+            return false; /* No point in mmap()ing a compressed file anyway. */
+    #endif
+    static int pagesize = 0;
+    if(!pagesize)
+        pagesize = sysconf(_SC_PAGE_SIZE);
+    uint64_t start = (offset / pagesize) * pagesize;
+    size_t viewsize = (offset % pagesize) + len;
+    size_t viewdelta = offset - start;
+
+    v->view_base = mmap(NULL, viewsize, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, 
+    #if defined(FE_TARGET_ANDROID)
+            static_androidsdlrwops_get_unix_fd(fd),
+    #else
+            fd, 
+    #endif
+            start);
+    if(v->view_base == MAP_FAILED)
+        return false;
+    v->base = v->view_base + viewdelta;
     v->len = len;
-    return v->base != MAP_FAILED;
+    return true;
+#endif
+}
+
+bool fe_fd_msync_hint(fe_filemapview *v) {
+    size_t total_len = (v->base - v->view_base) + v->len;
+#ifdef FE_TARGET_WINDOWS
+    return FlushViewOfFile(v->view_base, total_len);
+#else
+    return !msync(v->view_base, total_len, MS_ASYNC);
 #endif
 }
 void fe_fd_munmap(fe_filemapview *v) {
@@ -645,9 +900,13 @@ void fe_fd_munmap(fe_filemapview *v) {
     UnmapViewOfFile(v->view_base);
     CloseHandle(v->filemapping);
 #else
-    munmap(v->base, v->len);
+    size_t total_len = (v->base - v->view_base) + v->len;
+    /* There's no guarantee that the content is flushed otherwise. */
+    msync(v->view_base, total_len, MS_SYNC | MS_INVALIDATE);
+    munmap(v->view_base, total_len);
 #endif
 }
+
 
 fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence) {
 #ifdef FE_TARGET_EMSCRIPTEN
@@ -655,8 +914,8 @@ fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whenc
 #elif defined(FE_TARGET_WINDOWS)
     LARGE_INTEGER req_offset, new_offset;
     req_offset.QuadPart = offset;
-    BOOL success = SetFilePointerEx(fd, req_offset, &new_offset, whence);
-    fe_dbg_hope(success); /* XXX */
+    /* BOOL success = */SetFilePointerEx(fd, req_offset, &new_offset, whence);
+    /* fe_dbg_hope(success); //XXX */
     return new_offset.QuadPart;
 #elif defined(FE_TARGET_ANDROID)
     return SDL_RWSeek(fd, offset, whence);
@@ -664,6 +923,21 @@ fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whenc
     return lseek(fd, offset, whence);
 #endif
 }
+
+fe_fd_offset fe_fd_size(fe_fd fd) {
+#ifdef FE_TARGET_WINDOWS
+    LARGE_INTEGER li = {{0}};
+    /* BOOL success = */GetFileSizeEx(fd, &li);
+    /* fe_dbg_hope(sucess); //XXX */
+    return li.QuadPart;
+#else
+    fe_fd_offset cur = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
+    fe_fd_offset end = fe_fd_seek(fd, 0, FE_FD_SEEK_END);
+    fe_fd_seek(fd, cur, FE_FD_SEEK_SET);
+    return end;
+#endif
+}
+
 ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {
 #ifdef FE_TARGET_EMSCRIPTEN
     fe_dbg_hope(0 && "This is not implemented yet !");
@@ -752,9 +1026,9 @@ bool           fe_fd_sync(fe_fd fd) {
 #elif defined(FE_TARGET_WINDOWS)
     return FlushFileBuffers(fd);
 #elif defined(FE_TARGET_ANDROID)
-    if(!static_sdlrwops_has_unix_fd(fd))
+    if(!static_androidsdlrwops_has_unix_fd(fd))
         return false;
-    return !fsync(static_sdlrwops_get_unix_fd(fd));
+    return !fsync(static_androidsdlrwops_get_unix_fd(fd));
 #else
     return !fsync(fd);
 #endif
@@ -768,9 +1042,9 @@ bool           fe_fd_truncate(fe_fd fd, size_t len) {
     SetEndOfFile(fd);
     fe_fd_seek(fd, 0, cur);
 #elif defined(FE_TARGET_ANDROID)
-    if(!static_sdlrwops_has_unix_fd(fd))
+    if(!static_androidsdlrwops_has_unix_fd(fd))
         return false;
-    return !ftruncate(static_sdlrwops_get_unix_fd(fd), len);
+    return !ftruncate(static_androidsdlrwops_get_unix_fd(fd), len);
 #else
     return !ftruncate(fd, len);
 #endif
@@ -793,8 +1067,8 @@ void           fe_fd_close(fe_fd fd) {
 #endif
 }
 
-bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st) {return 0;}
-bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds) {return 0;}
+bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_progress *st) {return 0;}
+bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_progress *st, int timeout_milliseconds) {return 0;}
 void fe_iov_promise_cancel(fe_iov_promise p) {}
 
 
@@ -973,170 +1247,5 @@ char *fe_fs_get_executable_dir(void) {
 #endif /* EMSCRIPTEN */
 
 
-
-bool fe_fs_setcwd(const fe_iov_locator *params) {
-    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
-    static_fullpath(&fullpath, params);
-#if defined(FE_TARGET_EMSCRIPTEN)
-    bool ret = false; /* TODO */
-#elif defined(FE_TARGET_WINDOWS)
-    bool ret = SetCurrentDirectory(fullpath.base);
-#else
-    bool ret = !chdir(fullpath.base);
-#endif
-    fe_mem_heapfree(fullpath.base);
-    return ret;
-}
-
-/*
-char * fe_fs_getcwd(void) {
-#if defined(FE_TARGET_EMSCRIPTEN)
-    int size = 2048;
-    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
-    if(!path)
-        return NULL;
-    EM_ASM({
-        Module.stringToUTF8(FS.cwd(), $0, $1);
-    }, path, size);
-    return path;
-#elif defined(FE_TARGET_WINDOWS)
-    DWORD len = GetCurrentDirectoryW(0, NULL);
-    WCHAR *wpath = fe_mem_heapalloc(len, WCHAR, "");
-    if(!wpath)
-        return NULL;
-    GetCurrentDirectoryW(len, wpath);
-    const char *path = fe_utf8_from_win32unicode(wpath);
-    if(!path)
-        return NULL;
-    fe_mem_heapfree(wpath);
-    return path;
-#else
-    size_t size = 256;
-    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
-    if(!path)
-        return NULL;
-    while(!getcwd(path, size) && errno==ERANGE) {
-        size *= 2;
-        path = fe_mem_heaprealloc(path, size, char, "fe_fs_getcwd()");
-        if(!path)
-            return NULL;
-    }
-    return path;
-}
-
-uint64_t fe_fs_file_get_wtime(const char *path) {
-#if defined(FE_TARGET_EMSCRIPTEN)
-    return EM_ASM_INT({
-        var path = Module.UTF8ToString($0);
-        return FS.stat(path).mtime;
-    }, params->file_name);
-#elif defined(FE_TARGET_WINDOWS)
-    FILETIME ft;
-    HANDLE fh;
-    fh = CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, 
-            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if(fh==INVALID_HANDLE_VALUE) {
-        fe_loge(TAG, "Could not stat \"%s\".\n", path);
-        return 0;
-    }
-    GetFileTime(fh, NULL, NULL, &ft);
-    CloseHandle(fh);
-    return (((uint64_t)ft.dwHighDateTime)<<32)+(uint64_t)ft.dwLowDateTime;
-#else
-    struct stat st;
-    if(stat(path, &st)) {
-        fe_logw(TAG, "Could not stat \"%s\".\n", path);
-        return 0;
-    }
-    return st.st_mtime;
-#endif
-}
-
-*/
-
-fe_iov_status fe_fs_file_exists(const fe_iov_locator *params) {
-#if defined(FE_TARGET_EMSCRIPTEN)
-    fe_iov_status status = {0};
-    status.exists = EM_ASM_INT({
-        var path = Module.UTF8ToString($0);
-        return FS.exists(path);
-    }, params->file_name);
-    return status;
-#else
-    fe_iov_status status;
-    status.step = FE_IOV_STEP_COMPLETED;
-    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
-    static_fullpath(&fullpath, params);
-#if defined(FE_TARGET_WINDOWS)
-    WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
-    if(!fullpath_w) {
-        status.success = false;
-        status.current = FE_IOV_FAILED_NO_MEM;
-        return status;
-    }
-    status.success = (GetFileAttributesW(fullpath_w) != INVALID_FILE_ATTRIBUTES);
-    fe_mem_heapfree(fullpath_w);
-#else
-    status.success = !access(fullpath.base, F_OK);
-#endif
-    status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
-    fe_mem_heapfree(fullpath.base);
-    return status;
-#endif
-}
-
-fe_iov_status  fe_fs_file_delete(const fe_iov_locator *params) {
-    fe_iov_status status = {0};
-    status.step = FE_IOV_STEP_COMPLETED;
-#if defined(FE_TARGET_EMSCRIPTEN)
-    EM_ASM_ARGS({
-        var path = Module.UTF8ToString($0);
-        FS.unlink(path);
-    }, params->file_name);
-#else
-    fe_iov fullpath = FE_IOV_ZERO_INITIALIZER;
-    static_fullpath(&fullpath, params);
-    #if defined(FE_TARGET_WINDOWS)
-        WCHAR *fullpath_w = fe_utf8_to_win32unicode(fullpath.base);
-        status.success = !!DeleteFileW(fullpath_w);
-        fe_mem_heapfree(fullpath_w);
-    #else
-        status.success = !unlink(fullpath.base);
-    #endif
-    fe_mem_heapfree(fullpath.base);
-#endif
-    status.current = status.success ? FE_IOV_SUCCESS : FE_IOV_FAILED_UNKNOWN;
-    return status;
-}
-
-fe_iov_status  fe_fs_persistent_exists(const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    int exists, error;
-    emscripten_idb_exists(params->idb_name, params->file_name, &exists, &error);
-    fe_iov_status status = {0}; 
-    status.step = FE_IOV_STEP_COMPLETED;
-    status.exists = exists;
-    status.success = !error;
-    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
-    return status;
-#else
-    return fe_fs_file_exists(params);
-#endif
-}
-fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_locator *params) { return NULL; }
-fe_iov_status  fe_fs_persistent_delete(const fe_iov_locator *params) {
-#ifdef FE_TARGET_EMSCRIPTEN
-    int error;
-    emscripten_idb_delete(params->idb_name, params->file_name, &error);
-    fe_iov_status status = {0}; 
-    status.step = FE_IOV_STEP_COMPLETED;
-    status.success = !error;
-    status.current = error ? FE_IOV_FAILED_UNKNOWN : FE_IOV_SUCCESS;
-    return status;
-#else
-    return fe_fs_file_delete(params);
-#endif
-}
-fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_locator *params) { return NULL; }
 
 

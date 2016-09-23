@@ -44,7 +44,7 @@
 #include <fate/crash.h>
 #include <fate/d3d.h>
 #include <fate/dpyres.h>
-#include <fate/fs.h>
+#include <fate/fpath.h>
 #include <fate/gameinfo.h>
 #include <fate/gl.h>
 #include <fate/globalstate.h>

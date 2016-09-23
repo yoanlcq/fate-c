@@ -219,7 +219,7 @@
 #ifndef FE_IOV_H
 #define FE_IOV_H
 
-#include <fate/defs.h>
+#include <fate/fate.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -284,17 +284,6 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
 
 
 
-
-/*! \brief TODO */
-typedef enum {
-    FE_IOV_ROOTDIR_ANDROID_INTERNAL_STORAGE      = 1<<0, /*!< Applies only to Android. */
-    FE_IOV_ROOTDIR_ANDROID_EXTERNAL_STORAGE      = 1<<1, /*!< Applies only to Android. */
-    FE_IOV_ROOTDIR_WINRT_PATH_LOCAL_FOLDER       = 1<<2, /*!< Applies only to WinRT. */
-    FE_IOV_ROOTDIR_WINRT_PATH_INSTALLED_LOCATION = 1<<3, /*!< Applies only to WinRT. */
-    FE_IOV_ROOTDIR_SDL2_GETBASEPATH              = 1<<4, /*!< Overrides any other flag from the above. */
-    FE_IOV_ROOTDIR_SDL2_GETPREFPATH              = 1<<5  /*!< Overrides any other flag from the above. */
-} fe_iov_rootdir;
-
 /*! \brief TODO */
 typedef enum {
     FE_IOV_SUCCESS = 0,
@@ -321,30 +310,58 @@ typedef struct {
 /*! \brief TODO */
 /* Anything in there, even the enum's values, may be platform-specific #defines. */
 typedef enum {
-    FE_FD_OPEN_READ                    = 1,
-    FE_FD_OPEN_WRITE                   = 1<<1,
-    FE_FD_OPEN_READWRITE               = 1 | 1<<1,
-    FE_FD_OPEN_APPEND                  = 1<<3,
-    FE_FD_OPEN_ENSURE_NONEXISTENT      = 1<<4,
-    FE_FD_OPEN_TRUNCATE                = 1<<5,
-    FE_FD_OPEN_SPARSE_ACCESS_HINT      = 1<<6, //Maybe deprecated ?
-    FE_FD_OPEN_RANDOM_ACCESS_HINT      = 1<<7,
-    FE_FD_OPEN_SEQUENTIAL_ACCESS_HINT  = 1<<8,
-    FE_FD_OPEN_SINGLE_ACCESS_HINT      = 1<<9,
-    FE_FD_OPEN_NEAR_FUTURE_ACCESS_HINT = 1<<10,
-    FE_FD_OPEN_FAR_FUTURE_ACCESS_HINT  = 1<<11,
-    FE_FD_OPEN_LAZY_DOWNLOAD           = 1<<12,
-    FE_FD_OPEN_EAGER_DOWNLOAD          = 1<<13,
-    FE_FD_OPEN_W32_SHARE_READ          = 1<<14,
-    FE_FD_OPEN_W32_SHARE_WRITE         = 1<<15,
-    FE_FD_OPEN_W32_SHARE_DELETE        = 1<<16
-} fe_fd_flags;
+    FE_FD_READ                     = 1,
+    FE_FD_WRITE                    = 1<<1,
+    FE_FD_READWRITE                = 1 | 1<<1,
+    FE_FD_APPEND                   = 1<<2,
+    FE_FD_CREATE                   = 1<<3,
+    FE_FD_NONEXISTENT              = 1<<4,
+    FE_FD_TRUNCATE                 = 1<<5,
+    FE_FD_HINT_RANDOM_ACCESS       = 1<<7,
+    FE_FD_HINT_SEQUENTIAL_ACCESS   = 1<<8,
+    FE_FD_HINT_SINGLE_ACCESS       = 1<<9,
+    FE_FD_HINT_EARLY_ACCESS        = 1<<10,
+    FE_FD_HINT_LATE_ACCESS         = 1<<11,
+    FE_FD_WIN32_SHARE_READ         = 1<<14,
+    FE_FD_WIN32_SHARE_WRITE        = 1<<15,
+    FE_FD_WIN32_SHARE_DELETE       = 1<<16,
+    FE_FD_WIN32_DELETE_ON_CLOSE    = 1<<17,
+    FE_FD_WIN32_WRITE_THROUGH      = 1<<18
+    /*
+     * FE_FD_LINUX2_DIRECT
+     * FE_FD_UNIX_DSYNC
+     * FE_FD_UNIX_SYNC
+     * FE_FD_LINUX3_TMPFILE (= FILE_DELETE_ON_CLOSE)
+     */
+} fe_fd_modeflags;
+
+typedef struct {
+#ifdef FE_TARGET_WINDOWS
+    DWORD desired_access; /* GENERIC_READ | GENERIC_WRITE*/
+    DWORD share; /* FILE_SHARE_DELETE |FILE_SHARE_READ |FILE_SHARE_WRITE */
+    DWORD creation_disposition;
+    /* one of : CREATE_ALWAYS, CREATE_NEW, OPEN_ALWAYS, OPEN_EXISTING, TRUNCATE_EXISTING */
+    DWORD attrs_and_flags; /* FILE_FLAG_DELETE_ON_CLOSE, FILE_FLAG_RANDOM_ACCESS, FILE_FLAG_SEQUENTIAL_SCAN, FILE_FLAG_WRITE_THROUGH */
+#else
+    int flags;
+    bool posix_fadv_random     : 1;
+    bool posix_fadv_sequential : 1;
+    bool posix_fadv_noreuse    : 1;
+    bool posix_fadv_willneed   : 1;
+    bool posix_fadv_dontneed   : 1;
+    /* O_RDONLY | O_WRONLY, O_RDWR, O_APPEND, O_CREAT, O_EXCL, O_TRUNC */
+    #ifdef FE_TARGET_ANDROID
+        const char *stdio_mode;
+    #endif
+#endif
+} fe_fd_mode;
+
 
 /*! \brief TODO */
 typedef enum {
-    FE_FD_SEEK_SET,
-    FE_FD_SEEK_CUR,
-    FE_FD_SEEK_END
+    FE_FD_SEEK_SET = 0,
+    FE_FD_SEEK_CUR = 1,
+    FE_FD_SEEK_END = 2
 } fe_fd_seek_whence;
 
 #if defined(FE_TARGET_EMSCRIPTEN)
@@ -393,12 +410,31 @@ typedef struct {
 typedef struct {
     void *base;
     size_t len;
+    void *view_base;
 } fe_filemapview;
 #endif
 
 #ifndef FE_FD_INVALID_FD
 #define FE_FD_INVALID_FD ((fe_fd)(-1))
 #endif
+
+
+typedef struct {
+    bool valid                                     : 1;
+    bool e_neither_read_nor_write                  : 1;
+    bool e_append_without_write                    : 1;
+    bool e_truncate_without_write                  : 1;
+    bool e_append_and_truncate                     : 1;
+    bool w_nonexistent_without_create              : 1;
+    bool w_linux_truncate_on_nonexistent           : 1;
+    bool w_stdio_create_implies_append_or_truncate : 1;
+    bool w_windows_no_actual_append_mode           : 1;
+    bool w_windows_filemapping_write_shared        : 1;
+    bool w_hint_both_random_and_sequential         : 1;
+    bool w_hint_both_early_and_late_access         : 1;
+} fe_fd_modeflags_validation;
+
+
 
 /*! \brief TODO */
 typedef struct {
@@ -408,109 +444,66 @@ typedef struct {
     fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
     * If you want to build a string to show to the user, you're on your own (any URL or
     * filename is yours to keep track of). */
-} fe_iov_state;
-
-typedef void (*fe_iov_completion_callback)(const fe_iov_state *st, void *userdata);
-
-typedef struct {
-    const char                *organization; 
-    const char                *app_name;     
-    const char                *idb_name;     
-    const char                *file_url;     
-    const char                *file_name;
-    fe_iov_rootdir             rootdir;
-    fe_fd_flags                fd_flags;
-    fe_iov_completion_callback async_completion_callback;
-    void                      *async_completion_callback_arg; /* Must not go out of scope. */
-} fe_iov_locator;
-
+} fe_iov_progress;
 
 
 /*! \brief TODO */
 typedef void *fe_iov_promise;
 
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_status  fe_iov_load_wget(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_iov_load_file(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_load_file_async(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_iov_load_persistent(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_load_persistent_async(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_iov_load_res(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_load_res_async(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_iov_store_file(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_store_file_async(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_iov_store_persistent(fe_iov *iov, const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_iov_store_persistent_async(fe_iov *iov, const fe_iov_locator *params);
+#define FE_FS_EMSCRIPTEN_GETCWD_MAXLEN 2048
+#define FE_FS_UNIX_GETCWD_CHUNKSIZE 256
 
-#ifdef FE_TARGET_EMSCRIPTEN
-#define FE_DECL_NIY_EMSCRIPTEN FE_DECL_NIY
-#else
-#define FE_DECL_NIY_EMSCRIPTEN
-#endif
+bool           fe_fs_setcwd      (const char *path);
+char*          fe_fs_getcwd      (void);
+uint64_t       fe_fs_get_mtime   (const fe_fpath fpath);
+
+fe_iov_status  fe_fs_exists      (const fe_fpath fpath);
+fe_iov_promise fe_fs_exists_async(const fe_fpath fpath);
+fe_iov_status  fe_fs_delete      (const fe_fpath fpath);
+fe_iov_promise fe_fs_delete_async(const fe_fpath fpath);
+
+fe_iov_status  fe_wget           (fe_iov *iov, const char *url);
+fe_iov_promise fe_wget_async     (fe_iov *iov, const char *url);
+fe_iov_status  fe_fs_load        (fe_iov *iov, const fe_fpath fpath);
+fe_iov_promise fe_fs_load_async  (fe_iov *iov, const fe_fpath fpath);
+fe_iov_status  fe_fs_store       (fe_iov *iov, const fe_fpath fpath);
+fe_iov_promise fe_fs_store_async (fe_iov *iov, const fe_fpath fpath);
+
+FE_DECL_PURE void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f);
+char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status);
+FE_DECL_PURE void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f);
 
 
-
-
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_file(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_persistent(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN fe_fd          fe_fd_open_res(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_fd_get_download_promise(fe_fd fd);
-/*! \brief TODO */
-#define fe_fd_is_valid(fd) ((fd) != FE_FD_INVALID_FD)
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN void           fe_fd_munmap(fe_filemapview *v);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
-/*! \brief TODO */
+/* On an Emscripten Wget file, this call blocks until the download is complete.
+ * This is most likely not what you want, so you should first download the
+ * file using fe_iov_load_wget_async(), handle the promise properly,
+ * and save it to MEMFS, then open it on MEMFS. */
+fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode);
+#define        fe_fd_is_valid(fd) ((fd) != FE_FD_INVALID_FD)
+bool           fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
+bool           fe_fd_msync_hint(fe_filemapview *v);
+void           fe_fd_munmap(fe_filemapview *v);
+fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
 #define        fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_sync(fe_fd fd);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN bool           fe_fd_truncate(fe_fd fd, size_t len);
-/*! \brief TODO */
-FE_DECL_NIY_EMSCRIPTEN void           fe_fd_close(fe_fd fd);
+fe_fd_offset   fe_fd_size(fe_fd fd);
+ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
+ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
+ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count);
+ssize_t        fe_fd_writev(fe_fd fd, const fe_iov *iov_array, size_t iov_count);
+ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
+bool           fe_fd_sync(fe_fd fd);
+bool           fe_fd_truncate(fe_fd fd, size_t len);
+void           fe_fd_close(fe_fd fd);
 
-/*! \brief TODO */
-FE_DECL_NIY bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_state *st);
-/*! \brief TODO */
-FE_DECL_NIY bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_state *st, int timeout_milliseconds);
-/*! \brief TODO */
-FE_DECL_NIY void fe_iov_promise_cancel(fe_iov_promise p);
+bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_progress *st);
+bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_progress *st, int timeout_milliseconds);
+void fe_iov_promise_cancel(fe_iov_promise p);
 
 /*! @} */
 
 struct fe_iov_promise_struct {
-    fe_iov_state state;
+    fe_iov_progress state;
 };
 
 #endif /* FE_IOV_H */

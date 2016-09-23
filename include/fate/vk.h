@@ -38,5 +38,6 @@
 #ifndef FE_VK_H
 #define FE_VK_H
 
+#include <fate/vk/defs.h>
 
 #endif /* FE_VK_H */

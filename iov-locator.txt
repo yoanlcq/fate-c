@@ -1,97 +1,15 @@
 So what's a locator anyway ?
 
-//La plupart des fonctions prennent directement un chemin.
-//Sans compter les 3rd parties.
-//On voudrait pouvoir passer directement un chemin à ces fonctions.
-//Un truc du genre :
-
-cj_res("foobar")
-=> EMSCRIPTEN: file(WGET, "http://www.yoanlecoq.com/cj/foobar");
-=> EMSCRIPTEN: file(MEMFS, "foobar");
-=> ANDROID:    file("<jnidir>/foobar"); (sdl_rwops)
-=> IOS/OS X:   file("<mypath>/foobar");
-=> LINUX:      file("<mypath>/foobar");
-=> WINDOWS:    file("<mypath>/foobar");
-
-cj_persistent("foobar");
-=> EMSCRIPTEN: file(IDB, "db_name", "objstore_name", "foobar");
-=> ANDROID:    file("<internal>/<not-jnidir>/foobar"); (sdl_rwops)
-=> ANDROID:    file("<external>/foobar"); (sdl_rwops)
-=> IOS/OS X:   file("<mypath>/foobar");
-=> LINUX:      file("<mypath>/foobar");
-=> WINDOWS:    file("<mypath>/foobar");
-
-les fonctions devraient traiter "seulement des fichiers".
-
 --- User-side :
-/* Automatically-freed TLS string */
-fe_iov_load(iov, cj_locate_res("foo/bar.txt"));
-/* Normale */
-fe_fpath path;
 cj_locate_res(&path, "bar/foo.sav");
 fe_iov_load(iov, path);
 cj_locate_free(path);
 
 
 --- Déclaration de l'API :
-bool fe_fs_{file|wget|idb}_{load|store|exists|delete}[_sync]([fe_iov *iov,] fe_fpath ps);
-Avec :
-#ifdef FE_TARGET_EMSCRIPTEN
-typedef struct {
-    union {
-        char *path;
-        struct {
-            char *url;
-        } wget;
-        struct {
-            char *path;
-        } memfs;
-        struct {
-            char *key;
-            char *object_store_name;
-            char *db_name;
-        } idb;
-    };
-    enum {
-        IDB, WGET, WGET_CACHED_USING_MEMFS, MEMFS
-    } type;
-} fe_fpath;
-#else
-typedef struct {
-    char *path; /* Directly a filesystem path. No Wget, on purpose. */
-} fe_fpath; /* Typedef-ed into a struct to prevent accidental use of raw strings in fe_fs_*() routines. */
-#endif
+bool fe_fs_{file|wget}_{load|store|exists|delete}[_sync]([fe_iov *iov,] fe_fpath ps);
 
-/* These routines are available to build paths. */
-#ifdef FE_TARGET_OSX
-fe_fpath_osx_sdl2basepath()
-fe_fpath_osx_sdl2prefpath(org,app)
-fe_fpath_osx_tmp_dir()
-#elif defined(FE_TARGET_IOS)
-fe_fpath_ios_sdl2basepath()
-fe_fpath_ios_sdl2prefpath(org,app)
-fe_fpath_ios_tmp_dir(tmpdir) //tmpdir = specifié par app.
-#elif defined(FE_TARGET_ANDROID)
-fe_fpath_android_internal_storage();
-fe_fpath_android_external_storage();
-fe_fpath_android_asset(assetdir); //<assetdir> = distinguer de <internal>.
-fe_fpath_android_tmp_dir(tmpdir) //tmpdir = spécifié par app.
-#elif defined(FE_TARGET_LINUX) || defined(FE_TARGET_FREEBSD)
-fe_fpath_linux_executable_dir();
-fe_fpath_linux_xdg_data_home();
-fe_fpath_linux_tmp_dir();
-#elif defined(FE_TARGET_WINRT)
-fe_fpath_winrt_installed_location();
-fe_fpath_winrt_local_folder();
-fe_fpath_winrt_roaming_folder();
-fe_fpath_winrt_temp_folder();
-#elif defined(FE_TARGET_WINDOWS)
-fe_fpath_windows_executable_folder();
-fe_fpath_windows_appdata();
-fe_fpath_windows_temp_folder();
-#endif
-
-API Utilisateur :
+--- API Utilisateur :
 void mygame_locate_[res|persistent](fe_fpath *ps, const char *name) {
     /* Apply all transforms on 'ps', using conditional compilation. */
     fe_iov_printf();

@@ -27,44 +27,37 @@
  *
  */
 
-/*! \file fate/fs.h
- *  \brief File system.
- *  \defgroup fs File system.
+#ifndef FE_VK_DEFS_H
+#define FE_VK_DEFS_H
+
+/*! \file fate/vk.h
+ *  \brief Definitions and inclusions for the Vulkan backend.
+ *  \ingroup vk
+ *
+ * TODO
  *
  * @{
  */
 
-#ifndef FE_FS_H
-#define FE_FS_H
+#ifdef FE_USE_VULKAN
 
 #include <fate/defs.h>
-#include <fate/iov.h>
-#include <stdbool.h>
 
-/*! \brief TODO */
-char *fe_fs_get_executable_dir(void);
+#if defined(FE_TARGET_ANDROID)
+    #define VK_USE_PLATFORM_ANDROID_KHR 1
+#elif defined(FE_TARGET_LINUX) || defined(FE_TARGET_FREEBSD)
+    #define VK_USE_PLATFORM_MIR_KHR 1
+    #define VK_USE_PLATFORM_WAYLAND_KHR 1
+    #define VK_USE_PLATFORM_XLIB_KHR 1
+    #define VK_USE_PLATFORM_XCB_KHR 1
+#elif defined(FE_TARGET_WINDOWS)
+    #define VK_USE_PLATFORM_WIN32_KHR 1
+#endif /**/
 
-/*! \brief TODO */
-bool  fe_fs_setcwd(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY char* fe_fs_getcwd(void);
-/*! \brief TODO */
-uint64_t fe_fs_file_get_wtime(const fe_iov_locator *params);
+#include <vulkan/vulkan.h>
 
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_status  fe_fs_file_exists(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_status  fe_fs_file_delete(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_status  fe_fs_persistent_exists(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_fs_persistent_exists_async(const fe_iov_locator *params);
-/*! \brief TODO */
-fe_iov_status  fe_fs_persistent_delete(const fe_iov_locator *params);
-/*! \brief TODO */
-FE_DECL_NIY fe_iov_promise fe_fs_persistent_delete_async(const fe_iov_locator *params);
-
+#endif /* FE_USE_VULKAN */
 
 /*! @} */
 
-#endif /* FE_FS_H */
+#endif /* FE_VK_DEFS_H */

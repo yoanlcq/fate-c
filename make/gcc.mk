@@ -32,10 +32,23 @@ else
 LDLIBS = -lSDL2 -l$(LIBGL) -lm -ldl
 endif
 
+ifeq ($(OS),linux)
+ifeq ($(VULKAN),1)
+LDLIBS += -lvulkan
+CCDEBUGFLAGS += -DFE_USE_VULKAN 
+CCRELEASEFLAGS += -DFE_USE_VULKAN 
+endif
+endif
+
 ifeq ($(OS),windows)
 CCRELEASEFLAGS += -mwindows
 #LDLIBS += -ld3d10 -ldxguid 
 LDLIBS += -lGdi32 -lUser32 -lKernel32 -lDbgHelp -lws2_32 
+ifeq ($(VULKAN),1)
+LDLIBS += -lvulkan-1
+CCDEBUGFLAGS += -DFE_USE_VULKAN 
+CCRELEASEFLAGS += -DFE_USE_VULKAN 
+endif
 else
 endif
 

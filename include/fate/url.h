@@ -62,6 +62,10 @@ FE_DECL_NIY char *fe_urlparts_to_url(const fe_urlparts *parts);
 FE_DECL_NIY bool fe_urlparts_from_url(fe_urlparts *parts, const char *url);
 /*! \brief TODO */
 FE_DECL_NIY void fe_urlparts_deinit(fe_urlparts *parts);
+/*! \brief You should then free the returned string with #fe_mem_heapfree().  */
+FE_DECL_NIY char *fe_percent_encode(const char *utf8);
+/*! \brief You should then free the returned string with #fe_mem_heapfree().  */
+FE_DECL_NIY char *fe_punycode_encode(const char *utf8);
 
 /*! @} */
 
