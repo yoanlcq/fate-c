@@ -58,6 +58,7 @@
 #else /* Naive */
 
 #include <fate/defs.h>
+#include <fate/decl.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
@@ -69,7 +70,7 @@
 typedef struct { float at[4]; } fe_vec4;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_vec4_color {
+struct FE_DECL_PACKED_STRUCT fe_vec4_color {
     float r;
     float g;
     float b;
@@ -78,7 +79,7 @@ struct FE_PACKED_STRUCT fe_vec4_color {
 typedef struct fe_vec4_color fe_vec4_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_vec4_coord {
+struct FE_DECL_PACKED_STRUCT fe_vec4_coord {
     float x;
     float y;
     float z;

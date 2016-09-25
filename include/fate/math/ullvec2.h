@@ -58,6 +58,7 @@
 #else /* Naive */
 
 #include <fate/defs.h>
+#include <fate/decl.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
@@ -69,7 +70,7 @@
 typedef struct { uint64_t at[2]; } fe_ullvec2;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_ullvec2_color {
+struct FE_DECL_PACKED_STRUCT fe_ullvec2_color {
     uint64_t r;
     uint64_t g;
     /* No blue component. */
@@ -78,7 +79,7 @@ struct FE_PACKED_STRUCT fe_ullvec2_color {
 typedef struct fe_ullvec2_color fe_ullvec2_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_ullvec2_coord {
+struct FE_DECL_PACKED_STRUCT fe_ullvec2_coord {
     uint64_t x;
     uint64_t y;
     /* No z component. */

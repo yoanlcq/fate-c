@@ -61,6 +61,7 @@ dnl
 #else /* Naive */
 
 #include <fate/defs.h>
+#include <fate/decl.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
@@ -72,7 +73,7 @@ ifelse(type,fe_space_unit,#include <fate/units.h>)
 typedef struct { type at[dim]; } ns`'vec;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ns`'vec`'_color {
+struct FE_DECL_PACKED_STRUCT ns`'vec`'_color {
     type r;
     type g;
     ifelse(eval(dim>=3),1,type b;,/* No blue component. */)
@@ -81,7 +82,7 @@ struct FE_PACKED_STRUCT ns`'vec`'_color {
 typedef struct ns`'vec`'_color ns`'vec`'_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT ns`'vec`'_coord {
+struct FE_DECL_PACKED_STRUCT ns`'vec`'_coord {
     type x;
     type y;
     ifelse(eval(dim>=3),1,type z;,/* No z component. */)

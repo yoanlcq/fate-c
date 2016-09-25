@@ -206,7 +206,7 @@ char *fe_iov_status_str(fe_iov_status status) {
         return static_strerror(status.last_error);
     }
     */
-    return fe_asprintf("<TODO>");
+    return static_strerror(0);
 }
 
 
@@ -214,7 +214,12 @@ char *fe_iov_status_str(fe_iov_status status) {
 
 bool fe_fs_setcwd(const char *path) {
 #if defined(FE_TARGET_WINDOWS)
-    return SetCurrentDirectory(path);
+    WCHAR *wpath = fe_utf8_to_win32unicode(path);
+    if(!wpath)
+        return false;
+    BOOL success = SetCurrentDirectoryW(path);
+    fe_mem_heapfree(wpath);
+    return success;
 #else
     return !chdir(path);
 #endif
@@ -257,8 +262,12 @@ uint64_t fe_fs_get_mtime(const fe_fpath fpath) {
 #if defined(FE_TARGET_WINDOWS)
     FILETIME ft;
     HANDLE fh;
-    fh = CreateFile(fpath.path, GENERIC_READ, FILE_SHARE_READ, NULL, 
+    WCHAR *wpath = fe_utf8_to_win32unicode(fpath.path);
+    if(!wpath)
+        return 0;
+    fh = CreateFileW(fpath.path, GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    fe_mem_heapfree(wpath);
     if(fh==INVALID_HANDLE_VALUE)
         return 0;
     GetFileTime(fh, NULL, NULL, &ft);
@@ -825,7 +834,7 @@ fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
 
 
 
-
+#ifndef FE_TARGET_WINDOWS
 static inline bool static_unix_mmap(fe_filemapview *v, int fd, fe_fd_offset offset, size_t len, bool rw) {
     static int pagesize = 0;
     if(!pagesize)
@@ -841,7 +850,7 @@ static inline bool static_unix_mmap(fe_filemapview *v, int fd, fe_fd_offset offs
     v->len = len;
     return true;
 }
-
+#endif
 
 
 /* Windows: len can be 0 (to go as far as possible) 
@@ -866,8 +875,8 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
     }
     uint64_t fileMapStart = (offset / dwSysGran) * dwSysGran;
     DWORD dwMapViewSize = (offset % dwSysGran) + len;
-    void *iViewDelta = offset - dwFileMapStart;
-    v->view_base = MapViewOfFile(fmap, 
+    intptr_t iViewDelta = offset - fileMapStart;
+    v->view_base = MapViewOfFile(v->filemapping, 
             FILE_MAP_READ | (rw*FILE_MAP_WRITE),
             fileMapStart>>32, fileMapStart, dwMapViewSize
     );
@@ -962,7 +971,7 @@ ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {
 #if defined(FE_TARGET_WINDOWS)
     DWORD bytes_written;
     BOOL success = WriteFile(fd, buf, len, &bytes_written, NULL);
-    return success ? bytes_read : -1;
+    return success ? bytes_written : -1;
 #elif defined(FE_TARGET_ANDROID)
     return SDL_RWwrite(fd, buf, 1, len);
 #elif defined(FE_TARGET_EMSCRIPTEN)
@@ -1062,8 +1071,9 @@ bool           fe_fd_truncate(fe_fd fd, size_t len) {
 #if defined(FE_TARGET_WINDOWS)
     fe_fd_offset cur = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
     fe_fd_seek(fd, len, FE_FD_SEEK_SET);
-    SetEndOfFile(fd);
+    BOOL success = SetEndOfFile(fd);
     fe_fd_seek(fd, 0, cur);
+    return success;
 #elif defined(FE_TARGET_ANDROID)
     if(!static_androidsdlrwops_has_unix_fd(fd))
         return false;

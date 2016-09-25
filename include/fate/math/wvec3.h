@@ -58,6 +58,7 @@
 #else /* Naive */
 
 #include <fate/defs.h>
+#include <fate/decl.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
@@ -69,7 +70,7 @@
 typedef struct { fe_space_unit at[3]; } fe_wvec3;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_wvec3_color {
+struct FE_DECL_PACKED_STRUCT fe_wvec3_color {
     fe_space_unit r;
     fe_space_unit g;
     fe_space_unit b;
@@ -78,7 +79,7 @@ struct FE_PACKED_STRUCT fe_wvec3_color {
 typedef struct fe_wvec3_color fe_wvec3_color;
 
 /*! \brief TODO */
-struct FE_PACKED_STRUCT fe_wvec3_coord {
+struct FE_DECL_PACKED_STRUCT fe_wvec3_coord {
     fe_space_unit x;
     fe_space_unit y;
     fe_space_unit z;
