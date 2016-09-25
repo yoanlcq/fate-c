@@ -180,11 +180,7 @@ static char* static_strerror(DWORD error) {
     LocalFree(lpMsgBuf);
     return utf8;
 }
-#elif defined(FE_TARGET_EMSCRIPTEN) || defined(FE_TARGET_ANDROID)
-static char* static_strerror(int err) {
-    return fe_asprintf("%s", strerror(err));
-}
-#else
+#elif _XOPEN_SOURCE >= 700
 #include <locale.h>
 static char* static_strerror(int err) {
     /* Replace "C" by "" to generate a locale suitable for the user. 
@@ -193,6 +189,10 @@ static char* static_strerror(int err) {
     char *str = fe_asprintf("%s", strerror_l(err, lc));
     freelocale(lc);
     return str;
+}
+#else
+static char* static_strerror(int err) {
+    return fe_asprintf("%s", strerror(err));
 }
 #endif
 
