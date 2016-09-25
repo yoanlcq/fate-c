@@ -140,7 +140,7 @@ static void fe_crash_log_stacktrace_win32(
                                    const DWORD64 *stack, 
                                    unsigned short nframes)
 {
-    unsigned i, j;
+    unsigned i;
     WCHAR modname[FE_CRASH_MODNAME_LEN];
     DWORD modname_len;
     SYMBOL_INFO *symbol;

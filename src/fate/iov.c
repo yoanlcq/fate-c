@@ -217,7 +217,7 @@ bool fe_fs_setcwd(const char *path) {
     WCHAR *wpath = fe_utf8_to_win32unicode(path);
     if(!wpath)
         return false;
-    BOOL success = SetCurrentDirectoryW(path);
+    BOOL success = SetCurrentDirectoryW(wpath);
     fe_mem_heapfree(wpath);
     return success;
 #else
@@ -231,8 +231,10 @@ char * fe_fs_getcwd(void) {
     WCHAR *wpath = fe_mem_heapalloc(len, WCHAR, "");
     if(!wpath)
         return NULL;
-    GetCurrentDirectoryW(len, wpath);
-    const char *path = fe_utf8_from_win32unicode(wpath);
+    BOOL success = GetCurrentDirectoryW(len, wpath);
+    if(!success)
+        return NULL; /* XXX We should retry instead. */
+    char *path = fe_utf8_from_win32unicode(wpath);
     fe_mem_heapfree(wpath);
     return path;
 #else
@@ -265,7 +267,7 @@ uint64_t fe_fs_get_mtime(const fe_fpath fpath) {
     WCHAR *wpath = fe_utf8_to_win32unicode(fpath.path);
     if(!wpath)
         return 0;
-    fh = CreateFileW(fpath.path, GENERIC_READ, FILE_SHARE_READ, NULL, 
+    fh = CreateFileW(wpath, GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     fe_mem_heapfree(wpath);
     if(fh==INVALID_HANDLE_VALUE)
@@ -457,7 +459,7 @@ fe_iov_promise fe_iov_load_wget_async(fe_iov *iov, const fe_fpath fpath) {return
 
 
 static inline fe_fd_mode fe_fd_modeflags_compile1(fe_fd_modeflags f) {
-    fe_fd_mode m;
+    fe_fd_mode m = {0};
     fe_fd_modeflags_compile(&m, f);
     return m;
 }
@@ -862,7 +864,8 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
     v->filemapping = CreateFileMapping(fd, NULL, 
             /* There are a lot of other nice-looking flags that we should inspect. */
             rw ? PAGE_READWRITE : PAGE_READONLY,
-            sizeof(len)>4 ? len>>32 : 0, len,
+            /* sizeof(len)>4 ? len>>32 : 0, len, <=== MSVC complains */
+            0, len,
             NULL /* Optional name for the system-wide file mapping object */
     );
     if(!v->filemapping)
@@ -882,7 +885,7 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
     );
     if(!v->view_base)
         return false;
-    v->base = v->view_base + iViewDelta;
+    v->base = (uintptr_t)v->view_base + iViewDelta;
     v->len = len;
     return true;
 #else
@@ -903,7 +906,7 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
 }
 
 bool fe_fd_msync_hint(fe_filemapview *v) {
-    size_t total_len = (v->base - v->view_base) + v->len;
+    size_t total_len = ((uintptr_t)v->base - (uintptr_t)v->view_base) + v->len;
 #if defined(FE_TARGET_WINDOWS)
     return FlushViewOfFile(v->view_base, total_len);
 #else

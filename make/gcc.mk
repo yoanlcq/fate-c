@@ -29,7 +29,10 @@ ifeq ($(OS),osx)
 CCFLAGS += -F/Library/Frameworks 
 LDLIBS = -framework SDL2 -framework OpenGL -lm -lintl -ldl
 else
-LDLIBS = -lSDL2 -l$(LIBGL) -lm -ldl
+LDLIBS = -lSDL2 -l$(LIBGL) -lm
+ifneq ($(OS),windows)
+LDLIBS += -ldl 
+endif
 endif
 
 ifeq ($(OS),linux)
