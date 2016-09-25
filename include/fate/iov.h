@@ -251,21 +251,16 @@ size_t fe_iov_get_vprintf_len(const char *fmt, va_list ap);
  * it must be dynamic.
  */
 typedef struct {
-    union {
-        char *base;
-        void *base_voidp; /* 'base' must take as much space as a void*. Required by readv(). */
-        char *base_charp;
-    };
+    char *base;
     size_t len;
 } fe_iov;
 
-/*! \brief TODO */
-#define FE_IOV_ZERO_INITIALIZER {{0}}
+
 
 /*! \brief Deinitializes a #fe_iov (Actually calls #fe_mem_heapfree() on its buffer).
  * To initialize a fe_iov struct, just clear it to zero :
  * \code{.c}
- * fe_iov iov = FE_IOV_ZERO_INITIALIZER;
+ * fe_iov iov = {0};
  * \endcode
  */
 void    fe_iov_deinit(fe_iov *iov);
@@ -276,9 +271,26 @@ static inline bool fe_iov_grow(fe_iov *iov, size_t len) {
     return fe_iov_resize(iov, iov->len+len);
 }
 /*! \brief TODO */
-size_t  fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
+size_t fe_iov_vprintf(fe_iov *iov, size_t offset, const char *fmt, va_list ap);
+/*! \brief TODO */
+size_t fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
+
+/*! \brief TODO */
+static inline char* fe_vasprintf(const char *fmt, va_list ap) {
+    fe_iov iov = {0};
+    fe_iov_vprintf(&iov, 0, fmt, ap);
+    return iov.base;
+}
+/*! \brief TODO */
+static inline char* fe_asprintf(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    char *str = fe_vasprintf(fmt, ap);
+    va_end(ap);
+    return str;
+}
 /*! \brief \p offset is relative to \p iov. */
-void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
+void   fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
 
 
 
@@ -289,6 +301,7 @@ typedef enum {
     FE_IOV_SUCCESS = 0,
     FE_IOV_PROGRESS_RESOLVING_HOST,
     FE_IOV_FAILED_UNKNOWN,
+    FE_IOV_FAILED_SYSERR,
     FE_IOV_FAILED_NO_MEM,
     FE_IOV_FAILED_NO_HOST,
     FE_IOV_FAILED_NO_ENTRY
@@ -305,7 +318,23 @@ typedef struct {
     fe_iov_code current  : 12; /* Valid only when step >= FE_IOV_STEP_STARTED. */
     bool        success  :  1; /* Valid only when step == FE_IOV_STEP_COMPLETED.  */
     bool        exists   :  1; /* Valid only when success and the request is 'exists()'. */
+    #ifdef FE_TARGET_WINDOWS
+        DWORD last_error;
+    #else
+        int last_error;
+    #endif
 } fe_iov_status;
+
+/*! \brief TODO */
+typedef struct {
+    size_t bytes_current; /*!< Downloaded, read or written. */
+    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
+                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
+    fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
+    * If you want to build a string to show to the user, you're on your own (any URL or
+    * filename is yours to keep track of). */
+} fe_iov_progress;
+
 
 /*! \brief TODO */
 /* Anything in there, even the enum's values, may be platform-specific #defines. */
@@ -364,15 +393,7 @@ typedef enum {
     FE_FD_SEEK_END = 2
 } fe_fd_seek_whence;
 
-#if defined(FE_TARGET_EMSCRIPTEN)
-    #include <sys/types.h>
-    typedef void *fe_fd;
-    #define FE_FD_INVALID_FD NULL
-    typedef size_t fe_fd_offset;
-    #define FE_FD_SEEK_SET SEEK_SET
-    #define FE_FD_SEEK_CUR SEEK_CUR
-    #define FE_FD_SEEK_END SEEK_END
-#elif defined(FE_TARGET_WINDOWS)
+#if defined(FE_TARGET_WINDOWS)
     #include <windows.h>
     typedef HANDLE fe_fd;
     #define FE_FD_INVALID_FD INVALID_HANDLE_VALUE
@@ -390,33 +411,34 @@ typedef enum {
     #define FE_FD_SEEK_END RW_SEEK_END
 #else
     #include <sys/types.h>
-    typedef int fe_fd;
-    #define FE_FD_INVALID_FD (-1)
     typedef off_t fe_fd_offset;
+    #ifdef FE_TARGET_EMSCRIPTEN
+        typedef struct {
+            int unix_fd;
+            fe_fpath_emscripten_idb_fpath idb; 
+            bool is_idb : 1;
+            bool is_readonly : 1;
+        } fe_fd;
+        #define FE_FD_INVALID_FD ((fe_fd){-1,{NULL, NULL},0,0})
+        #define fe_fd_is_valid(fd) ((fd).unix_fd != -1)
+    #else
+        typedef int fe_fd;
+        #define FE_FD_INVALID_FD (-1)
+    #endif
     #define FE_FD_SEEK_SET SEEK_SET
     #define FE_FD_SEEK_CUR SEEK_CUR
     #define FE_FD_SEEK_END SEEK_END
 #endif
 
-#ifdef FE_TARGET_WINDOWS
-typedef struct {
-    void *base;
-    size_t len;
-    void *view_base;
-    HANDLE filemapping;
-} fe_filemapview;
-#else
 /*! \brief TODO*/
 typedef struct {
     void *base;
     size_t len;
     void *view_base;
+#ifdef FE_TARGET_WINDOWS
+    HANDLE filemapping;
+#endif
 } fe_filemapview;
-#endif
-
-#ifndef FE_FD_INVALID_FD
-#define FE_FD_INVALID_FD ((fe_fd)(-1))
-#endif
 
 
 typedef struct {
@@ -437,36 +459,35 @@ typedef struct {
 
 
 /*! \brief TODO */
-typedef struct {
-    size_t bytes_current; /*!< Downloaded, read or written. */
-    size_t bytes_total; /*!< How many are expected to be read/written for this operation.
-                             Beware, it may be zero ! (e.g with fe_fd_sync()). */
-    fe_iov_status status; /*!< This only gives you a hint about what did go wrong.
-    * If you want to build a string to show to the user, you're on your own (any URL or
-    * filename is yours to keep track of). */
-} fe_iov_progress;
-
-
-/*! \brief TODO */
 typedef void *fe_iov_promise;
 
-#define FE_FS_EMSCRIPTEN_GETCWD_MAXLEN 2048
 #define FE_FS_UNIX_GETCWD_CHUNKSIZE 256
+
+#ifdef FE_TARGET_WINDOWS
+typedef DWORD fe_sys_err; /* Yeah I know it's the same as int. */
+#else
+typedef int fe_sys_err;
+#endif
+
+fe_iov_status     fe_iov_get_last_status(void);
+
+/*! \brief Free the returned string with #fe_mem_heapfree(). */
+char *fe_iov_status_str(fe_iov_status status);
 
 bool           fe_fs_setcwd      (const char *path);
 char*          fe_fs_getcwd      (void);
 uint64_t       fe_fs_get_mtime   (const fe_fpath fpath);
 
-fe_iov_status  fe_fs_exists      (const fe_fpath fpath);
+bool           fe_fs_exists      (const fe_fpath fpath);
 fe_iov_promise fe_fs_exists_async(const fe_fpath fpath);
-fe_iov_status  fe_fs_delete      (const fe_fpath fpath);
+bool           fe_fs_delete      (const fe_fpath fpath);
 fe_iov_promise fe_fs_delete_async(const fe_fpath fpath);
 
-fe_iov_status  fe_wget           (fe_iov *iov, const char *url);
+bool           fe_wget           (fe_iov *iov, const char *url);
 fe_iov_promise fe_wget_async     (fe_iov *iov, const char *url);
-fe_iov_status  fe_fs_load        (fe_iov *iov, const fe_fpath fpath);
+bool           fe_fs_load        (fe_iov *iov, const fe_fpath fpath);
 fe_iov_promise fe_fs_load_async  (fe_iov *iov, const fe_fpath fpath);
-fe_iov_status  fe_fs_store       (fe_iov *iov, const fe_fpath fpath);
+bool           fe_fs_store       (fe_iov *iov, const fe_fpath fpath);
 fe_iov_promise fe_fs_store_async (fe_iov *iov, const fe_fpath fpath);
 
 FE_DECL_PURE void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f);
@@ -479,12 +500,14 @@ FE_DECL_PURE void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f);
  * file using fe_iov_load_wget_async(), handle the promise properly,
  * and save it to MEMFS, then open it on MEMFS. */
 fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode);
+#ifndef        fe_fd_is_valid
 #define        fe_fd_is_valid(fd) ((fd) != FE_FD_INVALID_FD)
+#endif
 bool           fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, bool rw);
 bool           fe_fd_msync_hint(fe_filemapview *v);
-void           fe_fd_munmap(fe_filemapview *v);
+bool           fe_fd_munmap(fe_filemapview *v);
 fe_fd_offset   fe_fd_seek(fe_fd fd, fe_fd_offset offset, fe_fd_seek_whence whence);
-#define        fe_fd_tell(fd) fe_fd_seek(fd, 0, FE_FD_SEEK_CUR)
+#define        fe_fd_tell(fd) (fe_fd_seek(fd, 0, FE_FD_SEEK_CUR))
 fe_fd_offset   fe_fd_size(fe_fd fd);
 ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len);
 ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len);
@@ -494,7 +517,7 @@ ssize_t        fe_fd_preadv(fe_fd fd, fe_iov *iov_array, size_t iov_count, fe_fd
 ssize_t        fe_fd_pwritev(fe_fd fd, const fe_iov *iov_array, size_t iov_count, fe_fd_offset offset);
 bool           fe_fd_sync(fe_fd fd);
 bool           fe_fd_truncate(fe_fd fd, size_t len);
-void           fe_fd_close(fe_fd fd);
+bool           fe_fd_close(fe_fd fd);
 
 bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_progress *st);
 bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_progress *st, int timeout_milliseconds);
@@ -503,7 +526,7 @@ void fe_iov_promise_cancel(fe_iov_promise p);
 /*! @} */
 
 struct fe_iov_promise_struct {
-    fe_iov_progress state;
+    fe_iov_progress progress;
 };
 
 #endif /* FE_IOV_H */

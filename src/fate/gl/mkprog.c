@@ -38,14 +38,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
-#include <fate/defs.h>
-#include <fate/log.h>
-#include <fate/iov.h>
-#include <fate/mem.h>
-#include <fate/gl.h>
-#include <fate/hash.h>
-#include <fate/timestamp.h>
-#include <fate/hw.h>
+#include <fate/fate.h>
 
 static const char *TAG = "fe_gl_mkprog";
 

@@ -42,25 +42,24 @@
 
 #ifdef FE_TARGET_EMSCRIPTEN
 typedef struct {
+    char *path;
+    //char *object_store_name;
+    char *db_name;
+} fe_fpath_emscripten_idb_fpath; /* This struct is used elsewhere. */
+typedef struct {
     union {
-        char *path;
+        //char *path;
         struct {
             char *url;
         } wget;
         struct {
             char *path;
         } memfs;
-        struct {
-            char *key;
-            char *object_store_name;
-            char *db_name;
-        } idb;
+        fe_fpath_emscripten_idb_fpath idb;
     };
-    enum {
-        FE_FPATH_EMSCRIPTEN_MEMFS=0,
-        FE_FPATH_EMSCRIPTEN_IDB, 
-        FE_FPATH_EMSCRIPTEN_WGET, 
-    } type;
+    bool is_wget  : 1;
+    bool is_memfs : 1;
+    bool is_idb   : 1;
 } fe_fpath;
 #else
 /*! \brief Typedef-ed into a struct to prevent accidental
@@ -75,7 +74,7 @@ void fe_fpath_deinit(fe_fpath fpath);
 
 /* These routines are available for building paths. Free them using #fe_path_deinit(). */
 #if defined(FE_TARGET_EMSCRIPTEN)
-fe_fpath fe_fpath_emscripten_idb(const char *db_name, const char *object_store_name, const char *key);
+fe_fpath fe_fpath_emscripten_idb(const char *db_name, const char *filepath);
 fe_fpath fe_fpath_emscripten_wget(const char *url);
 fe_fpath fe_fpath_emscripten_memfs(const char *filepath);
 #elif FE_TARGET_OSX
