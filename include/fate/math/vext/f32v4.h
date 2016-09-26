@@ -48,17 +48,19 @@
  && __has_builtin(__builtin_shufflevector)
     #define FE_F32V4_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define FE_F32V4_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_f32v4_shuffle(v,a,b,c,d) \
-                __builtin_shufflevector((v)->vx,(v)->vx,a,b,c,d)
-    #define fe_f32v4_shuffle2(u,v,a,b,c,d) \
-                __builtin_shufflevector((u)->vx,(v)->vx,a,b,c,d)
+    #define fe_f32v4_shuffle(r,v,...) \
+                do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
+    #define fe_f32v4_shuffle2(r,u,v,...) \
+                do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define FE_F32V4_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(float))))
     #define FE_F32V4_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_f32v4_shuffle(v,a,b,c,d)    __builtin_shuffle((v)->vx,(fe_u32v4){a,b,c,d})
-    #define fe_f32v4_shuffle2(u,v,a,b,c,d) __builtin_shuffle((u)->vx,(v)->vx,(fe_u32v4){a,b,c,d})
+    #define fe_f32v4_shuffle(r,v,...)    \
+        do (r)->vx = __builtin_shuffle((v)->vx, ((fe_u32v4){.vx={__VA_ARGS__}}).vx); while(0)
+    #define fe_f32v4_shuffle2(r,u,v,...) \
+        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_u32v4){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
@@ -123,10 +125,10 @@ static inline float fe_f32v4_mul_inner(const fe_f32v4 *a, const fe_f32v4 *b) {
 #define fe_f32v4_mul_cross(r,a,b) fe_f32v4p_mul_cross(r,a,b)
 #define fe_f32v4_cross(r,a,b)     fe_f32v4_mul_cross(r,a,b)
 static inline void fe_f32v4p_mul_cross(fe_f32v4 *r, const fe_f32v4 *a, const fe_f32v4 *b) {
-    const fe_f32v4 la = (fe_f32v4) {.vx = fe_f32v4_shuffle(a, 1, 2, 0, 0)};
-    const fe_f32v4 rb = (fe_f32v4) {.vx = fe_f32v4_shuffle(b, 1, 2, 0, 0)};
-    const fe_f32v4 lb = (fe_f32v4) {.vx = fe_f32v4_shuffle(b, 2, 0, 1, 0)};
-    const fe_f32v4 ra = (fe_f32v4) {.vx = fe_f32v4_shuffle(a, 2, 0, 1, 0)};
+    fe_f32v4 la; fe_f32v4_shuffle(&la, a, 1, 2, 0, 0);
+    fe_f32v4 rb; fe_f32v4_shuffle(&rb, b, 1, 2, 0, 0);
+    fe_f32v4 lb; fe_f32v4_shuffle(&lb, b, 2, 0, 1, 0);
+    fe_f32v4 ra; fe_f32v4_shuffle(&ra, a, 2, 0, 1, 0);
     r->vx = la.vx*lb.vx - ra.vx*rb.vx;
     r->vx[3] = 1;
 }
@@ -143,7 +145,7 @@ static inline void fe_f32v4p_mul_cross_naive(fe_f32v4 *r, const fe_f32v4 *a, con
 static inline void fe_f32v4_reflect(fe_f32v4 *r, const fe_f32v4 *v, const fe_f32v4 *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
-     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
     const float p = 2*fe_f32v4_mul_inner(v, n);

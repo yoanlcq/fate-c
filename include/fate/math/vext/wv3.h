@@ -48,17 +48,19 @@
  && __has_builtin(__builtin_shufflevector)
     #define FE_WV3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define FE_WV3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_wv3_shuffle(v,a,b,c,d) \
-                __builtin_shufflevector((v)->vx,(v)->vx,a,b,c,d)
-    #define fe_wv3_shuffle2(u,v,a,b,c,d) \
-                __builtin_shufflevector((u)->vx,(v)->vx,a,b,c,d)
+    #define fe_wv3_shuffle(r,v,...) \
+                do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
+    #define fe_wv3_shuffle2(r,u,v,...) \
+                do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define FE_WV3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(fe_space_unit))))
     #define FE_WV3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_wv3_shuffle(v,a,b,c,d)    __builtin_shuffle((v)->vx,(fe_wv4){a,b,c,d})
-    #define fe_wv3_shuffle2(u,v,a,b,c,d) __builtin_shuffle((u)->vx,(v)->vx,(fe_wv4){a,b,c,d})
+    #define fe_wv3_shuffle(r,v,...)    \
+        do (r)->vx = __builtin_shuffle((v)->vx, ((fe_wv4){.vx={__VA_ARGS__}}).vx); while(0)
+    #define fe_wv3_shuffle2(r,u,v,...) \
+        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_wv4){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
@@ -73,8 +75,8 @@
 #include <math.h>
 #include <fate/units.h>
 #include <fate/math/vext/wv4.h> /* Needed for __builtin_shuffle() */
-#include <fate/math/vext/vec4.h>
-typedef fe_vec4 fe_wv3vext;
+#include <fate/math/vext/wv4.h>
+typedef fe_wv4vext fe_wv3vext;
 
 
 typedef struct { 
@@ -124,10 +126,10 @@ static inline fe_space_unit fe_wv3_mul_inner(const fe_wv3 *a, const fe_wv3 *b) {
 #define fe_wv3_mul_cross(r,a,b) fe_wv3p_mul_cross(r,a,b)
 #define fe_wv3_cross(r,a,b)     fe_wv3_mul_cross(r,a,b)
 static inline void fe_wv3p_mul_cross(fe_wv3 *r, const fe_wv3 *a, const fe_wv3 *b) {
-    const fe_wv3 la = (fe_wv3) {.vx = fe_wv3_shuffle(a, 1, 2, 0, 0)};
-    const fe_wv3 rb = (fe_wv3) {.vx = fe_wv3_shuffle(b, 1, 2, 0, 0)};
-    const fe_wv3 lb = (fe_wv3) {.vx = fe_wv3_shuffle(b, 2, 0, 1, 0)};
-    const fe_wv3 ra = (fe_wv3) {.vx = fe_wv3_shuffle(a, 2, 0, 1, 0)};
+    fe_wv3 la; fe_wv3_shuffle(&la, a, 1, 2, 0, 0);
+    fe_wv3 rb; fe_wv3_shuffle(&rb, b, 1, 2, 0, 0);
+    fe_wv3 lb; fe_wv3_shuffle(&lb, b, 2, 0, 1, 0);
+    fe_wv3 ra; fe_wv3_shuffle(&ra, a, 2, 0, 1, 0);
     r->vx = la.vx*lb.vx - ra.vx*rb.vx;
     
 }
@@ -144,7 +146,7 @@ static inline void fe_wv3p_mul_cross_naive(fe_wv3 *r, const fe_wv3 *a, const fe_
 static inline void fe_wv3_reflect(fe_wv3 *r, const fe_wv3 *v, const fe_wv3 *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
-     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
     const fe_space_unit p = 2*fe_wv3_mul_inner(v, n);

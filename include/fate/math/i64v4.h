@@ -27,8 +27,8 @@
  *
  */
 
-/*! \file fate/math/i32v4.h
- *  \brief i32v4
+/*! \file fate/math/i64v4.h
+ *  \brief i64v4
  *  \ingroup math
  * 
  * This file was generated automagically from genvec.h.m4, using Make and 
@@ -41,20 +41,20 @@
  * @{
  */
 
-#ifndef FE_MATH_I32V4_H
-#define FE_MATH_I32V4_H
+#ifndef FE_MATH_I64V4_H
+#define FE_MATH_I64V4_H
 
 #ifndef FE_MATH_WITHOUT_VECTOR_EXTENSIONS
     #ifdef __clang__
         #if __has_extension(attribute_ext_vector_type) \
         && __has_builtin(__builtin_shufflevector)
-            #include <fate/math/vext/i32v4.h>
+            #include <fate/math/vext/i64v4.h>
         #else
             #define FE_MATH_WITHOUT_VECTOR_EXTENSIONS
         #endif
 #elif defined(__GNUC__)
         #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-            #include <fate/math/vext/i32v4.h>
+            #include <fate/math/vext/i64v4.h>
         #else
             #define FE_MATH_WITHOUT_VECTOR_EXTENSIONS
         #endif
@@ -71,45 +71,45 @@
 
 /*! \brief TODO 
  *
- * fe_i32v4
+ * fe_i64v4
  */
 typedef struct { 
     union {
-        int32_t at[4]; 
+        int64_t at[4]; 
         struct {
-            int32_t r;
-            int32_t g;
-            int32_t b;
-            int32_t a;
+            int64_t r;
+            int64_t g;
+            int64_t b;
+            int64_t a;
         };
         struct {
-            int32_t x;
-            int32_t y;
-            int32_t z;
-            int32_t w;
+            int64_t x;
+            int64_t y;
+            int64_t z;
+            int64_t w;
         };
         struct {
-            int32_t s;
-            int32_t t;
-            int32_t p;
-            int32_t q;
+            int64_t s;
+            int64_t t;
+            int64_t p;
+            int64_t q;
         };
     };
-} fe_i32v4;
+} fe_i64v4;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_i32v4, r) == offsetof(fe_i32v4, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_i32v4, g) == offsetof(fe_i32v4, at[1]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_i32v4, b) == offsetof(fe_i32v4, at[2]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_i32v4, a) == offsetof(fe_i32v4, at[3]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v4, r) == offsetof(fe_i64v4, at[0]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v4, g) == offsetof(fe_i64v4, at[1]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v4, b) == offsetof(fe_i64v4, at[2]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v4, a) == offsetof(fe_i64v4, at[3]), "");
 
 /*! \brief TODO */
-static inline void fe_i32v4_shuffle(fe_i32v4 *r, 
-                    const fe_i32v4 *v, 
-                    uint32_t m0, uint32_t m1
-                    , uint32_t m2
-                    , uint32_t m3
+static inline void fe_i64v4_shuffle(fe_i64v4 *r, 
+                    const fe_i64v4 *v, 
+                    uint64_t m0, uint64_t m1
+                    , uint64_t m2
+                    , uint64_t m3
                     ) {
-    fe_i32v4 tmp = *v; /* Aliasing is allowed */
+    fe_i64v4 tmp = *v; /* Aliasing is allowed */
     r->at[0] = tmp.at[m0%4];
     r->at[1] = tmp.at[m1%4];
     r->at[2] = tmp.at[m2%4];
@@ -117,14 +117,14 @@ static inline void fe_i32v4_shuffle(fe_i32v4 *r,
 }
 
 /*! \brief TODO */
-static inline void fe_i32v4_shuffle2(fe_i32v4 *r, 
-                    const fe_i32v4 *u,
-                    const fe_i32v4 *v,
-                    uint32_t m0, uint32_t m1
-                    , uint32_t m2
-                    , uint32_t m3
+static inline void fe_i64v4_shuffle2(fe_i64v4 *r, 
+                    const fe_i64v4 *u,
+                    const fe_i64v4 *v,
+                    uint64_t m0, uint64_t m1
+                    , uint64_t m2
+                    , uint64_t m3
                     ) {
-    int32_t ary[2*4] = {
+    int64_t ary[2*4] = {
         u->at[0], u->at[1]
         , u->at[2]
         , u->at[3]  
@@ -140,29 +140,29 @@ static inline void fe_i32v4_shuffle2(fe_i32v4 *r,
 
 
 /*! \brief TODO */
-static inline void fe_i32v4_add(fe_i32v4 * r, const fe_i32v4 * a, const fe_i32v4 * b) {
+static inline void fe_i64v4_add(fe_i64v4 * r, const fe_i64v4 * a, const fe_i64v4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r->at[i] = a->at[i] + b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_i32v4_sub(fe_i32v4 * r, const fe_i32v4 * a, const fe_i32v4 * b) {
+static inline void fe_i64v4_sub(fe_i64v4 * r, const fe_i64v4 * a, const fe_i64v4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r->at[i] = a->at[i] - b->at[i];
 }
 /*! \brief TODO */
-static inline void fe_i32v4_scale(fe_i32v4 * r, const fe_i32v4 * v, const int32_t s) {
+static inline void fe_i64v4_scale(fe_i64v4 * r, const fe_i64v4 * v, const int64_t s) {
 	size_t i;
 	for(i=0; i<4; ++i)
 		r->at[i] = v->at[i] * s;
 }
 
 /*! \brief TODO */
-#define fe_i32v4_dot(a,b) fe_i32v4_mul_inner(a,b)
+#define fe_i64v4_dot(a,b) fe_i64v4_mul_inner(a,b)
 /*! \brief TODO */
-static inline int32_t fe_i32v4_mul_inner(const fe_i32v4 * a, const fe_i32v4 * b) {
-	int32_t p;
+static inline int64_t fe_i64v4_mul_inner(const fe_i64v4 * a, const fe_i64v4 * b) {
+	int64_t p;
 	size_t i;
 	for(p=i=0; i<4; ++i)
 		p += b->at[i]*a->at[i];
@@ -170,16 +170,16 @@ static inline int32_t fe_i32v4_mul_inner(const fe_i32v4 * a, const fe_i32v4 * b)
 }
 
 /*! \brief TODO */
-#define fe_i32v4_len(v)  sqrt(fe_i32v4_mul_inner(v, v))
+#define fe_i64v4_len(v)  sqrt(fe_i64v4_mul_inner(v, v))
 /*! \brief TODO */
-#define fe_i32v4_lenf(v) sqrtf(fe_i32v4_mul_inner(v, v))
+#define fe_i64v4_lenf(v) sqrtf(fe_i64v4_mul_inner(v, v))
 /*! \brief TODO */
-#define fe_i32v4_norm(r,v) fe_i32v4_scale(r, v, 1./fe_i32v4_len(v))
+#define fe_i64v4_norm(r,v) fe_i64v4_scale(r, v, 1./fe_i64v4_len(v))
 
 /*! \brief TODO */
-#define fe_i32v4_cross(r,a,b) fe_i32v4_mul_cross(r,a,b)
+#define fe_i64v4_cross(r,a,b) fe_i64v4_mul_cross(r,a,b)
 /*! \brief TODO */
-static inline void fe_i32v4_mul_cross(fe_i32v4 * r, const fe_i32v4 * a, const fe_i32v4 * b) {
+static inline void fe_i64v4_mul_cross(fe_i64v4 * r, const fe_i64v4 * a, const fe_i64v4 * b) {
 	r->at[0] = a->at[1]*b->at[2] - a->at[2]*b->at[1];
 	r->at[1] = a->at[2]*b->at[0] - a->at[0]*b->at[2];
 	r->at[2] = a->at[0]*b->at[1] - a->at[1]*b->at[0];
@@ -187,8 +187,8 @@ static inline void fe_i32v4_mul_cross(fe_i32v4 * r, const fe_i32v4 * a, const fe
 }
 
 /*! \brief TODO */
-static inline void fe_i32v4_reflect(fe_i32v4 * r, const  fe_i32v4 * v, const fe_i32v4 * n) {
-	const int32_t p = 2*fe_i32v4_mul_inner(v, n);
+static inline void fe_i64v4_reflect(fe_i64v4 * r, const  fe_i64v4 * v, const fe_i64v4 * n) {
+	const int64_t p = 2*fe_i64v4_mul_inner(v, n);
 	size_t i;
 	for(i=0 ; i<4 ; ++i)
 		r->at[i] = v->at[i] - p*n->at[i];
@@ -197,4 +197,4 @@ static inline void fe_i32v4_reflect(fe_i32v4 * r, const  fe_i32v4 * v, const fe_
 #endif /* Naive */
 
 /* @} */
-#endif /* FE_MATH_I32V4_H */
+#endif /* FE_MATH_I64V4_H */

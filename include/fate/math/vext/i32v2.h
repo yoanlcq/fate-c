@@ -48,17 +48,19 @@
  && __has_builtin(__builtin_shufflevector)
     #define FE_I32V2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define FE_I32V2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_i32v2_shuffle(v,a,b,c,d) \
-                __builtin_shufflevector((v)->vx,(v)->vx,a,b,c,d)
-    #define fe_i32v2_shuffle2(u,v,a,b,c,d) \
-                __builtin_shufflevector((u)->vx,(v)->vx,a,b,c,d)
+    #define fe_i32v2_shuffle(r,v,...) \
+                do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
+    #define fe_i32v2_shuffle2(r,u,v,...) \
+                do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define FE_I32V2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(int32_t))))
     #define FE_I32V2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_i32v2_shuffle(v,a,b,c,d)    __builtin_shuffle((v)->vx,(fe_mask){a,b,c,d})
-    #define fe_i32v2_shuffle2(u,v,a,b,c,d) __builtin_shuffle((u)->vx,(v)->vx,(fe_mask){a,b,c,d})
+    #define fe_i32v2_shuffle(r,v,...)    \
+        do (r)->vx = __builtin_shuffle((v)->vx, ((fe_mask){.vx={__VA_ARGS__}}).vx); while(0)
+    #define fe_i32v2_shuffle2(r,u,v,...) \
+        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_mask){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
@@ -124,7 +126,7 @@ static inline int32_t fe_i32v2_mul_inner(const fe_i32v2 *a, const fe_i32v2 *b) {
 static inline void fe_i32v2_reflect(fe_i32v2 *r, const fe_i32v2 *v, const fe_i32v2 *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
-     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
     const int32_t p = 2*fe_i32v2_mul_inner(v, n);

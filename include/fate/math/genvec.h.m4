@@ -106,6 +106,43 @@ ifelse(eval(dim>=3),1,FE_COMPILETIME_ASSERT(offsetof(ns`'vec, b) == offsetof(ns`
 ifelse(eval(dim>=4),1,FE_COMPILETIME_ASSERT(offsetof(ns`'vec, a) == offsetof(ns`'vec, at[3]), "");)
 
 /*! \brief TODO */
+static inline void ns`'vec`'_shuffle(ns`'vec *r, 
+                    const ns`'vec *v, 
+                    utype m0, utype m1
+                    ifelse(eval(dim>=3),1,`,' utype m2)
+                    ifelse(eval(dim>=4),1,`,' utype m3)
+                    ) {
+    ns`'vec tmp = *v; /* Aliasing is allowed */
+    r->at[0] = tmp.at[m0%dim];
+    r->at[1] = tmp.at[m1%dim];
+    ifelse(eval(dim>=3),1, r->at[2] = tmp.at[m2%dim];)
+    ifelse(eval(dim>=4),1, r->at[3] = tmp.at[m3%dim];)
+}
+
+/*! \brief TODO */
+static inline void ns`'vec`'_shuffle2(ns`'vec *r, 
+                    const ns`'vec *u,
+                    const ns`'vec *v,
+                    utype m0, utype m1
+                    ifelse(eval(dim>=3),1,`,' utype m2)
+                    ifelse(eval(dim>=4),1,`,' utype m3)
+                    ) {
+    type ary[2*dim] = {
+        u->at[0], u->at[1]
+        ifelse(eval(dim>=3),1,`,' u->at[2])
+        ifelse(eval(dim>=4),1,`,' u->at[3])  
+        , v->at[0], v->at[1]
+        ifelse(eval(dim>=3),1,`,' v->at[2])
+        ifelse(eval(dim>=4),1,`,' v->at[3])  
+    };
+    r->at[0] = ary[m0%(2*dim)];
+    r->at[1] = ary[m1%(2*dim)];
+    ifelse(eval(dim>=3),1, r->at[2] = ary[m2%(2*dim)];)
+    ifelse(eval(dim>=4),1, r->at[3] = ary[m3%(2*dim)];)
+}
+
+
+/*! \brief TODO */
 static inline void ns`'vec`'_add(ns`'vec * r, const ns`'vec * a, const ns`'vec * b) {
 	size_t i;
 	for(i=0; i<dim; ++i)

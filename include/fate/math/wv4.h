@@ -103,6 +103,43 @@ FE_COMPILETIME_ASSERT(offsetof(fe_wv4, b) == offsetof(fe_wv4, at[2]), "");
 FE_COMPILETIME_ASSERT(offsetof(fe_wv4, a) == offsetof(fe_wv4, at[3]), "");
 
 /*! \brief TODO */
+static inline void fe_wv4_shuffle(fe_wv4 *r, 
+                    const fe_wv4 *v, 
+                    fe_space_unit m0, fe_space_unit m1
+                    , fe_space_unit m2
+                    , fe_space_unit m3
+                    ) {
+    fe_wv4 tmp = *v; /* Aliasing is allowed */
+    r->at[0] = tmp.at[m0%4];
+    r->at[1] = tmp.at[m1%4];
+    r->at[2] = tmp.at[m2%4];
+    r->at[3] = tmp.at[m3%4];
+}
+
+/*! \brief TODO */
+static inline void fe_wv4_shuffle2(fe_wv4 *r, 
+                    const fe_wv4 *u,
+                    const fe_wv4 *v,
+                    fe_space_unit m0, fe_space_unit m1
+                    , fe_space_unit m2
+                    , fe_space_unit m3
+                    ) {
+    fe_space_unit ary[2*4] = {
+        u->at[0], u->at[1]
+        , u->at[2]
+        , u->at[3]  
+        , v->at[0], v->at[1]
+        , v->at[2]
+        , v->at[3]  
+    };
+    r->at[0] = ary[m0%(2*4)];
+    r->at[1] = ary[m1%(2*4)];
+    r->at[2] = ary[m2%(2*4)];
+    r->at[3] = ary[m3%(2*4)];
+}
+
+
+/*! \brief TODO */
 static inline void fe_wv4_add(fe_wv4 * r, const fe_wv4 * a, const fe_wv4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)

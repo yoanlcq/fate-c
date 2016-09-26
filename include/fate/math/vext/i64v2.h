@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FE_MATH_VEXT_U32V2_H
-#define FE_MATH_VEXT_U32V2_H
+#ifndef FE_MATH_VEXT_I64V2_H
+#define FE_MATH_VEXT_I64V2_H
 
 /* Feature test section */
 
@@ -46,25 +46,25 @@
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define FE_U32V2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define FE_U32V2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_u32v2_shuffle(r,v,...) \
+    #define FE_I64V2_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_I64V2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_i64v2_shuffle(r,v,...) \
                 do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
-    #define fe_u32v2_shuffle2(r,u,v,...) \
+    #define fe_i64v2_shuffle2(r,u,v,...) \
                 do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define FE_U32V2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(uint32_t))))
-    #define FE_U32V2_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_u32v2_shuffle(r,v,...)    \
+    #define FE_I64V2_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(int64_t))))
+    #define FE_I64V2_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_i64v2_shuffle(r,v,...)    \
         do (r)->vx = __builtin_shuffle((v)->vx, ((fe_mask){.vx={__VA_ARGS__}}).vx); while(0)
-    #define fe_u32v2_shuffle2(r,u,v,...) \
+    #define fe_i64v2_shuffle2(r,u,v,...) \
         do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_mask){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
-#ifndef FE_U32V2_SIZE_ATTR
+#ifndef FE_I64V2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -75,64 +75,64 @@
 #include <math.h>
 
 
-typedef uint32_t fe_u32v2vext FE_U32V2_SIZE_ATTR(2);
+typedef int64_t fe_i64v2vext FE_I64V2_SIZE_ATTR(2);
 
 
 typedef struct { 
     union {
-        fe_u32v2vext vx;
-        uint32_t at[2];
+        fe_i64v2vext vx;
+        int64_t at[2];
         struct {
-            uint32_t r;
-            uint32_t g;
+            int64_t r;
+            int64_t g;
             /* No blue component. */
             /* No alpha component. */
         };
         struct {
-            uint32_t x;
-            uint32_t y;
+            int64_t x;
+            int64_t y;
             /* No z component. */
             /* No w component. */
         };
         struct {
-            uint32_t s;
-            uint32_t t;
+            int64_t s;
+            int64_t t;
             /* No p component. */
             /* No q component. */
         };
     };
-} fe_u32v2;
+} fe_i64v2;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_u32v2, r) == offsetof(fe_u32v2, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_u32v2, g) == offsetof(fe_u32v2, at[1]), "");
-
-
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v2, r) == offsetof(fe_i64v2, at[0]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v2, g) == offsetof(fe_i64v2, at[1]), "");
 
 
-#define fe_u32v2_add(s,a,b)   ((s).vx = (a).vx + (b).vx)
-#define fe_u32v2_sub(s,a,b)   ((s).vx = (a).vx - (b).vx)
-#define fe_u32v2_scale(r,v,s) ((r).vx = (v).vx * (s))
-#define fe_u32v2_dot(a,b) fe_u32v2_mul_inner(a,b)
-static inline uint32_t fe_u32v2_mul_inner(const fe_u32v2 *a, const fe_u32v2 *b) {
-    fe_u32v2 v = (fe_u32v2) {.vx = a->vx * b->vx};
+
+
+#define fe_i64v2_add(s,a,b)   ((s).vx = (a).vx + (b).vx)
+#define fe_i64v2_sub(s,a,b)   ((s).vx = (a).vx - (b).vx)
+#define fe_i64v2_scale(r,v,s) ((r).vx = (v).vx * (s))
+#define fe_i64v2_dot(a,b) fe_i64v2_mul_inner(a,b)
+static inline int64_t fe_i64v2_mul_inner(const fe_i64v2 *a, const fe_i64v2 *b) {
+    fe_i64v2 v = (fe_i64v2) {.vx = a->vx * b->vx};
     return v.vx[0]+v.vx[1];
 }
-#define fe_u32v2_len(v)  sqrt(fe_u32v2_mul_inner(v, v))
-#define fe_u32v2_lenf(v) sqrtf(fe_u32v2_mul_inner(v, v))
-#define fe_u32v2_norm(r,v) fe_u32v2_scale(r, v, 1./fe_u32v2_len(v))
+#define fe_i64v2_len(v)  sqrt(fe_i64v2_mul_inner(v, v))
+#define fe_i64v2_lenf(v) sqrtf(fe_i64v2_mul_inner(v, v))
+#define fe_i64v2_norm(r,v) fe_i64v2_scale(r, v, 1./fe_i64v2_len(v))
 
-/* No cross product for fe_u32v2. */
+/* No cross product for fe_i64v2. */
 
-static inline void fe_u32v2_reflect(fe_u32v2 *r, const fe_u32v2 *v, const fe_u32v2 *n) {
+static inline void fe_i64v2_reflect(fe_i64v2 *r, const fe_i64v2 *v, const fe_i64v2 *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
      *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
-    const uint32_t p = 2*fe_u32v2_mul_inner(v, n);
-    fe_u32v2 pv;
+    const int64_t p = 2*fe_i64v2_mul_inner(v, n);
+    fe_i64v2 pv;
     pv.vx[0]=pv.vx[1]=p;
     r->vx = v->vx - pv.vx * n->vx;
 }
 
-#endif /* FE_MATH_VEXT_U32V2_H */
+#endif /* FE_MATH_VEXT_I64V2_H */

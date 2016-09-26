@@ -35,8 +35,8 @@
  * functionalities.
  */
 
-#ifndef FE_MATH_VEXT_F32V3_H
-#define FE_MATH_VEXT_F32V3_H
+#ifndef FE_MATH_VEXT_I64V3_H
+#define FE_MATH_VEXT_I64V3_H
 
 /* Feature test section */
 
@@ -46,25 +46,25 @@
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
-    #define FE_F32V3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
-    #define FE_F32V3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_f32v3_shuffle(r,v,...) \
+    #define FE_I64V3_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
+    #define FE_I64V3_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_i64v3_shuffle(r,v,...) \
                 do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
-    #define fe_f32v3_shuffle2(r,u,v,...) \
+    #define fe_i64v3_shuffle2(r,u,v,...) \
                 do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
-    #define FE_F32V3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(float))))
-    #define FE_F32V3_PACKED_ATTR  __attribute__((__packed__))
-    #define fe_f32v3_shuffle(r,v,...)    \
-        do (r)->vx = __builtin_shuffle((v)->vx, ((fe_u32v4){.vx={__VA_ARGS__}}).vx); while(0)
-    #define fe_f32v3_shuffle2(r,u,v,...) \
-        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_u32v4){.vx={__VA_ARGS__}}).vx); while(0)
+    #define FE_I64V3_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(int64_t))))
+    #define FE_I64V3_PACKED_ATTR  __attribute__((__packed__))
+    #define fe_i64v3_shuffle(r,v,...)    \
+        do (r)->vx = __builtin_shuffle((v)->vx, ((fe_u64v4){.vx={__VA_ARGS__}}).vx); while(0)
+    #define fe_i64v3_shuffle2(r,u,v,...) \
+        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((fe_u64v4){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
-#ifndef FE_F32V3_SIZE_ATTR
+#ifndef FE_I64V3_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
@@ -74,85 +74,85 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <fate/math/vext/u32v4.h> /* Needed for __builtin_shuffle() */
-#include <fate/math/vext/f32v4.h>
-typedef fe_f32v4vext fe_f32v3vext;
+#include <fate/math/vext/u64v4.h> /* Needed for __builtin_shuffle() */
+#include <fate/math/vext/i64v4.h>
+typedef fe_i64v4vext fe_i64v3vext;
 
 
 typedef struct { 
     union {
-        fe_f32v3vext vx;
-        float at[3];
+        fe_i64v3vext vx;
+        int64_t at[3];
         struct {
-            float r;
-            float g;
-            float b;
+            int64_t r;
+            int64_t g;
+            int64_t b;
             /* No alpha component. */
         };
         struct {
-            float x;
-            float y;
-            float z;
+            int64_t x;
+            int64_t y;
+            int64_t z;
             /* No w component. */
         };
         struct {
-            float s;
-            float t;
-            float p;
+            int64_t s;
+            int64_t t;
+            int64_t p;
             /* No q component. */
         };
     };
-} fe_f32v3;
+} fe_i64v3;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v3, r) == offsetof(fe_f32v3, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v3, g) == offsetof(fe_f32v3, at[1]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v3, b) == offsetof(fe_f32v3, at[2]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v3, r) == offsetof(fe_i64v3, at[0]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v3, g) == offsetof(fe_i64v3, at[1]), "");
+FE_COMPILETIME_ASSERT(offsetof(fe_i64v3, b) == offsetof(fe_i64v3, at[2]), "");
 
 
 
-#define fe_f32v3_add(s,a,b)   ((s).vx = (a).vx + (b).vx)
-#define fe_f32v3_sub(s,a,b)   ((s).vx = (a).vx - (b).vx)
-#define fe_f32v3_scale(r,v,s) ((r).vx = (v).vx * (s))
-#define fe_f32v3_dot(a,b) fe_f32v3_mul_inner(a,b)
-static inline float fe_f32v3_mul_inner(const fe_f32v3 *a, const fe_f32v3 *b) {
-    fe_f32v3 v = (fe_f32v3) {.vx = a->vx * b->vx};
+#define fe_i64v3_add(s,a,b)   ((s).vx = (a).vx + (b).vx)
+#define fe_i64v3_sub(s,a,b)   ((s).vx = (a).vx - (b).vx)
+#define fe_i64v3_scale(r,v,s) ((r).vx = (v).vx * (s))
+#define fe_i64v3_dot(a,b) fe_i64v3_mul_inner(a,b)
+static inline int64_t fe_i64v3_mul_inner(const fe_i64v3 *a, const fe_i64v3 *b) {
+    fe_i64v3 v = (fe_i64v3) {.vx = a->vx * b->vx};
     return v.vx[0]+v.vx[1]+v.vx[2];
 }
-#define fe_f32v3_len(v)  sqrt(fe_f32v3_mul_inner(v, v))
-#define fe_f32v3_lenf(v) sqrtf(fe_f32v3_mul_inner(v, v))
-#define fe_f32v3_norm(r,v) fe_f32v3_scale(r, v, 1./fe_f32v3_len(v))
+#define fe_i64v3_len(v)  sqrt(fe_i64v3_mul_inner(v, v))
+#define fe_i64v3_lenf(v) sqrtf(fe_i64v3_mul_inner(v, v))
+#define fe_i64v3_norm(r,v) fe_i64v3_scale(r, v, 1./fe_i64v3_len(v))
 
 /* TODO benchmark me */
-#define fe_f32v3_mul_cross(r,a,b) fe_f32v3p_mul_cross(r,a,b)
-#define fe_f32v3_cross(r,a,b)     fe_f32v3_mul_cross(r,a,b)
-static inline void fe_f32v3p_mul_cross(fe_f32v3 *r, const fe_f32v3 *a, const fe_f32v3 *b) {
-    fe_f32v3 la; fe_f32v3_shuffle(&la, a, 1, 2, 0, 0);
-    fe_f32v3 rb; fe_f32v3_shuffle(&rb, b, 1, 2, 0, 0);
-    fe_f32v3 lb; fe_f32v3_shuffle(&lb, b, 2, 0, 1, 0);
-    fe_f32v3 ra; fe_f32v3_shuffle(&ra, a, 2, 0, 1, 0);
+#define fe_i64v3_mul_cross(r,a,b) fe_i64v3p_mul_cross(r,a,b)
+#define fe_i64v3_cross(r,a,b)     fe_i64v3_mul_cross(r,a,b)
+static inline void fe_i64v3p_mul_cross(fe_i64v3 *r, const fe_i64v3 *a, const fe_i64v3 *b) {
+    fe_i64v3 la; fe_i64v3_shuffle(&la, a, 1, 2, 0, 0);
+    fe_i64v3 rb; fe_i64v3_shuffle(&rb, b, 1, 2, 0, 0);
+    fe_i64v3 lb; fe_i64v3_shuffle(&lb, b, 2, 0, 1, 0);
+    fe_i64v3 ra; fe_i64v3_shuffle(&ra, a, 2, 0, 1, 0);
     r->vx = la.vx*lb.vx - ra.vx*rb.vx;
     
 }
 
 /* TODO should be discarded if proven to be less efficient. */
-#define fe_f32v3_mul_cross_naive(r,a,b) fe_f32v3p_mul_cross_naive(&(r),a,b)
-static inline void fe_f32v3p_mul_cross_naive(fe_f32v3 *r, const fe_f32v3 *a, const fe_f32v3 *b) {
+#define fe_i64v3_mul_cross_naive(r,a,b) fe_i64v3p_mul_cross_naive(&(r),a,b)
+static inline void fe_i64v3p_mul_cross_naive(fe_i64v3 *r, const fe_i64v3 *a, const fe_i64v3 *b) {
     r->vx[0] = a->vx[1]*b->vx[2] - a->vx[2]*b->vx[1];
     r->vx[1] = a->vx[2]*b->vx[0] - a->vx[0]*b->vx[2];
     r->vx[2] = a->vx[0]*b->vx[1] - a->vx[1]*b->vx[0];
     
 }
 
-static inline void fe_f32v3_reflect(fe_f32v3 *r, const fe_f32v3 *v, const fe_f32v3 *n) {
+static inline void fe_i64v3_reflect(fe_i64v3 *r, const fe_i64v3 *v, const fe_i64v3 *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
      *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
-    const float p = 2*fe_f32v3_mul_inner(v, n);
-    fe_f32v3 pv;
+    const int64_t p = 2*fe_i64v3_mul_inner(v, n);
+    fe_i64v3 pv;
     pv.vx[0]=pv.vx[1]=pv.vx[2]=p;
     r->vx = v->vx - pv.vx * n->vx;
 }
 
-#endif /* FE_MATH_VEXT_F32V3_H */
+#endif /* FE_MATH_VEXT_I64V3_H */

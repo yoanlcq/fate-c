@@ -103,6 +103,43 @@ FE_COMPILETIME_ASSERT(offsetof(fe_f32v2, g) == offsetof(fe_f32v2, at[1]), "");
 
 
 /*! \brief TODO */
+static inline void fe_f32v2_shuffle(fe_f32v2 *r, 
+                    const fe_f32v2 *v, 
+                    uint32_t m0, uint32_t m1
+                    
+                    
+                    ) {
+    fe_f32v2 tmp = *v; /* Aliasing is allowed */
+    r->at[0] = tmp.at[m0%2];
+    r->at[1] = tmp.at[m1%2];
+    
+    
+}
+
+/*! \brief TODO */
+static inline void fe_f32v2_shuffle2(fe_f32v2 *r, 
+                    const fe_f32v2 *u,
+                    const fe_f32v2 *v,
+                    uint32_t m0, uint32_t m1
+                    
+                    
+                    ) {
+    float ary[2*2] = {
+        u->at[0], u->at[1]
+        
+          
+        , v->at[0], v->at[1]
+        
+          
+    };
+    r->at[0] = ary[m0%(2*2)];
+    r->at[1] = ary[m1%(2*2)];
+    
+    
+}
+
+
+/*! \brief TODO */
 static inline void fe_f32v2_add(fe_f32v2 * r, const fe_f32v2 * a, const fe_f32v2 * b) {
 	size_t i;
 	for(i=0; i<2; ++i)

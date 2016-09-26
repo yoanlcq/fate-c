@@ -103,6 +103,43 @@ FE_COMPILETIME_ASSERT(offsetof(fe_f64v4, b) == offsetof(fe_f64v4, at[2]), "");
 FE_COMPILETIME_ASSERT(offsetof(fe_f64v4, a) == offsetof(fe_f64v4, at[3]), "");
 
 /*! \brief TODO */
+static inline void fe_f64v4_shuffle(fe_f64v4 *r, 
+                    const fe_f64v4 *v, 
+                    uint64_t m0, uint64_t m1
+                    , uint64_t m2
+                    , uint64_t m3
+                    ) {
+    fe_f64v4 tmp = *v; /* Aliasing is allowed */
+    r->at[0] = tmp.at[m0%4];
+    r->at[1] = tmp.at[m1%4];
+    r->at[2] = tmp.at[m2%4];
+    r->at[3] = tmp.at[m3%4];
+}
+
+/*! \brief TODO */
+static inline void fe_f64v4_shuffle2(fe_f64v4 *r, 
+                    const fe_f64v4 *u,
+                    const fe_f64v4 *v,
+                    uint64_t m0, uint64_t m1
+                    , uint64_t m2
+                    , uint64_t m3
+                    ) {
+    double ary[2*4] = {
+        u->at[0], u->at[1]
+        , u->at[2]
+        , u->at[3]  
+        , v->at[0], v->at[1]
+        , v->at[2]
+        , v->at[3]  
+    };
+    r->at[0] = ary[m0%(2*4)];
+    r->at[1] = ary[m1%(2*4)];
+    r->at[2] = ary[m2%(2*4)];
+    r->at[3] = ary[m3%(2*4)];
+}
+
+
+/*! \brief TODO */
 static inline void fe_f64v4_add(fe_f64v4 * r, const fe_f64v4 * a, const fe_f64v4 * b) {
 	size_t i;
 	for(i=0; i<4; ++i)

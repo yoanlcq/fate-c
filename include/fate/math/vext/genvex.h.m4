@@ -51,17 +51,19 @@ dnl
  && __has_builtin(__builtin_shufflevector)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
-    #define ns`'vec`'_shuffle(v,a,b,c,d) \
-                __builtin_shufflevector((v)->vx,(v)->vx,a,b,c,d)
-    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) \
-                __builtin_shufflevector((u)->vx,(v)->vx,a,b,c,d)
+    #define ns`'vec`'_shuffle(r,v,...) \
+                do (r)->vx = __builtin_shufflevector((v)->vx,(v)->vx,__VA_ARGS__); while(0)
+    #define ns`'vec`'_shuffle2(r,u,v,...) \
+                do (r)->vx = __builtin_shufflevector((u)->vx,(v)->vx,__VA_ARGS__); while(0)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(type))))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
-    #define ns`'vec`'_shuffle(v,a,b,c,d)    __builtin_shuffle((v)->vx,(ns`'mask){a,b,c,d})
-    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) __builtin_shuffle((u)->vx,(v)->vx,(ns`'mask){a,b,c,d})
+    #define ns`'vec`'_shuffle(r,v,...)    \
+        do (r)->vx = __builtin_shuffle((v)->vx, ((ns`'mask){.vx={__VA_ARGS__}}).vx); while(0)
+    #define ns`'vec`'_shuffle2(r,u,v,...) \
+        do (r)->vx = __builtin_shuffle((u)->vx, (v)->vx, ((ns`'mask){.vx={__VA_ARGS__}}).vx); while(0)
 #endif
 #endif
 
@@ -82,7 +84,7 @@ ifelse(eval(dim!=3),1,dnl
 typedef type ns`'vec`'vext NS`'VEC`'_SIZE_ATTR(dim);
 ,dnl
 #include <dir/vec4.h>
-typedef ns`'vec4 ns`'vec`'vext;
+typedef ns`'vec4`'vext ns`'vec`'vext;
 )dnl
 
 
@@ -143,10 +145,10 @@ ifelse(eval(dim>=3),1,
 #define ns`'vec`'_mul_cross(r,a,b) ns`'vec`'p_mul_cross(r,a,b)
 #define ns`'vec`'_cross(r,a,b)     ns`'vec`'_mul_cross(r,a,b)
 static inline void ns`'vec`'p_mul_cross(ns`'vec *r, const ns`'vec *a, const ns`'vec *b) {
-    const ns`'vec la = (ns`'vec) {.vx = ns`'vec`'_shuffle(a, 1, 2, 0, 0)};
-    const ns`'vec rb = (ns`'vec) {.vx = ns`'vec`'_shuffle(b, 1, 2, 0, 0)};
-    const ns`'vec lb = (ns`'vec) {.vx = ns`'vec`'_shuffle(b, 2, 0, 1, 0)};
-    const ns`'vec ra = (ns`'vec) {.vx = ns`'vec`'_shuffle(a, 2, 0, 1, 0)};
+    ns`'vec la; ns`'vec`'_shuffle(&la, a, 1, 2, 0, 0);
+    ns`'vec rb; ns`'vec`'_shuffle(&rb, b, 1, 2, 0, 0);
+    ns`'vec lb; ns`'vec`'_shuffle(&lb, b, 2, 0, 1, 0);
+    ns`'vec ra; ns`'vec`'_shuffle(&ra, a, 2, 0, 1, 0);
     r->vx = la.vx*lb.vx - ra.vx*rb.vx;
     ifelse(eval(dim==4),1,r->vx[3] = 1;)
 }
@@ -165,7 +167,7 @@ static inline void ns`'vec`'p_mul_cross_naive(ns`'vec *r, const ns`'vec *a, cons
 static inline void ns`'vec`'_reflect(ns`'vec *r, const ns`'vec *v, const ns`'vec *n) {
     /* GCC claims to be able to multiply by a scalar, but still throws errors
      * like these with the latest MinGW - w64 :
-     *   error: conversion of scalar 'long double' to vector 'fe_dvec4 
+     *   error: conversion of scalar 'long double' to vector 'fe_f64v4'
      *   {aka const __vector(4) double}' involves truncation
      */
     const type p = 2*ns`'vec`'_mul_inner(v, n);

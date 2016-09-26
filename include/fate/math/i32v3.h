@@ -103,6 +103,43 @@ FE_COMPILETIME_ASSERT(offsetof(fe_i32v3, b) == offsetof(fe_i32v3, at[2]), "");
 
 
 /*! \brief TODO */
+static inline void fe_i32v3_shuffle(fe_i32v3 *r, 
+                    const fe_i32v3 *v, 
+                    uint32_t m0, uint32_t m1
+                    , uint32_t m2
+                    
+                    ) {
+    fe_i32v3 tmp = *v; /* Aliasing is allowed */
+    r->at[0] = tmp.at[m0%3];
+    r->at[1] = tmp.at[m1%3];
+    r->at[2] = tmp.at[m2%3];
+    
+}
+
+/*! \brief TODO */
+static inline void fe_i32v3_shuffle2(fe_i32v3 *r, 
+                    const fe_i32v3 *u,
+                    const fe_i32v3 *v,
+                    uint32_t m0, uint32_t m1
+                    , uint32_t m2
+                    
+                    ) {
+    int32_t ary[2*3] = {
+        u->at[0], u->at[1]
+        , u->at[2]
+          
+        , v->at[0], v->at[1]
+        , v->at[2]
+          
+    };
+    r->at[0] = ary[m0%(2*3)];
+    r->at[1] = ary[m1%(2*3)];
+    r->at[2] = ary[m2%(2*3)];
+    
+}
+
+
+/*! \brief TODO */
 static inline void fe_i32v3_add(fe_i32v3 * r, const fe_i32v3 * a, const fe_i32v3 * b) {
 	size_t i;
 	for(i=0; i<3; ++i)
