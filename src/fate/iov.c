@@ -217,7 +217,7 @@ fe_iov_error  fe_iov_get_last_error(void) {
 }
 
 /* XXX unfinished. */
-char *fe_iov_errors_str(fe_iov_error error) {
+char *fe_iov_error_str(fe_iov_error error) {
     /*
     switch(status.current) {
     case FE_IOV_SUCCESS: break;
@@ -227,6 +227,28 @@ char *fe_iov_errors_str(fe_iov_error error) {
     */
     return static_strerror(0);
 }
+
+
+#ifdef FE_IOV_DBG
+static FE_DECL_THREAD_LOCAL fe_iov_dbg_callback local_dbg_callback;
+static                      fe_iov_dbg_callback global_dbg_callback;
+static fe_mt_spinlock global_dbg_spinlock;
+void           fe_iov_set_local_debug_callback (fe_iov_dbg_callback callback) {
+    local_dbg_callback = callback;
+}
+void           fe_iov_set_global_debug_callback(fe_iov_dbg_callback callback) {
+    fe_mt_spinlock_lock(&global_dbg_spinlock);
+    global_dbg_callback = callback;
+    fe_mt_spinlock_unlock(&global_dbg_spinlock);
+}
+static void static_dbg_notify(const char *funcname, fe_iov_error error, const fe_fpath fpath, fe_fd fd) {
+    fe_iov_dbg_info di = {funcname, error, fpath, fd};
+    fe_mt_spinlock_lock(&global_dbg_spinlock);
+    global_dbg_callback(&di);
+    fe_mt_spinlock_unlock(&global_dbg_spinlock);
+    local_dbg_callback(&di);
+}
+#endif
 
 
 
@@ -883,6 +905,21 @@ static void static_androidsdlrwops_setcallbacks(SDL_RWops *fd) {
 
 #endif
 
+void fe_fd_str(fe_fd fd, char *buf, size_t len) {
+    if(!fe_fd_is_valid(fd)) {
+        snprintf(buf, len, "%.16s", "<bad_fd>");
+        return;
+    }
+#ifdef FE_TARGET_WINDOWS
+    snprintf(buf, len, "0x%.16"PRIxPTR, (uintptr_t)fd);
+#elif defined(FE_TARGET_ANDROID)
+    snprintf(buf, len, "0x%.16"PRIxPTR, (uintptr_t)fd);
+#elif defined(FE_TARGET_EMSCRIPTEN)
+    snprintf(buf, len, "0x%.8x", fd.unix_fd);
+#else
+    snprintf(buf, len, "0x%.8x", fd);
+#endif
+}
 
 fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
     fe_fd fd = FE_FD_INVALID_FD;

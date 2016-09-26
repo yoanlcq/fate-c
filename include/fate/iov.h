@@ -400,7 +400,7 @@ typedef enum {
 #elif defined(FE_TARGET_ANDROID)
     #include <SDL2/SDL.h>
     typedef SDL_RWops *fe_fd;
-    #define FE_FD_INVALID_FD NULL
+    #define PRIfe_fd "p"
     typedef Sint64 fe_fd_offset;
     #define FE_FD_SEEK_SET RW_SEEK_SET
     #define FE_FD_SEEK_CUR RW_SEEK_CUR
@@ -461,6 +461,22 @@ typedef int fe_iov_error;
 fe_iov_error   fe_iov_get_last_error(void);
 char*          fe_iov_error_str(fe_iov_error err);
 
+#if defined(FE_DEBUG_BUILD) && !defined(FE_IOV_DBG)
+#define FE_IOV_DBG
+#endif
+
+#ifdef FE_IOV_DBG
+typedef struct {
+    const char *funcname;
+    fe_iov_error error;
+    const fe_fpath fpath;
+    fe_fd fd;
+} fe_iov_dbg_info;
+typedef void (*fe_iov_dbg_callback)(const fe_iov_dbg_info *info);
+void           fe_iov_set_local_debug_callback (fe_iov_dbg_callback callback);
+void           fe_iov_set_global_debug_callback(fe_iov_dbg_callback callback);
+#endif
+
 bool           fe_fs_setcwd      (const char *path);
 char*          fe_fs_getcwd      (void);
 uint64_t       fe_fs_get_mtime   (const fe_fpath fpath);
@@ -482,6 +498,8 @@ char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status);
 FE_DECL_PURE void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f);
 
 
+/* len should be >= 32. */
+void           fe_fd_str(fe_fd fd, char *buf, size_t len);
 /* On an Emscripten Wget file, this call blocks until the download is complete.
  * This is most likely not what you want, so you should first download the
  * file using fe_iov_load_wget_async(), handle the promise properly,
