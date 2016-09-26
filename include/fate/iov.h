@@ -318,11 +318,7 @@ typedef struct {
     fe_iov_code current  : 12; /* Valid only when step >= FE_IOV_STEP_STARTED. */
     bool        success  :  1; /* Valid only when step == FE_IOV_STEP_COMPLETED.  */
     bool        exists   :  1; /* Valid only when success and the request is 'exists()'. */
-    #ifdef FE_TARGET_WINDOWS
-        DWORD last_error;
-    #else
-        int last_error;
-    #endif
+    int         last_error; /* DWORD, GetLastError() on Win32. errno otherwise. */
 } fe_iov_status;
 
 /*! \brief TODO */
@@ -461,18 +457,9 @@ typedef struct {
 /*! \brief TODO */
 typedef void *fe_iov_promise;
 
-#define FE_FS_UNIX_GETCWD_CHUNKSIZE 256
-
-#ifdef FE_TARGET_WINDOWS
-typedef DWORD fe_sys_err; /* Yeah I know it's the same as int. */
-#else
-typedef int fe_sys_err;
-#endif
-
-fe_iov_status     fe_iov_get_last_status(void);
-
-/*! \brief Free the returned string with #fe_mem_heapfree(). */
-char *fe_iov_status_str(fe_iov_status status);
+typedef int fe_iov_error;
+fe_iov_error   fe_iov_get_last_error(void);
+char*          fe_iov_error_str(fe_iov_error err);
 
 bool           fe_fs_setcwd      (const char *path);
 char*          fe_fs_getcwd      (void);

@@ -154,6 +154,13 @@
  */
 #define FE_DECL_ALIGN(n) __attribute__((align(n)))
 
+/*! \brief Compile-time specifier for a thread-local variable declaration.
+ *
+ * GCC, Clang, MSVC.
+ */
+#define FE_DECL_THREAD_LOCAL __thread
+
+
 
 #elif defined(_MSC_VER) /* ifdef __GNUC__ */
 
@@ -172,6 +179,10 @@
 #define FE_DECL_USED_OFTEN
 #define FE_DECL_USED_RARELY
 #define FE_DECL_ALIGN(n) __declspec(align(n))
+/* XXX Hope that we won't get dynamically loaded using LoadLibrary() 
+ * on Vista or earlier. As of today, Vista's market share is roughly 
+ * ~1% and can only keep decreasing though. */
+#define FE_DECL_THREAD_LOCAL __declspec(thread)
 
 
 #else /* _MSC_VER */

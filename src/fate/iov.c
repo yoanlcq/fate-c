@@ -57,6 +57,7 @@ void fe_iov_setup(void) {
     }
 #endif
 
+
 #ifdef NUL_FILE_PATH
     nul_file_path = NUL_FILE_PATH;
 #elif defined(FE_TARGET_ANDROID)
@@ -160,7 +161,6 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src) {
 
 
 
-
 #ifdef FE_TARGET_WINDOWS
 static char* static_strerror(DWORD error) {
     LPWSTR lpMsgBuf;
@@ -196,9 +196,28 @@ static char* static_strerror(int err) {
 }
 #endif
 
+static inline void fe_iov_set_last_error(int err) {
+#ifdef FE_TARGET_WINDOWS
+    return SetLastError(err);
+#else
+    errno = err;
+#endif
+}
+/* They comply both to GetLastError() and errno's reserved ranges. */
+#define STATIC_ERROR_UNKNOWN     ((1<<29) || (-2))
+#define STATIC_ERROR_INVALID_URL ((1<<29) || (-3))
+#define STATIC_ERROR_EVIL_SERVER ((1<<29) || (-4))
+
+fe_iov_error  fe_iov_get_last_error(void) {
+#ifdef FE_TARGET_WINDOWS
+    return GetLastError();
+#else
+    return errno;
+#endif
+}
 
 /* XXX unfinished. */
-char *fe_iov_status_str(fe_iov_status status) {
+char *fe_iov_errors_str(fe_iov_error error) {
     /*
     switch(status.current) {
     case FE_IOV_SUCCESS: break;
@@ -215,10 +234,14 @@ char *fe_iov_status_str(fe_iov_status status) {
 bool fe_fs_setcwd(const char *path) {
 #if defined(FE_TARGET_WINDOWS)
     WCHAR *wpath = fe_utf8_to_win32unicode(path);
-    if(!wpath)
+    if(!wpath) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return false;
+    }
     BOOL success = SetCurrentDirectoryW(wpath);
+    DWORD last_error = GetLastError();
     fe_mem_heapfree(wpath);
+    SetLastError(last_error);
     return success;
 #else
     return !chdir(path);
@@ -228,33 +251,48 @@ bool fe_fs_setcwd(const char *path) {
 char * fe_fs_getcwd(void) {
 #if defined(FE_TARGET_WINDOWS)
     DWORD len = GetCurrentDirectoryW(0, NULL);
-    WCHAR *wpath = fe_mem_heapalloc(len, WCHAR, "");
-    if(!wpath)
-        return NULL;
-    BOOL success = GetCurrentDirectoryW(len, wpath);
-    if(!success)
-        return NULL; /* XXX We should retry instead. */
+    WCHAR *wpath = NULL; 
+    for(;;) {
+        wpath = fe_mem_heaprealloc(wpath, len, WCHAR, "");
+        if(!wpath) {
+            SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+            return NULL;
+        }
+        DWORD needed_len = GetCurrentDirectoryW(len, wpath);
+        if(!needed_len) {
+            DWORD last_error = GetLastError();
+            fe_mem_heapfree(wpath);
+            SetLastError(last_error);
+            return NULL;
+        }
+        if(needed_len <= len)
+            break;
+        len = needed_len;
+    }
     char *path = fe_utf8_from_win32unicode(wpath);
     fe_mem_heapfree(wpath);
-    return path;
-#else
-    size_t size = FE_FS_UNIX_GETCWD_CHUNKSIZE;
-    char *path = fe_mem_heapalloc(size, char, "fe_fs_getcwd()");
     if(!path)
-        return NULL;
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+    return path;
+#elif defined(_GNU_SOURCE)
+    return get_current_dir_name();
+#else
+    size_t size = 512;
+    char *path = NULL;
     for(;;) {
+        path = fe_mem_heaprealloc(path, size, char, "");
+        if(!path)
+            return NULL;
         char *cwd = getcwd(path, size);
         if(cwd)
             break;
-        if(errno != ERANGE) {
+        int last_error = errno;
+        if(last_error != ERANGE) {
             fe_mem_heapfree(path);
-            path = NULL;
-            break;
+            errno = last_error;
+            return NULL;
         }
         size *= 2;
-        path = fe_mem_heaprealloc(path, size, char, "fe_fs_getcwd()");
-        if(!path)
-            break;
     }
     return path;
 #endif
@@ -265,29 +303,45 @@ uint64_t fe_fs_get_mtime(const fe_fpath fpath) {
     FILETIME ft;
     HANDLE fh;
     WCHAR *wpath = fe_utf8_to_win32unicode(fpath.path);
-    if(!wpath)
+    if(!wpath) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return 0;
+    }
+    DWORD last_error;
     fh = CreateFileW(wpath, GENERIC_READ, FILE_SHARE_READ, NULL, 
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    last_error = GetLastError();
     fe_mem_heapfree(wpath);
-    if(fh==INVALID_HANDLE_VALUE)
+    if(fh == INVALID_HANDLE_VALUE) {
+        SetLastError(last_error);
         return 0;
-    GetFileTime(fh, NULL, NULL, &ft);
+    }
+    if(!GetFileTime(fh, NULL, NULL, &ft))
+        last_error = GetLastError();
     CloseHandle(fh);
+    SetLastError(last_error);
     return (((uint64_t)ft.dwHighDateTime)<<32ull)+(uint64_t)ft.dwLowDateTime;
 #elif defined(FE_TARGET_EMSCRIPTEN)
-    if(fpath.is_wget)
+    if(fpath.is_wget) {
+        errno = EOPNOTSUPP;
         return 0;
+    }
     char *path;
     if(fpath.is_memfs)
         path = fe_asprintf("%s", fpath.memfs.path);
     else
         path = fe_asprintf("idb/%s/%s", fpath.idb.db_name, fpath.idb.path);
+    if(!path) {
+        errno = ENOMEM;
+        return 0;
+    }
     struct stat st;
     uint64_t ret = 0;
     if(!stat(path, &st))
         ret = st.st_mtime;
+    int last_error = errno;
     fe_mem_heapfree(path);
+    errno = last_error;
     return ret;
 #else
     struct stat st;
@@ -302,22 +356,27 @@ bool fe_fs_exists(const fe_fpath fpath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
     /* XXX We could try investigating more about a way to perform
      * a Wget-exists on Emscripten.*/
-    if(fpath.is_wget)
+    if(fpath.is_wget) {
+        errno = EOPNOTSUPP;
         return false;
-
+    }
     if(fpath.is_memfs)
         return !access(fpath.memfs.path, F_OK);
-
     fe_dbg_assert(fpath.is_idb);
     int exists, error;
     emscripten_idb_exists(fpath.idb.db_name, fpath.idb.path, &exists, &error);
-    return !error * exists;
+    errno = error ? EIO : 0;
+    return error ? false : exists;
 #elif defined(FE_TARGET_WINDOWS)
     WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
-    if(!fullpath_w)
+    if(!fullpath_w) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return false;
+    }
     bool exists = (GetFileAttributesW(fullpath_w) != INVALID_FILE_ATTRIBUTES);
+    DWORD last_error = GetLastError();
     fe_mem_heapfree(fullpath_w);
+    SetLastError(last_error);
     return exists;
 #else
     return !access(fpath.path, F_OK);
@@ -331,18 +390,26 @@ fe_iov_promise fe_fs_exists_async(const fe_fpath fpath) { return NULL; }
 
 bool  fe_fs_delete(const fe_fpath fpath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
-    fe_dbg_assert(!fpath.is_wget);
+    if(fpath.is_wget) {
+        errno = EOPNOTSUPP;
+        return false;
+    }
     if(fpath.is_memfs)
         return !unlink(fpath.memfs.path);
     int error;
     emscripten_idb_delete(fpath.idb.db_name, fpath.idb.path, &error);
+    errno = error ? STATIC_ERROR_UNKNOWN : 0;
     return !error;
 #elif defined(FE_TARGET_WINDOWS)
     WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
-    if(!fullpath_w)
+    if(!fullpath_w) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return false;
+    }
     bool success = DeleteFileW(fullpath_w);
+    DWORD last_error = GetLastError();
     fe_mem_heapfree(fullpath_w);
+    SetLastError(last_error);
     return success;
 #else
     return !unlink(fpath.path);
@@ -371,17 +438,24 @@ bool fe_wget(fe_iov *iov, const char *url) {
     emscripten_wget_data(url, &mem, &len, &error);
     iov->base = mem;
     iov->len = len;
+    errno = error ? STATIC_ERROR_UNKNOWN : 0;
     return !error;
 #else
     fe_tcp6 s;
     fe_ipv6_peer peer;
     fe_urlparts urlparts;
-    if(!fe_urlparts_from_url(&urlparts, url))
-        return false;
-    if(!fe_ipv6_peer_from_tcp6_host(&peer, urlparts.host, 80)) {
-        fe_urlparts_deinit(&urlparts);
+    if(!fe_urlparts_from_url(&urlparts, url)) {
+        errno = STATIC_ERROR_INVALID_URL;
         return false;
     }
+    if(!fe_ipv6_peer_from_tcp6_host(&peer, urlparts.host, 80)) {
+        /* XXX is errno correct at this point ? */
+        int last_error = errno;
+        fe_urlparts_deinit(&urlparts);
+        errno = last_error;
+        return false;
+    }
+    /* XXX well we assume allocations will work here... */
     char *epath = fe_percent_encode(urlparts.path);
     char *ehost = fe_punycode_encode(urlparts.host);
     fe_iov msg = {0};
@@ -398,6 +472,7 @@ bool fe_wget(fe_iov *iov, const char *url) {
     if(!fe_tcp6_connect(&s, &peer))
         return false;
     fe_tcp6_block(&s);
+    /* XXX Are all bytes actually sent ? */
     fe_tcp6_send(&s, msg.base, msg.len);
     fe_iov_deinit(&msg);
     /*
@@ -424,7 +499,8 @@ bool fe_wget(fe_iov *iov, const char *url) {
         ssize_t bytes_rcvd = fe_tcp6_recv(&s, header.base+offset, chunksize);
         if(bytes_rcvd <= 0) {
             fe_iov_deinit(&header);
-            return false; /* Should not happen! */
+            errno = STATIC_ERROR_EVIL_SERVER;
+            return false; /* Should not happen! We should have received the end of header first. */
         }
         char *end = strstr(header.base+prev_offset, "\r\n\r\n");
         if(end) {
@@ -436,9 +512,16 @@ bool fe_wget(fe_iov *iov, const char *url) {
         offset += bytes_rcvd;
         fe_iov_resize(&header, offset+chunksize);
     }
+    int code = strtol(header.base + strlen("HTTP/1.1 "), NULL, 10);
+    if(!(code==200 || code==203)) { /* TODO: handle better some other error codes. */
+        fe_tcp6_deinit(&s);
+        fe_iov_deinit(&header);
+        return false;
+    }
     /* For now we only care about the Content-Length field. */
     char *ctlen = strstr(header.base, "Content-Length:");
     if(!ctlen) {
+        fe_tcp6_deinit(&s);
         fe_iov_deinit(&header);
         return false;
     }
@@ -447,6 +530,7 @@ bool fe_wget(fe_iov *iov, const char *url) {
     fe_iov_resize(iov, total_bin_len);
     memcpy(iov->base, bin_startptr, bin_len);
     fe_iov_deinit(&header);
+    /* XXX did we receive everything ? */
     fe_tcp6_recv(&s, iov->base+bin_len, total_bin_len-bin_len);
     fe_tcp6_deinit(&s);
     return true;
@@ -474,6 +558,7 @@ bool fe_fs_load(fe_iov *iov, const fe_fpath fpath) {
         void *ptr = iov->base; /* For incompatible ptr types warning. */
         emscripten_idb_load(fpath.idb.db_name, fpath.idb.path, &ptr, &len, &error);
         iov->len = len;
+        errno = error ? STATIC_ERROR_UNKNOWN : 0;
         return !error;
     }
     /* If MEMFS, just go through. */
@@ -489,9 +574,18 @@ bool fe_fs_load(fe_iov *iov, const fe_fpath fpath) {
         return false;
     size_t offset = iov->len;
     size_t len = fe_fd_size(fd);
-    if(!fe_iov_grow(iov, len))
+    if(!fe_iov_resize(iov, offset+len)) /* XXX Set error here ! */
         return false;
-    fe_fd_read(fd, iov->base+offset, len);
+    ssize_t bytes_read = fe_fd_read(fd, iov->base+offset, len);
+    if(bytes_read < len) {
+        fe_logw(TAG, "File `%s' seems to be opened by someone else.\n", 
+        #ifdef FE_TARGET_EMSCRIPTEN
+                fpath.memfs.path /* Can't be Wget no IDB. See above. */
+        #else
+                fpath.path
+        #endif
+        );
+    }
     fe_fd_close(fd);
     return true;
 }
@@ -509,6 +603,7 @@ bool fe_fs_store(fe_iov *iov, const fe_fpath fpath) {
     if(fpath.is_idb) {
         int error;
         emscripten_idb_store(fpath.idb.db_name, fpath.idb.path, iov->base, iov->len, &error);
+        errno = error ? STATIC_ERROR_UNKNOWN : 0;
         return !error;
     }
     /* Otherwise, just go through */
@@ -523,7 +618,13 @@ bool fe_fs_store(fe_iov *iov, const fe_fpath fpath) {
     fe_fd fd = fe_fd_open(fpath, mode);
     if(!fe_fd_is_valid(fd))
         return false;
-    fe_fd_write(fd, iov->base, iov->len);
+    ssize_t bytes_written = fe_fd_write(fd, iov->base, iov->len);
+    if(bytes_written < iov->len) {
+        int last_error = fe_iov_get_last_error();
+        fe_fd_close(fd);
+        fe_iov_set_last_error(last_error);
+        return false;
+    }
     fe_fd_close(fd);
     return true;
 }
@@ -584,8 +685,7 @@ void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f) 
 }
 
 char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status) {
-    fe_iov iov = {0};
-    fe_iov_printf(&iov, iov.len, "%s%s%s%s%s%s%s%s%s%s%s",
+    return fe_asprintf("%s%s%s%s%s%s%s%s%s%s%s",
         !status.e_neither_read_nor_write ? "" :
         "[E] File is missing read/write access flags.\n"
         "    Use FE_FD_READ, FE_FD_WRITE, or both (a.k.a FE_FD_READWRITE).\n",
@@ -622,7 +722,6 @@ char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status) {
         !status.w_hint_both_early_and_late_access ? "" : 
         "[W] Both early and late access hints are specified, but they're conceptually mutually exclusive.\n"
     );
-    return iov.base;
 }
 
 void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f) {
@@ -688,11 +787,15 @@ void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f) {
 #ifdef FE_TARGET_WINDOWS
 static fe_fd static_fe_fd_open_win32(const fe_fpath fpath, fe_fd_mode mode) {
     WCHAR *fullpath_w = fe_utf8_to_win32unicode(fpath.path);
-    if(!fullpath_w)
+    if(!fullpath_w) {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return FE_FD_INVALID_FD;
+    }
     fe_fd fd = CreateFileW(fullpath_w, mode.desired_access, mode.share, 
             NULL, mode.creation_disposition, mode.attrs_and_flags, NULL);
+    int last_error = GetLastError();
     fe_mem_heapfree(fullpath_w);
+    SetLastError(last_error);
     return fd;
 }
 #else
@@ -701,6 +804,8 @@ static fe_fd static_fe_fd_open_win32(const fe_fpath fpath, fe_fd_mode mode) {
 
 static int static_fe_fd_open_unix(const char *path, fe_fd_mode mode) {
     int fd = open(path, mode.flags, 0666);
+    if(fd == -1)
+        return -1;
     #if HAS_POSIX_FADVISE
         if(mode.posix_fadv_random)
             posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
@@ -782,6 +887,7 @@ static void static_androidsdlrwops_setcallbacks(SDL_RWops *fd) {
 fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
     fe_fd fd = FE_FD_INVALID_FD;
 #ifdef FE_TARGET_EMSCRIPTEN
+    /* XXX Aaargh! So many points of failure! */
     if(fpath.is_memfs) {
         fd.unix_fd = static_fe_fd_open_unix(fpath.memfs.path, mode);
     } else if(fpath.is_wget) {
@@ -916,14 +1022,21 @@ bool fe_fd_msync_hint(fe_filemapview *v) {
 
 bool fe_fd_munmap(fe_filemapview *v) {
 #if defined(FE_TARGET_WINDOWS)
-    UnmapViewOfFile(v->view_base);
-    CloseHandle(v->filemapping);
-    return true;
+    BOOL unmap_success = UnmapViewOfFile(v->view_base);
+    DWORD unmap_error = GetLastError();
+    BOOL close_success = CloseHandle(v->filemapping);
+    DWORD close_error = GetLastError();
+    SetLastError((unmap_success ? (close_success ? 0 : close_error) : unmap_error));
+    return unmap_success && close_success;
 #else
     size_t total_len = (v->base - v->view_base) + v->len;
     /* There's no guarantee that the content is flushed otherwise. */
-    msync(v->view_base, total_len, MS_SYNC | MS_INVALIDATE);
-    return !munmap(v->view_base, total_len);
+    bool msync_success = !msync(v->view_base, total_len, MS_SYNC | MS_INVALIDATE);
+    int msync_error = errno;
+    bool munmap_success = !munmap(v->view_base, total_len);
+    int munmap_error = errno;
+    errno = ((msync_success ? (munmap_success ? 0 : munmap_error) : msync_error));
+    return msync_success && munmap_success;
 #endif
 }
 
@@ -950,8 +1063,10 @@ fe_fd_offset fe_fd_size(fe_fd fd) {
     return success ? li.QuadPart : -1;
 #else
     fe_fd_offset cur = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
+    if(cur < 0) return -1;
     fe_fd_offset end = fe_fd_seek(fd, 0, FE_FD_SEEK_END);
-    fe_fd_seek(fd, cur, FE_FD_SEEK_SET);
+    if(end < 0) return -1;
+    if(fe_fd_seek(fd, cur, FE_FD_SEEK_SET) < 0) return -1;
     return end;
 #endif
 }
@@ -1051,13 +1166,16 @@ bool           fe_fd_sync(fe_fd fd) {
     if(!(fd.is_idb && !fd.is_readonly))
         return true;
     fe_filemapview v = {0};
-    fe_fd_mmap(&v, fd, 0, fe_fd_size(fd), false);
+    if(!fe_fd_mmap(&v, fd, 0, fe_fd_size(fd), false))
+        return false;
     fe_iov iov = {v.base, v.len};
     fe_fpath fpath = {{{0}}};
     fpath.is_idb = true;
     fpath.idb = fd.idb;
-    fe_fs_store(&iov, fpath);
-    fe_fd_munmap(&v);
+    if(!fe_fs_store(&iov, fpath))
+        return false;
+    if(!fe_fd_munmap(&v))
+        return false;
     return true;
 #elif defined(FE_TARGET_WINDOWS)
     return FlushFileBuffers(fd);
@@ -1073,9 +1191,13 @@ bool           fe_fd_sync(fe_fd fd) {
 bool           fe_fd_truncate(fe_fd fd, size_t len) {
 #if defined(FE_TARGET_WINDOWS)
     fe_fd_offset cur = fe_fd_seek(fd, 0, FE_FD_SEEK_CUR);
-    fe_fd_seek(fd, len, FE_FD_SEEK_SET);
-    BOOL success = SetEndOfFile(fd);
+    if(cur < 0) return false;
+    if(fe_fd_seek(fd, len, FE_FD_SEEK_SET) < 0) return false;
+    BOOL seteof_success = SetEndOfFile(fd);
+    DWORD seteof_error = GetLastError();
     fe_fd_seek(fd, 0, cur);
+    if(!seteof_success)
+        SetLastError(seteof_error);
     return success;
 #elif defined(FE_TARGET_ANDROID)
     if(!static_androidsdlrwops_has_unix_fd(fd))
@@ -1091,9 +1213,14 @@ bool           fe_fd_truncate(fe_fd fd, size_t len) {
 bool           fe_fd_close(fe_fd fd) {
 #ifdef FE_TARGET_EMSCRIPTEN
     if(fd.is_idb) {
-        fe_fd_sync(fd);
+        bool success = fe_fd_sync(fd);
+        int last_error = errno;
         fe_mem_heapfree(fd.idb.path);
         fe_mem_heapfree(fd.idb.db_name);
+        if(!success) {
+            errno = last_error;
+            return false;
+        }
     }
     return !close(fd.unix_fd);
 #elif defined(FE_TARGET_WINDOWS)
@@ -1104,6 +1231,7 @@ bool           fe_fd_close(fe_fd fd) {
     return !close(fd);
 #endif
 }
+
 
 bool fe_iov_promise_poll(fe_iov_promise p, fe_iov_progress *st) {return 0;}
 bool fe_iov_promise_wait(fe_iov_promise p, fe_iov_progress *st, int timeout_milliseconds) {return 0;}
