@@ -103,22 +103,14 @@ int main(int argc, char *argv[]) {
  *
  * FATE_<version>_<dev_platform>/
  * `- bin/
- *    `- fate.exe (The editor)
+ *    `- fate (The editor)
  *    `- ld_deps
+ *    `- slayr
  *    `- (Other tools here)
  * `- (Other data here. shared libs ?)
  *
- * FATE_build/ (specified by user)
- * `- (all .o files for FATE here)
- *
- * multiverses_build/ (specified by user)
  * `- Cybernetic_Jurassic/
- *    `- (all .o files for CJ here)
- *
- * <anywhere>/ (specified by user)
- * `- Grisui/
- * `- Cybernetic_Jurassic/
- *    `- fatefile (Picked-up by the engine, might actually be a C source!)
+ *    `- fatefile (Picked-up by the engine, might actually be a GNU Make source!)
  *       `- dirs.src = <src-path> //Game source files
  *       `- dirs.gen = <gen-path> //Generated source files
  *       `- dirs.art = <art-path> //Source assets, unbaked
@@ -153,55 +145,17 @@ int main(int argc, char *argv[]) {
  *       `- {setup|build}.osx.gcc
  *       `- {setup|build}.osx.clang
  *       `- {setup|build}.emscripten
- *       `- dist.ubuntu = ...;
- *       `- dist.windows32 = ...;
- *       `- lib.vulkan = ...;
- *       `- build.types[0] = {"release", "CJ_DEBUG_BUILD, CJ_IOV_DEBUG"};
- *       `- build.types[1] = {"idunno", "CJ_IOV_DEBUG"};
- *       `- build.types[2] = {"debug", ""};
+ *       `- dist.ubuntu = 
+ *       `- dist.windows32 = 
+ *       `- fate.video_backends.vulkan = 
+ *       `- fate.video_backends.d3d11 = 
+ *       `- build.types.release.cflags = CJ_DEBUG_BUILD CJ_IOV_DEBUG=1
+ *       `- build.types.idunno.cflags = CJ_IOV_DEBUG
+ *       `- build.types.debug.cflags = 
+ *       `- build.default = idunno debug
  *       `- ...
- *    `- <src-path>/
- *       `- cj/
- *          `- cbzard.c
- *    `- <gen-path>/ (Read-only ! The engine rebuilds its content as needed.)
- *       `- cj/
- *          `- cbzard.h
- *    `- <art-path>/
- *       `- (This is the artist's corner. Put content here as you wish,
- *           but you should keep it tidy by making subdirectories.
- *           Basically any content you put here is picked up on-the-fly 
- *           by the engine - baked data is created from it, placed in your
- *           game's asset directory, and immediately usable from your
- *           code.
  *
- *           The engine reloads data on-the-fly as the locale
- *           is changed within the game.
- *
- *           What problems must this solve ?
- *           - It should be fast to add l10n late to the project.
- *           - Changing the locale should reload the appropriate version
- *             of the necessary entities.
- *           - It should still be left to the user to decide how l10n takes
- *             place.
- *           Solution :
- *           fe_load_l10n("%/hero.%.obj");
- *           If desired, write a macro :
- *           #define cj_load(str) fe_load_l10n("%/" str)
- *
- *           Example content :
- *             Fonts, images, 3D models, musics, sounds, text files).
- *    `- <res-path>/
- *    `- <dist-path>/
- *       `- Cybernetic_Jurassic_<version>.deb
- *       `- Cybernetic_Jurassic_<version>_<platform>_dynamic/
- *       `- Cybernetic_Jurassic_<version>_<platform>/
- *          `- (Binaries, DLLs, and baked resources here.
- *              The user can choose whether they should be jammed together
- *              or arranged within directories. The engine can be instructed
- *              to includes sources.);
- *
- * FATE utilities :
- *
+ * Utilities :
  *  fate-setup
  *  fate-create-multiverse # Create a template multiverse
  *  fate-build
