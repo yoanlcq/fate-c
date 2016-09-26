@@ -232,15 +232,20 @@ char *fe_iov_error_str(fe_iov_error error) {
 #ifdef FE_IOV_DBG
 static FE_DECL_THREAD_LOCAL fe_iov_dbg_callback local_dbg_callback;
 static                      fe_iov_dbg_callback global_dbg_callback;
-static fe_mt_spinlock global_dbg_spinlock;
+static                      fe_mt_spinlock      global_dbg_spinlock;
+
+static void static_dbg_dummy_callback(const fe_iov_dbg_info *info) {}
+
 void           fe_iov_set_local_debug_callback (fe_iov_dbg_callback callback) {
-    local_dbg_callback = callback;
+    local_dbg_callback = callback ? callback : static_dbg_dummy_callback;
 }
+
 void           fe_iov_set_global_debug_callback(fe_iov_dbg_callback callback) {
     fe_mt_spinlock_lock(&global_dbg_spinlock);
-    global_dbg_callback = callback;
+    global_dbg_callback = callback ? callback : static_dbg_dummy_callback;
     fe_mt_spinlock_unlock(&global_dbg_spinlock);
 }
+
 static void static_dbg_notify(const char *funcname, fe_iov_error error, const fe_fpath fpath, fe_fd fd) {
     fe_iov_dbg_info di = {funcname, error, fpath, fd};
     fe_mt_spinlock_lock(&global_dbg_spinlock);
