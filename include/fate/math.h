@@ -39,24 +39,27 @@
 #ifndef FE_MATH_H
 #define FE_MATH_H
 
-#include <fate/math/dvec2.h>
-#include <fate/math/dvec3.h>
-#include <fate/math/dvec4.h>
-#include <fate/math/ivec2.h>
-#include <fate/math/ivec3.h>
-#include <fate/math/ivec4.h>
-#include <fate/math/wvec2.h>
-#include <fate/math/wvec3.h>
-#include <fate/math/wvec4.h>
-#include <fate/math/uvec2.h>
-#include <fate/math/uvec3.h>
-#include <fate/math/uvec4.h>
-#include <fate/math/ullvec2.h>
-#include <fate/math/ullvec3.h>
-#include <fate/math/ullvec4.h>
-#include <fate/math/vec2.h>
-#include <fate/math/vec3.h>
-#include <fate/math/vec4.h>
+#include <fate/math/u32v2.h>
+#include <fate/math/u32v3.h>
+#include <fate/math/u32v4.h>
+#include <fate/math/i32v2.h>
+#include <fate/math/i32v3.h>
+#include <fate/math/i32v4.h>
+#include <fate/math/f32v2.h>
+#include <fate/math/f32v3.h>
+#include <fate/math/f32v4.h>
+#include <fate/math/u64v2.h>
+#include <fate/math/u64v3.h>
+#include <fate/math/u64v4.h>
+#include <fate/math/i64v2.h>
+#include <fate/math/i64v3.h>
+#include <fate/math/i64v4.h>
+#include <fate/math/f64v2.h>
+#include <fate/math/f64v3.h>
+#include <fate/math/f64v4.h>
+#include <fate/math/wv2.h>
+#include <fate/math/wv2.h>
+#include <fate/math/wv3.h>
 
 /*! @} */
 #endif /* FE_MATH_H */
