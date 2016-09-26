@@ -115,19 +115,58 @@ int main(int argc, char *argv[]) {
  * `- Cybernetic_Jurassic/
  *    `- (all .o files for CJ here)
  *
- * multiverses/ (specified by user)
+ * <anywhere>/ (specified by user)
  * `- Grisui/
  * `- Cybernetic_Jurassic/
- *    `- fate/
- *       `- settings.cfg (Picked-up by the engine)
- *       `- (All files required to display enity schemas to the user, etc.)
- *    `- src/
+ *    `- fatefile (Picked-up by the engine, might actually be a C source!)
+ *       `- dirs.src = <src-path> //Game source files
+ *       `- dirs.gen = <gen-path> //Generated source files
+ *       `- dirs.art = <art-path> //Source assets, unbaked
+ *       `- dirs.obj = <obj-path> //.o files
+ *       `- dirs.res = <res-path> //Baked assets
+ *       `- dirs.dist = <dist-path> //Distribution directory
+ *       `- game.url = ""
+ *       `- game.company = ""
+ *       `- game.description = ""
+ *       `- game.copyright = ""
+ *       `- game.trademarks = ""
+ *       `- game.name = ""
+ *       `- game.name_ident = ""
+ *       `- game.win32.executable_name = ""
+ *       `- game.version = ""
+ *       `- game.android.reversed_domain = ""
+ *       `- game.android.activity_classname = ""
+ *       `- game.android.icons = ""
+ *       `- game.ios.splash = ""
+ *       `- {setup|build}.android
+ *       `- {setup|build}.ios
+ *       `- {setup|build}.windows32.msvc
+ *       `- {setup|build}.windows64.msvc
+ *       `- {setup|build}.windows32.gcc
+ *       `- {setup|build}.windows64.gcc
+ *       `- {setup|build}.windows32.clang
+ *       `- {setup|build}.windows64.clang
+ *       `- {setup|build}.linux32.gcc
+ *       `- {setup|build}.linux64.gcc
+ *       `- {setup|build}.linux32.clang
+ *       `- {setup|build}.linux64.clang
+ *       `- {setup|build}.osx.gcc
+ *       `- {setup|build}.osx.clang
+ *       `- {setup|build}.emscripten
+ *       `- dist.ubuntu = ...;
+ *       `- dist.windows32 = ...;
+ *       `- lib.vulkan = ...;
+ *       `- build.types[0] = {"release", "CJ_DEBUG_BUILD, CJ_IOV_DEBUG"};
+ *       `- build.types[1] = {"idunno", "CJ_IOV_DEBUG"};
+ *       `- build.types[2] = {"debug", ""};
+ *       `- ...
+ *    `- <src-path>/
  *       `- cj/
  *          `- cbzard.c
- *    `- gen/ (Read-only ! The engine rebuilds its content as needed.)
+ *    `- <gen-path>/ (Read-only ! The engine rebuilds its content as needed.)
  *       `- cj/
  *          `- cbzard.h
- *    `- art/
+ *    `- <art-path>/
  *       `- (This is the artist's corner. Put content here as you wish,
  *           but you should keep it tidy by making subdirectories.
  *           Basically any content you put here is picked up on-the-fly 
@@ -151,64 +190,21 @@ int main(int argc, char *argv[]) {
  *
  *           Example content :
  *             Fonts, images, 3D models, musics, sounds, text files).
- *    `- res/
- *       `- (This folder is where mandatory resources are placed - they
- *           are well-known, required, localized, and separated from regular
- *           assets.
- *           Example content :
- *             Copyright info, company name, icons for Android, 
- *             Splash Screen for iOS, and more).
- *
- * dist/ (specified by user)
- * `- Cybernetic_Jurassic_<version>.deb
- * `- Cybernetic_Jurassic_<version>_<platform>_dynamic/
- * `- Cybernetic_Jurassic_<version>_<platform>/
- *    `- (Binaries, DLLs, and baked resources here.
- *        The user can choose whether they should be jammed together
- *        or arranged within directories. The engine can be instructed
- *        to includes sources.);
+ *    `- <res-path>/
+ *    `- <dist-path>/
+ *       `- Cybernetic_Jurassic_<version>.deb
+ *       `- Cybernetic_Jurassic_<version>_<platform>_dynamic/
+ *       `- Cybernetic_Jurassic_<version>_<platform>/
+ *          `- (Binaries, DLLs, and baked resources here.
+ *              The user can choose whether they should be jammed together
+ *              or arranged within directories. The engine can be instructed
+ *              to includes sources.);
  *
  * FATE utilities :
- *  fate-setup-android
- *  fate-setup-ios
- *  fate-setup-windows
- *  fate-setup-linux
- *  fate-setup-osx
- *  fate-setup-emscripten
+ *
+ *  fate-setup
  *  fate-create-multiverse # Create a template multiverse
- *  fate-build-android
- *  fate-build-ios
- *  fate-build-windows32-msvc
- *  fate-build-windows64-msvc
- *  fate-build-windows32-gcc
- *  fate-build-windows64-gcc
- *  fate-build-windows32-clang
- *  fate-build-windows64-clang
- *  fate-build-linux32-gcc
- *  fate-build-linux64-gcc
- *  fate-build-linux32-clang
- *  fate-build-linux64-clang
- *  fate-build-osx-gcc
- *  fate-build-osx-clang
- *  fate-build-emscripten
- *  fate-dist <recipe>
- *
- * Example settings.cfg:
- *  site_url = http://cube.author.org/
- *  company_name = Foobar
- *  description = A Cube spinning around.
- *  legal_copyright = Foobar
- *  legal_trademarks = ...
- *  name = Cube Demo
- *  name_ident = cube_demo
- *  executable_name = cube_demo
- *  version = 1.0
- *  domain = org.author.cube
- *  android_activity = CubeActivity
- *
- *  [recipe win32-portable]
- *  target = windows32-msvc
- *  include_sources = no
- *  portable = yes
- *
+ *  fate-build
+ *  fate-dist
+ *  fate-run
  */
