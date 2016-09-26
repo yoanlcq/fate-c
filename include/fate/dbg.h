@@ -98,6 +98,18 @@
 #define fe_dbg_assert(cond)
 #endif
 
+#if __DOXYGEN__ || defined(FE_DEBUG_BUILD)
+#define fe_dbg_assert_warn(cond) \
+    do { \
+        if(!(cond)) { \
+            fe_logw("fe_dbg", "%s:%s:%u: Assertion `%s' failed.\n", \
+                __FILE__, __func__, __LINE__, #cond); \
+        } \
+    } while(0)
+#else
+#define fe_dbg_assert_warn(cond)
+#endif
+
 /*! \brief Shortcut for exiting miserably when a condition is not met.
  * 
  * The difference with #fe_dbg_assert() is that this macro is defined for all builds.

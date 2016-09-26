@@ -198,7 +198,7 @@ static char* static_strerror(int err) {
 
 static inline void fe_iov_set_last_error(int err) {
 #ifdef FE_TARGET_WINDOWS
-    return SetLastError(err);
+    SetLastError(err);
 #else
     errno = err;
 #endif
@@ -274,7 +274,7 @@ char * fe_fs_getcwd(void) {
     if(!path)
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
     return path;
-#elif defined(_GNU_SOURCE)
+#elif defined(_GNU_SOURCE) && !defined(FE_TARGET_OSX) && !defined(FE_TARGET_IOS)
     return get_current_dir_name();
 #else
     size_t size = 512;
@@ -991,7 +991,7 @@ bool   fe_fd_mmap(fe_filemapview *v, fe_fd fd, fe_fd_offset offset, size_t len, 
     );
     if(!v->view_base)
         return false;
-    v->base = (uintptr_t)v->view_base + iViewDelta;
+    v->base = (void*)((uintptr_t)v->view_base + iViewDelta);
     v->len = len;
     return true;
 #else
@@ -1071,6 +1071,13 @@ fe_fd_offset fe_fd_size(fe_fd fd) {
 #endif
 }
 
+#ifdef FE_TARGET_LINUX
+#define STATIC_LINUX_IO_SIZE_LIMIT (0x7ffff000)
+#else
+#define STATIC_LINUX_IO_SIZE_LIMIT (~(size_t)0)
+#endif
+
+
 ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {
 #if defined(FE_TARGET_WINDOWS)
     DWORD bytes_read;
@@ -1081,6 +1088,7 @@ ssize_t        fe_fd_read(fe_fd fd, void *buf, size_t len) {
 #elif defined(FE_TARGET_EMSCRIPTEN)
     return read(fd.unix_fd, buf, len);
 #else
+    fe_dbg_assert_warn(len <= STATIC_LINUX_IO_SIZE_LIMIT);
     return read(fd, buf, len);
 #endif
 }
@@ -1095,6 +1103,7 @@ ssize_t        fe_fd_write(fe_fd fd, const void *buf, size_t len) {
 #elif defined(FE_TARGET_EMSCRIPTEN)
     return write(fd.unix_fd, buf, len);
 #else
+    fe_dbg_assert_warn(len <= STATIC_LINUX_IO_SIZE_LIMIT);
     return write(fd, buf, len);
 #endif
 }
@@ -1198,7 +1207,7 @@ bool           fe_fd_truncate(fe_fd fd, size_t len) {
     fe_fd_seek(fd, 0, cur);
     if(!seteof_success)
         SetLastError(seteof_error);
-    return success;
+    return seteof_success;
 #elif defined(FE_TARGET_ANDROID)
     if(!static_androidsdlrwops_has_unix_fd(fd))
         return false;
