@@ -43,22 +43,25 @@ dnl
 
 /* Feature test section */
 
+#include <stddef.h>
+#include <fate/defs.h>
+
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
  && __has_builtin(__builtin_shufflevector)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((ext_vector_type(n)))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
     #define ns`'vec`'_shuffle(v,a,b,c,d) \
-                __builtin_shufflevector(v,v,a,b,c,d)
+                __builtin_shufflevector((v)->vx,(v)->vx,a,b,c,d)
     #define ns`'vec`'_shuffle2(u,v,a,b,c,d) \
-                __builtin_shufflevector(u,v,a,b,c,d)
+                __builtin_shufflevector((u)->vx,(v)->vx,a,b,c,d)
 #endif
 #elif defined(__GNUC__)
 #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
     #define NS`'VEC`'_SIZE_ATTR(n) __attribute__((vector_size(n*sizeof(type))))
     #define NS`'VEC`'_PACKED_ATTR  __attribute__((__packed__))
-    #define ns`'vec`'_shuffle(v,a,b,c,d)    __builtin_shuffle(v,(ns`'mask){a,b,c,d})
-    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) __builtin_shuffle(u,v,(ns`'mask){a,b,c,d})
+    #define ns`'vec`'_shuffle(v,a,b,c,d)    __builtin_shuffle((v)->vx,(ns`'mask){a,b,c,d})
+    #define ns`'vec`'_shuffle2(u,v,a,b,c,d) __builtin_shuffle((u)->vx,(v)->vx,(ns`'mask){a,b,c,d})
 #endif
 #endif
 
@@ -76,47 +79,58 @@ ifelse(eval(dim>=3),1,dnl
 #include <dir/mask.h> /* Needed for __builtin_shuffle() */)dnl
 
 ifelse(eval(dim!=3),1,dnl
-typedef type ns`'vec NS`'VEC`'_SIZE_ATTR(dim);
+typedef type ns`'vec`'vext NS`'VEC`'_SIZE_ATTR(dim);
 ,dnl
 #include <dir/vec4.h>
-typedef ns`'vec4 ns`'vec;
+typedef ns`'vec4 ns`'vec`'vext;
 )dnl
 
 
-struct NS`'VEC`'_PACKED_ATTR ns`'vec`'_color {
-    type r;
-    type g;
-    ifelse(eval(dim>=3),1,type b;,/* No blue component. */)
-    ifelse(eval(dim>=4),1,type a;,/* No alpha component. */)
-};
-typedef struct ns`'vec`'_color ns`'vec`'_color;
+typedef struct { 
+    union {
+        ns`'vec`'vext vx;
+        type at[dim];
+        struct {
+            type r;
+            type g;
+            ifelse(eval(dim>=3),1,type b;,/* No blue component. */)
+            ifelse(eval(dim>=4),1,type a;,/* No alpha component. */)
+        };
+        struct {
+            type x;
+            type y;
+            ifelse(eval(dim>=3),1,type z;,/* No z component. */)
+            ifelse(eval(dim>=4),1,type w;,/* No w component. */)
+        };
+        struct {
+            type s;
+            type t;
+            ifelse(eval(dim>=3),1,type p;,/* No p component. */)
+            ifelse(eval(dim>=4),1,type q;,/* No q component. */)
+        };
+    };
+} ns`'vec;
 
-struct NS`'VEC`'_PACKED_ATTR ns`'vec`'_coord {
-    type x;
-    type y;
-    ifelse(eval(dim>=3),1,type z;,/* No z component. */)
-    ifelse(eval(dim>=4),1,type w;,/* No w component. */)
-};
-typedef struct ns`'vec`'_coord ns`'vec`'_coord;
+FE_COMPILETIME_ASSERT(offsetof(ns`'vec, r) == offsetof(ns`'vec, at[0]), "");
+FE_COMPILETIME_ASSERT(offsetof(ns`'vec, g) == offsetof(ns`'vec, at[1]), "");
+ifelse(eval(dim>=3),1,FE_COMPILETIME_ASSERT(offsetof(ns`'vec, b) == offsetof(ns`'vec, at[2]), "");)
+ifelse(eval(dim>=4),1,FE_COMPILETIME_ASSERT(offsetof(ns`'vec, a) == offsetof(ns`'vec, at[3]), "");)
 
-#define ns`'vec`'_as_array(v) (&(v)[0])
-#define ns`'vec`'_as_color(v) ((ns`'vec`'_color*)ns`'vec`'_as_array(v))
-#define ns`'vec`'_as_coord(v) ((ns`'vec`'_coord*)ns`'vec`'_as_array(v))
 
-#define ns`'vec`'_add(s,a,b)   ((*(s))=(*(a))+(*(b)))
-#define ns`'vec`'_sub(s,a,b)   ((*(s))=(*(a))-(*(b)))
-#define ns`'vec`'_scale(r,v,s) ((*(r))=(*(v))*(s))
+#define ns`'vec`'_add(s,a,b)   ((s).vx = (a).vx + (b).vx)
+#define ns`'vec`'_sub(s,a,b)   ((s).vx = (a).vx - (b).vx)
+#define ns`'vec`'_scale(r,v,s) ((r).vx = (v).vx * (s))
 #define ns`'vec`'_dot(a,b) ns`'vec`'_mul_inner(a,b)
 static inline type ns`'vec`'_mul_inner(const ns`'vec *a, const ns`'vec *b) {
-    ns`'vec v = (*a)*(*b);
+    ns`'vec v = (ns`'vec) {.vx = a->vx * b->vx};
     ifelse(
-        dim, 4, return v[0]+v[1]+v[2]+v[3],
-        dim, 3, return v[0]+v[1]+v[2],
-        dim, 2, return v[0]+v[1],
+        dim, 4, return v.vx[0]+v.vx[1]+v.vx[2]+v.vx[3],
+        dim, 3, return v.vx[0]+v.vx[1]+v.vx[2],
+        dim, 2, return v.vx[0]+v.vx[1],
         type r = 0;
         size_t i;
         for(i=0 ; i<dim ; ++i)
-            r += v[i];
+            r += v.at[i];
         return r
     );
 }
@@ -129,21 +143,21 @@ ifelse(eval(dim>=3),1,
 #define ns`'vec`'_mul_cross(r,a,b) ns`'vec`'p_mul_cross(r,a,b)
 #define ns`'vec`'_cross(r,a,b)     ns`'vec`'_mul_cross(r,a,b)
 static inline void ns`'vec`'p_mul_cross(ns`'vec *r, const ns`'vec *a, const ns`'vec *b) {
-    const ns`'vec la = ns`'vec`'_shuffle(*a, 1, 2, 0, 0);
-    const ns`'vec rb = ns`'vec`'_shuffle(*b, 1, 2, 0, 0);
-    const ns`'vec lb = ns`'vec`'_shuffle(*b, 2, 0, 1, 0);
-    const ns`'vec ra = ns`'vec`'_shuffle(*a, 2, 0, 1, 0);
-    *r = la*lb - ra*rb;
-    ifelse(eval(dim==4),1,(*r)[3] = 1;)
+    const ns`'vec la = (ns`'vec) {.vx = ns`'vec`'_shuffle(a, 1, 2, 0, 0)};
+    const ns`'vec rb = (ns`'vec) {.vx = ns`'vec`'_shuffle(b, 1, 2, 0, 0)};
+    const ns`'vec lb = (ns`'vec) {.vx = ns`'vec`'_shuffle(b, 2, 0, 1, 0)};
+    const ns`'vec ra = (ns`'vec) {.vx = ns`'vec`'_shuffle(a, 2, 0, 1, 0)};
+    r->vx = la.vx*lb.vx - ra.vx*rb.vx;
+    ifelse(eval(dim==4),1,r->vx[3] = 1;)
 }
 
 /* TODO should be discarded if proven to be less efficient. */
 #define ns`'vec`'_mul_cross_naive(r,a,b) ns`'vec`'p_mul_cross_naive(&(r),a,b)
 static inline void ns`'vec`'p_mul_cross_naive(ns`'vec *r, const ns`'vec *a, const ns`'vec *b) {
-    (*r)[0] = (*a)[1]*(*b)[2] - (*a)[2]*(*b)[1];
-    (*r)[1] = (*a)[2]*(*b)[0] - (*a)[0]*(*b)[2];
-    (*r)[2] = (*a)[0]*(*b)[1] - (*a)[1]*(*b)[0];
-    ifelse(eval(dim==4),1,(*r)[3] = 1;)
+    r->vx[0] = a->vx[1]*b->vx[2] - a->vx[2]*b->vx[1];
+    r->vx[1] = a->vx[2]*b->vx[0] - a->vx[0]*b->vx[2];
+    r->vx[2] = a->vx[0]*b->vx[1] - a->vx[1]*b->vx[0];
+    ifelse(eval(dim==4),1,r->vx[3] = 1;)
 }
 ,/* No cross product for ns`'vec. */
 )dnl
@@ -157,16 +171,14 @@ static inline void ns`'vec`'_reflect(ns`'vec *r, const ns`'vec *v, const ns`'vec
     const type p = 2*ns`'vec`'_mul_inner(v, n);
     ns`'vec pv;
     ifelse(
-        dim, 4, pv[0]=pv[1]=pv[2]=pv[3]=p,
-        dim, 3, pv[0]=pv[1]=pv[2]=p,
-        dim, 2, pv[0]=pv[1]=p,
+        dim, 4, pv.vx[0]=pv.vx[1]=pv.vx[2]=pv.vx[3]=p,
+        dim, 3, pv.vx[0]=pv.vx[1]=pv.vx[2]=p,
+        dim, 2, pv.vx[0]=pv.vx[1]=p,
         size_t i;
         for(i=0 ; i<dim ; ++i)
-            pv[i] = p;
+            pv.at[i] = p;
     );
-
-
-    *r = (*v)-pv*(*n);
+    r->vx = v->vx - pv.vx * n->vx;
 }
 
 #endif /* PREFIX`'VEC`'_H */

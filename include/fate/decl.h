@@ -172,8 +172,8 @@
 #define FE_DECL_NONNULL_PARAMS(arg_index,...) 
 #define FE_DECL_SENTINEL(pos) 
 #define FE_DECL_WARN_UNUSED_RESULT _Check_return_
-#define FE_DECL_PACKED_STRUCT
 #define FE_DECL_WARN_IF_USED(str) __declspec(deprecated(str))
+#define FE_DECL_PACKED_STRUCT FE_DECL_WARN_IF_USED("FE_DECL_PACKED_STRUCT is not implemented in MSVC !")
 #define FE_DECL_DLLEXPORT __declspec(dllexport)
 #define FE_DECL_PURE
 #define FE_DECL_USED_OFTEN

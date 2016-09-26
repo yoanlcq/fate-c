@@ -1,14 +1,14 @@
 .PHONY: all clean mrproper re
 
-all:      uvec4.h      uvec3.h      uvec2.h \
-	      ivec4.h      ivec3.h      ivec2.h \
-           vec4.h       vec3.h       vec2.h \
-          dvec4.h      dvec3.h      dvec2.h \
-		  wvec4.h      wvec3.h      wvec2.h \
-	    ullvec4.h    ullvec3.h    ullvec2.h
+all:  u32v2.h u32v3.h u32v4.h \
+	  i32v2.h i32v3.h i32v4.h \
+      f32v2.h f32v3.h f32v4.h \
+      f64v2.h f64v3.h f64v4.h \
+	    wv2.h   wv3.h   wv4.h \
+	  u64v2.h u64v3.h u64v4.h
 
 clean: 
-	rm -f *vec?.h
+	rm -f *v?.h
 mrproper: clean all
 re: mrproper
 
