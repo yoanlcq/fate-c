@@ -246,13 +246,19 @@ void           fe_iov_set_global_debug_callback(fe_iov_dbg_callback callback) {
     fe_mt_spinlock_unlock(&global_dbg_spinlock);
 }
 
-static void static_dbg_notify(const char *funcname, fe_iov_error error, const fe_fpath fpath, fe_fd fd) {
-    fe_iov_dbg_info di = {funcname, error, fpath, fd};
+static void static_dbg_notify(const void *func_addr, const char *func_name, fe_iov_dbg_info info) {
+    fe_iov_dbg_info di = info;
+    di.func_addr = func_addr;
+    di.func_name = func_name;
     fe_mt_spinlock_lock(&global_dbg_spinlock);
     global_dbg_callback(&di);
     fe_mt_spinlock_unlock(&global_dbg_spinlock);
     local_dbg_callback(&di);
+    fe_iov_set_last_error(di.error);
 }
+#define static_dbg(func, ...) static_dbg_notify(func, #func, (fe_iov_dbg_info){__VA_ARGS__})
+#else
+#define static_dbg(func, ...) 
 #endif
 
 
@@ -263,6 +269,7 @@ bool fe_fs_setcwd(const char *path) {
     WCHAR *wpath = fe_utf8_to_win32unicode(path);
     if(!wpath) {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        static_dbg(fe_fs_setcwd, .error=ERROR_NOT_ENOUGH_MEMORY, .path=path, .fd=FE_FD_INVALID_FD);
         return false;
     }
     BOOL success = SetCurrentDirectoryW(wpath);
@@ -271,7 +278,10 @@ bool fe_fs_setcwd(const char *path) {
     SetLastError(last_error);
     return success;
 #else
-    return !chdir(path);
+    bool success = !chdir(path);
+    if(!success)
+        static_dbg(fe_fs_setcwd, .error=errno, .path=path, .fd=FE_FD_INVALID_FD);
+    return success;
 #endif
 }
 

@@ -467,9 +467,13 @@ char*          fe_iov_error_str(fe_iov_error err);
 
 #ifdef FE_IOV_DBG
 typedef struct {
-    const char *funcname;
+    const void *func_addr;
+    const char *func_name;
     fe_iov_error error;
-    const fe_fpath fpath;
+    union {
+        const fe_fpath fpath;
+        const char *path;
+    };
     fe_fd fd;
 } fe_iov_dbg_info;
 typedef void (*fe_iov_dbg_callback)(const fe_iov_dbg_info *info);
