@@ -5,11 +5,11 @@ os: Visual Studio 2015
 clone_depth: 1
 environment:
   matrix:
-  - MAKE_ARGS: OS=windows ARCH=32 CC=cl SEE_ALL_CMD= 
+  - MAKE_ARGS: OS=windows ARCH=32 CC=cl SEE_ALL_CMD=y
     PREFIX: c:\usr_msvc
     MSVC:
     MINGW32: rem
-  - MAKE_ARGS: OS=windows ARCH=32 CC=gcc SEE_ALL_CMD= 
+  - MAKE_ARGS: OS=windows ARCH=32 CC=gcc SEE_ALL_CMD=y
     PREFIX: c:\usr_mingw32
     MINGW32:
     MSVC: rem
