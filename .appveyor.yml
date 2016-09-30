@@ -39,7 +39,7 @@ before_build:
   # Depends for MSVC
   - |-
     %MSVC% set VS_DIR="C:\Program Files (x86)\Microsoft Visual Studio 14.0"
-    %MSVC% %VS_DIR%\Common7\Tools\vsvars32.bat
+    %MSVC% %VS_DIR%\VC\vcvarsall.bat amd64
     %NEEDDEPENDS% %MSVC% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip
     %NEEDDEPENDS% %MSVC% 7z x SDL2-devel-2.0.4-VC.zip > nul
     %NEEDDEPENDS% %MSVC% copy SDL2-2.0.4\include\* %PREFIX%\include\SDL2 > nul
