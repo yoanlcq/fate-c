@@ -97,6 +97,7 @@ static uint32_t crc32c_armv8(const void *data, size_t len, uint32_t crc32c)
 #ifdef __GNUC__
 __attribute__((__target__("sse4.2")))
 #endif
+FE_DECL_NO_CAI
 static uint32_t crc32c_sse4_2(const void *data, size_t len, uint32_t crc32c)
 {
 #ifdef FE_HW_TARGET_X86_64

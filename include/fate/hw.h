@@ -575,6 +575,7 @@ typedef int32_t fe_hw_atomic32;
 #endif
 typedef int64_t fe_hw_atomic64;
 
+FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_load_4(ptr, __ATOMIC_SEQ_CST);
@@ -582,6 +583,7 @@ static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
     return _InterlockedAdd(ptr, 0);
 #endif
 }
+FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_load_8(ptr, __ATOMIC_SEQ_CST);
@@ -590,6 +592,7 @@ static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
 #endif
 }
 
+FE_DECL_NO_CAI
 static inline void fe_hw_atomic32_store(fe_hw_atomic32 *ptr, int32_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     __atomic_store_4(ptr, val, __ATOMIC_SEQ_CST);
@@ -598,6 +601,7 @@ static inline void fe_hw_atomic32_store(fe_hw_atomic32 *ptr, int32_t val) {
 #endif
 }
 
+FE_DECL_NO_CAI
 static inline void fe_hw_atomic64_store(fe_hw_atomic64 *ptr, int64_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     __atomic_store_8(ptr, val, __ATOMIC_SEQ_CST);
@@ -606,6 +610,7 @@ static inline void fe_hw_atomic64_store(fe_hw_atomic64 *ptr, int64_t val) {
 #endif
 }
 
+FE_DECL_NO_CAI
 static inline void fe_hw_atomicptr_store(fe_hw_atomicptr *ptr, void* val) {
 #if defined(__GNUC__) || defined(__clang__)
     __atomic_store(ptr, &val, __ATOMIC_SEQ_CST);
@@ -619,6 +624,7 @@ static inline void fe_hw_atomicptr_store(fe_hw_atomicptr *ptr, void* val) {
  * else *expected = *ptr; //return false
  * return *ptr != *expected;
  */
+FE_DECL_NO_CAI
 static inline bool fe_hw_atomic32_cmpxchg(fe_hw_atomic32 *ptr, 
                                           int32_t expected, 
                                           int32_t desired) {
@@ -631,6 +637,7 @@ static inline bool fe_hw_atomic32_cmpxchg(fe_hw_atomic32 *ptr,
     return ptr_oldval == expected;
 #endif
 }
+FE_DECL_NO_CAI
 static inline bool fe_hw_atomic64_cmpxchg(fe_hw_atomic64 *ptr, 
                                           int64_t expected, 
                                           int64_t desired) {
@@ -643,6 +650,7 @@ static inline bool fe_hw_atomic64_cmpxchg(fe_hw_atomic64 *ptr,
     return ptr_oldval == expected;
 #endif
 }
+FE_DECL_NO_CAI
 static inline bool fe_hw_atomicptr_cmpxchg(fe_hw_atomicptr *ptr, 
                                            void* expected, 
                                            void* desired) {
@@ -656,6 +664,7 @@ static inline bool fe_hw_atomicptr_cmpxchg(fe_hw_atomicptr *ptr,
 #endif
 }
 
+FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic32_add(fe_hw_atomic32 *ptr, int32_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
@@ -663,6 +672,7 @@ static inline int64_t fe_hw_atomic32_add(fe_hw_atomic32 *ptr, int32_t val) {
     return _InterlockedAdd(ptr, val);
 #endif
 }
+FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic64_add(fe_hw_atomic64 *ptr, int64_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);

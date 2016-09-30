@@ -36,19 +36,24 @@
  * guaranteed to be available on all CPUs, and because every compiler
  * expects _mm_prefetch()'s second parameter to be a compile-time constant
  * (which seems legit, given that the instruction opcodes are different.) */
+FE_DECL_NO_CAI
 static void static_sse_prefetch_t0(void *addr, bool rw) {
     _mm_prefetch(addr, _MM_HINT_T0);
 }
+FE_DECL_NO_CAI
 static void static_sse_prefetch_t1(void *addr, bool rw) {
     _mm_prefetch(addr, _MM_HINT_T1);
 }
+FE_DECL_NO_CAI
 static void static_sse_prefetch_t2(void *addr, bool rw) {
     _mm_prefetch(addr, _MM_HINT_T2);
 }
+FE_DECL_NO_CAI
 static void static_sse_prefetch_nta(void *addr, bool rw) {
     _mm_prefetch(addr, _MM_HINT_NTA);
 }
 #endif
+FE_DECL_NO_CAI
 static void static_sse_prefetch_dummy(void *addr, bool rw) {}
 void (*fe_hw_prefetch_t0)(void *, bool) = static_sse_prefetch_dummy;
 void (*fe_hw_prefetch_t1)(void *, bool)  = static_sse_prefetch_dummy;
@@ -83,14 +88,18 @@ FE_DECL_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 
 #endif /* FE_TARGET_IS_A_UNIX */
 
+FE_DECL_NO_CAI
 static void static_clflush_dummy(void const *addr) {}
+FE_DECL_NO_CAI
 static void static_clflush(void const *addr) {
 #ifdef FE_HW_TARGET_X86
     _mm_clflush(addr);
 #endif
 }
 void (*fe_hw_clflush)(void const *addr) = static_clflush_dummy;
+FE_DECL_NO_CAI
 static void static_mm_pause_dummy(void) {}
+FE_DECL_NO_CAI
 static void static_mm_pause(void) {
 #ifdef FE_HW_TARGET_X86
     _mm_pause();
@@ -128,7 +137,7 @@ size_t fe_hw_get_cpu_count(void) {
         #include <cpuid.h>
     #endif
 
-    fe_hw_x86_features_struct fe_hw_x86_cpu_info = {0};
+    fe_hw_x86_features_struct fe_hw_x86_cpu_info = {{0}};
 
     void fe_hw_x86_cpuidex(uint32_t leaf, uint32_t subleaf, 
                            uint32_t *eax, uint32_t *ebx, 
