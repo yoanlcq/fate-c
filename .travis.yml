@@ -20,5 +20,5 @@ install:
   - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi
   - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then . ./ci/travis/install-osx.sh; fi
 script:
-  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then make -j$(nproc) OS=$TRAVIS_OS_NAME ARCH=64 CC=$CC; fi
-  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then make -j$(sysctl -n hw.ncpu) OS=$TRAVIS_OS_NAME CC=$CC; fi
+  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then make -j$(nproc) OS=$TRAVIS_OS_NAME ARCH=64 CC=$CC SEE_ALL_CMD= ; fi
+  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then make -j$(sysctl -n hw.ncpu) OS=$TRAVIS_OS_NAME CC=$CC SE_ALL_CMD= ; fi
