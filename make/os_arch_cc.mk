@@ -114,8 +114,15 @@ endif
 
 ifeq ($(CC),cl)
 	OBJ_EXTENSION=.obj
+	ASM_EXTENSION=.asm
+	AS=ml /nologo
+	ifeq ($(ARCH),64)
+		AS=ml64 /nologo
+	endif
 else
 	OBJ_EXTENSION=.o
+	ASM_EXTENSION=.s
+	AS=as
 endif
 
 OSARCH=$(OS)$(ARCH)
@@ -125,6 +132,29 @@ ifeq ($(CC),emcc)
 	OSARCH=web
 endif
 MOVEPDB=
+
+ifneq ($(SEE_OBJ_CMD),)
+SEE_OBJ_CMD:=
+else
+SEE_OBJ_CMD:=@
+endif
+ifneq ($(SEE_EXE_CMD),)
+SEE_EXE_CMD:=
+else
+SEE_EXE_CMD:=@
+endif
+ifneq ($(SEE_MISC_CMD),)
+SEE_MISC_CMD:=
+else
+SEE_MISC_CMD:=@
+endif
+
+ifneq ($(SEE_ALL_CMD),)
+SEE_OBJ_CMD:=
+SEE_EXE_CMD:=
+SEE_MISC_CMD:=
+endif
+
 
 
 BUILDDIR = build/$(OSARCH)

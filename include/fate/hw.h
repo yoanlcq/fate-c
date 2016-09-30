@@ -575,7 +575,6 @@ typedef int32_t fe_hw_atomic32;
 #endif
 typedef int64_t fe_hw_atomic64;
 
-
 static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_load_4(ptr, __ATOMIC_SEQ_CST);
@@ -587,7 +586,7 @@ static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_load_8(ptr, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
-    return _InterlockedAdd64(ptr, 0);
+    return InterlockedAdd64(ptr, 0);
 #endif
 }
 
@@ -603,7 +602,7 @@ static inline void fe_hw_atomic64_store(fe_hw_atomic64 *ptr, int64_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     __atomic_store_8(ptr, val, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
-    _InterlockedExchange64(ptr, val);
+    InterlockedExchange64(ptr, val);
 #endif
 }
 
@@ -668,7 +667,7 @@ static inline int64_t fe_hw_atomic64_add(fe_hw_atomic64 *ptr, int64_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
-    return _InterlockedAdd64(ptr, val);
+    return InterlockedAdd64(ptr, val);
 #endif
 }
 

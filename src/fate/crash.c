@@ -143,30 +143,32 @@ static void fe_crash_log_stacktrace_win32(
     unsigned i;
     WCHAR modname[FE_CRASH_MODNAME_LEN];
     DWORD modname_len;
-    SYMBOL_INFO *symbol;
+    SYMBOL_INFOW *symbol;
     HANDLE process;
     HMODULE modhandle;
 
+    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);    
     process = GetCurrentProcess();
-    if(!SymInitialize(process, NULL, TRUE)) {
+    if(!SymInitializeW(process, NULL, TRUE)) {
         fe_crash_log_win32_error(logfunc, "SymInitialize", GetLastError());
         return;
     }
 
     /* Do not change this. The structure needs indeed to be 
      * allocated from the heap. */
-    symbol = calloc(sizeof(SYMBOL_INFO)+256, 1);
+    const size_t max_name_len = 255;
+    symbol = calloc(sizeof(SYMBOL_INFOW) + sizeof(WCHAR)*(max_name_len+1), 1);
     if(!symbol) {
-        logfunc(TAG, "log_stacktrace : Could not allocate SYMBOL_INFO object.\r\n");
+        logfunc(TAG, "log_stacktrace : Could not allocate SYMBOL_INFOW object.\r\n");
         SymCleanup(process);
         return;
     }
-    symbol->MaxNameLen = 255;
-    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    symbol->MaxNameLen = max_name_len;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
 
     for(i=0 ; i<nframes ; ++i) {
-        if(!SymFromAddr(process, stack[i], 0, symbol)) {
-            fe_crash_log_win32_error(logfunc, "SymFromAddr", GetLastError());
+        if(!SymFromAddrW(process, stack[i], 0, symbol)) {
+            fe_crash_log_win32_error(logfunc, "SymFromAddrW", GetLastError());
             continue;
         }
 #if _WIN32_WINNT >= 0x0501
@@ -278,6 +280,8 @@ void fe_crash_setup(void) {
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */
 LONG CALLBACK fe_crash_win32_exception_handler(EXCEPTION_POINTERS *ep)
 {
+    if(ep->ExceptionRecord->ExceptionCode == EXCEPTION_BREAKPOINT)
+        return EXCEPTION_CONTINUE_EXECUTION;// EXCEPTION_CONTINUE_SEARCH;
     fe_loge(TAG, "Process received ");
 #define HELPER(_S) \
     case _S: fe_loge(TAG, #_S); break

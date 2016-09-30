@@ -1,6 +1,16 @@
 .PHONY: all games
 all: games
 
+CAI_EXCLUDE := $(wildcard \
+	src/fate/cai/* \
+	src/fate/crash.c \
+)
+	#src/fate/log.c
+	#src/fate/hw.c
+	#src/fate/hash.c
+	#src/cube/main.c
+#CAI_ENABLE := yes
+
 ifneq ($(OS),android)
 include make/os_arch_cc.mk
 include make/$(CC).mk

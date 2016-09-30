@@ -1,4 +1,5 @@
-CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2 -msse4.2
+CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
+CAI_CCFLAGS := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,smmintrin.h,emmintrin.h,xmmintrin.h
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
@@ -9,7 +10,7 @@ CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
 endif
 endif
 ifeq ($(OS),windows)
-CCFLAGS += -DUNICODE -D_UNICODE
+CCFLAGS += -DUNICODE -D_UNICODE -DDBGHELP_TRANSLATE_TCHAR
 endif
 
 GLEWFLAGS = -DGLEW_STATIC -DGLEW_NO_GLU

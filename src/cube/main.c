@@ -729,8 +729,12 @@ void cube_main_loop_iteration(void *arg) {
 
 #ifdef FE_TARGET_WINDOWS
 #include <Windows.h>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
-                   PSTR pCmdLine, int nCmdShow)
+    #ifdef _MSC_VER
+    int wmain(int argc, wchar_t* argv[])
+    #else
+    int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                       PSTR pCmdLine, int nCmdShow)
+    #endif
 #elif defined FE_TARGET_ANDROID
 int cube_main(int argc, char *argv[])
 #else

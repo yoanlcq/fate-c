@@ -160,6 +160,11 @@
  */
 #define FE_DECL_THREAD_LOCAL __thread
 
+/*! \brief Compile-time specifier for a function that must not be instrumented.
+ *
+ * GCC, Clang.
+ */
+#define FE_DECL_NO_CAI __attribute__((no_instrument_function))
 
 
 #elif defined(_MSC_VER) /* ifdef __GNUC__ */
@@ -183,6 +188,7 @@
  * on Vista or earlier. As of today, Vista's market share is roughly 
  * ~1% and can only keep decreasing though. */
 #define FE_DECL_THREAD_LOCAL __declspec(thread)
+#define FE_DECL_NO_CAI 
 
 
 #else /* _MSC_VER */
@@ -201,6 +207,8 @@
 #define FE_DECL_USED_RARELY
 /* Fail on this because this is very important. */
 #error "FE_DECL_ALIGN() can't be defined because your compiler doesn't support alignment specifiers."
+#define FE_DECL_NO_CAI 
+
 
 #endif /* ifdef __GNUC_ */
 
