@@ -133,17 +133,17 @@ ifeq ($(CC),emcc)
 endif
 MOVEPDB=
 
-ifndef SEE_OBJ_CMD
+ifdef SEE_OBJ_CMD
 SEE_OBJ_CMD:=
 else
 SEE_OBJ_CMD:=@
 endif
-ifndef SEE_EXE_CMD
+ifdef SEE_EXE_CMD
 SEE_EXE_CMD:=
 else
 SEE_EXE_CMD:=@
 endif
-ifndef SEE_MISC_CMD
+ifdef SEE_MISC_CMD
 SEE_MISC_CMD:=
 else
 SEE_MISC_CMD:=@

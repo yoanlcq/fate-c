@@ -29,6 +29,7 @@
 
 #include <fate/defs.h>
 #include <fate/dbg.h>
+#include <fate/mem.h>
 #include <fate/hw.h>
 
 #if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
@@ -79,8 +80,70 @@ static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 #undef HELPER
 }
 
-#else
+#elif defined(FE_TARGET_WINDOWS)
+#include <windows.h>
+static const char *TAG = "fe_hw";
+typedef BOOL WINAPI (*LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+FE_DECL_WIP static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
+    memset(ci, 0, sizeof(*ci));
 
+    LPFN_GLPI glpi = GetProcAddress(
+        GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation"
+    );
+    if(!glpi) {
+        fe_logw(TAG, "GetLogicalProcessorInformation is not supported.\n");
+        return;
+    }
+
+    DWORD size = 0;
+    BOOL success = glpi(NULL, &size);
+    DWORD err = GetLastError();
+    if(!success) {
+        if(err != ERROR_INSUFFICIENT_BUFFER) {
+            //TODO:support system error codes logging.
+            fe_logw(TAG, "GetLogicalProcessorInformation "
+                    "failed with error %d\n", (int)GetLastError());
+            return;
+        }
+    }
+    SYSTEM_LOGICAL_PROCESSOR_INFORMATION *pi = fe_mem_heapcalloc(size, uint8_t, "");
+    success = glpi(pi, &size);
+    if(!success) {
+        fe_logw(TAG, "GetLogicalProcessorInformation "
+            "failed with error %d\n", (int)GetLastError());
+        return;
+    }
+    size_t i;
+    for(i=0 ; i<size/sizeof(*pi) ; ++i) {
+        (void)pi[i].ProcessorMask;
+        switch(pi[i].Relationship) {
+        case RelationProcessorCore:    
+            (void)pi[i].ProcessorCore.Flags;
+            break;
+        case RelationNumaNode:         
+            (void)pi[i].NumaNode.NodeNumber;
+            break;
+        case RelationCache:            
+            (void)pi[i].Cache.Level; //1,2,3;
+            (void)pi[i].Cache.Associativity; //CACHE_FULLY_ASSOCIATIVE ;
+            (void)pi[i].Cache.LineSize;
+            (void)pi[i].Cache.Size;
+            switch(pi[i].Cache.Type) {
+            case CacheUnified:     break;
+            case CacheInstruction: break;
+            case CacheData:        break;
+            case CacheTrace:       break;
+            }
+            break;
+        case RelationProcessorPackage: break;
+        case RelationGroup:            break;
+        case RelationAll: /* For -Wswitch */break;
+        }
+    }
+
+    fe_mem_heapfree(pi);
+}
+#else
 #include <string.h>
 FE_DECL_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
     memset(ci, 0, sizeof(*ci));
