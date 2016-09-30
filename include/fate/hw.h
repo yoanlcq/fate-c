@@ -578,7 +578,7 @@ typedef int64_t fe_hw_atomic64;
 FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
-    return __atomic_load(ptr, __ATOMIC_SEQ_CST);
+    return __atomic_load_n(ptr, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     return _InterlockedAdd(ptr, 0);
 #endif
@@ -586,7 +586,7 @@ static inline int64_t fe_hw_atomic32_load(fe_hw_atomic32 *ptr) {
 FE_DECL_NO_CAI
 static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
 #if defined(__GNUC__) || defined(__clang__)
-    return __atomic_load(ptr, __ATOMIC_SEQ_CST);
+    return __atomic_load_n(ptr, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     return InterlockedAdd64(ptr, 0);
 #endif
@@ -595,7 +595,7 @@ static inline int64_t fe_hw_atomic64_load(fe_hw_atomic64 *ptr) {
 FE_DECL_NO_CAI
 static inline void fe_hw_atomic32_store(fe_hw_atomic32 *ptr, int32_t val) {
 #if defined(__GNUC__) || defined(__clang__)
-    __atomic_store(ptr, val, __ATOMIC_SEQ_CST);
+    __atomic_store_n(ptr, val, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     _InterlockedExchange(ptr, val);
 #endif
@@ -604,7 +604,7 @@ static inline void fe_hw_atomic32_store(fe_hw_atomic32 *ptr, int32_t val) {
 FE_DECL_NO_CAI
 static inline void fe_hw_atomic64_store(fe_hw_atomic64 *ptr, int64_t val) {
 #if defined(__GNUC__) || defined(__clang__)
-    __atomic_store(ptr, val, __ATOMIC_SEQ_CST);
+    __atomic_store_n(ptr, val, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     InterlockedExchange64(ptr, val);
 #endif
@@ -629,7 +629,7 @@ static inline bool fe_hw_atomic32_cmpxchg(fe_hw_atomic32 *ptr,
                                           int32_t expected, 
                                           int32_t desired) {
 #if defined(__GNUC__) || defined(__clang__)
-    return __atomic_compare_exchange(ptr, &expected, desired, 
+    return __atomic_compare_exchange_n(ptr, &expected, desired, 
                 false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     int64_t ptr_oldval = 
@@ -642,7 +642,7 @@ static inline bool fe_hw_atomic64_cmpxchg(fe_hw_atomic64 *ptr,
                                           int64_t expected, 
                                           int64_t desired) {
 #if defined(__GNUC__) || defined(__clang__)
-    return __atomic_compare_exchange(ptr, &expected, desired, 
+    return __atomic_compare_exchange_n(ptr, &expected, desired, 
                 false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
     int64_t ptr_oldval = 

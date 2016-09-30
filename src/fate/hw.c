@@ -88,7 +88,7 @@ FE_DECL_WIP static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
     memset(ci, 0, sizeof(*ci));
 
     LPFN_GLPI glpi = GetProcAddress(
-        GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation"
+        GetModuleHandleW(TEXT("kernel32")), "GetLogicalProcessorInformation"
     );
     if(!glpi) {
         fe_logw(TAG, "GetLogicalProcessorInformation is not supported.\n");
