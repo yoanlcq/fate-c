@@ -1,5 +1,5 @@
 CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
-CAI_CCFLAGS := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,smmintrin.h,emmintrin.h,xmmintrin.h
+CAI_CCFLAGS := -finstrument-functions -finstrument-functions-exclude-function-list=__atomic_load,__atomic_load_4,__atomic_load_8,__atomic_store,__atomic_store_4,__atomic_store_8,__atomic_compare_exchange,__atomic_compare_exchange_4,__atomic_compare_exchange_8,_mm_crc32_u64,_mm_crc32_u32,_mm_crc32_u16,_mm_crc32_u8,_mm_pause,_mm_clflush,_mm_prefetch
 ifneq ($(ARCH),)
 CCFLAGS += -m$(ARCH) 
 endif
