@@ -119,10 +119,12 @@ ifeq ($(CC),cl)
 	ifeq ($(ARCH),64)
 		AS=ml64 /nologo
 	endif
+	SSE4_2_FLAG:=
 else
 	OBJ_EXTENSION=.o
 	ASM_EXTENSION=.s
 	AS=as
+	SSE4_2_FLAG:=-msse4.2
 endif
 
 OSARCH=$(OS)$(ARCH)

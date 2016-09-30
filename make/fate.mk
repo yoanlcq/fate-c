@@ -46,9 +46,9 @@ $(BUILDDIR)/contrib_dbg/%$(OBJ_EXTENSION): src/contrib/%.c | dirs
 $(BUILDDIR)/fate/%$(OBJ_EXTENSION): src/fate/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	$(SEE_OBJ_CMD)$(CC) $(CCRELEASEFLAGS) $(if $(CAI_ENABLE),$(if $(filter $(CAI_EXCLUDE),$<),,$(CAI_CCFLAGS))) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	$(SEE_OBJ_CMD)$(CC) $(CCRELEASEFLAGS) $(if $(CAI_ENABLE),$(if $(filter $(CAI_EXCLUDE),$<),,$(CAI_CCFLAGS))) $(if $(findstring .sse4_2.c,$<),$(SSE4_2_FLAG)) $(CCOBJ) $< $(CCOUT_OBJ)$@
 
 $(BUILDDIR)/fate_dbg/%$(OBJ_EXTENSION): src/fate/%.c | dirs
 	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
-	$(SEE_OBJ_CMD)$(CC) $(CCDEBUGFLAGS) $(if $(CAI_ENABLE),$(if $(filter $(CAI_EXCLUDE),$<),,$(CAI_CCFLAGS))) $(CCOBJ) $< $(CCOUT_OBJ)$@
+	$(SEE_OBJ_CMD)$(CC) $(CCDEBUGFLAGS) $(if $(CAI_ENABLE),$(if $(filter $(CAI_EXCLUDE),$<),,$(CAI_CCFLAGS))) $(if $(findstring .sse4_2.c,$<),$(SSE4_2_FLAG)) $(CCOBJ) $< $(CCOUT_OBJ)$@
