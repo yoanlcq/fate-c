@@ -205,7 +205,7 @@ static void fe_crash_log_stacktrace_win32(
 
         logfunc(TAG, "[0x%"PRIx64"] ", symbol->Address);
         if(symbol->MaxNameLen > 0)
-            logfunc(TAG, "(%s)", symbol->Name);
+            logfunc(TAG, "(%S)", symbol->Name);
         if(symbol->Flags & SYMFLAG_VALUEPRESENT)
             logfunc(TAG, "(Value : 0x%"PRIx64")", symbol->Value);
         logfunc(TAG, "\r\n");
