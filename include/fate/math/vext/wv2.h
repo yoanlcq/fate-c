@@ -103,8 +103,8 @@ typedef struct {
     };
 } fe_wv2;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
+static_assert(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
+static_assert(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
 
 
 

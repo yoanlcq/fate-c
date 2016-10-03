@@ -97,9 +97,9 @@ typedef struct {
     };
 } fe_u64v3;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
+static_assert(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
+static_assert(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
+static_assert(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
 
 
 /*! \brief TODO */

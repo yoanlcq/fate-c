@@ -97,10 +97,10 @@ typedef struct {
     };
 } fe_wv4;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_wv4, r) == offsetof(fe_wv4, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_wv4, g) == offsetof(fe_wv4, at[1]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_wv4, b) == offsetof(fe_wv4, at[2]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_wv4, a) == offsetof(fe_wv4, at[3]), "");
+static_assert(offsetof(fe_wv4, r) == offsetof(fe_wv4, at[0]), "");
+static_assert(offsetof(fe_wv4, g) == offsetof(fe_wv4, at[1]), "");
+static_assert(offsetof(fe_wv4, b) == offsetof(fe_wv4, at[2]), "");
+static_assert(offsetof(fe_wv4, a) == offsetof(fe_wv4, at[3]), "");
 
 /*! \brief TODO */
 static inline void fe_wv4_shuffle(fe_wv4 *r, 

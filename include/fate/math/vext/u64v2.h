@@ -103,8 +103,8 @@ typedef struct {
     };
 } fe_u64v2;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_u64v2, r) == offsetof(fe_u64v2, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_u64v2, g) == offsetof(fe_u64v2, at[1]), "");
+static_assert(offsetof(fe_u64v2, r) == offsetof(fe_u64v2, at[0]), "");
+static_assert(offsetof(fe_u64v2, g) == offsetof(fe_u64v2, at[1]), "");
 
 
 

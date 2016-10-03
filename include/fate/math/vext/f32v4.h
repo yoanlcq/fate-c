@@ -103,10 +103,10 @@ typedef struct {
     };
 } fe_f32v4;
 
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v4, r) == offsetof(fe_f32v4, at[0]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v4, g) == offsetof(fe_f32v4, at[1]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v4, b) == offsetof(fe_f32v4, at[2]), "");
-FE_COMPILETIME_ASSERT(offsetof(fe_f32v4, a) == offsetof(fe_f32v4, at[3]), "");
+static_assert(offsetof(fe_f32v4, r) == offsetof(fe_f32v4, at[0]), "");
+static_assert(offsetof(fe_f32v4, g) == offsetof(fe_f32v4, at[1]), "");
+static_assert(offsetof(fe_f32v4, b) == offsetof(fe_f32v4, at[2]), "");
+static_assert(offsetof(fe_f32v4, a) == offsetof(fe_f32v4, at[3]), "");
 
 
 #define fe_f32v4_add(s,a,b)   ((s).vx = (a).vx + (b).vx)

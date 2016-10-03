@@ -39,6 +39,8 @@
 
 #include <fate/defs.h> /* Always include first. */
 #include <fate/decl.h>
+#include <fate/stdc.h>
+#include <fate/stdc_ext.h>
 #include <fate/dbg.h>
 #include <fate/al.h>
 #include <fate/crash.h>

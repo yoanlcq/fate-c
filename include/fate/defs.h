@@ -278,113 +278,12 @@
      || FE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
 
 
-
-
-/*
- *
- * Some more utility macros
- *
- */
-
-
-/*! \brief Macro for checking if we're using the C11 standard. */
-#if __STDC_VERSION__ >= 201112L
-#define FE_C11_SUPPORT
-#endif
-
-
-/*! \brief Define <tt>__func__</tt> to something else, only if the used
- *         C standard does not support it. */
-#if __STDC_VERSION__ < 199901L
-#ifndef __GNUC__
-#define __func__ "<somefunction>"
-#endif
-#endif
-
-#ifdef _MSC_VER
-#define restrict __restrict
-#endif
-
-#ifndef M_PI
-/*! \brief Definition for M_PI, since it may be missing with std=c11. */
-#define M_PI 3.14159265358979323846264338327
-#endif
-
-/*! \brief Forces a compilation error if condition is true. Evaluates to 0. */
-#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
-
-
-
-
-/*
- *
- *
- * Compiler-specific macro definitions
- *
- *
- */
-
-
-
-
-
-
-#if __DOXYGEN__ || defined(__GNUC__)
-/*! \brief Ensures the given expression is an array.
- *
- * Always evaluates to 0, but causes a compilation error if the given 
- * expression is not an array.
- *
- * This macro expands to 0 if the compiler is not GCC.
- * \return 0
- */
-#define MUST_BE_ARRAY(a) \
-     BUILD_BUG_ON_ZERO(__builtin_types_compatible_p(typeof(a), typeof(&a[0])))
-#else
-#define MUST_BE_ARRAY(a) 0
-#endif
-
-/*! \brief Compile-time assert macro. */
-#ifdef _MSC_VER
-#define FE_COMPILETIME_ASSERT(pred, str) static_assert(pred, str)
-#elif defined(FE_C11_SUPPORT)
-#define FE_COMPILETIME_ASSERT(pred, str) _Static_assert(pred, str)
-#else
-#define FE_COMPILETIME_ASSERT(pred, str) \
-    typedef char static_assertion_failed_at_line_##__LINE__[(pred && str)*2-1]
-#endif
-
-
-/*! \brief Returns the number of elements of an array which size can be 
- *         computed at compile-time. 
- * 
- * Please don't use it on pointers. It ain't wizardry.
- */
-#define COUNTOF(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
-
-
-typedef unsigned long ulong;
-
-#ifdef _MSC_VER
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
-
-#ifdef FE_TARGET_WINDOWS
-#define PRIssize_t "Id"
-#define PRIsize_t "Iu"
-#define PRIosize_t "Io"
-#define PRIxsize_t "Ix"
-#define PRIXsize_t "IX"
-#else
-#define PRIssize_t "zd"
-#define PRIsize_t "zu"
-#define PRIosize_t "zo"
-#define PRIxsize_t "zx"
-#define PRIXsize_t "zX"
-#endif
-
+/* Note : Only include these last.
+ * They need the FE_ platform macros. */
 #include <fate/decl.h>
+#include <fate/stdc.h>
+#include <fate/stdc_ext.h>
+
 
 
 /*! @} */
