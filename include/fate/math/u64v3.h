@@ -44,6 +44,15 @@
 #ifndef FE_MATH_U64V3_H
 #define FE_MATH_U64V3_H
 
+#include <fate/defs.h>
+#include <fate/decl.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <assert.h>
+#include <math.h>
+
+
+
 #ifndef FE_MATH_WITHOUT_VECTOR_EXTENSIONS
     #ifdef __clang__
         #if __has_extension(attribute_ext_vector_type) \
@@ -62,12 +71,6 @@
 #endif
 
 #ifdef FE_MATH_WITHOUT_VECTOR_EXTENSIONS /* Naive */
-
-#include <fate/defs.h>
-#include <fate/decl.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <math.h>
 
 /*! \brief TODO 
  *
@@ -97,9 +100,9 @@ typedef struct {
     };
 } fe_u64v3;
 
-static_assert(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
-static_assert(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
-static_assert(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
+fe_static_assert(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
+fe_static_assert(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
+fe_static_assert(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
 
 
 /*! \brief TODO */

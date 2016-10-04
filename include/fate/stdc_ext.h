@@ -54,9 +54,11 @@
 
 #ifdef FE_C11_SUPPORT
     #ifdef _MSC_VER
-        #define fe_static_assertion(pred,msg) static_assert(pred, msg)
+        #define fe_static_assert(pred,msg) static_assert(pred, msg)
     #elif defined(__GNUC__)
-        #define fe_static_assertion(pred,msg) _Static_assert(pred, msg)
+        #define fe_static_assert(pred,msg) _Static_assert(pred, msg)
+    #else
+        #error "Static assert unspported."
     #endif
 #else
 #error "Could not define fe_static_assertion for now."
@@ -87,6 +89,7 @@ typedef SSIZE_T ssize_t;
 
 #include <stdint.h>
 
+typedef uint32_t fe_b32, fe_bool32;
 typedef  int8_t  fe_s8;
 typedef uint8_t  fe_u8;
 typedef  int16_t fe_s16;
@@ -99,14 +102,13 @@ typedef    float fe_f32;
 typedef   double fe_f64;
 typedef long double  fe_lf64;
 #ifdef __SIZEOF_INT128__
-#define FE_I128_SUPPORTED
-typedef   signed __int128 fe_s128;
-typedef unsigned __int128 fe_u128;
+    #define FE_I128_SUPPORTED
+    typedef   signed __int128 fe_s128;
+    typedef unsigned __int128 fe_u128;
 #endif
-
 #ifdef __SIZEOF_FLOAT128__
-#define FE_F128_SUPPORTED
-typedef __float128 fe_f128;
+    #define FE_F128_SUPPORTED
+    typedef __float128 fe_f128;
 #endif
 
 #endif /* FE_STDC_EXT_H */

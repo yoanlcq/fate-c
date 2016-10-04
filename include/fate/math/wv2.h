@@ -44,6 +44,15 @@
 #ifndef FE_MATH_WV2_H
 #define FE_MATH_WV2_H
 
+#include <fate/defs.h>
+#include <fate/decl.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <assert.h>
+#include <math.h>
+#include <fate/units.h>
+
+
 #ifndef FE_MATH_WITHOUT_VECTOR_EXTENSIONS
     #ifdef __clang__
         #if __has_extension(attribute_ext_vector_type) \
@@ -63,12 +72,6 @@
 
 #ifdef FE_MATH_WITHOUT_VECTOR_EXTENSIONS /* Naive */
 
-#include <fate/defs.h>
-#include <fate/decl.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <math.h>
-#include <fate/units.h>
 /*! \brief TODO 
  *
  * fe_wv2
@@ -97,8 +100,8 @@ typedef struct {
     };
 } fe_wv2;
 
-static_assert(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
-static_assert(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
+fe_static_assert(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
+fe_static_assert(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
 
 
 

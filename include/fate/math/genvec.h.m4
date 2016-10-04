@@ -47,6 +47,15 @@ dnl
 #ifndef PREFIX`'VEC`'_H
 #define PREFIX`'VEC`'_H
 
+#include <fate/defs.h>
+#include <fate/decl.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <assert.h>
+#include <math.h>
+ifelse(type,fe_space_unit,#include <fate/units.h>)
+
+
 #ifndef FE_MATH_WITHOUT_VECTOR_EXTENSIONS
     #ifdef __clang__
         #if __has_extension(attribute_ext_vector_type) \
@@ -66,12 +75,6 @@ dnl
 
 #ifdef FE_MATH_WITHOUT_VECTOR_EXTENSIONS /* Naive */
 
-#include <fate/defs.h>
-#include <fate/decl.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <math.h>
-ifelse(type,fe_space_unit,#include <fate/units.h>)
 /*! \brief TODO 
  *
  * ns`'vec

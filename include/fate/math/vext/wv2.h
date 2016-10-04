@@ -42,6 +42,11 @@
 
 #include <stddef.h>
 #include <fate/defs.h>
+#include <stdint.h>
+#include <math.h>
+#include <assert.h>
+#include <fate/units.h>
+
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
@@ -64,19 +69,15 @@
 #endif
 #endif
 
+typedef fe_space_unit fe_wv2vext FE_WV2_SIZE_ATTR(2);
+
+
 #ifndef FE_WV2_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
 
 /* Here we go. */
-
-#include <stdint.h>
-#include <math.h>
-#include <fate/units.h>
-
-typedef fe_space_unit fe_wv2vext FE_WV2_SIZE_ATTR(2);
-
 
 typedef struct { 
     union {
@@ -103,8 +104,8 @@ typedef struct {
     };
 } fe_wv2;
 
-static_assert(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
-static_assert(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
+fe_static_assert(offsetof(fe_wv2, r) == offsetof(fe_wv2, at[0]), "");
+fe_static_assert(offsetof(fe_wv2, g) == offsetof(fe_wv2, at[1]), "");
 
 
 

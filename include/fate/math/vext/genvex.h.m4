@@ -45,6 +45,13 @@ dnl
 
 #include <stddef.h>
 #include <fate/defs.h>
+#include <stdint.h>
+#include <math.h>
+#include <assert.h>
+ifelse(type,fe_space_unit,#include <fate/units.h>)
+ifelse(eval(dim>=3),1,dnl
+#include <dir/mask.h> /* Needed for __builtin_shuffle() */)dnl
+
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
@@ -67,19 +74,6 @@ dnl
 #endif
 #endif
 
-#ifndef NS`'VEC`'_SIZE_ATTR
-#error The current compiler does not support the required vector extensions. \
-       Please fall back to the regular naive implementation. 
-#endif
-
-/* Here we go. */
-
-#include <stdint.h>
-#include <math.h>
-ifelse(type,fe_space_unit,#include <fate/units.h>)
-ifelse(eval(dim>=3),1,dnl
-#include <dir/mask.h> /* Needed for __builtin_shuffle() */)dnl
-
 ifelse(eval(dim!=3),1,dnl
 typedef type ns`'vec`'vext NS`'VEC`'_SIZE_ATTR(dim);
 ,dnl
@@ -87,6 +81,13 @@ typedef type ns`'vec`'vext NS`'VEC`'_SIZE_ATTR(dim);
 typedef ns`'vec4`'vext ns`'vec`'vext;
 )dnl
 
+
+#ifndef NS`'VEC`'_SIZE_ATTR
+#error The current compiler does not support the required vector extensions. \
+       Please fall back to the regular naive implementation. 
+#endif
+
+/* Here we go. */
 
 typedef struct { 
     union {

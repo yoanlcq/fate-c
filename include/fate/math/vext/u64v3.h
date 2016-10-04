@@ -42,6 +42,11 @@
 
 #include <stddef.h>
 #include <fate/defs.h>
+#include <stdint.h>
+#include <math.h>
+#include <assert.h>
+
+#include <fate/math/vext/u64v4.h> /* Needed for __builtin_shuffle() */
 
 #ifdef __clang__
 #if __has_extension(attribute_ext_vector_type) \
@@ -64,20 +69,16 @@
 #endif
 #endif
 
+#include <fate/math/vext/u64v4.h>
+typedef fe_u64v4vext fe_u64v3vext;
+
+
 #ifndef FE_U64V3_SIZE_ATTR
 #error The current compiler does not support the required vector extensions. \
        Please fall back to the regular naive implementation. 
 #endif
 
 /* Here we go. */
-
-#include <stdint.h>
-#include <math.h>
-
-#include <fate/math/vext/u64v4.h> /* Needed for __builtin_shuffle() */
-#include <fate/math/vext/u64v4.h>
-typedef fe_u64v4vext fe_u64v3vext;
-
 
 typedef struct { 
     union {
@@ -104,9 +105,9 @@ typedef struct {
     };
 } fe_u64v3;
 
-static_assert(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
-static_assert(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
-static_assert(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
+fe_static_assert(offsetof(fe_u64v3, r) == offsetof(fe_u64v3, at[0]), "");
+fe_static_assert(offsetof(fe_u64v3, g) == offsetof(fe_u64v3, at[1]), "");
+fe_static_assert(offsetof(fe_u64v3, b) == offsetof(fe_u64v3, at[2]), "");
 
 
 
