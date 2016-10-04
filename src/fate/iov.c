@@ -1170,9 +1170,9 @@ ssize_t        fe_fd_readv(fe_fd fd, fe_iov *iov_array, size_t iov_count) {
         bytes_read += fe_fd_read(fd, iov_array[i].base, iov_array[i].len);
     return bytes_read;
 #else
-    static_assert(sizeof(iov_array->base) == sizeof(((struct iovec){0}).iov_len), "");
-    static_assert(offsetof(fe_iov,len) == offsetof(struct iovec,iov_len), "");
-    static_assert(sizeof(fe_iov) == sizeof(struct iovec), "");
+    fe_static_assert(sizeof(iov_array->base) == sizeof(((struct iovec){0}).iov_len), "");
+    fe_static_assert(offsetof(fe_iov,len) == offsetof(struct iovec,iov_len), "");
+    fe_static_assert(sizeof(fe_iov) == sizeof(struct iovec), "");
     #ifdef FE_TARGET_EMSCRIPTEN
         return readv(fd.unix_fd, (struct iovec*)iov_array, iov_count);
     #else

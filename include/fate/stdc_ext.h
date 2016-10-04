@@ -52,6 +52,15 @@
  */
 #define fe_countof(arr) (sizeof(arr)/sizeof((arr)[0]) + MUST_BE_ARRAY(arr))
 
+#ifdef FE_C11_SUPPORT
+    #ifdef _MSC_VER
+        #define fe_static_assertion(pred,msg) static_assert(pred, msg)
+    #elif defined(__GNUC__)
+        #define fe_static_assertion(pred,msg) _Static_assert(pred, msg)
+    #endif
+#else
+#error "Could not define fe_static_assertion for now."
+#endif
 
 
 typedef unsigned long ulong;

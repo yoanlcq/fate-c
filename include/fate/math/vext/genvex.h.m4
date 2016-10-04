@@ -113,10 +113,10 @@ typedef struct {
     };
 } ns`'vec;
 
-static_assert(offsetof(ns`'vec, r) == offsetof(ns`'vec, at[0]), "");
-static_assert(offsetof(ns`'vec, g) == offsetof(ns`'vec, at[1]), "");
-ifelse(eval(dim>=3),1,static_assert(offsetof(ns`'vec, b) == offsetof(ns`'vec, at[2]), "");)
-ifelse(eval(dim>=4),1,static_assert(offsetof(ns`'vec, a) == offsetof(ns`'vec, at[3]), "");)
+fe_static_assert(offsetof(ns`'vec, r) == offsetof(ns`'vec, at[0]), "");
+fe_static_assert(offsetof(ns`'vec, g) == offsetof(ns`'vec, at[1]), "");
+ifelse(eval(dim>=3),1,fe_static_assert(offsetof(ns`'vec, b) == offsetof(ns`'vec, at[2]), "");)
+ifelse(eval(dim>=4),1,fe_static_assert(offsetof(ns`'vec, a) == offsetof(ns`'vec, at[3]), "");)
 
 
 #define ns`'vec`'_add(s,a,b)   ((s).vx = (a).vx + (b).vx)

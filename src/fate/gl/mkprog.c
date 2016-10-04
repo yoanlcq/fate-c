@@ -343,7 +343,7 @@ static bool fe_gl_mkprog_4_1(GLuint program,
                              const fe_gl_shader_source_set *restrict ss) {
 
     if(progbin) {
-        static_assert(sizeof(fe_timestamp)==8, "Expected to swap 8 bytes.");
+        fe_static_assert(sizeof(fe_timestamp)==8, "Expected to swap 8 bytes.");
         fe_timestamp progbin_ts = fe_hw_swap64_net_to_host(*(fe_timestamp*)progbin->base);
         bool outdated = (progbin_ts <= last_build_time);
 
