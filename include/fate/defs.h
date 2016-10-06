@@ -278,6 +278,16 @@
      || FE_VERCMP_EQ(maj0, min0, pat0, maj1, min1, pat1))
 
 
+#ifdef FE_CC_MSVC
+#define fe_pragma_message(msg) __pragma(message(msg))
+#elif defined(FE_CC_GCC_COMPATIBLE)
+#define fe_pragma_message(msg) _Pragma(XSTRINGIFY(message #msg))
+#else
+#error "Wait! Don't know how to define fe_pragma_message() here."
+#define fe_pragma_message(msg)
+#endif
+
+
 /* Note : Only include these last.
  * They need the FE_ platform macros. */
 #include <fate/decl.h>

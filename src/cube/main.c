@@ -17,6 +17,7 @@
 
 #define FE_GAME_NAME "Rainbow Dice"
 #define FE_GAME_ID "Rainbow_Dice"
+fe_pragma_message("Testing the fe_pragma_message().")
 
 struct cube_main {
     SDL_Window *window;

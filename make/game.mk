@@ -8,7 +8,7 @@ $(GAME)_DBG_OFILES = $(patsubst src/$(GAME)/%.c,$(BUILDDIR)/$(GAME)_dbg/%$(OBJ_E
 
 
 $(BUILDDIR)/$(GAME)/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs
-	$(call MKDIR_P,$(@D))
+	@$(call MKDIR_P,$(@D))
 	@echo " ==> $@"
 	$(SEE_OBJ_CMD)$(CC) $(CCRELEASEFLAGS) $(if $(CAI_ENABLE),$(if $(filter $(CAI_EXCLUDE),$<),,$(CAI_CCFLAGS))) $(CCOBJ) $< $(CCOUT_OBJ)$@
 $(BUILDDIR)/$(GAME)_dbg/%$(OBJ_EXTENSION): src/$(GAME)/%.c | dirs

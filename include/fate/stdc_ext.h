@@ -65,7 +65,7 @@
 #endif
 
 
-typedef unsigned long ulong;
+typedef unsigned long ulong, fe_ulong;
 #ifdef _MSC_VER
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
@@ -106,9 +106,14 @@ typedef long double  fe_lf64;
     typedef   signed __int128 fe_s128;
     typedef unsigned __int128 fe_u128;
 #endif
+#ifdef __SIZEOF_FLOAT80__
+    #define FE_F80_SUPPORTED
+    typedef __float80  fe_f80;
+#endif
 #ifdef __SIZEOF_FLOAT128__
     #define FE_F128_SUPPORTED
     typedef __float128 fe_f128;
 #endif
+
 
 #endif /* FE_STDC_EXT_H */
