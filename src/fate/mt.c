@@ -43,7 +43,7 @@ size_t        fe_mt_get_thread_count(void) {
     return cnt;
 }
 void          fe_mt_set_self_priority(fe_mt_threadpriority prio) {
-    SDL_SetThreadPriority(prio);
+    SDL_SetThreadPriority((SDL_ThreadPriority)prio);
 }
 
 fe_mt_threadid          fe_mt_get_main_id(void) {
