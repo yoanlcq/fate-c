@@ -26,7 +26,8 @@ before_build:
     %NEEDDEPENDS% mkdir %PREFIX%\include\SDL2
     %NEEDDEPENDS% mkdir %PREFIX%\lib
     %NEEDDEPENDS% cd %TEMP%
-    %NEEDDEPENDS% appveyor DownloadFile https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
+    # %NEEDDEPENDS% appveyor DownloadFile https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
+    %NEEDDEPENDS% curl -fsSL -o gettext-0.14.4-lib.zip https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/gettext-0.14.4-lib.zip
     %NEEDDEPENDS% mkdir gettext-0.14.4-lib
     %NEEDDEPENDS% move gettext-0.14.4-lib.zip gettext-0.14.4-lib
     %NEEDDEPENDS% cd gettext-0.14.4-lib
