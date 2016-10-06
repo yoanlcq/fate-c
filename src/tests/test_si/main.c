@@ -2,7 +2,7 @@
 #include <fate/si.h>
 #include <gm_types.h>
 
-void inspect(const fe_si_member *const *mstack, size_t mstack_len,
+void inspect(fe_si_member **mstack, size_t mstack_len,
              const void *pval, void *name) {
 
     const fe_si_member *m = mstack[mstack_len-1];

@@ -8,8 +8,8 @@ const fe_si_type fe_si_type_##t = { FE_SI_LQ_PRIMITIVE, {0}, #t, sizeof(t), size
 #include <fate/si/priv_primtypes.inl>
 #undef FE_SI_PRIV_PRIM_TYPE
 
-static void fe_si_inspect_real_recursive(const fe_si_type *const t, 
-                     fe_si_member const *** mstack,
+static void fe_si_inspect_real_recursive(fe_si_type *t, 
+                     fe_si_member *** mstack,
                      size_t mstack_len,
                      const void *const pobj, 
                      const char *const objname,
@@ -20,7 +20,7 @@ static void fe_si_inspect_real_recursive(const fe_si_type *const t,
     *mstack = realloc(*mstack, (mstack_len+1)*sizeof(fe_si_member*));
     ++mstack_len;
     for(i=0 ; i<t->mvec.count ; ++i) {
-        const fe_si_member *m = t->mvec.members + i;
+        fe_si_member *m = t->mvec.members + i;
         (*mstack)[mstack_len-1] = m;
         const char *pmem = pobj;
         pmem += m->offset;
@@ -30,8 +30,8 @@ static void fe_si_inspect_real_recursive(const fe_si_type *const t,
     }
 }
 
-void fe_si_inspect_real(const fe_si_type *const t, 
-                     fe_si_member const **mstack,
+void fe_si_inspect_real(fe_si_type *t, 
+                     fe_si_member **mstack,
                      size_t mstack_len,
                      const void *const pobj, 
                      const char *const objname,

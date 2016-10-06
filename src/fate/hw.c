@@ -83,11 +83,11 @@ static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 #elif defined(FE_TARGET_WINDOWS)
 #include <windows.h>
 static const char *TAG = "fe_hw";
-typedef BOOL WINAPI (*LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 FE_DECL_WIP static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
     memset(ci, 0, sizeof(*ci));
 
-    LPFN_GLPI glpi = GetProcAddress(
+    LPFN_GLPI glpi = (LPFN_GLPI) GetProcAddress(
         GetModuleHandleW(TEXT("kernel32")), "GetLogicalProcessorInformation"
     );
     if(!glpi) {

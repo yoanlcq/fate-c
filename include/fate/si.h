@@ -13,24 +13,24 @@ typedef enum {
 typedef struct fe_si_member fe_si_member;
 
 typedef struct {
-    const fe_si_member *members;
-    const size_t count;
+    fe_si_member *members;
+    size_t count;
 } fe_si_member_vec;
 
 typedef struct {
-    const char *const short_description;
-    const char *const long_description;
+    char *short_description;
+    char *long_description;
 } fe_si_type_annotations;
 
 typedef struct {
-    const fe_si_lq lq;
-    const fe_si_member_vec mvec;
-    const char *const name;
-    const size_t size, psize;
-    const fe_si_type_annotations annotations;
+     fe_si_lq lq;
+     fe_si_member_vec mvec;
+     char *name;
+     size_t size, psize;
+     fe_si_type_annotations annotations;
 } fe_si_type;
 
-typedef size_t (*fe_si_getcount_callback)(const void *const arg);
+typedef size_t (*fe_si_getcount_callback)(void *arg);
 
 typedef enum {
     FE_SI_MB_VAL=0, //Single value
@@ -41,8 +41,8 @@ typedef enum {
 
 
 typedef struct {
-    const fe_si_getcount_callback callback;
-    const void *const arg;
+    fe_si_getcount_callback callback;
+    void *arg;
 } fe_si_countgetter;
 
 typedef struct {
@@ -54,25 +54,25 @@ typedef struct {
 } fe_si_countdesc;
 
 typedef struct {
-    const char *const short_description;
-    const char *const long_description;
+    char *short_description;
+    char *long_description;
 } fe_si_member_annotations;
 
 struct fe_si_member {
-    const fe_si_type *const type;
-    const char *const name;
-    const size_t offset;
-    const fe_si_countdesc countdesc;
-    const fe_si_member_annotations annotations;
+    fe_si_type *type;
+    char *name;
+    size_t offset;
+    fe_si_countdesc countdesc;
+    fe_si_member_annotations annotations;
 };
 
-typedef void (*fe_si_inspect_callback)(const fe_si_member *const *mstack, size_t mstack_len, const void *pval, void *userdata);
+typedef void (*fe_si_inspect_callback)(fe_si_member **mstack, size_t mstack_len, const void *pval, void *userdata);
 
 #define fe_si_inspect(t, pobj, callback, userdata) \
         fe_si_inspect_real(&fe_si_type_##t, NULL, 0, pobj, "", callback, userdata)
 
-void fe_si_inspect_real(const fe_si_type *const t, 
-                     fe_si_member const **mstack,
+void fe_si_inspect_real(fe_si_type *t, 
+                     fe_si_member **mstack,
                      size_t mstack_len,
                      const void *const pobj, 
                      const char *const objname,
