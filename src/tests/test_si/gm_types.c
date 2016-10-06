@@ -5,6 +5,6 @@ static size_t static_get_item_count(const void *const arg) {
 }
 
 #define FE_SI_GENERATE_FROM "gm_types.inl"
-#include <si/generate_for_source.inl>
+#include <fate/si/generate_for_source.inl>
 #undef FE_SI_GENERATE_FROM
 

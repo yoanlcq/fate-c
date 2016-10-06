@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <si/si.h>
+#include <fate/si.h>
 #include <gm_types.h>
 
 void inspect(const fe_si_member *const *mstack, size_t mstack_len,
