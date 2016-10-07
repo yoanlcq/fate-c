@@ -5,7 +5,10 @@ fe_ofiles := \
  $(patsubst $(fate)/src/%.c,$(fate)/$(build)/%.c$(dot_o),$(fe_cfiles)) \
  $(patsubst $(fate)/src/%$(dot_s),$(fate)/$(build)/%$(dot_s)$(dot_o),$(fe_sfiles))
 
-$(eval $(foreach f,$(fe_mkfiles),include $(f)))
+$(eval $(foreach f,$(fe_mkfiles),
+here:=$(dir $(f)) 
+include $(f)
+))
 
 $(fate)/$(build)/%.c$(dot_o): $(fate)/src/%.c
 	@$(call mkdir,$(@D))

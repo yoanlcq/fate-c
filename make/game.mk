@@ -6,7 +6,11 @@ gm_ofiles := \
  $(patsubst $(gm_src)/%$(dot_s),$(gm_build)/%$(dot_s)$(dot_o),$(gm_sfiles)) \
  $(fe_ofiles)
 
-$(eval $(foreach f,$(gm_mkfiles),include $(f)))
+$(eval $(foreach f,$(fe_mkfiles),
+here:=$(dir $(f)) 
+include $(f)
+))
+
 
 $(gm_build)/%.c$(dot_o): $(gm_src)/%.c
 	@$(call mkdir,$(@D))
