@@ -1,129 +1,90 @@
-BUILDPATH=build/android/$(GAME)
-NDKARGS= 
-PWD=$(shell pwd)
-GAME_CFLAGS= -std=c99 -DFE_DEBUG_BUILD -DGLEW_STATIC -DGLEW_NO_GLU -DFE_LINUXPERF_UNSUPPORTED
-GAME_ACTIVITY=FateActivity
-GAME_APP_NAME=Cube Demo
-GAME_APP_DOMAIN=org.author.cube
-GAME_APP_DOMAIN_AS_DIR=org/author/cube
-GAME_SOURCE_FILES= \$$(LOCAL_PATH)/main.c \
-				   \$$(wildcard \$$(LOCAL_PATH)/$(GAME)/*.c \
-				  			    \$$(LOCAL_PATH)/$(GAME)/*/*.c \
-				  			    \$$(LOCAL_PATH)/$(GAME)/*/*/*.c \
-							    \$$(LOCAL_PATH)/$(GAME)/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/$(GAME)/*/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/$(GAME)/*/*/*/*/*/*.c \
-				   				\$$(LOCAL_PATH)/fate/*.c \
-				  			    \$$(LOCAL_PATH)/fate/*/*.c \
-				  			    \$$(LOCAL_PATH)/fate/*/*/*.c \
-							    \$$(LOCAL_PATH)/fate/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/fate/*/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/fate/*/*/*/*/*/*.c \
-				   				\$$(LOCAL_PATH)/contrib/*.c \
-				  			    \$$(LOCAL_PATH)/contrib/*/*.c \
-				  			    \$$(LOCAL_PATH)/contrib/*/*/*.c \
-							    \$$(LOCAL_PATH)/contrib/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/contrib/*/*/*/*/*.c \
-							    \$$(LOCAL_PATH)/contrib/*/*/*/*/*/*.c)
-
-ifndef SDLPATH
-$(error Please define the SDLPATH variable to point to your SDL2-2.0.4 directory)
-endif
-
-NCPUS=4
-ifeq ($(OS),linux)
-NCPUS=$(shell nproc)
-endif
-ifeq ($(OS),osx)
-NCPUS=$(shell sysctl -n hw.ncpu)
-endif
-
-$(BUILDPATH):
-	mkdir -p $@
-	cp -R dist/android_base/* $@
-$(BUILDPATH)/res/values:
-	mkdir -p $@
-
-$(BUILDPATH)/jni/src/Android.mk: dist/android_base/m4/Android.mk.m4 | $(BUILDPATH)
-	m4 -DGAME="$(GAME)" -DGAME_CFLAGS="$(GAME_CFLAGS)" -DGAME_SOURCE_FILES="$(GAME_SOURCE_FILES)" $< > $@
-$(BUILDPATH)/jni/src/main.c: dist/android_base/m4/main.c.m4 | $(BUILDPATH)
-	m4 -DGAME_MAIN="$(GAME)_main" $< > $@
-$(BUILDPATH)/AndroidManifest.xml: dist/android_base/m4/AndroidManifest.xml.m4 | $(BUILDPATH)
-	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY=$(GAME_ACTIVITY) $< > $@
-$(BUILDPATH)/build.xml: dist/android_base/m4/build.xml.m4 | $(BUILDPATH)
-	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" $< > $@
-$(BUILDPATH)/res/%/ic_launcher.png: dist/android_base/res/%/ic_launcher.png | $(BUILDPATH) $(BUILDPATH)/res/%
-	cp $< $@
-$(BUILDPATH)/res/values/strings.xml: dist/android_base/m4/strings.xml.m4 | $(BUILDPATH) $(BUILDPATH)/res/values
-	m4 -DGAME_APP_NAME="$(GAME_APP_NAME)" $< > $@
-$(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR):
-	mkdir -p $@
-$(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR)/$(GAME_ACTIVITY).java: dist/android_base/m4/MyActivity.java.m4 | $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR) 
-	m4 -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY="$(GAME_ACTIVITY)" $< > $@
+pwd=$(shell pwd)
+cflags= -std=c99 -DFE_DEBUG_BUILD -DGLEW_STATIC \
+		-DGLEW_NO_GLU -DFE_LINUXPERF_UNSUPPORTED
+gm_rdomain_dir=$(subst .,/,$(gm_rdomain))
+gm_cfiles= $(call rglob,\$$(LOCAL_PATH),*.c)
 
 
-$(BUILDPATH)/jni/SDL: | $(BUILDPATH)
-	mkdir -p $@
-$(BUILDPATH)/jni/SDL/src: | $(BUILDPATH)/jni/SDL
-	ln -sf $(SDLPATH)/$(@F) $@
-$(BUILDPATH)/jni/SDL/include: | $(BUILDPATH)/jni/SDL
-	ln -sf $(SDLPATH)/$(@F) $@
-$(BUILDPATH)/jni/SDL/Android.mk: | $(BUILDPATH)/jni/SDL
-	ln -sf $(SDLPATH)/$(@F) $@
+abase:=$(fate)/dist/android_base
 
-$(BUILDPATH)/jni/src/fate: | $(BUILDPATH)
-	ln -sf $(PWD)/src/fate $@
-$(BUILDPATH)/jni/src/$(GAME): | $(BUILDPATH)
-	ln -sf $(PWD)/src/$(GAME) $@
-$(BUILDPATH)/jni/src/contrib: | $(BUILDPATH)
-	ln -sf $(PWD)/src/contrib $@
-$(BUILDPATH)/jni/include: | $(BUILDPATH)
-	mkdir -p $@
-$(BUILDPATH)/jni/include/fate: | $(BUILDPATH)/jni/include
-	ln -sf $(PWD)/include/fate $@
-$(BUILDPATH)/jni/include/contrib: | $(BUILDPATH)/jni/include
-	ln -sf $(PWD)/include/contrib $@
-$(BUILDPATH)/jni/include/SDL2: | $(BUILDPATH)/jni/include
-	ln -sf ../SDL/include $@
+$(build):
+	$(call mkdir,$@)
+	$(call cp_r,$(abase)/*,$@)
+$(build)/res/values:
+	$(call mkdir,$@)
 
-
-GAME_DEBUG_APK=$(BUILDPATH)/bin/$(GAME_APP_DOMAIN)-debug.apk
+$(build)/jni/src/Android.mk: $(abase)/m4/Android.mk.m4
+	$(gnum4) -DGAME="$(gm)" -DGAME_CFLAGS="$(GAME_CFLAGS)" -DGAME_SOURCE_FILES="$(GAME_SOURCE_FILES)" $< > $@
+$(build)/jni/src/main.c: $(abase)/m4/main.c.m4
+	$(gnum4) -DGAME_MAIN="$(gm)_main" $< > $@
+$(build)/AndroidManifest.xml: $(abase)/m4/AndroidManifest.xml.m4
+	$(gnum4) -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY=$(GAME_ACTIVITY) $< > $@
+$(build)/build.xml: $(abase)/m4/build.xml.m4
+	$(gnum4) -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" $< > $@
+$(build)/res/%/ic_launcher.png: $(abase)/res/%/ic_launcher.png
+	$(call cp_r,$<,$@)
+$(build)/res/values/strings.xml: $(abase)/m4/strings.xml.m4
+	$(gnum4) -DGAME_APP_NAME="$(GAME_APP_NAME)" $< > $@
+$(build)/src/$(gm_rdomain_dir):
+	$(call mkdir,$@)
+$(build)/src/$(gm_rdomain_dir)/$(gm_activity).java: $(abase)/m4/MyActivity.java.m4
+	$(gnum4) -DGAME_APP_DOMAIN="$(GAME_APP_DOMAIN)" -DGAME_ACTIVITY="$(GAME_ACTIVITY)" $< > $@
 
 
-#NCPUS=1
+$(build)/jni/SDL: | $(build)
+	$(call mkdir,$@)
+$(build)/jni/SDL/src: | $(build)/jni/SDL
+	$(call ln_sf,$(sdlpath)/$(@F),$@)
+$(build)/jni/SDL/include: | $(build)/jni/SDL
+	$(call ln_sf,$(sdlpath)/$(@F),$@)
+$(build)/jni/SDL/Android.mk: | $(build)/jni/SDL
+	$(call ln_sf,$(sdlpath)/$(@F),$@)
 
-$(GAME_DEBUG_APK): $(BUILDPATH)/jni/src/Android.mk \
-				   $(BUILDPATH)/AndroidManifest.xml \
-				   $(BUILDPATH)/build.xml \
-				   $(BUILDPATH)/res/drawable-mdpi/ic_launcher.png \
-				   $(BUILDPATH)/res/drawable-hdpi/ic_launcher.png \
-				   $(BUILDPATH)/res/drawable-xhdpi/ic_launcher.png \
-				   $(BUILDPATH)/res/drawable-xxhdpi/ic_launcher.png \
-				   $(BUILDPATH)/res/values/strings.xml \
-				   $(BUILDPATH)/src/$(GAME_APP_DOMAIN_AS_DIR)/$(GAME_ACTIVITY).java \
-				   $(BUILDPATH)/jni/src/main.c \
-				   $(BUILDPATH)/jni/SDL/Android.mk \
-				 | $(BUILDPATH)/jni/SDL/src \
-				   $(BUILDPATH)/jni/SDL/include\
-				   $(BUILDPATH)/jni/src/fate \
-				   $(BUILDPATH)/jni/src/contrib \
-				   $(BUILDPATH)/jni/src/$(GAME) \
-				   $(BUILDPATH)/jni/include/fate \
-				   $(BUILDPATH)/jni/include/contrib \
-				   $(BUILDPATH)/jni/include/SDL2
-	android update project --path $(BUILDPATH)
-	cd $(BUILDPATH) && ndk-build -j$(NCPUS) $(NDKARGS)
-	cd $(BUILDPATH) && ant clean debug
-	@echo "Test the app specifying 'debug-install' as a recipe."
+$(build)/jni/src/fate: | $(build)
+	$(call ln_sf,$(pwd)/src/fate,$@)
+$(build)/jni/src/$(gm): | $(build)
+	$(call ln_sf,$(pwd)/src/$(gm),$@)
+$(build)/jni/src/contrib: | $(build)
+	$(call ln_sf,$(pwd)/src/contrib,$@)
+$(build)/jni/include: | $(build)
+	$(call mkdir,$@)
+$(build)/jni/include/fate: | $(build)/jni/include
+	$(call ln_sf,$(pwd)/include/fate,$@)
+$(build)/jni/include/contrib: | $(build)/jni/include
+	$(call ln_sf,$(pwd)/include/contrib,$@)
+$(build)/jni/include/SDL2: | $(build)/jni/include
+	$(call ln_sf,../SDL/include,$@)
 
-GAMES += $(GAME_DEBUG_APK)
 
-.PHONY: clean re mrproper debug_install
-clean:
-	rm -rf $(BUILDPATH)/bin/*
+game_debug_apk=$(build)/bin/$(GAME_APP_DOMAIN)-debug.apk
 
-re: clean all
-mrproper: re
 
-debug-install: all
-	cd $(BUILDPATH) && ant debug install
+NDK_CPU_COUNT:=1
+NDKARGS:= -j$(NDK_CPU_COUNT)
+
+$(game_debug_apk): $(build)/jni/src/Android.mk \
+				   $(build)/AndroidManifest.xml \
+				   $(build)/build.xml \
+				   $(build)/res/drawable-mdpi/ic_launcher.png \
+				   $(build)/res/drawable-hdpi/ic_launcher.png \
+				   $(build)/res/drawable-xhdpi/ic_launcher.png \
+				   $(build)/res/drawable-xxhdpi/ic_launcher.png \
+				   $(build)/res/values/strings.xml \
+				   $(build)/src/$(gm_rdomain_dir)/$(gm_activity).java \
+				   $(build)/jni/src/main.c \
+				   $(build)/jni/SDL/Android.mk \
+				 | $(build)/jni/SDL/src \
+				   $(build)/jni/SDL/include\
+				   $(build)/jni/src/fate \
+				   $(build)/jni/src/contrib \
+				   $(build)/jni/src/$(gm) \
+				   $(build)/jni/include/fate \
+				   $(build)/jni/include/contrib \
+				   $(build)/jni/include/SDL2
+	$(android) update project --path $(build)
+	cd $(build) && $(ndk_build) $(NDKARGS)
+	cd $(build) && $(ant) clean debug
+	$(call echo,Test the app by specifying 'debug-install' as a recipe.)
+
+game += $(game_debug_apk)
+

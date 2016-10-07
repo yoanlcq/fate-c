@@ -1,61 +1,68 @@
-CCFLAGS = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
-CAI_CCFLAGS := -finstrument-functions finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h
-ifeq ($(CC),clang)
-CAI_CCFLAGS := # Unsupported, because it forces un-inlining in intrinsics, and exclude-function-list doesn't work either. It also un-inlines calls to __atomic_* builtins.
+cflags = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
+fe_cai_cflags := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h
+
+ifneq ($(arch),)
+cflags += -m$(arch) 
 endif
-ifneq ($(ARCH),)
-CCFLAGS += -m$(ARCH) 
-endif
-# C'mon Travis
-ifeq ($(OS),linux)
+
+# C'mon travis
+ifeq ($(os),linux)
 ifneq ($(shell cat /usr/include/linux/hw_breakpoint.h > /dev/null 2>&1; echo $$?),0)
-CCFLAGS += -DFE_LINUXPERF_UNSUPPORTED
-endif
-endif
-ifeq ($(OS),windows)
-CCFLAGS += -DUNICODE -D_UNICODE -DDBGHELP_TRANSLATE_TCHAR
-endif
-
-GLEWFLAGS = -DGLEW_STATIC -DGLEW_NO_GLU
-CCDEBUGFLAGS = $(CCFLAGS) -g -DFE_DEBUG_BUILD -DFE_ENABLE_TRACING $(GLEWFLAGS)
-CCRELEASEFLAGS = $(CCFLAGS) -O3 -DNDEBUG $(GLEWFLAGS)
-CCOBJ = -c 
-CCOUT_OBJ = -o 
-CCOUT_EXE = -o 
-
-ifeq ($(CC),gcc) #Can happen if we're coming from make/clang.mk.
-ifeq ($(OS),linux)
-CCDEBUGFLAGS += -Og -rdynamic
+cflags += -DFE_LINUXPERF_UNSUPPORTED
 endif
 endif
 
-ifeq ($(OS),osx)
-CCFLAGS += -F/Library/Frameworks 
-LDLIBS = -framework SDL2 -framework OpenGL -lm -lintl -ldl
+ifeq ($(os),windows)
+cflags += -DUNICODE -D_UNICODE -DDBGHELP_TRANSLATE_TCHAR
+endif
+
+ifeq ($(os),osx)
+cflags += -F/library/frameworks 
+endif
+
+ifneq ($(vulkan),)
+ifneq ($(os),osx)
+cflags += -DFE_USE_VULKAN 
+ifeq ($(os),linux)
+ldlibs += -lvulkan
+endif
+ifeq ($(os),windows)
+ldlibs += -lvulkan-1
+endif
+endif
+endif
+
+ifneq ($(d3d10),)
+ifeq ($(os),windows)
+ldlibs += -ld3d10 -ldxguid 
+endif
+endif
+
+
+#glewflags = -DGLEW_STATIC -DGLEW_NO_GLU
+cflags_debug = $(cflags) -g -DFE_DEBUG_BUILD
+cflags_release = $(cflags) -O3 -DNDEBUG
+cc_c = -c 
+cc_out_o = -o 
+cc_out_exe = -o 
+
+ifeq ($(cc),gcc) #can happen if we're coming from make/clang.mk.
+ifeq ($(os),linux)
+cflags_debug += -Og -rdynamic
+endif
+endif
+
+ifeq ($(os),osx)
+ldlibs += -framework sdl2 -framework opengl -lm -lintl -ldl
 else
-LDLIBS = -lSDL2 -l$(LIBGL) -lm
-ifneq ($(OS),windows)
-LDLIBS += -ldl 
+ldlibs += -lsdl2 -lm
+ifneq ($(os),windows)
+ldlibs += -lGL -ldl 
 endif
 endif
 
-ifeq ($(OS),linux)
-ifeq ($(VULKAN),1)
-LDLIBS += -lvulkan
-CCDEBUGFLAGS += -DFE_USE_VULKAN 
-CCRELEASEFLAGS += -DFE_USE_VULKAN 
-endif
-endif
-
-ifeq ($(OS),windows)
-CCRELEASEFLAGS += -mwindows
-#LDLIBS += -ld3d10 -ldxguid 
-LDLIBS += -lGdi32 -lUser32 -lKernel32 -lDbgHelp -lws2_32 
-ifeq ($(VULKAN),1)
-LDLIBS += -lvulkan-1
-CCDEBUGFLAGS += -DFE_USE_VULKAN 
-CCRELEASEFLAGS += -DFE_USE_VULKAN 
-endif
-else
+ifeq ($(os),windows)
+cflags_release += -mwindows
+ldlibs += -lopengl32 -lgdi32 -luser32 -lkernel32 -ldbghelp -lws2_32 
 endif
 
