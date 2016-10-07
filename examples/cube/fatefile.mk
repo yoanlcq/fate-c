@@ -6,21 +6,25 @@ dirs_res = res
 dirs_bin = bin
 dirs_dist = dist
 
-dist_debian = 
-dist_windows32 = 
+#dist_debian = 
+#dist_windows32 = 
 
-fate_video_backends_vulkan = 
-fate_video_backends_d3d10 = 
+fate_vulkan = 
+fate_d3d10 = 
 
 # Build types :
 # FE_MT_DISABLE
 # FE_DEBUG_BUILD
 # FE_CAI_ENABLE
 # FE_USE_VULKAN
-build_types_release_cflags = CJ_DEBUG_BUILD CJ_IOV_DEBUG=1
-build_types_idunno_cflags = CJ_IOV_DEBUG
-build_types_debug_cflags = 
-build_default = idunno debug
+builds_mydebug_defines := FE_DEBUG_BUILD
+builds_mydebug_loadcfg := debug
+builds_myprofiled_defines := FE_PROFILED_BUILD
+builds_myprofiled_cai := on
+builds_myprofiled_loadcfg := debug
+builds_myrelease_defines := NDEBUG
+builds_myrelease_loadcfg := release
+build_default := mydebug myrelease myprofiled
 
 build_android =
 build_ios =
@@ -37,7 +41,6 @@ build_linux64_clang =
 build_osx_gcc =
 build_osx_clang =
 build_emscripten =
-
 
 
 # Custom var for later reuse.

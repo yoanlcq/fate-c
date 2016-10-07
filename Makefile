@@ -1,32 +1,23 @@
-.PHONY: all games
-all: games
+.PHONY: all game
+all: game
 
 include fatefile.mk
-
-FATE:=$(FE_PATH)
-
-FE_CAI_EXCLUDE := $(wildcard \
-	$(FATE)/src/fate/cai/* \
-	$(FATE)/src/fate/crash.c \
-)
-	#$(FATE)/src/fate/log.c
-	#$(FATE)/src/fate/hw.c
-	#$(FATE)/src/fate/hash.c
-	#$(FATE)/src/cube/main.c
-FE_CAI_ENABLE := yes
-
-ifneq ($(OS),android)
-include $(FATE)/make/recursive_wildcard.mk
-include $(FATE)/make/os_arch_cc.mk
-include $(FATE)/make/$(CC).mk
-include $(FATE)/make/fate.mk
-endif
-
-ifeq ($(OS),android)
-include $(FATE)/make/game_android.mk
+include $(fate)/make/cc.mk
+include $(fate)/make/os.mk
+include $(fate)/make/arch.mk
+include $(fate)/make/os_utils.mk
+include $(fate)/make/shell_fix.mk
+include $(fate)/make/toolchains.mk
+include $(fate)/make/windres.mk
+include $(fate)/make/rglob.mk
+include $(fate)/make/see_cmd.mk
+include $(fate)/make/clean.mk
+include $(fate)/make/$(cc_id).mk
+include $(fate)/make/fate.mk
+ifeq ($(os),android)
+include $(fate)/make/game_android.mk
 else
-include $(FATE)/make/game.mk
+include $(fate)/make/game.mk
 endif
 
-games: $(GAMES) 
-
+game: $(game)
