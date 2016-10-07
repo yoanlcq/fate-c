@@ -1,30 +1,31 @@
 .PHONY: all games
 all: games
 
-CAI_EXCLUDE := $(wildcard \
-	src/fate/cai/* \
-	src/fate/crash.c \
+include fatefile.mk
+
+FATE:=$(FE_PATH)
+
+FE_CAI_EXCLUDE := $(wildcard \
+	$(FATE)/src/fate/cai/* \
+	$(FATE)/src/fate/crash.c \
 )
-	#src/fate/log.c
-	#src/fate/hw.c
-	#src/fate/hash.c
-	#src/cube/main.c
-#CAI_ENABLE := yes
+	#$(FATE)/src/fate/log.c
+	#$(FATE)/src/fate/hw.c
+	#$(FATE)/src/fate/hash.c
+	#$(FATE)/src/cube/main.c
+FE_CAI_ENABLE := yes
 
 ifneq ($(OS),android)
-include make/os_arch_cc.mk
-include make/$(CC).mk
-include make/fate.mk
+include $(FATE)/make/recursive_wildcard.mk
+include $(FATE)/make/os_arch_cc.mk
+include $(FATE)/make/$(CC).mk
+include $(FATE)/make/fate.mk
 endif
 
-# We don't support having multiple games with this.
-# GAME = toast
-# include make/game.mk
-GAME = cube
 ifeq ($(OS),android)
-include make/game_android.mk
+include $(FATE)/make/game_android.mk
 else
-include make/game.mk
+include $(FATE)/make/game.mk
 endif
 
 games: $(GAMES) 
