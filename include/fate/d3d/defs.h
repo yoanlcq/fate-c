@@ -45,6 +45,7 @@
 #endif
 */
 #include <windows.h>
+#define COBJMACROS
 #include <d3d10.h>
 #define  DXCALL(_OBJ_, _METHOD_) \
         _OBJ_->lpVtbl->_METHOD_(_OBJ_)
