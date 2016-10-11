@@ -1,0 +1,10 @@
+#!/bin/bash
+while [ ! -f fatefile.mk ]; do
+    cd ..
+    if [ $(pwd) == "/" ]; then 
+        echo "Could not find fatefile.mk !"
+        echo "Make sure you working directory is within the fatefile's directory."
+        exit; 
+    fi
+done
+make -f ${FE_PATH}/Makefile

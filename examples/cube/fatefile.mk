@@ -6,11 +6,8 @@ dirs_res = res
 dirs_bin = bin
 dirs_dist = dist
 
-#dist_debian = 
-#dist_windows32 = 
-
-fate_vulkan = 
-fate_d3d10 = 
+# dist_debian = 
+# dist_windows32 = 
 
 # Build types :
 # FE_MT_DISABLE
@@ -21,26 +18,28 @@ builds_mydebug_defines := FE_DEBUG_BUILD
 builds_mydebug_loadcfg := debug
 builds_myprofiled_defines := FE_PROFILED_BUILD
 builds_myprofiled_cai := on
+builds_myprofiled_vulkan := on
+builds_myprofiled_d3d10 := on
 builds_myprofiled_loadcfg := debug
 builds_myrelease_defines := NDEBUG
 builds_myrelease_loadcfg := release
-build_default := mydebug myrelease myprofiled
+active_builds := mydebug myrelease myprofiled
 
-build_android =
-build_ios =
-build_windows32_msvc =
-build_windows64_msvc =
-build_windows32_gcc =
-build_windows64_gcc =
-build_windows32_clang =
-build_windows64_clang =
-build_linux32_gcc =
-build_linux64_gcc =
-build_linux32_clang =
-build_linux64_clang =
-build_osx_gcc =
-build_osx_clang =
-build_emscripten =
+target_windows32_msvc  =
+target_windows64_msvc  =
+target_windows32_gcc   =
+target_windows64_gcc   =
+target_windows32_clang =
+target_windows64_clang =
+target_linux32_gcc     =
+target_linux64_gcc     =
+target_linux32_clang   =
+target_linux64_clang   =
+target_osx_gcc         =
+target_osx_clang       =
+target_ios             = 
+target_android         =
+target_emscripten      =
 
 
 # Custom var for later reuse.
