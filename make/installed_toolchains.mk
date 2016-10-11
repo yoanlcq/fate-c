@@ -6,6 +6,8 @@ vcvars64 :=vcvars64.bat
 android  :=android
 ndk_build:=ndk-build
 ant      :=ant
+rc       :=rc
+windres  :=windres
 
 ifeq ($(host_os),windows)
 windows32_msvc_cc :=cl /nologo
@@ -54,6 +56,7 @@ linux32_gcc_cc    :=gcc -m32
 linux32_gcc_as    :=as
 linux64_gcc_cc    :=gcc -m64
 linux64_gcc_as    :=as
+target_linux64_gcc_available := yes
 linux32_clang_cc  :=clang -m32
 linux32_clang_as  :=as
 linux64_clang_cc  :=clang -m64

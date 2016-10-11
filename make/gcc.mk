@@ -1,9 +1,4 @@
 cflags = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
-fe_cai_cflags := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h
-
-ifneq ($(arch),)
-cflags += -m$(arch) 
-endif
 
 # C'mon travis
 ifeq ($(os),linux)
@@ -38,13 +33,14 @@ ldlibs += -ld3d10 -ldxguid
 endif
 endif
 
-
 #glewflags = -DGLEW_STATIC -DGLEW_NO_GLU
-cflags_debug = $(cflags) -g -DFE_DEBUG_BUILD
-cflags_release = $(cflags) -O3 -DNDEBUG
+cflags_debug = -g -DFE_DEBUG_BUILD
+cflags_release = -O3 -DNDEBUG
 cc_c = -c 
 cc_out_o = -o 
 cc_out_exe = -o 
+as_c = -c 
+as_out_o = -o 
 
 ifeq ($(cc),gcc) #can happen if we're coming from make/clang.mk.
 ifeq ($(os),linux)
@@ -62,7 +58,23 @@ endif
 endif
 
 ifeq ($(os),windows)
-cflags_release += -mwindows
 ldlibs += -lopengl32 -lgdi32 -luser32 -lkernel32 -ldbghelp -lws2_32 
+endif
+
+$(eval $(foreach def,$(builds_$(build)_defines),cflags += -D$(def) ))
+ifneq ($(builds_$(build)_debug),)
+cflags += $(cflags_debug)
+endif
+ifneq ($(builds_$(build)_release),)
+cflags += $(cflags_release)
+endif
+ifneq ($(builds_$(build)_cai),)
+fe_cai_cflags := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h
+endif
+
+ifeq ($(os),windows)
+ifneq ($(builds_$(build)_mingw_gui_app),)
+cflags += -mwindows 
+endif
 endif
 
