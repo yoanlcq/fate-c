@@ -7,4 +7,5 @@ while [ ! -f fatefile.mk ]; do
         exit; 
     fi
 done
-make -f ${FE_PATH}/Makefile
+# XXX Remove the -n in time.
+make -n -f ${FE_PATH}/Makefile

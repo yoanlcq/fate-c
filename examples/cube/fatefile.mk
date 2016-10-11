@@ -15,14 +15,15 @@ dirs_dist = dist
 # FE_CAI_ENABLE
 # FE_USE_VULKAN
 builds_mydebug_defines := FE_DEBUG_BUILD
-builds_mydebug_loadcfg := debug
+builds_mydebug_debug := on
 builds_myprofiled_defines := FE_PROFILED_BUILD
 builds_myprofiled_cai := on
 builds_myprofiled_vulkan := on
 builds_myprofiled_d3d10 := on
-builds_myprofiled_loadcfg := debug
+builds_myprofiled_debug := on
+builds_myprofiled_mingw_gui_app := on
 builds_myrelease_defines := NDEBUG
-builds_myrelease_loadcfg := release
+builds_myrelease_release := on
 active_builds := mydebug myrelease myprofiled
 
 target_windows32_msvc  =
