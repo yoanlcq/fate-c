@@ -4,8 +4,7 @@ setlocal EnableExtensions
 
 :until_fatefile
 if not exist fatefile.mk (
-    cd ..
+    cd .. || echo "Could not find fatefile!" && exit /b
     goto until_fatefile
 )
-set FE_TOOLCHAIN_BINDIR=""
-%FE_TOOLCHAIN_BINDIR%mingw32-make -f %FE_PATH%/Makefile
+mingw32-make -f %FE_PATH%/Makefile
