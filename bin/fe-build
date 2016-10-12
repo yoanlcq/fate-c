@@ -7,5 +7,10 @@ while [ ! -f fatefile.mk ]; do
         exit; 
     fi
 done
-# XXX Remove the -n in time.
-make -n -f ${FE_PATH}/Makefile
+if [ $FE_PATH == "" ]; then 
+    echo "FE_PATH is not defined."
+    exit; 
+fi
+
+# XXX Remove the --dry-run in time.
+make --dry-run -f ${FE_PATH}/Makefile
