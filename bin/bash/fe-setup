@@ -1,0 +1,13 @@
+#!/bin/bash
+
+while [ ! -f Makefile ]; do
+    cd ..
+    if [ $(pwd) == "/" ]; then 
+        echo "Could not locate the SDK !"
+        exit 1; 
+    fi
+done
+
+echo "Appending to ~/.bashrc."
+echo export FE_PATH=$(pwd) >> ~/.bashrc
+export FE_PATH=$(pwd)
