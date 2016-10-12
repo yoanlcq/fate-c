@@ -12,4 +12,5 @@ if [ -ne ${FE_PATH}/Makefile ]; then
     echo "Is FE_PATH correctly set ?"
     exit 1;
 fi
-make -f ${FE_PATH}/Makefile
+# XXX Remove the --dry-run in time.
+make --dry-run -f ${FE_PATH}/Makefile
