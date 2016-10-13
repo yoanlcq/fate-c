@@ -7,10 +7,9 @@ while [ ! -f fatefile.mk ]; do
         exit 1; 
     fi
 done
-if [ -ne ${FE_PATH}/Makefile ]; then
+if [ ! -f ${FE_PATH}/Makefile ]; then
     echo "${FE_PATH}/Makefile does not refer to a file."
     echo "Is FE_PATH correctly set ?"
     exit 1;
 fi
-# XXX Remove the --dry-run in time.
-make --dry-run -f ${FE_PATH}/Makefile
+make -f ${FE_PATH}/Makefile $@

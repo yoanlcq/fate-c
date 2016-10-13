@@ -1,4 +1,7 @@
-cflags = /Iinclude /Iinclude/contrib /Oi /DUNICODE /D_UNICODE /DDBGHELP_TRANSLATE_TCHAR
+fe_idir :=$(subst /,\\,$(fate)/include)
+fe_cidir:=$(subst /,\\,$(fate)/include/contrib)
+gm_idir :=$(subst /,\\,$(dirs_include))
+cflags = /I$(fe_idir) /I$(fe_cidir) /I$(gm_idir) /Oi /DUNICODE /D_UNICODE /DDBGHELP_TRANSLATE_TCHAR
 #GLEWFLAGS = /DGLEW_STATIC /DGLEW_NO_GLU
 cflags_debug = /Ob2 /Zi /DEBUG /FS /DFE_DEBUG_BUILD
 cflags_release = /O2 /Ot /Ox /GL /Gw /DNDEBUG
