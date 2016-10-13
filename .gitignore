@@ -1,4 +1,5 @@
 build/**
+installed/**
 data/**
 doc/site/internal_doc/**
 lib/**

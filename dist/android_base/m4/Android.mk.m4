@@ -16,6 +16,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
                     $(LOCAL_PATH)/../include/contrib
 
 # Add your application source files here...
+include $(FE_PATH)/make/rglob.mk
 FILE_LIST := GAME_SOURCE_FILES
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%) $(SDL_PATH)/src/main/android/SDL_android_main.c
 

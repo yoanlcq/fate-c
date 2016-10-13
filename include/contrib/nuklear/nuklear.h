@@ -2977,13 +2977,13 @@ nk_inv_sqrt(float number)
     return conv.f;
 }
 
-NK_INTERN float
+NK_INTERN inline float
 nk_sqrt(float x)
 {
     return x * nk_inv_sqrt(x);
 }
 
-NK_INTERN float
+NK_INTERN inline float
 nk_sin(float x)
 {
     NK_STORAGE const float a0 = +1.91059300966915117e-31f;
@@ -2997,7 +2997,7 @@ nk_sin(float x)
     return a0 + x*(a1 + x*(a2 + x*(a3 + x*(a4 + x*(a5 + x*(a6 + x*a7))))));
 }
 
-NK_INTERN float
+NK_INTERN inline float
 nk_cos(float x)
 {
     NK_STORAGE const float a0 = +1.00238601909309722f;
@@ -3148,7 +3148,7 @@ NK_INTERN int nk_str_match_here(const char *regexp, const char *text);
 NK_INTERN int nk_str_match_star(int c, const char *regexp, const char *text);
 NK_INTERN int nk_is_lower(int c) {return (c >= 'a' && c <= 'z') || (c >= 0xE0 && c <= 0xFF);}
 NK_INTERN int nk_is_upper(int c){return (c >= 'A' && c <= 'Z') || (c >= 0xC0 && c <= 0xDF);}
-NK_INTERN int nk_to_upper(int c) {return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c;}
+NK_INTERN inline int nk_to_upper(int c) {return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c;}
 NK_INTERN int nk_to_lower(int c) {return (c >= 'A' && c <= 'Z') ? (c - ('a' + 'A')) : c;}
 
 NK_INTERN void*
@@ -3208,7 +3208,7 @@ done:
     return (dst0);
 }
 
-NK_INTERN void
+NK_INTERN inline void
 nk_memset(void *ptr, int c0, nk_size size)
 {
     #define nk_word unsigned
@@ -3631,14 +3631,14 @@ nk_ifloord(double x)
     return (int)x;
 }
 
-NK_INTERN int
+NK_INTERN inline int
 nk_ifloorf(float x)
 {
     x = (float)((int)x - ((x < 0.0f) ? 1 : 0));
     return (int)x;
 }
 
-NK_INTERN int
+NK_INTERN inline int
 nk_iceilf(float x)
 {
     if (x >= 0) {
@@ -3855,7 +3855,7 @@ nk_vsnprintf(char *buf, int buf_size, const char *fmt, va_list args)
                 precision = va_arg(args, int);
                 iter++;
             } else {
-                char *end;
+                char *end = NULL;
                 precision = nk_strtoi(iter, &end);
                 if (end == iter)
                     precision = -1;

@@ -95,7 +95,7 @@
         } \
     } while(0)
 #else
-#define fe_dbg_assert(cond)
+#define fe_dbg_assert(cond) ((void)(cond))
 #endif
 
 #if __DOXYGEN__ || defined(FE_DEBUG_BUILD)
@@ -107,7 +107,7 @@
         } \
     } while(0)
 #else
-#define fe_dbg_assert_warn(cond)
+#define fe_dbg_assert_warn(cond) ((void)(cond))
 #endif
 
 /*! \brief Shortcut for exiting miserably when a condition is not met.

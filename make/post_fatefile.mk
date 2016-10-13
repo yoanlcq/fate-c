@@ -38,14 +38,25 @@ $(eval $(if $(target_emscripten),     targets += target_emscripten     ,))
 
 targets:=$(strip $(targets))
 
-sbuild=$(MAKE) $(MAKEFLAGS) -f $(fate)/make/single_build.mk see_all_cmd=yes
-tgt_warn=$(warning Will not build for $(1) (not installed).)
+ifneq ($j,)
+jopt:=-j$j
+endif
+
+sbuild=$(MAKE) $(jopt) -f $(fate)/make/single_build.mk $(MAKEFLAGS) $(MAKECMDGOALS)
+tgt_warn=$(info Ignoring $(1) (toolchain not installed).)
 build_this=$(strip \
 		$(if $($(1)_available), \
-			echo "Running with --dry-run..." $(foreach b,$(active_builds), && $(sbuild) $(2) build=$(b)), \
+			$(see_build_cmd)$(call echo,Building for $(1)...) $(foreach b,$(active_builds), && $(sbuild) $(2) build=$(b)), \
 		 	$(call tgt_warn,$(1)) \
 		) \
 	)
+build_single=$(strip \
+		$(if $($(1)_available), \
+			$(see_build_cmd)$(call echo,Building for $(1)...)  && $(sbuild) $(2), \
+		 	$(call tgt_warn,$(1)) \
+		) \
+	)
+
 
 target_windows32_msvc :
 	$(call build_this,$@,os=windows arch=32 cc_id=cl)
@@ -74,7 +85,7 @@ target_osx_clang      :
 target_ios            :
 	$(call build_this,$@,os=ios cc_id=clang)
 target_android        :
-	$(call build_this,$@,os=android sdlpath=....)
+	$(call build_single,$@,os=android sdl2=$(fate)/installed/SDL2)
 target_emscripten     :
 	$(call build_this,$@,os=web cc_id=emcc)
 

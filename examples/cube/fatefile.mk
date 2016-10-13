@@ -12,9 +12,6 @@ dirs_dist = dist
 
 # Build types :
 # FE_MT_DISABLE
-# FE_DEBUG_BUILD
-# FE_CAI_ENABLE
-# FE_USE_VULKAN
 builds_mydebug_defines := MY_DEBUG_BUILD
 builds_mydebug_debug := on
 builds_mydebug_exename := cube_dbg
@@ -44,7 +41,7 @@ target_osx_gcc         := yes
 target_osx_clang       := yes
 target_ios             := yes 
 target_android         := yes
-target_emscripten      := yes
+# target_emscripten      := yes
 
 
 # Custom var for later reuse.
@@ -63,13 +60,15 @@ game_windows_product_name = F.A.T.E Cube demo
 game_windows_product_version = 1.0
 game_windows_icon = cube.ico
 
-game_android_reversed_domain = com.yoanlcq.cube
+game_android_reversed_domain = com.yoanlcq.cubedemo
 game_android_activity_classname = CubeActivity
-game_android_app_name = 
-game_android_icon_48px = 
-game_android_icon_72px = 
-game_android_icon_96px = 
-game_android_icon_144px = 
+game_android_app_name = Cube Demo 2
+game_android_app_ident = cube_demo
+game_android_main = cube_demo_main
+game_android_icon_48px  = my_dir/icon_48px.png
+game_android_icon_72px  = my_dir/icon_72px.png
+game_android_icon_96px  = my_dir/icon_96px.png
+game_android_icon_144px = my_dir/icon_144px.png
 
 game_ios_launch_screen_1080x1920 = 
 game_ios_launch_screen_750x1334 = 

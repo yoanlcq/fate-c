@@ -49,9 +49,9 @@ endif
 endif
 
 ifeq ($(os),osx)
-ldlibs += -framework sdl2 -framework opengl -lm -lintl -ldl
+ldlibs += -framework SDL2 -framework OpenGL -lm -lintl -ldl
 else
-ldlibs += -lsdl2 -lm
+ldlibs += -lSDL2 -lm
 ifneq ($(os),windows)
 ldlibs += -lGL -ldl 
 endif
@@ -69,7 +69,10 @@ ifneq ($(builds_$(build)_release),)
 cflags += $(cflags_release)
 endif
 ifneq ($(builds_$(build)_cai),)
-fe_cai_cflags := -finstrument-functions -finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h
+fe_cai_cflags := -finstrument-functions 
+ifeq ($(cc_id),gcc) #can happen if we're coming from make/clang.mk.
+fe_cai_cflags += -finstrument-functions-exclude-file-list=x86intrin.h,emmintrin.h,smmintrin.h,immintrin.h,xmmintrin.h
+endif
 endif
 
 ifeq ($(os),windows)

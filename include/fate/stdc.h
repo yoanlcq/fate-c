@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <assert.h>
-#include <complex.h>
+/* #include <complex.h> // Unsupported on earlier Android versions */
 #include <ctype.h>
 #include <fenv.h>
 #include <float.h>

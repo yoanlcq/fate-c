@@ -400,6 +400,7 @@ typedef enum {
 #elif defined(FE_TARGET_ANDROID)
     #include <SDL2/SDL.h>
     typedef SDL_RWops *fe_fd;
+    #define FE_FD_INVALID_FD NULL
     #define PRIfe_fd "p"
     typedef Sint64 fe_fd_offset;
     #define FE_FD_SEEK_SET RW_SEEK_SET

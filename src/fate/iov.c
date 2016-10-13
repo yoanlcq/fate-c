@@ -36,36 +36,18 @@
 #define TAG "fe_iov"
 
 
-#if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
-#define NUL_FILE_PATH "/dev/null"
-#elif defined(FE_TARGET_WINDOWS)
-#define NUL_FILE_PATH "nul"
-#endif
-#define NUL_FILE_FALLBACK_NAME ".nul"
+#if defined(FE_TARGET_WINDOWS)
 static FILE *nul_file = NULL;
-static char *nul_file_path = "";
+#endif
 
 void fe_iov_setup(void) {
-
 #ifdef FE_TARGET_EMSCRIPTEN
-    {
-        struct stat sb;
-        int status = stat("/memfs", &sb);
-        fe_dbg_hope(status && S_ISDIR(sb.st_mode));
-        mkdir("/wget", 0755);
-        mkdir("/idb", 0755);
-    }
-#endif
-
-
-#ifdef NUL_FILE_PATH
-    nul_file_path = NUL_FILE_PATH;
+    struct stat sb;
+    int status = stat("/memfs", &sb);
+    fe_dbg_hope(status && S_ISDIR(sb.st_mode));
+    mkdir("/wget", 0755);
+    mkdir("/idb", 0755);
 #elif defined(FE_TARGET_ANDROID)
-    nul_file_path = fe_asprintf("/%s/%s", 
-            SDL_AndroidGetExternalStoragePath(), 
-            NUL_FILE_FALLBACK_NAME
-    );
-    fe_dbg_hope(nul_file_path);
     /* XXX might want to get more rigourous about this later. */
     mkdir(SDL_AndroidGetInternalStoragePath(), 0755);
     /* BTW, while we're at it... */
@@ -78,34 +60,27 @@ void fe_iov_setup(void) {
         ...
     }
     */
-#else
-    nul_file_path = fe_asprintf("%s", NUL_FILE_FALLBACK_NAME);
-    fe_dbg_hope(nul_file_path);
-#endif
-    fe_logi(TAG, "Opening `%s' as the null file "
-                 "for fe_iov_get_vprintf_len().\n", nul_file_path);
-    nul_file = fopen(nul_file_path, "wb");
+#elif defined(FE_TARGET_WINDOWS)
+    nul_file = fopen("nul", "wb");
     fe_dbg_hope(nul_file);
+#endif
 }
 void fe_iov_cleanup(void) {
+#ifdef FE_TARGET_WINDOWS
     fclose(nul_file);
-#ifndef NUL_FILE_PATH
-    unlink(nul_file_path);
-    fe_mem_heapfree(nul_file_path);
 #endif
 }
-
-
-
-
-
 
 
 
 size_t  fe_iov_get_vprintf_len(const char *fmt, va_list ap) {
+#ifdef FE_TARGET_WINDOWS
     int cnt = vfprintf(nul_file, fmt, ap);
+    /* rewind(nul_file); // XXX Necessary or not ? */
+#else
+    int cnt = vsnprintf(NULL, 0, fmt, ap);
+#endif
     fe_dbg_assert(cnt >= 0);
-    fseek(nul_file, 0, SEEK_SET);
     return cnt;
 }
 size_t  fe_iov_get_printf_len(const char *fmt, ...) {

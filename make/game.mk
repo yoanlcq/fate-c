@@ -32,12 +32,14 @@ $(gm_build_dir)/$(gm).res: $(gm_rc) $(gm_ico)
 	$(see_misc_cmd)$(call windres_cmd,$<,$@)
 endif
 
-gm_bin:=$(dirs_bin)
+gm_bin:=$(dirs_bin)/$(triplet)
 gm:=$(builds_$(build)_exename)
+gmexe:=$(gm_bin)/$(gm)$(dot_exe)
 
-$(gm_bin)/$(gm): $(gm_ofiles)
+$(gmexe): $(gm_ofiles)
+	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@)
 	$(see_exe_cmd)$(cc) $(cflags) $^ $(cc_out_exe)$@ $(ldlibs)
 
-game:=$(gm_bin)/$(gm)
+game:=$(gmexe)
 

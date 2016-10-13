@@ -1,1 +1,1 @@
-include make/gcc.mk
+include $(fate)/make/gcc.mk

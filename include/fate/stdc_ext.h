@@ -54,7 +54,8 @@
 
 #ifdef _MSC_VER
     #define fe_static_assert(pred,msg) static_assert(pred, msg)
-#elif defined(__GNUC__) && defined(FE_C11_SUPPORT)
+#elif (defined(__GNUC__) && defined(FE_C11_SUPPORT)) \
+   || (defined(__GNUC__) && defined(FE_TARGET_ANDROID))
     #define fe_static_assert(pred,msg) _Static_assert(pred, msg)
 #else
     #error "Static assert unsupported here!"

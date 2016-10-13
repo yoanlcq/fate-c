@@ -364,7 +364,7 @@ void cube_main_init(struct cube_main *m) {
 #define FE_DEFAULT_FPS_CEIL 256
 #define FE_DEFAULT_NEAR 0.25
 #define FE_DEFAULT_FAR  1024.0
-#define FE_DEFAULT_FOV  (75.0*M_PI/180.0)
+#define FE_DEFAULT_FOV  (75.0*FE_PI_F/180.0)
 
 #define UPDATE_VIEW() \
     mat4_look_at(m->View, m->eye, m->center, m->up)
@@ -559,10 +559,10 @@ void cube_main_loop_iteration(void *arg) {
                 m->h_angle -= 4.2f*event.tfinger.dx;
                 m->v_angle += 4.2f*event.tfinger.dy;
 
-                    if(m->v_angle >= M_PI/2.f)
-                        m->v_angle = M_PI/2.f - M_PI/180.0f;
-                    else if(m->v_angle <= -M_PI/2.f)
-                        m->v_angle = -M_PI/2.f + M_PI/180.0f;
+                    if(m->v_angle >= FE_PI_F/2.f)
+                        m->v_angle = FE_PI_F/2.f - FE_PI_F/180.0f;
+                    else if(m->v_angle <= -FE_PI_F/2.f)
+                        m->v_angle = -FE_PI_F/2.f + FE_PI_F/180.0f;
                     m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
                     m->eye[1] =  m->distance*sinf(m->v_angle);
                     m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
@@ -578,12 +578,12 @@ void cube_main_loop_iteration(void *arg) {
                     m->mousein = true;
                 }
                 if(m->mousedown) {
-                    m->h_angle -= (event.motion.x - m->mousex)*M_PI/180.0f;
-                    m->v_angle += (event.motion.y - m->mousey)*M_PI/180.0f;
-                    if(m->v_angle >= M_PI/2.f)
-                        m->v_angle = M_PI/2.f - M_PI/180.0f;
-                    else if(m->v_angle <= -M_PI/2.f)
-                        m->v_angle = -M_PI/2.f + M_PI/180.0f;
+                    m->h_angle -= (event.motion.x - m->mousex)*FE_PI_F/180.0f;
+                    m->v_angle += (event.motion.y - m->mousey)*FE_PI_F/180.0f;
+                    if(m->v_angle >= FE_PI_F/2.f)
+                        m->v_angle = FE_PI_F/2.f - FE_PI_F/180.0f;
+                    else if(m->v_angle <= -FE_PI_F/2.f)
+                        m->v_angle = -FE_PI_F/2.f + FE_PI_F/180.0f;
                     m->eye[0] =  m->distance*sinf(m->h_angle)*cosf(m->v_angle);
                     m->eye[1] =  m->distance*sinf(m->v_angle);
                     m->eye[2] =  m->distance*cosf(m->h_angle)*cosf(m->v_angle);
@@ -737,7 +737,7 @@ void cube_main_loop_iteration(void *arg) {
                        PSTR pCmdLine, int nCmdShow)
     #endif
 #elif defined FE_TARGET_ANDROID
-int cube_main(int argc, char *argv[])
+int cube_demo_main(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 #endif

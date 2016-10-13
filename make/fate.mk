@@ -11,8 +11,8 @@ fe_ofiles := \
 # here:=$(patsubst %/,%,$(dir $(f)))$(\n)\ 
 $(eval $(foreach f,$(fe_mkfiles),include $(f)$(\n)))
 
-$(info [INFO] fe_cai_blacklist is : $(fe_cai_blacklist))
-$(info [INFO] sse4_2_whitelist is : $(sse4_2_whitelist))
+# $(info [INFO] fe_cai_blacklist is : $(fe_cai_blacklist))
+# $(info [INFO] sse4_2_whitelist is : $(sse4_2_whitelist))
 
 $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 	@$(call mkdir_p,$(@D))
