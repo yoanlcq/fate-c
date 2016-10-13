@@ -7,7 +7,8 @@ gm_ofiles := \
  $(patsubst $(gm_src)/%$(dot_s),$(gm_build_dir)/%$(dot_s)$(dot_o),$(gm_sfiles)) \
  $(fe_ofiles)
 
-$(eval $(foreach f,$(gm_mkfiles),here:=$(subst %/,%,$(dir $(f)))$(\n)include $(f)$(\n)))
+# here:=$(patsubst %/,%,$(dir $(f)))$(\n)\ 
+$(eval $(foreach f,$(gm_mkfiles),include $(f)$(\n)))
 
 
 $(gm_build_dir)/%.c$(dot_o): $(gm_src)/%.c

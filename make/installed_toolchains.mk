@@ -11,9 +11,9 @@ windres  :=windres
 
 ifeq ($(host_os),windows)
 windows32_msvc_cc :=cl /nologo
-windows32_msvc_as :=ml /nologo /Dx86
+windows32_msvc_as :=ml /nologo /DX86
 windows64_msvc_cc :=cl /nologo
-windows64_msvc_as :=ml64 /nologo /Dx64
+windows64_msvc_as :=ml64 /nologo /DX64
 windows32_gcc_cc  :=gcc -m32
 windows64_gcc_as  :=as
 windows64_gcc_cc  :=gcc -m64
@@ -41,9 +41,9 @@ emscripten_as     :=
 endif
 ifeq ($(host_os),linux)
 windows32_msvc_cc :=vc-cl /nologo
-windows32_msvc_as :=vc-ml /nologo /Dx86
+windows32_msvc_as :=vc-ml /nologo /DX86
 windows64_msvc_cc :=vc-cl /nologo
-windows64_msvc_as :=vc-ml64 /nologo /Dx64
+windows64_msvc_as :=vc-ml64 /nologo /DX64
 windows32_gcc_cc  :=mingw-gcc -m32
 windows64_gcc_as  :=mingw-as
 windows64_gcc_cc  :=mingw-gcc -m64
@@ -72,9 +72,9 @@ emscripten_as     :=
 endif
 ifeq ($(host_os),osx)
 windows32_msvc_cc :=vc-cl /nologo
-windows32_msvc_as :=vc-ml /nologo /Dx86
+windows32_msvc_as :=vc-ml /nologo /DX86
 windows64_msvc_cc :=vc-cl /nologo
-windows64_msvc_as :=vc-ml64 /nologo /Dx64
+windows64_msvc_as :=vc-ml64 /nologo /DX64
 windows32_gcc_cc  :=mingw-gcc -m32
 windows64_gcc_as  :=mingw-as
 windows64_gcc_cc  :=mingw-gcc -m64

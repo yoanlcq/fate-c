@@ -26,24 +26,6 @@ static const char *TAG = "fe_cai";
         WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), 
                 TEXT(PEXIT_MSG), sizeof(PEXIT_MSG), &written, NULL);
     }
-    #ifdef _M_IX86
-        #define MS_HOOK(action) \
-            void __declspec(naked) __cdecl _p##action(void) { \
-                __asm pushad \
-                __asm mov  eax, esp \
-                __asm add  eax, 32 \
-                __asm mov  eax, dword ptr[eax] \
-                __asm sub  eax, 5 \
-                __asm push eax \
-                __asm call fe_cai_p##action \
-                __asm pop eax \
-                __asm popad \
-                __asm ret \
-            }
-        MS_HOOK(enter)
-        MS_HOOK(exit)
-        #undef MS_HOOK
-    #endif
 #elif defined(__GNUC__)
     __attribute__((no_instrument_function))
     void fe_cai_func_enter(void *this_fn, void *call_site) {

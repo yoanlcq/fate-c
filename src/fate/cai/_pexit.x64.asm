@@ -17,8 +17,8 @@ _pexit	PROC
     mov rcx,rsp
     mov rcx,qword ptr[rcx+58h]
     sub rcx,5 
-    mov rdx,8 ;2nd parameter
-    
+    mov rdx,2 ;2nd parameter
+   
     ; Call the exported function in dll which finds the name of the function
     call fe_cai_pexit
   

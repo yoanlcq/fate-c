@@ -38,7 +38,7 @@ $(eval $(if $(target_emscripten),     targets += target_emscripten     ,))
 
 targets:=$(strip $(targets))
 
-sbuild=$(MAKE) $(MAKEFLAGS) --dry-run -f $(fate)/make/single_build.mk see_all_cmd=yes
+sbuild=$(MAKE) $(MAKEFLAGS) -f $(fate)/make/single_build.mk see_all_cmd=yes
 tgt_warn=$(warning Will not build for $(1) (not installed).)
 build_this=$(strip \
 		$(if $($(1)_available), \
