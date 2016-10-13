@@ -1,1 +1,1 @@
-sse4_2_whitelist += $(here)/hash.sse4_2.c
+sse4_2_whitelist += $(fate)/src/fate/hash.sse4_2.c

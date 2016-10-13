@@ -8,15 +8,15 @@ fe_ofiles := \
  $(patsubst $(fate)/src/%.c,$(fe_build_dir)/%.c$(dot_o),$(fe_cfiles)) \
  $(patsubst $(fate)/src/%$(dot_s),$(fe_build_dir)/%$(dot_s)$(dot_o),$(fe_sfiles))
 
-$(eval $(foreach f,$(fe_mkfiles),here:=$(patsubst %/,%,$(dir $(f)))$(\n)include $(f)$(\n)))
+# here:=$(patsubst %/,%,$(dir $(f)))$(\n)\ 
+$(eval $(foreach f,$(fe_mkfiles),include $(f)$(\n)))
 
-$(info [INFO] fe_cai_blacklist is $(fe_cai_blacklist))
-$(info [INFO] sse4_2_whitelist is $(sse4_2_whitelist))
+$(info [INFO] fe_cai_blacklist is : $(fe_cai_blacklist))
+$(info [INFO] sse4_2_whitelist is : $(sse4_2_whitelist))
 
 $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@)
-	foo $< vs $(sse4_2_whitelist)
 	$(strip \
 	$(see_obj_cmd)$(cc) $(cflags) \
 	$(if $(filter $(fe_cai_blacklist),$<),,$(fe_cai_cflags)) \
