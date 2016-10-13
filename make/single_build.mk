@@ -12,9 +12,9 @@ include $(fate)/make/def_tools.mk
 include $(fate)/make/os_utils.mk
 include $(fate)/make/cc_utils.mk
 include $(fate)/make/shell_fix.mk
-# include $(fate)/make/toolchains.mk
 include $(fate)/make/windres.mk
 include $(fate)/make/rglob.mk
+include $(fate)/make/newline.mk
 include $(fate)/make/see_cmd.mk
 include $(fate)/make/clean.mk
 include $(fate)/make/$(cc_id).mk

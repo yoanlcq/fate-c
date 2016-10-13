@@ -3,7 +3,7 @@
 #         Pour chaque build _demandée_...
 #             Faire une invocation de make
 
-.PHONY: target_default         \ 
+.PHONY: target_default         \
         target_windows32_msvc  \
         target_windows64_msvc  \
         target_windows32_gcc   \
@@ -16,32 +16,33 @@
         target_linux64_clang   \
         target_osx_gcc         \
         target_osx_clang       \
-        target_ios             \ 
+        target_ios             \
         target_android         \
         target_emscripten      
 
-$(eval $(if $(target_windows32_msvc), targets += target_windows32_msvc ,,))
-$(eval $(if $(target_windows64_msvc), targets += target_windows64_msvc ,,))
-$(eval $(if $(target_windows32_gcc),  targets += target_windows32_gcc  ,,))
-$(eval $(if $(target_windows64_gcc),  targets += target_windows64_gcc  ,,))
-$(eval $(if $(target_windows32_clang),targets += target_windows32_clang,,))
-$(eval $(if $(target_windows64_clang),targets += target_windows64_clang,,))
-$(eval $(if $(target_linux32_gcc),    targets += target_linux32_gcc    ,,))
-$(eval $(if $(target_linux64_gcc),    targets += target_linux32_gcc    ,,))
-$(eval $(if $(target_linux32_clang),  targets += target_linux32_clang  ,,))
-$(eval $(if $(target_linux64_clang),  targets += target_linux32_clang  ,,))
-$(eval $(if $(target_osx_gcc),        targets += target_osx_clang      ,,))
-$(eval $(if $(target_osx_clang),      targets += target_osx_clang      ,,))
-$(eval $(if $(target_ios),            targets += target_ios            ,,))
-$(eval $(if $(target_android),        targets += target_android        ,,))
-$(eval $(if $(target_emscripten),     targets += target_emscripten     ,,))
+$(eval $(if $(target_windows32_msvc), targets += target_windows32_msvc ,))
+$(eval $(if $(target_windows64_msvc), targets += target_windows64_msvc ,))
+$(eval $(if $(target_windows32_gcc),  targets += target_windows32_gcc  ,))
+$(eval $(if $(target_windows64_gcc),  targets += target_windows64_gcc  ,))
+$(eval $(if $(target_windows32_clang),targets += target_windows32_clang,))
+$(eval $(if $(target_windows64_clang),targets += target_windows64_clang,))
+$(eval $(if $(target_linux32_gcc),    targets += target_linux32_gcc    ,))
+$(eval $(if $(target_linux64_gcc),    targets += target_linux64_gcc    ,))
+$(eval $(if $(target_linux32_clang),  targets += target_linux32_clang  ,))
+$(eval $(if $(target_linux64_clang),  targets += target_linux64_clang  ,))
+$(eval $(if $(target_osx_gcc),        targets += target_osx_gcc        ,))
+$(eval $(if $(target_osx_clang),      targets += target_osx_clang      ,))
+$(eval $(if $(target_ios),            targets += target_ios            ,))
+$(eval $(if $(target_android),        targets += target_android        ,))
+$(eval $(if $(target_emscripten),     targets += target_emscripten     ,))
 
-sbuild=$(MAKE) $(MAKEFLAGS) -f $(fate)/single_build.mk
-tgt_warn=$(warning Can\'t build for $(1) (not installed).)
-build_this=\
-	$(strip \
+targets:=$(strip $(targets))
+
+sbuild=$(MAKE) $(MAKEFLAGS) --dry-run -f $(fate)/make/single_build.mk see_all_cmd=yes
+tgt_warn=$(warning Will not build for $(1) (not installed).)
+build_this=$(strip \
 		$(if $($(1)_available), \
-			@echo "" $(foreach b,$(active_builds), && $(sbuild) $(2)), \
+			echo "Running with --dry-run..." $(foreach b,$(active_builds), && $(sbuild) $(2) build=$(b)), \
 		 	$(call tgt_warn,$(1)) \
 		) \
 	)

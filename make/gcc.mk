@@ -1,4 +1,4 @@
-cflags = -std=c11 -Iinclude -Iinclude/contrib -Wall -D_GNU_SOURCE -msse -msse2
+cflags = -std=c11 -I$(fate)/include -I$(fate)/include/contrib -I$(dirs_include) -Wall -D_GNU_SOURCE -msse -msse2
 
 # C'mon travis
 ifeq ($(os),linux)
@@ -42,7 +42,7 @@ cc_out_exe = -o
 as_c = -c 
 as_out_o = -o 
 
-ifeq ($(cc),gcc) #can happen if we're coming from make/clang.mk.
+ifeq ($(cc_id),gcc) #can happen if we're coming from make/clang.mk.
 ifeq ($(os),linux)
 cflags_debug += -Og -rdynamic
 endif

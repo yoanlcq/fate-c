@@ -1,4 +1,5 @@
 dirs_src = src
+dirs_include = src
 dirs_gen = gen
 dirs_art = art
 dirs_obj = obj
@@ -14,33 +15,36 @@ dirs_dist = dist
 # FE_DEBUG_BUILD
 # FE_CAI_ENABLE
 # FE_USE_VULKAN
-builds_mydebug_defines := FE_DEBUG_BUILD
+builds_mydebug_defines := MY_DEBUG_BUILD
 builds_mydebug_debug := on
-builds_myprofiled_defines := FE_PROFILED_BUILD
+builds_mydebug_exename := cube_dbg
+builds_myprofiled_defines := MY_PROFILED_BUILD
 builds_myprofiled_cai := on
 builds_myprofiled_vulkan := on
 builds_myprofiled_d3d10 := on
 builds_myprofiled_debug := on
 builds_myprofiled_mingw_gui_app := on
-builds_myrelease_defines := NDEBUG
+builds_myprofiled_exename := cube_prof
+builds_myrelease_defines := MY_NDEBUG
 builds_myrelease_release := on
+builds_myrelease_exename := cube
 active_builds := mydebug myrelease myprofiled
 
-target_windows32_msvc  =
-target_windows64_msvc  =
-target_windows32_gcc   =
-target_windows64_gcc   =
-target_windows32_clang =
-target_windows64_clang =
-target_linux32_gcc     =
-target_linux64_gcc     =
-target_linux32_clang   =
-target_linux64_clang   =
-target_osx_gcc         =
-target_osx_clang       =
-target_ios             = 
-target_android         =
-target_emscripten      =
+target_windows32_msvc  := yes
+target_windows64_msvc  := yes
+target_windows32_gcc   := yes
+target_windows64_gcc   := yes
+target_windows32_clang := yes
+target_windows64_clang := yes
+target_linux32_gcc     := yes
+target_linux64_gcc     := yes
+target_linux32_clang   := yes
+target_linux64_clang   := yes
+target_osx_gcc         := yes
+target_osx_clang       := yes
+target_ios             := yes 
+target_android         := yes
+target_emscripten      := yes
 
 
 # Custom var for later reuse.

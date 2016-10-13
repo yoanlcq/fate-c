@@ -9,5 +9,9 @@ while [ ! -f Makefile ]; do
 done
 
 echo "Appending to ~/.bashrc."
-echo export FE_PATH=$(pwd) >> ~/.bashrc
-export FE_PATH=$(pwd)
+echo                                       >> ~/.bashrc
+echo "###########################"         >> ~/.bashrc
+echo "### APPENDED BY F.A.T.E ###"         >> ~/.bashrc
+echo "###########################"         >> ~/.bashrc
+echo export FE_PATH=$(pwd)                 >> ~/.bashrc
+echo export PATH=\$FE_PATH/bin/bash:\$PATH >> ~/.bashrc
