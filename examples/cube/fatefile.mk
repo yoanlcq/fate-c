@@ -27,8 +27,8 @@ builds_myrelease_release := on
 builds_myrelease_exename := cube
 active_builds := mydebug myrelease myprofiled
 
-target_windows32_msvc  := yes
-target_windows64_msvc  := yes
+target_windows32_cl    := yes
+target_windows64_cl    := yes
 target_windows32_gcc   := yes
 target_windows64_gcc   := yes
 target_windows32_clang := yes

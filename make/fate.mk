@@ -27,4 +27,4 @@ $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 $(fe_build_dir)/%$(dot_s)$(dot_o): $(fate)/src/%$(dot_s)
 	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@)
-	$(see_obj_cmd)$(as) $(as_c) $< $(as_out_o)$@
+	$(see_obj_cmd)$(as) $(as_out_o)$@ $(as_c) $<
