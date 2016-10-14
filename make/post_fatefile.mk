@@ -4,8 +4,8 @@
 #             Faire une invocation de make
 
 .PHONY: target_default         \
-        target_windows32_msvc  \
-        target_windows64_msvc  \
+        target_windows32_cl  \
+        target_windows64_cl  \
         target_windows32_gcc   \
         target_windows64_gcc   \
         target_windows32_clang \
@@ -20,8 +20,8 @@
         target_android         \
         target_emscripten      
 
-$(eval $(if $(target_windows32_msvc), targets += target_windows32_msvc ,))
-$(eval $(if $(target_windows64_msvc), targets += target_windows64_msvc ,))
+$(eval $(if $(target_windows32_cl), targets += target_windows32_cl ,))
+$(eval $(if $(target_windows64_cl), targets += target_windows64_cl ,))
 $(eval $(if $(target_windows32_gcc),  targets += target_windows32_gcc  ,))
 $(eval $(if $(target_windows64_gcc),  targets += target_windows64_gcc  ,))
 $(eval $(if $(target_windows32_clang),targets += target_windows32_clang,))
@@ -58,9 +58,9 @@ build_single=$(strip \
 	)
 
 
-target_windows32_msvc :
+target_windows32_cl :
 	$(call build_this,$@,os=windows arch=32 cc_id=cl)
-target_windows64_msvc :
+target_windows64_cl :
 	$(call build_this,$@,os=windows arch=64 cc_id=cl)
 target_windows32_gcc  :
 	$(call build_this,$@,os=windows arch=32 cc_id=gcc)
