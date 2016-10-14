@@ -34,13 +34,16 @@
  */
 
 /*
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <fate/dbg.h>
-#include <SFML/Window.h>
-#include <fate/defs.h>
-#include <fate/d3d/defs.h>
+#include <fate/fate.h>
+#include <SDL2/SDL.h>
+
+typedef struct {
+    uint16_t win_w, win_h;
+    SDL_Window *win;
+} main_s;
+
+static main_s main_s_i = {0};
+static main_s *m = &main_s_i;
 
 #ifdef FE_WINDOWS
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
@@ -49,14 +52,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 int main(int argc, char *argv[])
 #endif
 {
-    sfVideoMode vm = sfVideoMode_getDesktopMode();
-    vm.width = 640;
-    vm.height = 480;
-    sfWindow* window = sfWindow_create(vm, "D3D10", sfDefaultStyle, 0);
-    HWND hwnd = sfWindow_getSystemHandle(window);
-
-    HGLRC glctx = wglGetCurrentContext();
-    wglDeleteContext(glctx);
+    win_w = 640;
+    win_h = 480;
+    m->window = SDL_CreateWindow("D3D10 Sample", 
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m->win_w, m->win_h,
+            SDL_WINDOW_RESIZABLE);
+    SDL_SysWMinfo wmInfo;
+    SDL_GetWindowWMInfo(m->window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
 
     ID3D10Device *dev;
     IDXGISwapChain *swap_chain;
@@ -68,8 +71,8 @@ int main(int argc, char *argv[])
 
     ZeroMemory(&sd, sizeof(sd));
     sd.BufferCount = 1;
-    sd.BufferDesc.Width = 640;
-    sd.BufferDesc.Height = 480;
+    sd.BufferDesc.Width = m->win_w;
+    sd.BufferDesc.Height = m->win_h;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
