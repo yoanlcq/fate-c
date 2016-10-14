@@ -7,6 +7,9 @@ dirs_res = res
 dirs_bin = bin
 dirs_dist = dist
 
+
+include asset_pipeline.mk
+
 # dist_debian = 
 # dist_windows32 = 
 
@@ -48,6 +51,8 @@ target_android         := yes
 my_name = Yoan Lecoq
 
 game_emscripten_url = http://www.yoanlecoq.com/fate_cube_demo
+game_emscripten_preload = $(dirs_res)/emscripten
+game_emscripten_embed =
 
 game_windows_company_name = $(my_name)
 game_windows_file_version = 1.0
@@ -64,6 +69,7 @@ game_android_reversed_domain = com.yoanlcq.cubedemo
 game_android_activity_classname = CubeActivity
 game_android_app_name = Cube Demo 2
 game_android_app_ident = cube_demo
+game_android_assets = $(dirs_res)/android
 game_android_main = cube_demo_main
 game_android_icon_48px  = my_dir/icon_48px.png
 game_android_icon_72px  = my_dir/icon_72px.png

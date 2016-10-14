@@ -76,6 +76,8 @@ $(gm_build_dir)/jni/include/contrib:
 $(gm_build_dir)/jni/include/SDL2:
 	@$(call mkdir_p,$(@D))
 	$(call ln_sf,../SDL/include,$@)
+$(gm_build_dir)/assets:
+	$(call ln_sf,$(game_android_assets),$@)
 
 
 game_debug_apk=$(gm_build_dir)/bin/$(game_android_reversed_domain)-debug.apk
@@ -106,7 +108,8 @@ $(game_debug_apk): $(gm_build_dir)/.copied \
 				   $(gm_build_dir)/jni/include/fate \
 				   $(gm_build_dir)/jni/include/$(gm) \
 				   $(gm_build_dir)/jni/include/contrib \
-				   $(gm_build_dir)/jni/include/SDL2
+				   $(gm_build_dir)/jni/include/SDL2 \
+				   $(gm_build_dir)/assets
 	@$(call mkdir_p,$(@D))
 	$(android) update project --path $(gm_build_dir)
 	cd $(gm_build_dir) && $(ndk_build) $(ndk_args)
