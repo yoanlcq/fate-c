@@ -77,7 +77,7 @@ void fe_fpath_deinit(fe_fpath fpath);
 fe_fpath fe_fpath_emscripten_idb(const char *db_name, const char *filepath);
 fe_fpath fe_fpath_emscripten_wget(const char *url);
 fe_fpath fe_fpath_emscripten_memfs(const char *filepath);
-#elif FE_TARGET_OSX
+#elif defined(FE_TARGET_OSX)
 fe_fpath fe_fpath_osx_sdl2basepath(const char *filepath);
 fe_fpath fe_fpath_osx_sdl2prefpath(const char *org, const char *app, const char *filepath);
 fe_fpath fe_fpath_osx_tmp(const char *filepath);

@@ -66,6 +66,7 @@ void fe_iov_setup(void) {
 #endif
 }
 void fe_iov_cleanup(void) {
+    /* XXX TODO: Remove the tmp directory manually, when required. */
 #ifdef FE_TARGET_WINDOWS
     fclose(nul_file);
 #endif

@@ -289,6 +289,10 @@ static inline char* fe_asprintf(const char *fmt, ...) {
     va_end(ap);
     return str;
 }
+static inline char* fe_strdup(const char *str) {
+    return fe_vasprintf("%s", str);
+}
+
 /*! \brief \p offset is relative to \p iov. */
 void   fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src);
 
