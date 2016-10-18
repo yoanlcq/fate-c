@@ -1,21 +1,53 @@
-#include <fate/gl.h>
+#include <fate/fate.h>
 #include "cubemap.h"
+#include "res.h"
 
-#include "grouse_bk.c.array"
-#include "grouse_dn.c.array"
-#include "grouse_ft.c.array"
-#include "grouse_lf.c.array"
-#include "grouse_rt.c.array"
-#include "grouse_up.c.array"
+typedef union {
+    struct {uint32_t r:8,g:8,b:8,a:8;};
+    uint8_t ary[4];
+} fe_rgba32;
+
+typedef union {
+    struct {uint32_t r:8,g:8,b:8;};
+    uint8_t ary[3];
+} fe_rgb24;
+
+typedef struct {
+    size_t w, h;
+    fe_rgb24 *pixels;
+} fe_rgb24_img;
+
+bool fe_rgb24_img_init_auto(fe_rgb24_img *img, const fe_iov *iov) {
+    int w, h, component_count;
+    uint8_t *bytes = stbi_load_from_memory(iov->base, iov->len, &w, &h, &component_count, 3);
+    // fe_dbg_hope(component_count == 3); // doc says we can count on it.
+    img->w = w;
+    img->h = h;
+    img->pixels = (void*)bytes;
+    return !!img->pixels;
+}
+void fe_rgb24_img_deinit(fe_rgb24_img *img) {
+    stbi_image_free(img->pixels);
+}
+
+static void res_load_rgb24_img(fe_rgb24_img *img, const char *filepath) {
+    fe_iov iov;
+    fe_dbg_hope(res_load(&iov, filepath));
+    fe_dbg_hope(fe_rgb24_img_init_auto(img, &iov));
+    fe_iov_deinit(&iov);
+}
 
 GLuint cubemap_build_grouse(void) {
     GLuint cubemap;
     glGenTextures(1, &cubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     const GLint lod = 0;
+    fe_rgb24_img img;
 #define HELPER(sign,axis,face) \
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_##sign##_##axis, lod, GL_RGBA, \
-                 grouse_##face##_w, grouse_##face##_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, grouse_##face##_rgba)
+    res_load_rgb24_img(&img, res.cubemaps.flame.face); \
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_##sign##_##axis, lod, GL_RGB, \
+                 img.w, img.h, 0, GL_RGB, GL_UNSIGNED_BYTE, img.pixels); \
+    fe_rgb24_img_deinit(&img)
     HELPER(POSITIVE,X,ft);
     HELPER(NEGATIVE,Z,lf); 
     HELPER(NEGATIVE,X,bk); 

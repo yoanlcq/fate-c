@@ -1,2 +1,0 @@
-#define silence_raw_len 4
-static unsigned char silence_raw[silence_raw_len] = {0, 0, 0, 0};
