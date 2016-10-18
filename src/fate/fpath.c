@@ -103,6 +103,8 @@ fe_fpath fe_fpath_android_tmp(const char *tmpdir, const char *filepath) {
 
 fe_fpath fe_fpath_linux_executable_dir(const char *filepath) {
     /* TODO */
+    fe_dbg_hope(false);
+    return (fe_fpath){0};
 }
 fe_fpath fe_fpath_linux_xdg_data_home(const char *filepath) {
     /* XXX relying on the current SDL2 implementation 

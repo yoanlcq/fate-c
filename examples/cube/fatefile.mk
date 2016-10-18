@@ -54,16 +54,16 @@ game_emscripten_url = http://www.yoanlecoq.com/fate_cube_demo
 game_emscripten_preload = $(dirs_res)/emscripten
 game_emscripten_embed =
 
-game_windows_company_name = $(my_name)
-game_windows_file_version = 1.0
-game_windows_file_description = F.A.T.E Cube demo
-game_windows_internal_name = fate_cube_demo.exe
-game_windows_legal_copyright = $(my_name)
-game_windows_legal_trademarks =
+game_windows_company_name      = $(my_name)
+game_windows_file_version      = 1.0
+game_windows_file_description  = F.A.T.E Cube demo
+game_windows_internal_name     = fate_cube_demo.exe
+game_windows_legal_copyright   = $(my_name)
+game_windows_legal_trademarks  =
 game_windows_original_filename = fate_cube_demo.exe
-game_windows_product_name = F.A.T.E Cube demo
-game_windows_product_version = 1.0
-game_windows_icon = cube.ico
+game_windows_product_name      = F.A.T.E Cube demo
+game_windows_product_version   = 1.0
+game_windows_icon              = my_dir/cube.ico
 
 game_android_reversed_domain = com.yoanlcq.cubedemo
 game_android_activity_classname = CubeActivity

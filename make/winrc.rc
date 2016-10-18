@@ -1,0 +1,25 @@
+icon_id ICON game_windows_icon
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", game_windows_company_name
+      VALUE "FileVersion", game_windows_file_version
+      VALUE "FileDescription", game_windows_file_description
+      VALUE "InternalName", game_windows_internal_name
+      VALUE "LegalCopyright", game_windows_legal_copyright
+      VALUE "LegalTrademarks", game_windows_legal_trademarks
+      VALUE "OriginalFilename", game_windows_original_filename
+      VALUE "ProductName", game_windows_product_name
+      VALUE "ProductVersion", game_windows_product_version
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END

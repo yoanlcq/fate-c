@@ -36,6 +36,10 @@ endif
 #glewflags = -DGLEW_STATIC -DGLEW_NO_GLU
 cflags_debug = -g -DFE_DEBUG_BUILD
 cflags_release = -O3 -DNDEBUG
+cc_pp = -E -P 
+cc_pp_out = -o 
+cc_D = -D
+cc_lang_c = -xc 
 cc_c = -c 
 cc_out_o = -o 
 cc_out_exe = -o 

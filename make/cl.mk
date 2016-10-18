@@ -12,6 +12,10 @@ ifneq ($(d3d10),)
 ldlibs += d3d10.lib dxguid.lib
 endif
 
+cc_pp = /EP /P 
+cc_pp_out = /Fi
+cc_lang_c = /TC 
+cc_D = /D
 cc_c = /c
 cc_out_o = /Fo
 cc_out_exe = /Fe

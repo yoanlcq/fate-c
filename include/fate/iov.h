@@ -290,7 +290,7 @@ static inline char* fe_asprintf(const char *fmt, ...) {
     return str;
 }
 static inline char* fe_strdup(const char *str) {
-    return fe_vasprintf("%s", str);
+    return fe_asprintf("%s", str);
 }
 
 /*! \brief \p offset is relative to \p iov. */
