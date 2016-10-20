@@ -58,7 +58,8 @@
  *
  * It serves no other purpose than being a fun way of identifying a version. 
  */
-#define FE_VERSION_CODENAME "Predicator"
+//#define FE_VERSION_CODENAME "Predicator"
+#define FE_VERSION_CODENAME "Gatherer"
 /*! \brief The current F.A.T.E version's prerelease string, conforming to 
  *         point 9 of
  *         <a href="http://semver.org/spec/v2.0.0.html" target="_blank">

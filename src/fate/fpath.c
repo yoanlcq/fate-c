@@ -1,5 +1,156 @@
 #include <fate/fate.h>
 
+
+/*
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *    fe_fs_get_executable_dir()
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+
+#if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
+
+#if !(BSD_SOURCE || _XOPEN_SOURCE >= 500  \
+ || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || _POSIX_C_SOURCE >= 200112L)
+#ifdef _GNU_SOURCE
+#include <sys/syscall.h>
+static inline ssize_t readlink(const char *path, char *buf, size_t bufsiz) {
+    return syscall(SYS_readlink, path, buf, bufsiz);
+}
+static inline int lstat(const char *path, struct stat *buf) {
+    return syscall(SYS_lstat, path, buf);
+}
+#else
+#error Syscalls lstat() and readlink() are not available. Please update (g)libc or define _GNU_SOURCE.
+#endif
+#endif
+
+#if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
+#include <sys/auxv.h>
+#endif
+static char *get_executable_path(void) {
+    struct stat st;
+    char *str2, *str;
+#if __GLIBC__ > 2 || (__GLIBC__==2 && __GLIBC_MINOR__>=16)
+    str = (char*)getauxval(AT_EXECFN);
+    if(str)
+        return realpath(str, NULL);
+#endif
+    if(lstat("/proc/self/exe", &st) == 0) {
+        str = fe_mem_heapalloc(st.st_size+1, char, "");
+        if(readlink("/proc/self/exe", str, st.st_size) > 0) {
+            str[st.st_size] = '\0';
+            str2 = realpath(str, NULL);
+            fe_mem_heapfree(str);
+            return str2;
+        }
+        fe_mem_heapfree(str);
+    }
+    return NULL;
+}
+
+#elif defined(FE_TARGET_FREEBSD)
+
+static char *get_executable_path(void) {
+    static char appdir[PATH_MAX];
+    char procfs[2][19] = {
+        "/proc/curproc/exe",
+        "/proc/curproc/file"
+    };
+    int i, mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+    size_t size = PATH_MAX;
+    struct stat st;
+    char *str, *str2;
+    for(i=0 ; i<2 ; ++i) {
+        if(lstat(procfs[i], &st) == 0) {
+            str = fe_mem_heapalloc(st.st_size+1, char, "");
+            if(readlink(procfs[i], str, st.st_size) > 0) {
+                str[st.st_size] = '\0';
+                str2 = realpath(str, NULL);
+                fe_mem_heapfree(str);
+                return str2;
+            }
+            fe_mem_heapfree(str);
+        }
+    }
+    if(sysctl(mib, 4, appdir, &size, NULL, 0) == 0)
+        return realpath(appdir, NULL);
+    return NULL;
+}
+
+
+#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
+
+static char *get_executable_path(void) {
+    static char appdir[MAXPATHLEN];
+    char *str, *str2;
+    uint32_t size = MAXPATHLEN;
+    if(_NSGetExecutablePath(appdir, &size) == 0)
+        return realpath(appdir, NULL);
+    str = fe_mem_heapalloc(size, char, "");
+    _NSGetExecutablePath(str, &size);
+    str2 = realpath(str, NULL);
+    fe_mem_heapfree(str);
+    return str2;
+}
+
+#elif defined(FE_TARGET_WINDOWS)
+static char *get_executable_path(void) {
+    return strdup(_pgmptr);
+}
+#endif
+
+#ifndef FE_TARGET_EMSCRIPTEN
+
+#if defined(FE_TARGET_WINDOWS)
+#define PATHSEP "\\"
+#else
+#define PATHSEP "/"
+#endif
+
+static bool remove_last_path_component(char *path) {
+    char *ind = strrchr(path, *PATHSEP);
+    if(*ind) {
+        *ind = '\0';
+        return true;
+    }
+    return false;
+}
+
+static char *get_executable_dir(void) {
+    char *expath = get_executable_path();
+    if(!expath)
+        return NULL;
+    remove_last_path_component(expath);
+    return expath;
+}
+
+#undef PATHSEP
+#endif /* EMSCRIPTEN */
+
+
+
+
+
+
+
+
+
+
+
+
 void fe_fpath_deinit(fe_fpath fpath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
     if(fpath.is_idb)
@@ -102,9 +253,11 @@ fe_fpath fe_fpath_android_tmp(const char *tmpdir, const char *filepath) {
 #elif defined(FE_TARGET_LINUX) || defined(FE_TARGET_FREEBSD)
 
 fe_fpath fe_fpath_linux_executable_dir(const char *filepath) {
-    /* TODO */
-    fe_dbg_hope(false);
-    return (fe_fpath){0};
+    /* XXX We shouldn't compute it every time ? */
+    char *exedir = get_executable_dir();
+    fe_fpath ret = {fe_asprintf("%s/%s", exedir, filepath)};
+    fe_mem_heapfree(exedir);
+    return ret;
 }
 fe_fpath fe_fpath_linux_xdg_data_home(const char *filepath) {
     /* XXX relying on the current SDL2 implementation 
@@ -156,5 +309,4 @@ fe_fpath fe_fpath_windows_temp_folder(const char *filepath) {
 }
 
 #endif
-
 

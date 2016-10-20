@@ -7,7 +7,7 @@
 #include "res.h"
 
 static size_t pos = 0;
-static const fe_iov mus;
+static fe_iov mus;
 static SDL_AudioDeviceID dev = 0;
 static const char *TAG = "bgmus";
 
@@ -15,7 +15,7 @@ static void callback(void *udata, uint8_t *stream, int32_t len) {
     memset(stream, 0, len);
     if(len > mus.len-pos)
         len = mus.len-pos;
-    SDL_MixAudioFormat(stream, mus.base+pos, AUDIO_S16SYS, len, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(stream, (void*)mus.base+pos, AUDIO_S16SYS, len, SDL_MIX_MAXVOLUME);
     pos += len;
     if(pos >= mus.len)
         pos = 0;
@@ -33,15 +33,30 @@ void bgmus_setup(void) {
         fe_loge(TAG, "Failed to open audio: %s\n", SDL_GetError());
     // Load file...
     int channels=2, sample_rate=44100;
-    int16_t *samples;
-    fe_iov iov;
-    res_load(&iov, res.musics.deeper);
-    int sample_count = stb_vorbis_decode_memory(iov.base, iov.len, &channels, &sample_rate, &samples);
+    int16_t *frames;
+    fe_iov iov = {0};
+    res_load(&iov, res.musics.deeper.ogg);
+    int frame_count = stb_vorbis_decode_memory((void*)iov.base, iov.len, &channels, &sample_rate, &frames);
     fe_iov_deinit(&iov);
-    fe_dbg_hope(channels == 2);
-    fe_dbg_hope(sample_rate == 44100);
-    mus.base = samples;
-    mus.len = sample_count;
+    if(!(channels == 2 && sample_rate == 44100)) {
+        fe_logi(TAG, "Source ogg is being converted. channels=%d, freq=%d\n", channels, sample_rate);
+        SDL_AudioCVT cvt;
+        SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, sample_rate, AUDIO_S16, 2, 44100);
+        fe_dbg_assert(cvt.needed);
+        if(frame_count*channels*sizeof(int16_t) < cvt.len*cvt.len_mult) {
+            fe_logi(TAG, "Reallocating buffer.\n");
+            frames = fe_mem_heaprealloc(frames, cvt.len*cvt.len_mult, uint8_t, "");
+        }
+        cvt.len = frame_count * channels * sizeof(int16_t);
+        cvt.buf = (void*)frames;
+        SDL_ConvertAudio(&cvt);
+        mus.len = cvt.len_cvt;
+        mus.base = (void*)cvt.buf;
+    } else {
+        fe_logi(TAG, "Source ogg matched our specs!\n");
+        mus.len = frame_count*2*sizeof(int16_t); // *2 because stereo
+        mus.base = (void*)frames;
+    }
 }
 void bgmus_play(void) {
     SDL_PauseAudioDevice(dev, 0);
@@ -51,6 +66,6 @@ void bgmus_pause(void) {
 }
 void bgmus_cleanup(void) {
     SDL_CloseAudioDevice(dev);
-    fe_iov_deinit(mus);
+    fe_iov_deinit(&mus);
 }
 

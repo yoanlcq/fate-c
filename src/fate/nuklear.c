@@ -1,2 +1,2 @@
 #define NK_IMPLEMENTATION
-#include <fate/nuklear.h>
+#include <fate/contrib/nuklear.h>

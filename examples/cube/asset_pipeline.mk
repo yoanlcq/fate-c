@@ -1,6 +1,20 @@
 res:=$(dirs_res)
 art:=$(dirs_art)
 
+$(res)/%.jpg: $(art)/%.jpg
+	$(call mkdir_p,$(@D))
+	$(call cp_r,$<,$@)
+
+$(res)/%.ogg: $(art)/%.ogg
+	$(call mkdir_p,$(@D))
+	$(call cp_r,$<,$@)
+
+game_art := \
+	$(call rglob,$(art),*.jpg) \
+	$(call rglob,$(art),*.ogg)
+
+game_res := $(patsubst $(art)%,$(res)%,$(game_art))
+
 $(res)/android/%.pkm: $(art)/%.tex.png
 	$(call mkdir_p,$(@D))
 	$(etc1tool) $< -o $@
