@@ -708,8 +708,8 @@ char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status) {
 void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f) {
 #ifdef FE_TARGET_WINDOWS
     m->desired_access = 
-        (FILE_GENERIC_READ  * !!(f & FE_FD_READ))
-      | (FILE_GENERIC_WRITE * !!(f & FE_FD_WRITE));
+        (GENERIC_READ  * !!(f & FE_FD_READ))
+      | (GENERIC_WRITE * !!(f & FE_FD_WRITE));
     /* append is implied by GENERIC_WRITE. We have to seek manually 
      * to the end of file, which is a lot cleaner IMO. */
     m->share = 
@@ -775,6 +775,7 @@ static fe_fd static_fe_fd_open_win32(const fe_fpath fpath, fe_fd_mode mode) {
     fe_fd fd = CreateFileW(fullpath_w, mode.desired_access, mode.share, 
             NULL, mode.creation_disposition, mode.attrs_and_flags, NULL);
     int last_error = GetLastError();
+    //fe_logw(TAG, "Opening %ls... (err : %d)\n", fullpath_w, last_error);
     fe_mem_heapfree(fullpath_w);
     SetLastError(last_error);
     return fd;

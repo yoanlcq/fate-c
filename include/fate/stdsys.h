@@ -9,7 +9,12 @@
 
 #if defined(FE_TARGET_WINDOWS)
     #include <Windows.h>
+    #include <Winerror.h>
     #include <Shellapi.h>
+    #include <Shlobj.h>
+    #include <Objbase.h>
+#define INITGUID
+    #include <KnownFolders.h>
 #else
     #include <errno.h>
     #include <limits.h>

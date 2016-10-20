@@ -19,6 +19,7 @@ typedef struct {
     } cubemaps;
     struct {
         res_ogg deeper;
+        res_ogg wind;
     } musics;
 } res_list;
 

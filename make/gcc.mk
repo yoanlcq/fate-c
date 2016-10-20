@@ -62,7 +62,7 @@ endif
 endif
 
 ifeq ($(os),windows)
-ldlibs += -lopengl32 -lgdi32 -luser32 -lkernel32 -ldbghelp -lws2_32 
+ldlibs += -lopengl32 -lgdi32 -luser32 -lkernel32 -ldbghelp -lws2_32 -lshell32 -lole32
 endif
 
 $(eval $(foreach def,$(builds_$(build)_defines),cflags += -D$(def) ))
