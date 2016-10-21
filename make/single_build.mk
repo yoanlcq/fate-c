@@ -1,5 +1,5 @@
 .PHONY: all game game_res
-all: game game_res
+all: game_res game
 
 fate:=$(FE_PATH)
 include $(fate)/make/rglob.mk

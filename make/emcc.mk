@@ -6,7 +6,8 @@ cflags = \
 	--emrun \
 	-s USE_SDL=2 -s ASYNCIFY=1 -s ASSERTIONS=2 -s EMTERPRETIFY=1 \
 	-s EMTERPRETIFY_ASYNC=1 -s FORCE_FILESYSTEM=1 \
-	-s ALLOW_MEMORY_GROWTH=1
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s 'EMTERPRETIFY_FILE="emterpreter.bin"'
 
 cflags_debug = -g -DFE_DEBUG_BUILD
 glewflags = -DGLEW_STATIC -DGLEW_NO_GLU # -O0

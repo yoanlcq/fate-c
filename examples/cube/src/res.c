@@ -14,7 +14,10 @@ const res_list res = {
 
 fe_fpath res_path(const char *filepath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
-    return fe_fpath_emscripten_memfs(filepath);
+    char *npath = fe_asprintf("res/%s", filepath);
+    fe_fpath fpath = fe_fpath_emscripten_memfs(npath);
+    fe_mem_heapfree(npath);
+    return fpath;
 #elif defined(FE_TARGET_OSX)
     return fe_fpath_osx_sdl2basepath(filepath);
 #elif defined(FE_TARGET_IOS)
@@ -39,12 +42,19 @@ static const char *TAG = "res";
 bool res_load(fe_iov *iov, const char *filepath) {
     fe_dbg_assert(!iov->base && !iov->len);
     fe_fpath fpath = res_path(filepath);
+#ifdef FE_TARGET_EMSCRIPTEN
+    fe_logi(TAG, "Loading `%s'...\n", fpath.memfs.path);
+#else
     fe_logi(TAG, "Loading `%s'...\n", fpath.path);
+#endif
     bool ret = fe_fs_load(iov, fpath);
-#ifndef FE_TARGET_EMSCRIPTEN
-    if(!ret)
+    if(!ret) {
+#ifdef FE_TARGET_EMSCRIPTEN
+        fe_fatal(TAG, "Could not load res `%s' !\n", fpath.memfs.path);
+#else
         fe_fatal(TAG, "Could not load res `%s' !\n", fpath.path);
 #endif
+    }
     fe_fpath_deinit(fpath);
     return ret;
 }

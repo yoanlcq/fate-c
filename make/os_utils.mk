@@ -12,7 +12,7 @@ dot_dll=.dll
 else
 mkdir_p = mkdir -p $(1)
 cp_r = cp -pR $(1) $(2)
-copyfiles = cp $(subst /,\\,$(1)) $(subst /,\\,$(2))
+copyfiles = cp $(1) $(2)
 ln_sf = ln -sf $(1) $(2)
 rmdir_rf = rm -rf $(1)
 echo = echo $(1)
