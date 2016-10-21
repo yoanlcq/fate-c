@@ -124,12 +124,20 @@ void fe_logc(const char *tag, const char *fmt, ...) {
     log_helper(stderr, ERROR);
 
 #ifdef FE_TARGET_EMSCRIPTEN
+    /*
     const char *errstr = "F.A.T.E has encountered an error "
                            "from which it cannot recover.";
     fe_dbg_assert((strlen(errstr)+12) < 512);
     char script[512+sizeof(message)];
     snprintf(script, sizeof(script), "alert('%s\n%s');", errstr, message);
     emscripten_run_script(script);
+    */
+    EM_ASM_({
+        var str = Pointer_stringify($0);
+        var msg = "F.A.T.E has encountered a critical error !\n" + str;
+        Module.print(msg);
+        alert(msg);
+    }, message);
 #else
     int button_id = 0xdead;
     const SDL_MessageBoxButtonData button = {

@@ -12,7 +12,7 @@ void fe_iov_setup(void) {
 #ifdef FE_TARGET_EMSCRIPTEN
     struct stat sb;
     int status = stat("/memfs", &sb);
-    fe_dbg_hope(status && S_ISDIR(sb.st_mode));
+    fe_dbg_hope(!status && S_ISDIR(sb.st_mode));
     mkdir("/wget", 0755);
     mkdir("/idb", 0755);
 #elif defined(FE_TARGET_ANDROID)
@@ -890,7 +890,7 @@ fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
         fe_fpath memfs_fpath = {{{0}}};
         memfs_fpath.is_memfs = true;
         /* TODO would be better not having to use a hash function. */
-        memfs_fpath.memfs.path = fe_asprintf("wget/%"PRIx64"", fe_hash_sdbm(fpath.wget.url, ~(size_t)0));
+        memfs_fpath.memfs.path = fe_asprintf("/wget/%"PRIx64"", fe_hash_sdbm(fpath.wget.url, ~(size_t)0));
         if(!fe_fs_exists(memfs_fpath)) {
             fe_iov iov = {0};
             fe_wget(&iov, fpath.wget.url);
@@ -902,7 +902,7 @@ fe_fd          fe_fd_open(const fe_fpath fpath, fe_fd_mode mode) {
     } else {
         fe_fpath memfs_fpath = {{{0}}};
         memfs_fpath.is_memfs = true;
-        memfs_fpath.memfs.path = fe_asprintf("idb/%s/%s", fpath.idb.db_name, fpath.idb.path);
+        memfs_fpath.memfs.path = fe_asprintf("/idb/%s/%s", fpath.idb.db_name, fpath.idb.path);
         if(!fe_fs_exists(memfs_fpath)) {
             if(!(mode.flags & O_CREAT)) {
                 fe_mem_heapfree(memfs_fpath.memfs.path);

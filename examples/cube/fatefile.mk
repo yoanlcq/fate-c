@@ -52,7 +52,7 @@ target_emscripten      := yes
 my_name = Yoan Lecoq
 
 game_emscripten_url = http://www.yoanlecoq.com/fate_cube_demo
-game_emscripten_preload = $(dirs_res)/emscripten
+game_emscripten_preload = $(dirs_res)
 game_emscripten_embed =
 
 game_windows_company_name      = $(my_name)

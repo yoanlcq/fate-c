@@ -154,7 +154,7 @@ static char *get_executable_dir(void) {
 void fe_fpath_deinit(fe_fpath fpath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
     if(fpath.is_idb)
-        fe_mem_heapfree(fpath.path), fe_mem_heapfree(fpath.db_name);
+        fe_mem_heapfree(fpath.idb.path), fe_mem_heapfree(fpath.idb.db_name);
     else if(fpath.is_wget)
         fe_mem_heapfree(fpath.wget.url);
     else if(fpath.is_memfs)
@@ -169,22 +169,22 @@ void fe_fpath_deinit(fe_fpath fpath) {
 #if defined(FE_TARGET_EMSCRIPTEN)
 
 fe_fpath fe_fpath_emscripten_idb(const char *db_name, const char *filepath) {
-    fe_fpath fp = {0};
+    fe_fpath fp = FE_FPATH_ZERO;
     fp.is_idb = true;
     fp.idb.path = fe_strdup(filepath);
-    fp.idb.db_name = fe_strdup(fdb_name);
+    fp.idb.db_name = fe_strdup(db_name);
     return fp;
 }
 fe_fpath fe_fpath_emscripten_wget(const char *url) {
-    fe_fpath fp = {0};
+    fe_fpath fp = FE_FPATH_ZERO;
     fp.is_wget = true;
     fp.wget.url = fe_strdup(url);
     return fp;
 }
 fe_fpath fe_fpath_emscripten_memfs(const char *filepath) {
-    fe_fpath fp = {0};
+    fe_fpath fp = FE_FPATH_ZERO;
     fp.is_memfs = true;
-    fp.memfs.path = fe_strdup(filepath);
+    fp.memfs.path = fe_asprintf("/memfs/%s", filepath);
     return fp;
 }
 

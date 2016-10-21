@@ -61,12 +61,14 @@ typedef struct {
     bool is_memfs : 1;
     bool is_idb   : 1;
 } fe_fpath;
+#define FE_FPATH_ZERO {{{0}}}
 #else
 /*! \brief Typedef-ed into a struct to prevent accidental
  *         use of raw strings in fe_fs_*() routines. */
 typedef struct {
     char *path;
 } fe_fpath; 
+#define FE_FPATH_ZERO {0}
 #endif
 
 /*! \bried TODO */
