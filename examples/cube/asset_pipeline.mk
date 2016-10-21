@@ -5,6 +5,14 @@ $(res)/%.jpg: $(art)/%.jpg
 	$(call mkdir_p,$(@D))
 	$(call cp_r,$<,$@)
 
+$(res)/%.png: $(art)/%.png
+	$(call mkdir_p,$(@D))
+	$(call cp_r,$<,$@)
+
+$(res)/%.ico: $(art)/%.ico
+	$(call mkdir_p,$(@D))
+	$(call cp_r,$<,$@)
+
 $(res)/%.ogg: $(art)/%.ogg
 	$(call mkdir_p,$(@D))
 	$(call cp_r,$<,$@)

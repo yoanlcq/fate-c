@@ -44,8 +44,8 @@ target_linux64_gcc     := yes
 #target_osx_gcc         := yes
 #target_osx_clang       := yes
 #target_ios             := yes 
-#target_android         := yes
-# target_emscripten      := yes
+# target_android         := yes
+target_emscripten      := yes
 
 
 # Custom var for later reuse.
@@ -64,18 +64,18 @@ game_windows_legal_trademarks  =
 game_windows_original_filename = fate_cube_demo.exe
 game_windows_product_name      = F.A.T.E Cube demo
 game_windows_product_version   = 1.0
-game_windows_icon              = my_dir/cube.ico
+game_windows_icon              = $(dirs_res)/cube.ico
 
 game_android_reversed_domain = com.yoanlcq.cubedemo
 game_android_activity_classname = CubeActivity
 game_android_app_name = Cube Demo 2
 game_android_app_ident = cube_demo
-game_android_assets = $(dirs_res)/android
+game_android_assets = $(dirs_res)
 game_android_main = cube_demo_main
-game_android_icon_48px  = my_dir/icon_48px.png
-game_android_icon_72px  = my_dir/icon_72px.png
-game_android_icon_96px  = my_dir/icon_96px.png
-game_android_icon_144px = my_dir/icon_144px.png
+game_android_icon_48px  = $(dirs_res)/icon_48px.png
+game_android_icon_72px  = $(dirs_res)/icon_72px.png
+game_android_icon_96px  = $(dirs_res)/icon_96px.png
+game_android_icon_144px = $(dirs_res)/icon_144px.png
 
 game_ios_launch_screen_1080x1920 = 
 game_ios_launch_screen_750x1334 = 
