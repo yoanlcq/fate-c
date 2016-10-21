@@ -502,9 +502,9 @@ fe_iov_promise fe_fs_load_async  (fe_iov *iov, const fe_fpath fpath);
 bool           fe_fs_store       (fe_iov *iov, const fe_fpath fpath);
 fe_iov_promise fe_fs_store_async (fe_iov *iov, const fe_fpath fpath);
 
-FE_DECL_PURE void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f);
+void fe_fd_modeflags_validate(fe_fd_modeflags_validation *v, fe_fd_modeflags f);
 char* fe_fd_modeflags_validation_str(fe_fd_modeflags_validation status);
-FE_DECL_PURE void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f);
+void fe_fd_modeflags_compile(fe_fd_mode *m, fe_fd_modeflags f);
 
 
 /* len should be >= 32. */

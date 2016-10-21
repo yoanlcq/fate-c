@@ -1,0 +1,23 @@
+# French translations for fate package.
+# Copyright (C) 2015 2016 Yoan Lecoq
+# This file is distributed under the same license as the fate package.
+# Automatically generated, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fate 1.0\n"
+"Report-Msgid-Bugs-To: yoanlecoq.io@gmail.com\n"
+"POT-Creation-Date: 2015-12-19 20:57+0100\n"
+"PO-Revision-Date: 2015-12-19 20:57+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: hellogt.c:43 hellogt.c:45
+#, c-format
+msgid "Hello world!\n"
+msgstr "Bonjour monde !\n"

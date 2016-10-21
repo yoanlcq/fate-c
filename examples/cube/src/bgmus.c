@@ -35,7 +35,7 @@ void bgmus_setup(void) {
     int channels=2, sample_rate=44100;
     int16_t *frames;
     fe_iov iov = {0};
-    res_load(&iov, res.musics.deeper.ogg);
+    res_load(&iov, res.musics.wind.ogg);
     int frame_count = stb_vorbis_decode_memory((void*)iov.base, iov.len, &channels, &sample_rate, &frames);
     fe_iov_deinit(&iov);
     if(!(channels == 2 && sample_rate == 44100)) {

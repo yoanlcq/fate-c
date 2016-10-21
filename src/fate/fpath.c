@@ -107,8 +107,25 @@ static char *get_executable_path(void) {
 }
 
 #elif defined(FE_TARGET_WINDOWS)
+/*
+ * This one gets us an undefined reference on MinGW.
 static char *get_executable_path(void) {
-    return strdup(_pgmptr);
+    wchar_t *wpath;
+    fe_dbg_hope(!_get_wpgmptr(&wpath));
+    return fe_utf8_from_win32unicode(wpath);
+}
+*/
+static char *get_executable_path(void) {
+    WCHAR *buf = NULL;
+    size_t len = 0;
+    do {
+        len += 256;
+        buf = fe_mem_heaprealloc(buf, len, WCHAR, "");
+        fe_dbg_hope(GetModuleFileNameW(NULL, buf, len));
+    } while(GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+    char *utf8 = fe_utf8_from_win32unicode(buf);
+    fe_mem_heapfree(buf);
+    return utf8;
 }
 #endif
 
@@ -299,13 +316,42 @@ fe_fpath fe_fpath_winrt_temp_folder(const char *filepath) {
 #elif defined(FE_TARGET_WINDOWS)
 
 fe_fpath fe_fpath_windows_executable_folder(const char *filepath) {
-    GetModuleFileNameW(NULL, buf, len);
+    /* XXX We shouldn't compute it every time ? */
+    char *exedir = get_executable_dir();
+    fe_fpath ret = {fe_asprintf("%s\\%s", exedir, filepath)};
+    fe_mem_heapfree(exedir);
+    return ret;
 }
-fe_fpath fe_fpath_windows_appdata(const char *filepath) {
-    !SUCCEEDED(SHGetKnownFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path)
+fe_fpath fe_fpath_windows_roaming_appdata(const char *filepath) {
+    /* XXX We shouldn't compute it every time ? */
+    WCHAR *wpath;
+    KNOWNFOLDERID kfid = FOLDERID_RoamingAppData;
+    HRESULT res = SHGetKnownFolderPath(
+        &kfid, KF_FLAG_INIT | KF_FLAG_CREATE, NULL, &wpath
+    );
+    fe_dbg_hope(SUCCEEDED(res));
+    char *utf8 = fe_utf8_from_win32unicode(wpath);
+    CoTaskMemFree(wpath);
+    fe_fpath fpath = { fe_asprintf("%s/%s", utf8, filepath) };
+    fe_mem_heapfree(utf8);
+    return fpath;
 }
 fe_fpath fe_fpath_windows_temp_folder(const char *filepath) {
-    GetTempPathW(len, buf);
+    /* XXX We shouldn't compute it every time ? */
+    WCHAR *wpath = NULL;
+    size_t nlen, len = GetTempPathW(0, NULL);
+    for(;;) {
+        wpath = fe_mem_heaprealloc(wpath, len, WCHAR, "");
+        nlen = GetTempPathW(len, wpath);
+        if(nlen <= len)
+            break;
+        len = nlen;
+    }
+    char *utf8 = fe_utf8_from_win32unicode(wpath);
+    fe_mem_heapfree(wpath);
+    fe_fpath fpath = { fe_asprintf("%s/%s", utf8, filepath) };
+    fe_mem_heapfree(utf8);
+    return fpath;
 }
 
 #endif

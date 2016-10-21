@@ -8,7 +8,8 @@ const res_list res = {
     .cubemaps.flame.lf.jpg = "flame_lf.jpg",
     .cubemaps.flame.rt.jpg = "flame_rt.jpg",
     .cubemaps.flame.up.jpg = "flame_up.jpg",
-    .musics.deeper.ogg     = "Deeper.ogg"
+    .musics.deeper.ogg     = "Deeper.ogg",
+    .musics.wind.ogg = "144083__bosk1__wind-houling-1.ogg"
 };
 
 fe_fpath res_path(const char *filepath) {
@@ -28,7 +29,7 @@ fe_fpath res_path(const char *filepath) {
 #elif defined(FE_TARGET_WINDOWS_RT)
 #error "Windows RT not supported."
 #elif defined(FE_TARGET_WINDOWS)
-    char *pth = fe_asprintf("../../res/%s", filepath);
+    char *pth = fe_asprintf("..\\..\\res\\%s", filepath);
     fe_fpath ret = fe_fpath_windows_executable_folder(pth);
     fe_mem_heapfree(pth);
     return ret;
@@ -38,6 +39,7 @@ static const char *TAG = "res";
 bool res_load(fe_iov *iov, const char *filepath) {
     fe_dbg_assert(!iov->base && !iov->len);
     fe_fpath fpath = res_path(filepath);
+    fe_logi(TAG, "Loading `%s'...\n", fpath.path);
     bool ret = fe_fs_load(iov, fpath);
 #ifndef FE_TARGET_EMSCRIPTEN
     if(!ret)

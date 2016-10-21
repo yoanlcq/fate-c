@@ -7,7 +7,7 @@ cflags_debug = /Ob2 /Zi /DEBUG /FS /DFE_DEBUG_BUILD
 cflags_release = /O2 /Ot /Ox /GL /Gw /DNDEBUG
 ldlibs = \
  SDL2.lib SDL2main.lib opengl32.lib \
- gdi32.lib user32.lib Kernel32.lib DbgHelp.lib ws2_32.lib
+ gdi32.lib user32.lib Kernel32.lib DbgHelp.lib ws2_32.lib shell32.lib ole32.lib
 ifneq ($(d3d10),)
 ldlibs += d3d10.lib dxguid.lib
 endif

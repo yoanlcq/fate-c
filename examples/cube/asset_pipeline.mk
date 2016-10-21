@@ -3,7 +3,7 @@ art:=$(dirs_art)
 
 $(res)/%.jpg: $(art)/%.jpg
 	$(call mkdir_p,$(@D))
-	$(call cp_r,$<,$@)
+	$(call copyfiles,$<,$@)
 
 $(res)/%.png: $(art)/%.png
 	$(call mkdir_p,$(@D))
@@ -15,7 +15,7 @@ $(res)/%.ico: $(art)/%.ico
 
 $(res)/%.ogg: $(art)/%.ogg
 	$(call mkdir_p,$(@D))
-	$(call cp_r,$<,$@)
+	$(call copyfiles,$<,$@)
 
 game_art := \
 	$(call rglob,$(art),*.jpg) \
@@ -29,7 +29,7 @@ $(res)/android/%.pkm: $(art)/%.tex.png
 
 $(res)/common/%.png: $(art)/%.pix.png
 	$(call mkdir_p,$(@D))
-	$(call cp_r) $< $@
+	$(call copyfiles) $< $@
 
 $(res)/desktop/%.dds: $(art)/%.tex.png
 	$(call mkdir_p,$(@D))

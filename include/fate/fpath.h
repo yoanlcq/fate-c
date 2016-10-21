@@ -103,7 +103,7 @@ fe_fpath fe_fpath_winrt_roaming_folder(const char *filepath);
 fe_fpath fe_fpath_winrt_temp_folder(const char *filepath);
 #elif defined(FE_TARGET_WINDOWS)
 fe_fpath fe_fpath_windows_executable_folder(const char *filepath);
-fe_fpath fe_fpath_windows_appdata(const char *filepath);
+fe_fpath fe_fpath_windows_roaming_appdata(const char *filepath);
 fe_fpath fe_fpath_windows_temp_folder(const char *filepath);
 #endif
 
