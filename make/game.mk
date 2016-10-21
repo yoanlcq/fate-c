@@ -60,5 +60,13 @@ $(gmexe): $(gm_ofiles)
 	@$(call echo,    $@)
 	$(see_exe_cmd)$(cc) $(cflags) $^ $(cc_out_exe)$@ $(ldlibs)
 
-game:=$(gmexe)
+ifeq ($(cc_id),emcc)
+gm_emterpreter := $(gm_bin)/emterpreter.bin
+emterpreter.bin: $(gmexe)
+$(gm_emterpreter): emterpreter.bin
+	@$(call mkdir_p,$(@D))
+	$(see_misc_cmd)$(call movefiles,$<,$@)
+endif
+
+game:=$(gmexe) $(gm_emterpreter)
 

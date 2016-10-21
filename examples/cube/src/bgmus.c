@@ -21,6 +21,8 @@ static void callback(void *udata, uint8_t *stream, int32_t len) {
         pos = 0;
 }
 
+
+#ifndef FE_TARGET_EMSCRIPTEN
 void bgmus_setup(void) {
     SDL_AudioSpec want, have;
     want.freq = 44100;
@@ -68,4 +70,9 @@ void bgmus_cleanup(void) {
     SDL_CloseAudioDevice(dev);
     fe_iov_deinit(&mus);
 }
-
+#else
+void bgmus_setup(void) {}
+void bgmus_pause(void) {}
+void bgmus_play(void) {}
+void bgmus_cleanup(void) {}
+#endif

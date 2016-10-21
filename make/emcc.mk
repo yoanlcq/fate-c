@@ -6,10 +6,18 @@ cflags = \
 	--emrun \
 	-s USE_SDL=2 -s ASYNCIFY=1 -s ASSERTIONS=2 -s EMTERPRETIFY=1 \
 	-s EMTERPRETIFY_ASYNC=1 -s FORCE_FILESYSTEM=1 \
+	-s TOTAL_MEMORY=90331648 \
+	-s OUTLINING_LIMIT=20000 \
+	-s 'EMTERPRETIFY_FILE="emterpreter.bin"' \
 	-s ALLOW_MEMORY_GROWTH=1 \
-	-s 'EMTERPRETIFY_FILE="emterpreter.bin"'
+	--use-preload-plugins
 
-cflags_debug = -g -DFE_DEBUG_BUILD
+# See https://kripken.github.io/emscripten-site/docs/compiling/Building-Projects.html#emscripten-ports
+#-s USE_SDL_IMAGE=2
+#-s 'SDL2_IMAGE_FORMATS="[jpg, png]"'
+# Okay. DO NOT FRICKING COMPILE WITH -Os. This makes stbi_decode_from_memory() fail badly.
+# Or perhaps -s STB_IMAGE=1 could change something.
+cflags_debug = -g -O2 -DFE_DEBUG_BUILD
 glewflags = -DGLEW_STATIC -DGLEW_NO_GLU # -O0
 cflags_release = -O3 -DNDEBUG
 cc_c = -c 
