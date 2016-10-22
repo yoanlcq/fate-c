@@ -23,7 +23,7 @@ fe_fpath res_path(const char *filepath) {
 #elif defined(FE_TARGET_IOS)
     return fe_fpath_ios_sdl2basepath(filepath);
 #elif defined(FE_TARGET_ANDROID)
-    return fe_fpath_android_apk_asset("assets", filepath);
+    return fe_fpath_android_apk_asset("res", filepath);
 #elif defined(FE_TARGET_LINUX) || defined(FE_TARGET_FREEBSD)
     char *pth = fe_asprintf("../../res/%s", filepath);
     fe_fpath ret = fe_fpath_linux_executable_dir(pth);

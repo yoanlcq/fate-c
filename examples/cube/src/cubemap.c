@@ -62,7 +62,7 @@ static void res_load_rgba32_img(fe_rgba32_img *img, const char *filepath) {
     */
     fe_fpath fpath = res_path(filepath);
     fe_dbg_hope(fpath.is_memfs);
-    fe_logi("foo", "Loading img `%s'...\n", fpath.memfs.path);
+    fe_logi(TAG, "Loading img `%s'...\n", fpath.memfs.path);
     SDL_Surface *s = IMG_Load(fpath.memfs.path);
     fe_fpath_deinit(fpath);
     fe_dbg_hope(s && "Surface initialized");
