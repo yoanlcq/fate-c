@@ -37,10 +37,9 @@
 #ifndef FE_UTF8_H
 #define FE_UTF8_H
 
-#include <fate/defs.h>
+#include <fate/fate.h>
 
 #ifdef FE_TARGET_WINDOWS
-#include <windows.h>
 /*! \brief Free the string with #fe_mem_heapfree(). */
 WCHAR *fe_utf8_to_win32unicode(const char *utf8);
 /*! \brief Free the string with #fe_mem_heapfree(). */

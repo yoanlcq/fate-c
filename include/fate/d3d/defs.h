@@ -44,7 +44,7 @@
 #define INITGUID
 #endif
 */
-#include <windows.h>
+#include <fate/stdsys.h>
 #define COBJMACROS
 #include <d3d10.h>
 #define  DXCALL(_OBJ_, _METHOD_) \

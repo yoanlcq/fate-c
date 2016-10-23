@@ -128,6 +128,10 @@
 /*! \brief Marks a function as "pure", that is, its return value is only
  *         computed from its parameters and has no side-effects. 
  *
+ * Be EXTRA CAUTIOUS with this. Your function will ACTUALLY lose all 
+ * side-effects, and non-const pointer parameters do not count
+ * as "return values".
+ *
  * GCC, Clang.
  */
 #define FE_DECL_PURE __attribute__((pure))

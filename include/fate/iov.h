@@ -220,12 +220,6 @@
 #define FE_IOV_H
 
 #include <fate/fate.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 /*! \brief TODO*/
 void fe_iov_setup(void);
@@ -394,7 +388,6 @@ typedef enum {
 } fe_fd_seek_whence;
 
 #if defined(FE_TARGET_WINDOWS)
-    #include <windows.h>
     typedef HANDLE fe_fd;
     #define FE_FD_INVALID_FD INVALID_HANDLE_VALUE
     typedef int64_t fe_fd_offset;
@@ -411,7 +404,6 @@ typedef enum {
     #define FE_FD_SEEK_CUR RW_SEEK_CUR
     #define FE_FD_SEEK_END RW_SEEK_END
 #else
-    #include <sys/types.h>
     typedef off_t fe_fd_offset;
     #ifdef FE_TARGET_EMSCRIPTEN
         typedef struct {

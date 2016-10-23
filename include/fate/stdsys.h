@@ -8,13 +8,25 @@
 #endif
 
 #if defined(FE_TARGET_WINDOWS)
+#define NOMINMAX
     #include <Windows.h>
     #include <Winerror.h>
     #include <Shellapi.h>
     #include <Shlobj.h>
     #include <Objbase.h>
-#define INITGUID
+    #define INITGUID
     #include <KnownFolders.h>
+    #undef INITGUID
+/* http://lolengine.net/blog/2011/3/4/fuck-you-microsoft-near-far-macros */
+    #ifdef near
+    #undef near
+    #endif
+    #ifdef far
+    #undef far
+    #endif
+    #ifdef small
+    #undef small
+    #endif
 #else
     #include <errno.h>
     #include <limits.h>
