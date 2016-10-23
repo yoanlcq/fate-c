@@ -22,7 +22,7 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_COMPRESSED_SIGNED_RED_RGTC1                                       );
     CASE(GL_COMPRESSED_RG_RGTC2                                               );
     CASE(GL_COMPRESSED_SIGNED_RG_RGTC2                                        );
-#ifndef FE_TARGET_EMSCRIPTEN
+#if !defined(FE_TARGET_EMSCRIPTEN)
     CASE(GL_COMPRESSED_RGBA_BPTC_UNORM                                        );
     CASE(GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM                                  );
     CASE(GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT                                  );
@@ -71,10 +71,6 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT                             );
     CASE(GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT                              );
     CASE(GL_COMPRESSED_SIGNED_LUMINANCE_ALPHA_LATC2_EXT                       );
-    CASE(GL_COMPRESSED_RGB_S3TC_DXT1_EXT                                      );
-    CASE(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                                     );
-    CASE(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT                                     );
-    CASE(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT                                     );
     CASE(GL_COMPRESSED_SRGB_S3TC_DXT1_EXT                                     );
     CASE(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT                               );
     CASE(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT                               );
@@ -85,10 +81,6 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT                            );
     CASE(GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV2_IMG                            );
     CASE(GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV2_IMG                            );
-    CASE(GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                                   );
-    CASE(GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                                   );
-    CASE(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                                  );
-    CASE(GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                                  );
     CASE(GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG                                  );
     CASE(GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG                                  );
     CASE(GL_COMPRESSED_RGBA_ASTC_3x3x3_OES                                    );
@@ -111,6 +103,18 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5x5_OES                            );
     CASE(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6x5_OES                            );
     CASE(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6x6_OES                            );
+    CASE(GL_RGBA_DXT5_S3TC                                                    );
+    CASE(GL_RGBA4_DXT5_S3TC                                                   );
+    CASE(GL_ETC1_SRGB8_NV                                                     );
+#endif /* !FE_TARGET_EMSCRIPTEN */
+    CASE(GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                                   );
+    CASE(GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                                   );
+    CASE(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                                  );
+    CASE(GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                                  );
+    CASE(GL_COMPRESSED_RGB_S3TC_DXT1_EXT                                      );
+    CASE(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                                     );
+    CASE(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT                                     );
+    CASE(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT                                     );
     CASE(GL_3DC_X_AMD                                                         );
     CASE(GL_3DC_XY_AMD                                                        );
     CASE(GL_ATC_RGB_AMD                                                       );
@@ -120,9 +124,6 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_RGB4_S3TC                                                         );
     CASE(GL_RGBA_S3TC                                                         );
     CASE(GL_RGBA4_S3TC                                                        );
-    CASE(GL_RGBA_DXT5_S3TC                                                    );
-    CASE(GL_RGBA4_DXT5_S3TC                                                   );
-    CASE(GL_ETC1_SRGB8_NV                                                     );
     CASE(GL_ETC1_RGB8_OES                                                     );
     CASE(GL_PALETTE4_RGB8_OES                                                 );
     CASE(GL_PALETTE4_RGBA8_OES                                                );
@@ -134,7 +135,6 @@ const char *fe_gl_tc_format_to_name(GLint fmt) {
     CASE(GL_PALETTE8_R5_G6_B5_OES                                             );
     CASE(GL_PALETTE8_RGBA4_OES                                                );
     CASE(GL_PALETTE8_RGB5_A1_OES                                              );
-#endif /* !FE_TARGET_EMSCRIPTEN */
     }
     return "<unknown_format>";
 }

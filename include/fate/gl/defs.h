@@ -48,12 +48,10 @@
 #define FE_GL_USE_GLEW 1
 #endif
 
-#if 0 /* defined(FE_TARGET_EMSCRIPTEN) */
+#if defined(FE_TARGET_EMSCRIPTEN)
 #define FE_GL_USE_GLEW 1
-#elif !defined(FE_TARGET_EMSCRIPTEN)
-#define FE_GL_USE_GLAD 1
 #else
-#define FE_GL_USE_GLEW 1
+#define FE_GL_USE_GLAD 1
 #endif
 
 /*! \brief TODO 
@@ -70,7 +68,7 @@
 #elif defined(FE_GL_USE_GLEW)
 #define fe_gl_has(ext) (GLEW_##ext)
 #else
-#define fe_gl_has(ext) (0)
+#error "Can't define fe_gl_has() !"
 #endif
 
 #if __DOXYGEN__
@@ -94,6 +92,13 @@
     #define GLAPIENTRY APIENTRY
 #elif defined(FE_GL_USE_GLEW)
     #include <GL/glew.h>
+    #include <GL/glext.h>
+    #ifdef FE_GL_TARGET_ES
+        #define GL_APICALL GLAPI
+        #define GL_APIENTRY APIENTRY
+        #define GL_APIENTRYP APIENTRYP
+        #include <GLES2/gl2ext.h>
+    #endif
 #endif
 /*! \brief TODO */
 #define BUFFER_OFFSET(_i_) ((void*)_i_)

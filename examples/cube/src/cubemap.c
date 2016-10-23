@@ -17,6 +17,8 @@ typedef struct {
     fe_rgba32 *pixels;
 } fe_rgba32_img;
 
+#define TAG "cubemap"
+
 bool fe_rgba32_img_init_auto(fe_rgba32_img *img, const fe_iov *iov) {
     int w, h, component_count;
     uint8_t *bytes = stbi_load_from_memory((void*)iov->base, iov->len, &w, &h, &component_count, 4);
