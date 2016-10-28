@@ -549,6 +549,8 @@ static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
     for(i=0 ; i<byte_count+cache_line_size ; i+=cache_line_size)
         _mm_clflush(start+i);
 }
+#else
+#error "Cannot define fe_hw_cacheflush!"
 #endif
 
 
@@ -624,6 +626,7 @@ static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
     #define fe_hw_stream_i64(addr,val)    (*(addr) = val)
     #define fe_hw_stream_i128(addr,val)   (*(addr) = val)
     #define fe_hw_store_i128(addr,val)    (*(addr) = val)
+    #define fe_hw_storeu_i128(addr,val)   (*(addr) = val)
     #define fe_hw_stream_i128_is_well_aligned(addr) (true)
     #define fe_hw_store_i128_is_well_aligned(addr)  (true)
     #define fe_hw_sfence() 
