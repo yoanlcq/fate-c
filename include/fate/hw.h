@@ -41,6 +41,7 @@
 #define FE_HW_H
 
 #include <fate/defs.h>
+#include <fate/stdsys.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -170,6 +171,15 @@ void fe_hw_setup(void);
 #endif
 
 
+// See http://store.steampowered.com/hwsurvey/
+// Bottom, in "Other settings".
+// According to this, as of today (28th oct. 2016), 99.99% of PCs have SSE2.
+#define FE_HW_TRUST_STEAM_SURVEY_SSE2
+
+#if defined(FE_HW_TARGET_X86) && defined(FE_HW_TRUST_STEAM_SURVEY_SSE2)
+#define FE_HW_HAS_SSE
+#define FE_HW_HAS_SSE2
+#endif
 
 #if __DOXYGEN__ || defined(__GNUC__)
 /*! \brief Prefetch data, hinting that it should be placed into the 
@@ -240,17 +250,17 @@ void fe_hw_setup(void);
 #endif
 
 #if !defined(fe_hw_prefetch_nta)
-#if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
-extern void (*fe_hw_prefetch_t0)(void *addr, bool rw);
-extern void (*fe_hw_prefetch_t1)(void *addr, bool rw);
-extern void (*fe_hw_prefetch_t2)(void *addr, bool rw);
-extern void (*fe_hw_prefetch_nta)(void *addr, bool rw);
-#else
-#define fe_hw_prefetch_t0(addr,rw)
-#define fe_hw_prefetch_t1(addr,rw)
-#define fe_hw_prefetch_t2(addr,rw)
-#define fe_hw_prefetch_nta(addr,rw)
-#endif /* FE_HW_HAS_MULTIMEDIA_INTRINSICS */
+    #ifdef FE_HW_HAS_SSE
+        #define fe_hw_prefetch_t0(addr,rw)  _mm_prefetch(addr,_MM_HINT_T0)
+        #define fe_hw_prefetch_t1(addr,rw)  _mm_prefetch(addr,_MM_HINT_T1)
+        #define fe_hw_prefetch_t2(addr,rw)  _mm_prefetch(addr,_MM_HINT_T2)
+        #define fe_hw_prefetch_nta(addr,rw) _mm_prefetch(addr,_MM_HINT_NTA)
+    #else
+        #define fe_hw_prefetch_t0(addr,rw)
+        #define fe_hw_prefetch_t1(addr,rw)
+        #define fe_hw_prefetch_t2(addr,rw)
+        #define fe_hw_prefetch_nta(addr,rw)
+    #endif
 #endif /* fe_hw_prefetch */
 
 
@@ -487,9 +497,9 @@ typedef struct {
 
 
 
-#if __DOXYGEN__ || defined(FE_HW_TARGET_X86)
+#if __DOXYGEN__ || defined(FE_HW_HAS_SSE2)
 /*! \brief Invalidates the cache line containing \p addr. */
-extern void (*fe_hw_clflush)(void const *addr);
+#define fe_hw_clflush(addr) _mm_clflush(addr)
 #else
 #define fe_hw_clflush(addr) 
 #endif
@@ -506,7 +516,7 @@ extern void (*fe_hw_clflush)(void const *addr);
 #define fe_hw_rdtsc() __rdtsc()
 #endif
 
-#if __DOXYGEN__ || defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
+#if __DOXYGEN__ || defined(FE_HW_HAS_SSE2)
 /*! \brief Hints that we are in a spin-wait loop.
  *
  * From the Intel Intrinsics Guide:\n
@@ -517,13 +527,30 @@ extern void (*fe_hw_clflush)(void const *addr);
  * power consumption of spin-wait loops.
  * </tt>
  */
-extern void (*fe_hw_mm_pause)(void);
+#define fe_hw_mm_pause() _mm_pause()
 #else
 #define fe_hw_mm_pause()
 #endif
 
+
 /*! \brief TODO */
 size_t fe_hw_get_cpu_count(void);
+/*! \brief TODO */
+#ifdef __GNUC__
+#define fe_hw_cacheflush(start, byte_count) __clear_cache(start, ((char*)start)+byte_count);
+#elif defined(FE_TARGET_WINDOWS)
+#define fe_hw_cacheflush(start, byte_count) FlushInstructionCache(GetCurrentProcess(), start, byte_count)
+#elif defined(FE_TARGET_LINUX)
+#include <asm/cachectl.h>
+#define fe_hw_cacheflush(start, byte_count) cacheflush(start, byte_count, BCACHE)
+#elif defined(FE_HW_HAS_SSE2)
+static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
+    size_t i, cache_line_size = fe_hw_cacheinfo.l1d.line_size;
+    for(i=0 ; i<byte_count+cache_line_size ; i+=cache_line_size)
+        _mm_clflush(start+i);
+}
+#endif
+
 
 #include <SDL2/SDL.h>
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -560,6 +587,40 @@ size_t fe_hw_get_cpu_count(void);
 #define fe_hw_swap32_le_to_host(x) SDL_SwapLE32(x)
 #define fe_hw_swap64_le_to_host(x) SDL_SwapLE64(x)
 #define fe_hw_swapflt_le_to_host(x) SDL_SwapFloatLE(x)
+#endif
+
+/* Could write wrapper functions for the ~0.001% of today's IA-32 CPUs that 
+ * don't have SSE2, but I feel it's definitely not worth doing. */
+#if defined(FE_HW_HAS_SSE)
+    typedef __m128 fe_hw_f32v4;
+    typedef __m64  fe_hw_i64_mm;
+    #define fe_hw_stream_f32v4(addr,val)  _mm_stream_ps(addr,val)
+    #define fe_hw_stream_i64_mm(addr,val) _mm_stream_pi(addr,val)
+#else
+    #define fe_hw_stream_f32v4(addr,val)  (*(addr) = val)
+    #define fe_hw_stream_i64_mm(addr,val) (*(addr) = val)
+#endif
+
+#if defined(FE_HW_HAS_SSE2)
+    typedef __m128i fe_hw_m128i;
+    typedef __m128d fe_hw_f64v2;
+    //_mm_undefined_si128();
+    //_mm_loadu_si128(addr);
+    #define fe_hw_stream_f64v2(addr,val)  _mm_stream_pd(addr,val)
+    #define fe_hw_stream_i32(addr,val)    _mm_stream_si32(addr,val)
+    #define fe_hw_stream_i64(addr,val)    _mm_stream_si64(addr,val)
+    #define fe_hw_stream_i128(addr,val)   _mm_stream_si128(addr,val)
+    #define fe_hw_stream_i128_is_well_aligned(addr) (((uintptr_t)(addr))%16==0)
+    #define fe_hw_sfence()                _mm_sfence()
+#else 
+    typedef struct { int64_t i64[2]; } fe_hw_m128i;
+    typedef struct { double  f64[2]; } fe_hw_f64v2;
+    #define fe_hw_stream_f64v2(addr,val)  (*(addr) = val)
+    #define fe_hw_stream_i32(addr,val)    (*(addr) = val)
+    #define fe_hw_stream_i64(addr,val)    (*(addr) = val)
+    #define fe_hw_stream_i128(addr,val)   (*(addr) = val)
+    #define fe_hw_stream_i128_is_well_aligned(addr) (true)
+    #define fe_hw_sfence() 
 #endif
 
 

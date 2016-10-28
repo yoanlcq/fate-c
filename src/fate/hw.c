@@ -32,36 +32,6 @@
 #include <fate/mem.h>
 #include <fate/hw.h>
 
-#if defined(FE_HW_TARGET_X86) && defined(FE_HW_HAS_MULTIMEDIA_INTRINSICS)
-/* All of these static functions are because _mm_prefetch() is not
- * guaranteed to be available on all CPUs, and because every compiler
- * expects _mm_prefetch()'s second parameter to be a compile-time constant
- * (which seems legit, given that the instruction opcodes are different.) */
-FE_DECL_NO_CAI
-static void static_sse_prefetch_t0(void *addr, bool rw) {
-    _mm_prefetch(addr, _MM_HINT_T0);
-}
-FE_DECL_NO_CAI
-static void static_sse_prefetch_t1(void *addr, bool rw) {
-    _mm_prefetch(addr, _MM_HINT_T1);
-}
-FE_DECL_NO_CAI
-static void static_sse_prefetch_t2(void *addr, bool rw) {
-    _mm_prefetch(addr, _MM_HINT_T2);
-}
-FE_DECL_NO_CAI
-static void static_sse_prefetch_nta(void *addr, bool rw) {
-    _mm_prefetch(addr, _MM_HINT_NTA);
-}
-#endif
-FE_DECL_NO_CAI
-static void static_sse_prefetch_dummy(void *addr, bool rw) {}
-void (*fe_hw_prefetch_t0)(void *, bool) = static_sse_prefetch_dummy;
-void (*fe_hw_prefetch_t1)(void *, bool)  = static_sse_prefetch_dummy;
-void (*fe_hw_prefetch_t2)(void *, bool)  = static_sse_prefetch_dummy;
-void (*fe_hw_prefetch_nta)(void *, bool) = static_sse_prefetch_dummy;
-
-
 fe_hw_cacheinfo_struct fe_hw_cacheinfo;
 
 #if defined(FE_TARGET_LINUX) && !defined(FE_TARGET_ANDROID)
@@ -150,26 +120,6 @@ FE_DECL_NIY static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
 }
 
 #endif /* FE_TARGET_IS_A_UNIX */
-
-FE_DECL_NO_CAI
-static void static_clflush_dummy(void const *addr) {}
-FE_DECL_NO_CAI
-static void static_clflush(void const *addr) {
-#ifdef FE_HW_TARGET_X86
-    _mm_clflush(addr);
-#endif
-}
-void (*fe_hw_clflush)(void const *addr) = static_clflush_dummy;
-FE_DECL_NO_CAI
-static void static_mm_pause_dummy(void) {}
-FE_DECL_NO_CAI
-static void static_mm_pause(void) {
-#ifdef FE_HW_TARGET_X86
-    _mm_pause();
-#endif
-}
-void (*fe_hw_mm_pause)(void) = static_mm_pause_dummy;
-
 
 
 #ifdef FE_TARGET_ANDROID
@@ -400,18 +350,6 @@ void fe_hw_setup(void) {
     static_arm_features_fill();
 #elif defined(FE_HW_TARGET_X86)
     static_x86_cpuid_fill();
-#ifdef FE_HW_HAS_MULTIMEDIA_INTRINSICS
-    if(fe_hw_x86_cpu_info.has_sse) {
-        fe_hw_prefetch_t0  = static_sse_prefetch_t0;
-        fe_hw_prefetch_t1  = static_sse_prefetch_t1;
-        fe_hw_prefetch_t2  = static_sse_prefetch_t2;
-        fe_hw_prefetch_nta = static_sse_prefetch_nta;
-    }
-    if(fe_hw_x86_cpu_info.has_sse2) {
-        fe_hw_clflush = static_clflush;
-        fe_hw_mm_pause = static_mm_pause;
-    }
-#endif
 #endif
 }
 
