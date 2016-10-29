@@ -556,6 +556,8 @@ static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
     for(i=0 ; i<byte_count+cache_line_size ; i+=cache_line_size)
         _mm_clflush(start+i);
 }
+#else
+#error "Cannot define fe_hw_cacheflush!"
 #endif
 
 
@@ -615,9 +617,13 @@ static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
     //_mm_loadu_si128(addr);
     #define fe_hw_stream_f64v2(addr,val)  _mm_stream_pd(addr,val)
     #define fe_hw_stream_i32(addr,val)    _mm_stream_si32(addr,val)
-    #define fe_hw_stream_i64(addr,val)    _mm_stream_si64(addr,val)
+    #define fe_hw_stream_i64(addr,val)    _mm_stream_si64(addr,val) 
+/* Intel's optimization guide recommends the use of 128-bit wide integer instructions. */
     #define fe_hw_stream_i128(addr,val)   _mm_stream_si128(addr,val)
+    #define fe_hw_store_i128(addr,val)    _mm_store_si128(addr,val)    
+    #define fe_hw_storeu_i128(addr,val)   _mm_storeu_si128(addr,val)
     #define fe_hw_stream_i128_is_well_aligned(addr) (((uintptr_t)(addr))%16==0)
+    #define fe_hw_store_i128_is_well_aligned(addr)  (((uintptr_t)(addr))%16==0)
     #define fe_hw_sfence()                _mm_sfence()
 #else 
     typedef struct { int64_t i64[2]; } fe_hw_m128i;
@@ -626,7 +632,10 @@ static inline void fe_hw_cacheflush(void const *start, size_t byte_count) {
     #define fe_hw_stream_i32(addr,val)    (*(addr) = val)
     #define fe_hw_stream_i64(addr,val)    (*(addr) = val)
     #define fe_hw_stream_i128(addr,val)   (*(addr) = val)
+    #define fe_hw_store_i128(addr,val)    (*(addr) = val)
+    #define fe_hw_storeu_i128(addr,val)   (*(addr) = val)
     #define fe_hw_stream_i128_is_well_aligned(addr) (true)
+    #define fe_hw_store_i128_is_well_aligned(addr)  (true)
     #define fe_hw_sfence() 
 #endif
 
