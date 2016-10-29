@@ -451,6 +451,7 @@ void cube_main_init(struct cube_main *m) {
 }
 
 
+fe_pragma_optimize_size()
 void cube_main_clean_then_exit(void *arg) {
     struct cube_main *m = arg;
 
@@ -465,6 +466,7 @@ void cube_main_clean_then_exit(void *arg) {
     SDL_Quit();
     exit(EXIT_SUCCESS);
 }
+fe_pragma_optimize_reset()
 
 void (*cube_main_framefuncptr)(void *arg);
 

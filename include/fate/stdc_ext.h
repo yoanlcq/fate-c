@@ -17,13 +17,28 @@
 #endif
 #endif
 
-#ifdef _MSC_VER
+#ifdef FE_CC_MSVC
 #define restrict __restrict
+#endif
+
+#ifdef FE_CC_MSVC
+#define force_inline __forceinline
+#elif defined(FE_CC_GCC_COMPATIBLE)
+#define force_inline __attribute__((always_inline))
+#else
+#error "Don't know how to define force_inline !"
+#define force_inline
 #endif
 
 /*! \brief Definition for M_PI, since it may be missing with std=c11. */
 #define FE_PI_F 3.14159265358979323846264338327f
 #define FE_PI   3.14159265358979323846264338327
+#ifndef M_PI
+#define M_PI   FE_PI
+#endif
+#ifndef M_PI_F
+#define M_PI_F FE_PI_F
+#endif
 
 
 /*! \brief Forces a compilation error if condition is true. Evaluates to 0. */
@@ -98,11 +113,13 @@ typedef uint64_t fe_u64;
 typedef    float fe_f32;
 typedef   double fe_f64;
 typedef long double  fe_lf64;
+/*
 #ifdef __SIZEOF_INT128__
     #define FE_I128_SUPPORTED
     typedef   signed __int128 fe_s128;
     typedef unsigned __int128 fe_u128;
 #endif
+*/
 #ifdef __SIZEOF_FLOAT80__
     #define FE_F80_SUPPORTED
     typedef __float80  fe_f80;
@@ -111,6 +128,5 @@ typedef long double  fe_lf64;
     #define FE_F128_SUPPORTED
     typedef __float128 fe_f128;
 #endif
-
 
 #endif /* FE_STDC_EXT_H */

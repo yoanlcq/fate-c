@@ -216,7 +216,7 @@ void fe_logd(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3) FE_DECL_
  */
 void fe_logd_not_macro(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3) FE_DECL_NO_CAI;
 #ifndef FE_DEBUG_BUILD
-#define fe_logd(tag, fmt, ...) 
+#define fe_logd(tag, ...) 
 #endif
 
 /*! \brief Log Verbose.
@@ -240,7 +240,7 @@ void fe_logv_not_macro(const char *tag, const char *fmt, ...) FE_DECL_PRINTF(2,3
 /*! \brief Dummy macro to compile out calls to #fe_logv() when the 
  *         compile-time switch FE_LOG_USE_VERBOSE is not defined.
  */
-#define fe_logv(tag, fmt, ...) 
+#define fe_logv(tag, ...) 
 #endif
 
 

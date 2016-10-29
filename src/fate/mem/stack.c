@@ -138,13 +138,13 @@ fe_mem_stackavail_status fe_mem_stackavail(size_t *available) {
     const size_t safety_margin = STACK_SAFETY_MARGIN;
     const size_t naive_used
 #if FE_MEM_STACK_GROWTH_DIRECTION < 0
-        = sptrs.bottom - sptrs.pointer;
+        = (uint8_t*)sptrs.bottom - (uint8_t*)sptrs.pointer;
 #elif FE_MEM_STACK_GROWTH_DIRECTION > 0
-        = sptrs.pointer - sptrs.bottom;
+        = (uint8_t*)sptrs.pointer - (uint8_t*)sptrs.bottom;
 #else
-        = sptrs.pointer > sptrs.bottom
-        ? sptrs.pointer - sptrs.bottom
-        : sptrs.bottom  - sptrs.pointer;
+        = (uint8_t*)sptrs.pointer > (uint8_t*)sptrs.bottom
+        ? (uint8_t*)sptrs.pointer - (uint8_t*)sptrs.bottom
+        : (uint8_t*)sptrs.bottom  - (uint8_t*)sptrs.pointer;
 #endif
     if(!naive_used)
         return FE_MEM_STACKAVAIL_UNKNOWN;

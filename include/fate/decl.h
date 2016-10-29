@@ -231,7 +231,6 @@
 #define FE_DECL_WIP FE_DECL_WARN_IF_USED("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WORK IN PROGRESS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
-
 /*! @} */
 
 #endif /* FE_DECL_H */

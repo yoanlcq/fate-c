@@ -464,7 +464,6 @@ char*          fe_iov_error_str(fe_iov_error err);
 
 #ifdef FE_IOV_DBG
 typedef struct {
-    const void *func_addr;
     const char *func_name;
     fe_iov_error error;
     union {

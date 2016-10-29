@@ -15,7 +15,7 @@ static void callback(void *udata, uint8_t *stream, int32_t len) {
     memset(stream, 0, len);
     if(len > mus.len-pos)
         len = mus.len-pos;
-    SDL_MixAudioFormat(stream, (void*)mus.base+pos, AUDIO_S16SYS, len, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(stream, (uint8_t*)mus.base+pos, AUDIO_S16SYS, len, SDL_MIX_MAXVOLUME);
     pos += len;
     if(pos >= mus.len)
         pos = 0;

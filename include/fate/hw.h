@@ -176,9 +176,16 @@ void fe_hw_setup(void);
 // According to this, as of today (28th oct. 2016), 99.99% of PCs have SSE2.
 #define FE_HW_TRUST_STEAM_SURVEY_SSE2
 
-#if defined(FE_HW_TARGET_X86) && defined(FE_HW_TRUST_STEAM_SURVEY_SSE2)
-#define FE_HW_HAS_SSE
-#define FE_HW_HAS_SSE2
+#if defined(FE_HW_TARGET_X86)
+    #if defined(FE_HW_TRUST_STEAM_SURVEY_SSE2)
+        #define FE_HW_HAS_SSE
+        #define FE_HW_HAS_SSE2
+    #elif defined(__SSE2__)
+        #define FE_HW_HAS_SSE
+        #define FE_HW_HAS_SSE2
+    #elif defined(__SSE__)
+        #define FE_HW_HAS_SSE
+    #endif
 #endif
 
 #if __DOXYGEN__ || defined(__GNUC__)

@@ -190,9 +190,8 @@ void           fe_iov_set_global_debug_callback(fe_iov_dbg_callback callback) {
     fe_mt_spinlock_unlock(&global_dbg_spinlock);
 }
 
-static void static_dbg_notify(const void *func_addr, const char *func_name, fe_iov_dbg_info info) {
+static void static_dbg_notify(const char *func_name, fe_iov_dbg_info info) {
     fe_iov_dbg_info di = info;
-    di.func_addr = func_addr;
     di.func_name = func_name;
     fe_mt_spinlock_lock(&global_dbg_spinlock);
     global_dbg_callback(&di);
@@ -200,7 +199,7 @@ static void static_dbg_notify(const void *func_addr, const char *func_name, fe_i
     local_dbg_callback(&di);
     fe_iov_set_last_error(di.error);
 }
-#define static_dbg(func, ...) static_dbg_notify(func, #func, (fe_iov_dbg_info){__VA_ARGS__})
+#define static_dbg(func, ...) static_dbg_notify(#func, (fe_iov_dbg_info){__VA_ARGS__})
 #else
 #define static_dbg(func, ...) 
 #endif
@@ -951,7 +950,7 @@ static inline bool static_unix_mmap(fe_filemapview *v, int fd, fe_fd_offset offs
     v->view_base = mmap(NULL, viewsize, PROT_READ | (rw*PROT_WRITE), MAP_PRIVATE, fd, start);
     if(v->view_base == MAP_FAILED)
         return false;
-    v->base = v->view_base + viewdelta;
+    v->base = (uint8_t*)v->view_base + viewdelta;
     v->len = len;
     return true;
 }
@@ -1026,7 +1025,7 @@ bool fe_fd_munmap(fe_filemapview *v) {
     SetLastError((unmap_success ? (close_success ? 0 : close_error) : unmap_error));
     return unmap_success && close_success;
 #else
-    size_t total_len = (v->base - v->view_base) + v->len;
+    size_t total_len = ((uint8_t*)v->base - (uint8_t*)v->view_base) + v->len;
     /* There's no guarantee that the content is flushed otherwise. */
     bool msync_success = !msync(v->view_base, total_len, MS_SYNC | MS_INVALIDATE);
     int msync_error = errno;
