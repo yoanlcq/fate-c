@@ -11,6 +11,7 @@
 #define NOMINMAX
     #include <Windows.h>
     #include <Winerror.h>
+    #include <DbgHelp.h>
     #include <Shellapi.h>
     #include <Shlobj.h>
     #include <Objbase.h>
@@ -37,6 +38,9 @@
     #include <sys/uio.h>
     #include <signal.h>
     #include <fcntl.h>
+    #ifndef FE_TARGET_ANDROID
+        #include <execinfo.h>
+    #endif
 #endif
 
 #if defined(FE_TARGET_FREEBSD)
@@ -46,6 +50,7 @@
     #include <sys/param.h>
     #include <sys/mount.h>
 #endif
+
 
 
 

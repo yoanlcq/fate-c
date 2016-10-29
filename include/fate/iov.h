@@ -454,7 +454,8 @@ typedef struct {
 /*! \brief TODO */
 typedef void *fe_iov_promise;
 
-typedef int fe_iov_error;
+#include <fate/syserr.h>
+typedef fe_syserr fe_iov_error;
 fe_iov_error   fe_iov_get_last_error(void);
 char*          fe_iov_error_str(fe_iov_error err);
 

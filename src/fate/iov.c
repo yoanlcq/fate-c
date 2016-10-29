@@ -104,60 +104,15 @@ void    fe_iov_copy(fe_iov *iov, size_t offset, const fe_iov *src) {
 
 
 
+#define STATIC_ERROR_UNKNOWN     fe_syserr_user_defined(-2)
+#define STATIC_ERROR_INVALID_URL fe_syserr_user_defined(-3)
+#define STATIC_ERROR_EVIL_SERVER fe_syserr_user_defined(-4)
 
-#ifdef FE_TARGET_WINDOWS
-static char* static_strerror(DWORD error) {
-    LPWSTR lpMsgBuf;
-
-    FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        error,
-        /*MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),*/
-        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-        (void*)&lpMsgBuf,
-        0, NULL);
-
-    char *utf8 = fe_utf8_from_win32unicode(lpMsgBuf);
-    LocalFree(lpMsgBuf);
-    return utf8;
+void  fe_iov_set_last_error(fe_iov_error err) {
+    fe_syserr_set_last_error(err);
 }
-#elif _XOPEN_SOURCE >= 700
-#include <locale.h>
-static char* static_strerror(int err) {
-    /* Replace "C" by "" to generate a locale suitable for the user. 
-     * XXX We should allocate it only once. */
-    locale_t lc = newlocale(LC_ALL_MASK, "C", 0);
-    char *str = fe_asprintf("%s", strerror_l(err, lc));
-    freelocale(lc);
-    return str;
-}
-#else
-static char* static_strerror(int err) {
-    return fe_asprintf("%s", strerror(err));
-}
-#endif
-
-static inline void fe_iov_set_last_error(int err) {
-#ifdef FE_TARGET_WINDOWS
-    SetLastError(err);
-#else
-    errno = err;
-#endif
-}
-/* They comply both to GetLastError() and errno's reserved ranges. */
-#define STATIC_ERROR_UNKNOWN     ((1<<29) || (-2))
-#define STATIC_ERROR_INVALID_URL ((1<<29) || (-3))
-#define STATIC_ERROR_EVIL_SERVER ((1<<29) || (-4))
-
 fe_iov_error  fe_iov_get_last_error(void) {
-#ifdef FE_TARGET_WINDOWS
-    return GetLastError();
-#else
-    return errno;
-#endif
+    return fe_syserr_get_last_error();
 }
 
 /* XXX unfinished. */
@@ -169,8 +124,11 @@ char *fe_iov_error_str(fe_iov_error error) {
         return static_strerror(status.last_error);
     }
     */
-    return static_strerror(0);
+    return fe_syserr_str(error);
 }
+
+
+
 
 
 #ifdef FE_IOV_DBG

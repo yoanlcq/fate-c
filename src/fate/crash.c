@@ -33,52 +33,7 @@
  * TODO
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <inttypes.h>
-#include <fate/defs.h>
-#include <fate/globalstate.h>
-#include <fate/utf8.h>
-#include <fate/mem.h>
-#include <fate/crash.h>
-#include <fate/log.h>
-
-#ifdef FE_TARGET_EMSCRIPTEN
-#include <emscripten.h>
-#endif
-
-#if defined(FE_TARGET_WINDOWS)
-#include <Windows.h>
-#include <DbgHelp.h>
-#elif defined(FE_TARGET_LINUX)
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <signal.h>
-#include <unistd.h>
-#ifndef FE_TARGET_ANDROID
-#include <execinfo.h>
-#endif
-#elif defined(FE_TARGET_FREEBSD)
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <signal.h>
-#include <unistd.h>
-#include <execinfo.h>
-#elif defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS)
-#include <stdint.h>
-#include <limits.h>
-#include <signal.h>
-#include <mach-o/dyld.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <sys/mount.h>
-#include <execinfo.h>
-#endif
+#include <fate/fate.h>
 
 static const char *TAG = "fe_crash";
 
