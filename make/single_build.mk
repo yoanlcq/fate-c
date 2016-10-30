@@ -21,8 +21,10 @@ include $(fate)/make/see_cmd.mk
 include $(fate)/make/clean.mk
 ifeq ($(os),android)
 include $(fate)/make/game_android.mk
+include $(fate)/make/read_cflags.mk
 else
 include $(fate)/make/$(cc_id).mk
+include $(fate)/make/read_cflags.mk
 include $(fate)/make/fate.mk
 include $(fate)/make/game.mk
 endif

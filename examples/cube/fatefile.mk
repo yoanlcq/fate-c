@@ -29,7 +29,7 @@ builds_myrelease_defines := MY_NDEBUG
 builds_myrelease_release := on
 builds_myrelease_exename := cube
 #active_builds := mydebug myrelease myprofiled
-active_builds := mydebug
+active_builds := myprofiled
 
 # target_windows32_cl    := yes
 # target_windows64_cl    := yes

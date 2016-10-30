@@ -33,6 +33,9 @@
  * TODO
  */
 
+/* ISO C forbids an empty translation unit */
+static inline void shut_up_isoc(void) {}
+
 /*
 #include <fate/fate.h>
 #include <SDL2/SDL.h>

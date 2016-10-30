@@ -1,6 +1,9 @@
 
 /* This is placeholder code, that will maybe be used later. */
 
+/* ISO C forbids an empty translation unit */
+static inline void shut_up_isoc(void) {}
+
 /*
 void* fe_mem_heapalloc_aligned(size_t size, size_t alignment) {
 #if defined(FE_ASM_HAS_MM_MALLOC)

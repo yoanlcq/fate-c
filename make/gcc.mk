@@ -2,7 +2,15 @@
 # TODO: allow per-file compiler options.
 # It also complains about empty translation units, but it's good to compile our
 # code with it once in a while.
-cflags = -std=c11 -I$(fate)/include -I$(fate)/include/contrib -I$(dirs_include) -Wall -D_GNU_SOURCE -msse -msse2
+cflags = $(strip \
+	-std=c11 \
+	-I$(fate)/include \
+	-I$(fate)/include/contrib \
+	-I$(dirs_include) \
+	-Wall -pedantic \
+	-D_GNU_SOURCE \
+	-msse -msse2 \
+)
 
 # C'mon travis
 ifeq ($(os),linux)

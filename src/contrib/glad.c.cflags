@@ -1,0 +1,3 @@
+gcc:-Wno-pedantic
+clang:-Wno-pedantic
+emcc:-Wno-pedantic

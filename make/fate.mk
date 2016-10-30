@@ -11,17 +11,14 @@ fe_ofiles := \
 # here:=$(patsubst %/,%,$(dir $(f)))$(\n)\ 
 $(eval $(foreach f,$(fe_mkfiles),include $(f)$(\n)))
 
-# $(info [INFO] fe_cai_blacklist is : $(fe_cai_blacklist))
-# $(info [INFO] sse4_2_whitelist is : $(sse4_2_whitelist))
 
 $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@)
 	$(strip \
-	$(see_obj_cmd)$(cc) $(cflags) \
-	$(if $(filter $(fe_cai_blacklist),$<),,$(fe_cai_cflags)) \
-	$(if $(filter $(sse4_2_whitelist),$<),$(sse4_2_cflags),) \
-	$(cc_c) $< $(cc_out_o)$@ \
+		$(see_obj_cmd)$(cc) $(cflags) \
+		$(call read_cflags,$<) \
+		$(cc_c) $< $(cc_out_o)$@ \
 	)
 
 $(fe_build_dir)/%$(dot_s)$(dot_o): $(fate)/src/%$(dot_s)

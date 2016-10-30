@@ -1,0 +1,3 @@
+gcc:-msse4.2
+clang:-msse4.2
+emcc:-msse4.2

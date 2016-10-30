@@ -15,10 +15,9 @@ $(gm_build_dir)/%.c$(dot_o): $(gm_src)/%.c
 	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@)
 	$(strip \
-	$(see_obj_cmd)$(cc) $(cflags) \
-	$(if $(filter $(fe_cai_blacklist),$<),,$(fe_cai_cflags)) \
-	$(if $(filter $(sse4_2_whitelist),$<),$(sse4_2_cflags),) \
-	$(cc_c) $< $(cc_out_o)$@ \
+		$(see_obj_cmd)$(cc) $(cflags) \
+		$(call read_cflags,$<) \
+		$(cc_c) $< $(cc_out_o)$@ \
 	)
 
 $(gm_build_dir)/%$(dot_s)$(dot_o): $(fate)/src/%$(dot_s)
