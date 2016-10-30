@@ -16,15 +16,19 @@ static const char *TAG = "fe_cai";
         //fe_logi(TAG, "Entering %p\n", fn_vaddr);
         #define PENTER_MSG "fe_cai: Entering <somefunc>.\n"
         DWORD written;
+        /*
         WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), 
                 TEXT(PENTER_MSG), sizeof(PENTER_MSG), &written, NULL);
+                */
     }
     void fe_cai_pexit(void *fn_vaddr) {
         //fe_logi(TAG, "Leaving  %p\n", fn_vaddr);
         #define PEXIT_MSG "fe_cai:  Exiting  <somefunc>.\n"
         DWORD written;
+        /*
         WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), 
                 TEXT(PEXIT_MSG), sizeof(PEXIT_MSG), &written, NULL);
+                */
     }
     #ifdef _M_IX86
         #define MS_HOOK(action) \
@@ -47,11 +51,11 @@ static const char *TAG = "fe_cai";
 #elif defined(__GNUC__)
     __attribute__((no_instrument_function))
     void fe_cai_func_enter(void *this_fn, void *call_site) {
-        fe_logi(TAG, "Entering %p at %p\n", this_fn, call_site);
+        /*fe_logi(TAG, "Entering %p at %p\n", this_fn, call_site);*/
     }
     __attribute__((no_instrument_function))
     void fe_cai_func_exit(void *this_fn, void *call_site) {
-        fe_logi(TAG, "Leaving  %p at %p\n", this_fn, call_site);
+        /*fe_logi(TAG, "Leaving  %p at %p\n", this_fn, call_site);*/
     }
     __attribute__((no_instrument_function))
     void __cyg_profile_func_enter (void *this_fn, void *call_site) {
