@@ -13,4 +13,3 @@ if agreed NEQ Y (
 setx FE_PATH "%fe_dir%"
 rem XXX: This keeps adding to the PATH.
 setx PATH "%FE_PATH%;%path%;"
-!java! -jar closure.jar

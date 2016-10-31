@@ -1,16 +1,14 @@
-# Party taken from :
+# Partly taken from :
 # https://raw.githubusercontent.com/libSDL2pp/libSDL2pp/master/.appveyor.yml
 version: '{branch}.{build}'
 os: Visual Studio 2015
 clone_depth: 1
 environment:
   matrix:
-  - MAKE_ARGS: OS=windows ARCH=32 CC=cl SEE_ALL_CMD=y
-    PREFIX: c:\usr_msvc
+  - PREFIX: c:\usr_msvc
     MSVC:
     MINGW32: rem
-  - MAKE_ARGS: OS=windows ARCH=32 CC=gcc SEE_ALL_CMD=y
-    PREFIX: c:\usr_mingw32
+  - PREFIX: c:\usr_mingw32
     MINGW32:
     MSVC: rem
 cache:
@@ -70,7 +68,11 @@ build_script:
   # build
   - |-
     cd %APPVEYOR_BUILD_FOLDER%
-    mingw32-make %MAKE_ARGS%
+    # Dirty workaround from fe-setup.bat
+    setx FE_PATH=%APPVEYOR_BUILD_FOLDER%
+    setx PATH "%FE_PATH%;%path%;"
+    cd examples/cube
+    ..\..\bin\fe-build j=8 show_all_cmd=yes
 
 after_build:
   - git status
