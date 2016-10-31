@@ -230,7 +230,9 @@ void fe_iov_cleanup(void);
  *
  * This is used internally by this module, and may prove useful to the user as well.
  */
+FE_DECL_NO_CAI
 size_t fe_iov_get_printf_len(const char *fmt, ...);
+FE_DECL_NO_CAI
 size_t fe_iov_get_vprintf_len(const char *fmt, va_list ap);
 
 /*! \brief A buffer+length combination (iov standing for I/O Vector) 
@@ -257,25 +259,32 @@ typedef struct {
  * fe_iov iov = {0};
  * \endcode
  */
+FE_DECL_NO_CAI
 void    fe_iov_deinit(fe_iov *iov);
 /*! \brief TODO */
+FE_DECL_NO_CAI
 bool    fe_iov_resize(fe_iov *iov, size_t len);
 /*! \brief TODO */
+FE_DECL_NO_CAI
 static inline bool fe_iov_grow(fe_iov *iov, size_t len) {
     return fe_iov_resize(iov, iov->len+len);
 }
 /*! \brief TODO */
+FE_DECL_NO_CAI
 size_t fe_iov_vprintf(fe_iov *iov, size_t offset, const char *fmt, va_list ap);
 /*! \brief TODO */
+FE_DECL_NO_CAI
 size_t fe_iov_printf(fe_iov *iov, size_t offset, const char *fmt, ...);
 
 /*! \brief TODO */
+FE_DECL_NO_CAI
 static inline char* fe_vasprintf(const char *fmt, va_list ap) {
     fe_iov iov = {0};
     fe_iov_vprintf(&iov, 0, fmt, ap);
     return iov.base;
 }
 /*! \brief TODO */
+FE_DECL_NO_CAI
 static inline char* fe_asprintf(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -283,6 +292,7 @@ static inline char* fe_asprintf(const char *fmt, ...) {
     va_end(ap);
     return str;
 }
+FE_DECL_NO_CAI
 static inline char* fe_strdup(const char *str) {
     return fe_asprintf("%s", str);
 }

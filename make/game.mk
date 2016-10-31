@@ -13,7 +13,7 @@ $(eval $(foreach f,$(gm_mkfiles),include $(f)$(\n)))
 
 $(gm_build_dir)/%.c$(dot_o): $(gm_src)/%.c
 	@$(call mkdir_p,$(@D))
-	@$(call echo,    $@)
+	@$(call echo,    $@ ...)
 	$(strip \
 		$(see_obj_cmd)$(cc) $(cflags) \
 		$(call read_cflags,$<) \
@@ -22,7 +22,7 @@ $(gm_build_dir)/%.c$(dot_o): $(gm_src)/%.c
 
 $(gm_build_dir)/%$(dot_s)$(dot_o): $(fate)/src/%$(dot_s)
 	@$(call mkdir_p,$(@D))
-	@$(call echo,    $@)
+	@$(call echo,    $@ ...)
 	$(see_obj_cmd)$(as) $(as_c) $< $(as_out_o)$@
 
 gm_bin:=$(dirs_bin)/$(triplet)
@@ -34,6 +34,7 @@ gm_rc  := $(gm_build_dir)/$(gm).rc
 
 $(gm_rc):
 	@$(call mkdir_p,$(@D))
+	@$(call echo,    $@ ...)
 	$(see_misc_cmd)$(cc) $(cc_pp) $(cflags) $(cc_pp_out)$@ \
 		$(cc_D)game_windows_company_name="\"$(game_windows_company_name)\"" \
 		$(cc_D)game_windows_file_version="\"$(game_windows_file_version)\"" \
@@ -49,6 +50,7 @@ $(gm_rc):
 
 $(gm_build_dir)/$(gm).res: $(gm_rc) $(game_windows_icon)
 	@$(call mkdir_p,$(@D))
+	@$(call echo,    $@ ...)
 	$(see_misc_cmd)$(call windres_cmd,$<,$@)
 
 gm_ofiles += $(gm_build_dir)/$(gm).res
@@ -56,7 +58,7 @@ endif
 
 $(gmexe): $(gm_ofiles)
 	@$(call mkdir_p,$(@D))
-	@$(call echo,    $@)
+	@$(call echo,    $@ ...)
 	$(see_exe_cmd)$(cc) $(cflags) $^ $(cc_out_exe)$@ $(ldlibs)
 
 ifeq ($(cc_id),emcc)

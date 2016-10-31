@@ -43,12 +43,9 @@
 #include <stdint.h>
 #include <fate/log.h>
 
-#define FE_CRASH_STACK_LEN 128
-#define FE_CRASH_MODNAME_LEN 256
-
 /*! \brief TODO */
 void fe_crash_setup(void);
-/*! \brief Log a platform-specific stack trace, through the given log function.
+/*! \brief Logs a platform-specific stack trace, through the given log function.
  *
  */
 void fe_crash_log_stacktrace(fe_logfunc logfunc);

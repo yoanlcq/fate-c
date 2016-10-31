@@ -56,8 +56,11 @@ static const char *TAG = "fe_crash";
  *
  */
 
+/* This used to be in the header file. */
+#define FE_CRASH_STACK_LEN 128
 
 #ifdef FE_TARGET_EMSCRIPTEN
+
 void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     int flags = EM_LOG_C_STACK | EM_LOG_JS_STACK | EM_LOG_FUNC_PARAMS;
     int  size = emscripten_get_callstack(flags, NULL, 0);
@@ -66,120 +69,30 @@ void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     logfunc(TAG, buf);
     fe_mem_heapfree(buf);
 }
+
 #elif defined(FE_TARGET_WINDOWS)
-
-void fe_crash_log_win32_error(fe_logfunc logfunc, 
-                              const char *funcstr, DWORD error) 
-{
-    LPWSTR lpMsgBuf;
-
-    FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        error,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (void*)&lpMsgBuf,
-        0, NULL);
-
-    char *utf8 = fe_utf8_from_win32unicode(lpMsgBuf);
-    LocalFree(lpMsgBuf);
-    logfunc(TAG, "%s failed with error %lu : %s", funcstr, error, utf8);
-    fe_mem_heapfree(utf8);
-}
 
 /* See http://stackoverflow.com/questions/5693192/win32-backtrace-from-c-code */
 static void fe_crash_log_stacktrace_win32(
                                    fe_logfunc logfunc, 
-                                   const DWORD64 *stack, 
-                                   unsigned short nframes)
+                                   void **stack, 
+                                   size_t nframes)
 {
-    unsigned i;
-    WCHAR modname[FE_CRASH_MODNAME_LEN];
-    DWORD modname_len;
-    SYMBOL_INFOW *symbol;
-    HANDLE process;
-    HMODULE modhandle;
-
-    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);    
-    process = GetCurrentProcess();
-    if(!SymInitializeW(process, NULL, TRUE)) {
-        fe_crash_log_win32_error(logfunc, "SymInitialize", GetLastError());
-        return;
-    }
-
-    /* Do not change this. The structure needs indeed to be 
-     * allocated from the heap. */
-    const size_t max_name_len = 255;
-    symbol = calloc(sizeof(SYMBOL_INFOW) + sizeof(WCHAR)*(max_name_len+1), 1);
-    if(!symbol) {
-        logfunc(TAG, "log_stacktrace : Could not allocate SYMBOL_INFOW object.\r\n");
-        SymCleanup(process);
-        return;
-    }
-    symbol->MaxNameLen = max_name_len;
-    symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
-
+    size_t i;
     for(i=0 ; i<nframes ; ++i) {
-        if(!SymFromAddrW(process, stack[i], 0, symbol)) {
-            fe_crash_log_win32_error(logfunc, "SymFromAddrW", GetLastError());
+        /* Small perf issue here : fe_dbg_sym_init() malloc()s every time. */
+        fe_dbg_sym sym;
+        if(!fe_dbg_sym_init(&sym, stack[i]))
             continue;
-        }
-#if _WIN32_WINNT >= 0x0501
-        if(symbol->ModBase) {
-            if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, 
-                                 (LPWSTR)(uintptr_t)(symbol->ModBase), 
-                                 &modhandle)) 
-            {
-                modname_len = GetModuleFileNameW(modhandle, modname, 
-                                  FE_CRASH_MODNAME_LEN);
-                /* MS says that on Windows XP, the string is 
-                 * not null-terminated. */
-                modname[modname_len] = '\0';
-                char *modname_utf8 = fe_utf8_from_win32unicode(modname);
-                logfunc(TAG, "%s", modname_utf8);
-                fe_mem_heapfree(modname_utf8);
-            } else {
-                fe_crash_log_win32_error(logfunc, "GetModuleHandleExW",
-                                         GetLastError());
-            }
-        }
-#endif
-
-        DWORD col;
-        IMAGEHLP_LINE64 line;
-        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-        if(SymGetLineFromAddr64(process, stack[i], &col, &line))
-            logfunc(TAG, "(%s:%lu:%lu) ", line.FileName, line.LineNumber, col);
-        else {
-            DWORD err = GetLastError();
-            if(err != 487)
-                fe_crash_log_win32_error(logfunc, "SymGetLineFromAddr64", err);
-        }
-
-        logfunc(TAG, "[0x%"PRIx64"] ", symbol->Address);
-        if(symbol->MaxNameLen > 0)
-            logfunc(TAG, "(%S)", symbol->Name);
-        if(symbol->Flags & SYMFLAG_VALUEPRESENT)
-            logfunc(TAG, "(Value : 0x%"PRIx64")", symbol->Value);
-        logfunc(TAG, "\r\n");
+        logfunc(TAG, "[%p]:%s\n", sym.addr, sym.name);
+        fe_dbg_sym_deinit(&sym);
     }
-
-    free(symbol);
-    SymCleanup(process);
 }
-void fe_crash_log_stacktrace(fe_logfunc logfunc)
-{
+void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     PVOID stack[FE_CRASH_STACK_LEN];
-    DWORD64 stack_dw[FE_CRASH_STACK_LEN];
-
-    unsigned short i, nframes;
-    nframes = CaptureStackBackTrace(0, FE_CRASH_STACK_LEN,
+    size_t nframes = CaptureStackBackTrace(0, FE_CRASH_STACK_LEN,
                                     stack, NULL);
-    for(i=0 ; i<nframes ; ++i)
-        stack_dw[i] = (DWORD64)(uintptr_t)stack[i];
-    fe_crash_log_stacktrace_win32(logfunc, stack_dw, nframes);
+    fe_crash_log_stacktrace_win32(logfunc, stack, nframes);
 }
 
 #else /* !FE_TARGET_WINDOWS */
@@ -190,17 +103,15 @@ void fe_crash_log_stacktrace(fe_logfunc logfunc) {
     logfunc(TAG, "TODO : Support stacktraces on Android.\n");
 #else
     void *buffer[FE_CRASH_STACK_LEN];
-    char **strings;
-    int i, num_strings;
-
-    num_strings = backtrace(buffer, FE_CRASH_STACK_LEN);
-    strings = backtrace_symbols(buffer, num_strings);
+    int num_strings = backtrace(buffer, FE_CRASH_STACK_LEN);
+    char **strings = backtrace_symbols(buffer, num_strings);
     if(!strings) {
         logfunc(TAG, "Could not get a stacktrace.\n");
         return;
     }
+    size_t i;
     for(i=0; i<num_strings; ++i)
-        logfunc(TAG, "%s\n", strings[i]);
+        logfunc(TAG, "[%p]:%s\n", buffer[i], strings[i]);
     free(strings);
 #endif
 }
@@ -227,9 +138,9 @@ void fe_crash_log_stacktrace(fe_logfunc logfunc) {
  */
 
 #ifdef FE_TARGET_EMSCRIPTEN
-void fe_crash_setup(void) {
-    /* FIXME */
-}
+
+void fe_crash_setup(void) {}
+
 #elif defined(FE_TARGET_WINDOWS)
 
 /* See http://spin.atomicobject.com/2013/01/13/exceptions-stack-traces-c/ */

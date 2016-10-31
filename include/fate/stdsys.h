@@ -51,7 +51,10 @@
     #include <sys/mount.h>
 #endif
 
-
+#if !defined(FE_TARGET_WINDOWS) \
+ && !(defined(FE_TARGET_OSX) || defined(FE_TARGET_IOS))
+#include <dlfcn.h>
+#endif
 
 
 #endif /* FE_STDSYS_H */

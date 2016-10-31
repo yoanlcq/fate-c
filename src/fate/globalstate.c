@@ -47,6 +47,7 @@ void fe_globalstate_init(fe_globalstate *gs) {
     fe_mem_setup();
     fe_log_setup();
     fe_i18n_setup();
+    fe_dbg_sym_setup();
     fe_crash_setup();
     fe_iov_setup();
     fe_ipv6_setup();
@@ -80,5 +81,6 @@ void fe_globalstate_deinit(fe_globalstate *gs) {
 #endif
     fe_ipv6_cleanup();
     fe_iov_cleanup();
+    fe_dbg_sym_cleanup();
     fe_log_cleanup();
 }

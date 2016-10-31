@@ -46,7 +46,7 @@ endif
 endif
 
 #glewflags = -DGLEW_STATIC -DGLEW_NO_GLU
-cflags_debug = -g -DFE_DEBUG_BUILD
+cflags_debug = -g -fno-omit-frame-pointer -DFE_DEBUG_BUILD
 cflags_release = -O3 -DNDEBUG
 cc_pp = -E -P 
 cc_pp_out = -o 

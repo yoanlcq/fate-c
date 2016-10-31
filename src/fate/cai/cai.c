@@ -1,31 +1,20 @@
-#include <fate/log.h>
+#include <fate/fate.h>
 
-static const char *TAG = "fe_cai";
+#define TAG "fe_cai"
 
 #if defined(_MSC_VER)
-    #include <windows.h>
-    /* TODO: 
-     * - Always have DBGHELP_TRANSLATE_TCHAR defined.
-     * - Use SymFromAddrW() to translate fn_vaddr to name.
-     */
-    //static fe_mt_spinlock dbghelp_spinlock;
     void fe_cai_penter(void *fn_vaddr) {
-        //fe_mt_spinlock_lock(&dbghelp_spinlock);
-        //SymFromAddrW(...);
-        //fe_mt_spinlock_unlock(&dbghelp_spinlock);
-        //fe_logi(TAG, "Entering %p\n", fn_vaddr);
         #define PENTER_MSG "fe_cai: Entering <somefunc>.\n"
-        DWORD written;
         /*
+        DWORD written;
         WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), 
                 TEXT(PENTER_MSG), sizeof(PENTER_MSG), &written, NULL);
                 */
     }
     void fe_cai_pexit(void *fn_vaddr) {
-        //fe_logi(TAG, "Leaving  %p\n", fn_vaddr);
         #define PEXIT_MSG "fe_cai:  Exiting  <somefunc>.\n"
-        DWORD written;
         /*
+        DWORD written;
         WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), 
                 TEXT(PEXIT_MSG), sizeof(PEXIT_MSG), &written, NULL);
                 */
@@ -49,21 +38,21 @@ static const char *TAG = "fe_cai";
         #undef MS_HOOK
     #endif
 #elif defined(__GNUC__)
-    __attribute__((no_instrument_function))
-    void fe_cai_func_enter(void *this_fn, void *call_site) {
-        /*fe_logi(TAG, "Entering %p at %p\n", this_fn, call_site);*/
-    }
-    __attribute__((no_instrument_function))
-    void fe_cai_func_exit(void *this_fn, void *call_site) {
-        /*fe_logi(TAG, "Leaving  %p at %p\n", this_fn, call_site);*/
-    }
-    __attribute__((no_instrument_function))
+    FE_DECL_NO_CAI
     void __cyg_profile_func_enter (void *this_fn, void *call_site) {
-        fe_cai_func_enter(this_fn, call_site);
+        fe_dbg_sym sym, callsym;
+        if(!fe_dbg_sym_init(&sym, this_fn))
+            fe_logi(TAG, "Failed...\n");
+        if(!fe_dbg_sym_init(&callsym, call_site))
+            fe_logi(TAG, "Failed...\n");
+        fe_logi(TAG, "Entering [%p](%s) from [%p](%s)\n", 
+                this_fn, sym.name, call_site, callsym.name);
+        fe_dbg_sym_deinit(&sym);
+        fe_dbg_sym_deinit(&callsym);
     }
-    __attribute__((no_instrument_function))
+    FE_DECL_NO_CAI
     void __cyg_profile_func_exit  (void *this_fn, void *call_site) {
-        fe_cai_func_exit(this_fn, call_site);
+        fe_logi(TAG, "Leaving  [%p] at [%p]\n", this_fn, call_site);
     }
 #endif
 

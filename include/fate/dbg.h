@@ -144,6 +144,41 @@
         }  \
     } while(0)
 
+
+/*! \brief TODO */
+typedef struct {
+    char *dll_path;
+    char *dll_addr;
+    char *name;
+    void *addr;
+    char *source_file;
+    size_t line_number;
+    size_t column_number;
+    bool has_value :1;
+    uint64_t value;
+} fe_dbg_sym;
+
+/*! \brief TODO */
+void fe_dbg_sym_setup(void);
+/*! \brief TODO */
+void fe_dbg_sym_cleanup(void);
+
+/*! \brief Returns as much info as possible about the symbol at a given
+ *         address.
+ *
+ * Most members of \p sym might not be written to. Know that this function
+ * first zeroes the data pointed to by \p sym and only changes the values
+ * of the members it can get information about.
+ *
+ * If false is returned, the content of \p sym is undefined.
+ */
+FE_DECL_NO_CAI
+bool fe_dbg_sym_init(fe_dbg_sym *sym, void *addr);
+/*! \brief TODO */
+FE_DECL_NO_CAI
+void fe_dbg_sym_deinit(fe_dbg_sym *sym);
+
+
 /*! @} */
 
 #endif /* FE_DBG_H */

@@ -14,7 +14,7 @@ $(eval $(foreach f,$(fe_mkfiles),include $(f)$(\n)))
 
 $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 	@$(call mkdir_p,$(@D))
-	@$(call echo,    $@)
+	@$(call echo,    $@ ...)
 	$(strip \
 		$(see_obj_cmd)$(cc) $(cflags) \
 		$(call read_cflags,$<) \
@@ -23,5 +23,5 @@ $(fe_build_dir)/%.c$(dot_o): $(fate)/src/%.c
 
 $(fe_build_dir)/%$(dot_s)$(dot_o): $(fate)/src/%$(dot_s)
 	@$(call mkdir_p,$(@D))
-	@$(call echo,    $@)
+	@$(call echo,    $@ ...)
 	$(see_obj_cmd)$(as) $(as_out_o)$@ $(as_c) $<
