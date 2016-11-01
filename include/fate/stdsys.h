@@ -19,6 +19,7 @@
     #include <KnownFolders.h>
     #undef INITGUID
 /* http://lolengine.net/blog/2011/3/4/fuck-you-microsoft-near-far-macros */
+/*
     #ifdef near
     #undef near
     #endif
@@ -28,6 +29,7 @@
     #ifdef small
     #undef small
     #endif
+    */
 #else
     #include <errno.h>
     #include <limits.h>
