@@ -85,7 +85,7 @@ typedef SSIZE_T ssize_t;
 #include <sys/types.h>
 #endif
 
-#if defined(FE_TARGET_WINDOWS) && defined(FE_CC_MSVC)
+#if defined(FE_TARGET_WINDOWS)
 #define PRIssize_t "Id"
 #define PRIsize_t  "Iu"
 #define PRIosize_t "Io"

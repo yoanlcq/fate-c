@@ -62,6 +62,7 @@ ifeq ($(cc_id),clang)
 cflags += -Wno-extended-offsetof
 endif
 
+
 ifeq ($(cc_id),gcc) #can happen if we're coming from make/clang.mk.
 ifeq ($(os),linux)
 cflags_debug += -Og -rdynamic
@@ -79,6 +80,7 @@ endif
 
 ifeq ($(os),windows)
 ldlibs += -lopengl32 -lgdi32 -luser32 -lkernel32 -ldbghelp -lws2_32 -lshell32 -lole32
+cflags += -Wno-pedantic-ms-format
 endif
 
 $(eval $(foreach def,$(builds_$(build)_defines),cflags += -D$(def) ))

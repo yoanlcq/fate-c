@@ -45,10 +45,13 @@
 #endif
 */
 #include <fate/stdsys.h>
-#ifndef FE_CC_MSVC /* XXX This is a bad hack for stuff to compile on CI. */
+#ifndef FE_CC_MSVC 
+/* XXX This is a bad hack for stuff to compile on CI. 
+ * This is some something I absolutely did not feel like 
+ * dealing with when it happened. */
 #define COBJMACROS
-#endif
 #include <d3d10.h>
+#endif
 #define  DXCALL(_OBJ_, _METHOD_) \
         _OBJ_->lpVtbl->_METHOD_(_OBJ_)
 #define DXCALLV(_OBJ_, _METHOD_, ...) \
