@@ -2,7 +2,7 @@
 /* This is placeholder code, that will maybe be used later. */
 
 /* ISO C forbids an empty translation unit */
-static inline void shut_up_isoc(void) {}
+typedef int make_iso_compilers_happy;
 
 /*
 void* fe_mem_heapalloc_aligned(size_t size, size_t alignment) {

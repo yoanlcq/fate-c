@@ -203,7 +203,7 @@ LONG CALLBACK fe_crash_win32_exception_handler(EXCEPTION_POINTERS *ep)
 
     if(ep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW) {
 
-        DWORD64 stack[FE_CRASH_STACK_LEN];
+        PVOID stack[FE_CRASH_STACK_LEN];
         unsigned short nframes;
         // StackWalk64() may modify context record passed to it, so we will
         // use a copy.
@@ -237,7 +237,7 @@ LONG CALLBACK fe_crash_win32_exception_handler(EXCEPTION_POINTERS *ep)
                            &SymGetModuleBase64,
                            NULL) 
                 && nframes < FE_CRASH_STACK_LEN) {
-            stack[nframes++] = stack_frame.AddrPC.Offset;
+            stack[nframes++] = (void*)(intptr_t)stack_frame.AddrPC.Offset;
         }
 
         fe_crash_log_stacktrace_win32(fe_loge, stack, nframes);

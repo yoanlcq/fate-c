@@ -464,7 +464,7 @@ bool fe_wget(fe_iov *iov, const char *url) {
         return false;
     }
     ctlen += strlen("Content-Length:");
-    size_t total_bin_len = strtoull(ctlen, NULL, 10);
+    size_t total_bin_len = (size_t) strtoull(ctlen, NULL, 10);
     fe_iov_resize(iov, total_bin_len);
     memcpy(iov->base, bin_startptr, bin_len);
     fe_iov_deinit(&header);

@@ -746,7 +746,7 @@ static inline int64_t fe_hw_atomic32_add(fe_hw_atomic32 *ptr, int32_t val) {
 #if defined(__GNUC__) || defined(__clang__)
     return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
 #elif defined(_MSC_VER)
-    return _InterlockedAdd(ptr, val);
+    return _InterlockedExchangeAdd(ptr, val);
 #endif
 }
 FE_DECL_NO_CAI

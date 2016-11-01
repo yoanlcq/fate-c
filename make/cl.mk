@@ -1,7 +1,7 @@
 fe_idir :=$(subst /,\\,$(fate)/include)
 fe_cidir:=$(subst /,\\,$(fate)/include/contrib)
 gm_idir :=$(subst /,\\,$(dirs_include))
-cflags = /I$(fe_idir) /I$(fe_cidir) /I$(gm_idir) /Oi /DUNICODE /D_UNICODE /DDBGHELP_TRANSLATE_TCHAR /D_CRT_SECURE_NO_WARNINGS /W3 /wd4255 /wd4820 /wd4668 /wd4214 /wd4201 /wd4204
+cflags = /I$(fe_idir) /I$(fe_cidir) /I$(gm_idir) /Oi /DUNICODE /D_UNICODE /DDBGHELP_TRANSLATE_TCHAR /D_CRT_SECURE_NO_WARNINGS /W3 /wd4255 /wd4820 /wd4668 /wd4214 /wd4201 /wd4204 /wd4018 /wd4244
 #GLEWFLAGS = /DGLEW_STATIC /DGLEW_NO_GLU
 cflags_debug = /Ob2 /Zi /Zo /DEBUG /FS /DFE_DEBUG_BUILD
 cflags_release = /O2 /Ot /Ox /GL /Gw /DNDEBUG

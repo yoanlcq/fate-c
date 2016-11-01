@@ -362,9 +362,9 @@ void cube_main_init(struct cube_main *m) {
 
 #define FE_FALLBACK_REFRESH_RATE 60
 #define FE_DEFAULT_FPS_CEIL 256
-#define FE_DEFAULT_NEAR 0.25
-#define FE_DEFAULT_FAR  1024.0
-#define FE_DEFAULT_FOV  (75.0*FE_PI_F/180.0)
+#define FE_DEFAULT_NEAR 0.25f
+#define FE_DEFAULT_FAR  1024.f
+#define FE_DEFAULT_FOV  (75.f*FE_PI_F/180.f)
 
 #define UPDATE_VIEW() \
     mat4_look_at(m->View, m->eye, m->center, m->up)

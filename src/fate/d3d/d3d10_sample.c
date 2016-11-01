@@ -34,7 +34,7 @@
  */
 
 /* ISO C forbids an empty translation unit */
-static inline void shut_up_isoc(void) {}
+typedef int make_iso_compilers_happy;
 
 /*
 #include <fate/fate.h>

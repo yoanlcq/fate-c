@@ -297,7 +297,7 @@
         #define fe_pragma_optimize_size()  __pragma(optimize("ygs", on))
     #endif
     #define     fe_pragma_optimize_reset() __pragma(optimize("", on))
-#elif defined(FE_CC_GCC_COMPATIBLE)
+#elif defined(FE_CC_GCC)
     #ifdef FE_DEBUG_BUILD
         #define fe_pragma_optimize_speed() _Pragma(XSTRINGIFY(GCC optimize("Og")))
         #define fe_pragma_optimize_size()  _Pragma(XSTRINGIFY(GCC optimize("Og")))
@@ -306,6 +306,8 @@
         #define fe_pragma_optimize_size()  _Pragma(XSTRINGIFY(GCC optimize("Os")))
     #endif
     #define     fe_pragma_optimize_reset() _Pragma(XSTRINGIFY(GCC reset_options))
+#elif defined(FE_CC_CLANG)
+/* Nothing here, it's fine. */
 #else
 #error "Wait! Don't know how to define fe_pragma_optimize_for_speed() here."
 #define fe_pragma_optimize_speed()
