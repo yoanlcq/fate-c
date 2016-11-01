@@ -58,10 +58,13 @@ cc_out_exe = -o
 as_c = -c 
 as_out_o = -o 
 
+ifeq ($(cc_id),clang)
+cflags += -Wno-extended-offsetof
+endif
+
 ifeq ($(cc_id),gcc) #can happen if we're coming from make/clang.mk.
 ifeq ($(os),linux)
 cflags_debug += -Og -rdynamic
-cflags += -Wno-extended-offsetof
 endif
 endif
 
