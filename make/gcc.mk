@@ -69,7 +69,7 @@ endif
 endif
 
 ifeq ($(os),osx)
-ldlibs += -framework SDL2 -framework OpenGL -lm -lintl -ldl
+ldlibs += -framework SDL2 -framework OpenGL -lm -ldl
 else
 ldlibs += -lSDL2 -lm
 ifneq ($(os),windows)

@@ -20,8 +20,8 @@
         target_android         \
         target_emscripten      
 
-$(eval $(if $(target_windows32_cl), targets += target_windows32_cl ,))
-$(eval $(if $(target_windows64_cl), targets += target_windows64_cl ,))
+$(eval $(if $(target_windows32_cl),   targets += target_windows32_cl ,))
+$(eval $(if $(target_windows64_cl),   targets += target_windows64_cl ,))
 $(eval $(if $(target_windows32_gcc),  targets += target_windows32_gcc  ,))
 $(eval $(if $(target_windows64_gcc),  targets += target_windows64_gcc  ,))
 $(eval $(if $(target_windows32_clang),targets += target_windows32_clang,))
@@ -42,7 +42,7 @@ ifneq ($j,)
 jopt:=-j$j
 endif
 
-sbuild=$(MAKE) $(jopt) -f $(fate)/make/single_build.mk $(MAKEFLAGS) $(MAKECMDGOALS)
+sbuild=$(MAKE) $(jopt) -f $(subst \\,/,$(fate))/make/single_build.mk $(MAKEFLAGS) $(MAKECMDGOALS)
 tgt_warn=$(info Ignoring $(1) (toolchain not installed).)
 build_this=$(strip \
 		$(if $($(1)_available), \
