@@ -49,7 +49,6 @@
 #include <fate/d3d.h>
 #include <fate/dpyres.h>
 #include <fate/fpath.h>
-#include <fate/gameinfo.h>
 #include <fate/gl.h>
 #include <fate/globalstate.h>
 #include <fate/hash.h>
