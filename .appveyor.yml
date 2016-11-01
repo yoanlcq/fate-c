@@ -68,7 +68,7 @@ build_script:
   # build
   - |-
     rem Dirty workaround from fe-setup.bat
-    setx FE_PATH=%APPVEYOR_BUILD_FOLDER%
+    setx FE_PATH %APPVEYOR_BUILD_FOLDER%
     setx PATH "%FE_PATH%;%path%;"
     cd %APPVEYOR_BUILD_FOLDER%
     cd examples/cube
