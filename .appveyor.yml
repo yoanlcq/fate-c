@@ -69,7 +69,7 @@ build_script:
   - |-
     rem Dirty workaround from fe-setup.bat
     setx FE_PATH %APPVEYOR_BUILD_FOLDER%
-    setx PATH "%FE_PATH%;%path%;"
+    setx PATH %FE_PATH%;%path%;
     cd %APPVEYOR_BUILD_FOLDER%
     cd examples/cube
     %MINGW32% fe-build j=8 show_all_cmd=yes target_windows32_gcc
