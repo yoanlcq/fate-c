@@ -10,10 +10,11 @@ static fe_mt_spinlock dh_lock;
 
 static void windows_api_logfail(char *funcname, DWORD err) {
     char *str = fe_syserr_str(err);
-    fe_logd(TAG, "%s() failed with error %d: %s\n", err, str);
+    fe_logd(TAG, "%s() failed with error %d: %s\n", funcname, err, str);
     fe_mem_heapfree(str);
 }
 
+/* String allocation party ! */
 void fe_dbg_sym_setup(void) {
     process = GetCurrentProcess();
     fe_mt_spinlock_lock(&dh_lock);
@@ -24,10 +25,12 @@ void fe_dbg_sym_setup(void) {
         exe_fpath.path, exe_fpath.path, exe_fpath.path);
     fe_logd(TAG, "Using `%s' as the search path for SymInitializeW().\n",
             spath);
-    bool success = SymInitializeW(process, spath, TRUE);
+    WCHAR *spath_w = fe_utf8_to_win32unicode(spath);
+    bool success = SymInitializeW(process, spath_w, TRUE);
     fe_mt_spinlock_unlock(&dh_lock);
     if(!success)
         windows_api_logfail("SymInitializeW", GetLastError());
+    fe_mem_heapfree(spath_w);
     fe_mem_heapfree(spath);
     fe_fpath_deinit(exe_fpath);
 }
@@ -84,19 +87,19 @@ bool fe_dbg_sym_init(fe_dbg_sym *sym, void *addr) {
 #endif
 
     DWORD col;
-    IMAGEHLP_LINE64 line;
+    IMAGEHLP_LINEW64 line;
     line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
     fe_mt_spinlock_lock(&dh_lock);
     if(SymGetLineFromAddr64(process, addr64, &col, &line)) {
         sym->line_number   = line.LineNumber;
-        sym->filename      = line.FileName;
+        sym->source_file   = fe_utf8_from_win32unicode(line.FileName);
         sym->column_number = col;
     } else windows_api_logfail("SymGetLineFromAddr64", GetLastError());
     fe_mt_spinlock_unlock(&dh_lock);
 
     sym->addr = symbol->Address;
     if(symbol->MaxNameLen > 0)
-        sym->name = fe_strdup(symbol->Name);
+        sym->name = fe_utf8_from_win32unicode(symbol->Name);
     if(symbol->Flags & SYMFLAG_VALUEPRESENT) {
         sym->has_value = true;
         sym->value = symbol->Value;
@@ -110,6 +113,8 @@ void fe_dbg_sym_deinit(fe_dbg_sym *sym) {
         fe_mem_heapfree(sym->dll_path);
     if(sym->name)
         fe_mem_heapfree(sym->name);
+    if(sym->source_file)
+        fe_mem_heapfree(sym->source_file);
 }
 
 
