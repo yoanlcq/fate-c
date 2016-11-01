@@ -25,7 +25,7 @@ static inline void vec##n##_scale(vec##n r, vec##n const v, float const s) \
 } \
 static inline float vec##n##_mul_inner(vec##n const a, vec##n const b) \
 { \
-	float p = 0.; \
+	float p = 0.f; \
 	int i; \
 	for(i=0; i<n; ++i) \
 		p += b[i]*a[i]; \
@@ -37,7 +37,7 @@ static inline float vec##n##_len(vec##n const v) \
 } \
 static inline void vec##n##_norm(vec##n r, vec##n const v) \
 { \
-	float k = 1.0 / vec##n##_len(v); \
+	float k = 1.f / vec##n##_len(v); \
 	vec##n##_scale(r, v, k); \
 }
 
@@ -167,7 +167,7 @@ static inline void mat4_translate(mat4 T, float x, float y, float z)
 }
 static inline void mat4_translate_in_place(mat4 M, float x, float y, float z)
 {
-	vec4 t = {x, y, z, 0};
+	vec4 t = {x, y, z, 0.f};
 	vec4 r;
 	int i;
 	for (i = 0; i < 4; ++i) {
@@ -187,7 +187,7 @@ static inline void mat4_rotate(mat4 R, mat4 M, float x, float y, float z, float 
 	float c = cosf(angle);
 	vec3 u = {x, y, z};
 
-	if(vec3_len(u) > 1e-4) {
+	if(vec3_len(u) > 1e-4f) {
 		vec3_norm(u, u);
 		mat4 T;
 		mat4_from_vec3_mul_outer(T, u, u);
@@ -467,11 +467,11 @@ static inline void quat_conj(quat r, quat q)
 }
 static inline void quat_rotate(quat r, float angle, vec3 axis) {
 	vec3 v;
-	vec3_scale(v, axis, sinf(angle / 2));
+	vec3_scale(v, axis, sinf(angle / 2.f));
 	int i;
 	for(i=0; i<3; ++i)
 		r[i] = v[i];
-	r[3] = cosf(angle / 2);
+	r[3] = cosf(angle / 2.f);
 }
 #define quat_norm vec4_norm
 static inline void quat_mul_vec3(vec3 r, quat q, vec3 v)
