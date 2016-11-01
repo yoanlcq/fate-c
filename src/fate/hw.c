@@ -76,6 +76,7 @@ FE_DECL_WIP static void cacheinfo_fill(fe_hw_cacheinfo_struct *ci) {
             return;
         }
     }
+
     SYSTEM_LOGICAL_PROCESSOR_INFORMATION *pi = fe_mem_heapcalloc(size, uint8_t, "");
     success = glpi(pi, &size);
     if(!success) {
