@@ -6,7 +6,7 @@ vcvars64 :=vcvars64.bat
 android  :=android
 ndk_build:=ndk-build
 ant      :=ant
-rc       :=rc
+rc       :=rc /nologo
 windres  :=windres
 
 ifeq ($(host_os),windows)
