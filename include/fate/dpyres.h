@@ -64,7 +64,7 @@
 
 /*! \brief The display resolutions table.
  *
- * It is an array of width-height pairs, ordered by width, the height.
+ * It is an array of width-height pairs, ordered by width, then height.
  */
 extern const uint16_t FE_DPYRES[FE_DPYRES_LEN][2];
 /*! \brief Gets the #FE_DPYRES entry that would come right before the given 

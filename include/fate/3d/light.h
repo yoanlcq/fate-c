@@ -27,15 +27,9 @@
  *
  */
 
-/*! \file fate/defs.h
- *  \brief Globally available macro definitions.
- *  \defgroup defs Defs : Globally available definitions.
- *
- * A lot of compile-time functionality is provided in this file.
- * Every module is encouraged to make best use of them.
- *
- * F.A.T.E's version follows <a href="http://semver.org/spec/v2.0.0.html" 
- * target="_blank">the Semantic Versioning 2.0.0 Specification</a>.
+/*! \file fate/3d/light.h
+ *  \brief 3D lights draft.
+ *  \defgroup 3d_light 3D lights draft.
  *
  * @{
  */

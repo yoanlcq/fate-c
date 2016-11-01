@@ -38,6 +38,18 @@
  * license, which was used as a reference to implement this file's 
  * functionalities.
  *
+ * <b>Compile-time switches :</b>
+ * <table>
+ * <tr>
+ * <td>FE_MATH_WITHOUT_VECTOR_EXTENSIONS</td>
+ * <td>
+ * By default, vector operations are implemented
+ * using compiler-specific vector extensions (as of today, GCC and Clang).<br>
+ * Defining this macro disables this behaviour and enforces naive implementations.
+ * </td>
+ * </tr>
+ * </table>
+ *
  * @{
  */
 
@@ -61,7 +73,7 @@
         #else
             #define FE_MATH_WITHOUT_VECTOR_EXTENSIONS
         #endif
-#elif defined(__GNUC__)
+    #elif defined(__GNUC__)
         #if __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
             #include <fate/math/vext/i32v4.h>
         #else
@@ -70,7 +82,7 @@
     #endif
 #endif
 
-#ifdef FE_MATH_WITHOUT_VECTOR_EXTENSIONS /* Naive */
+#if defined(__DOXYGEN__) || defined(FE_MATH_WITHOUT_VECTOR_EXTENSIONS) /* Naive */
 
 /*! \brief TODO 
  *

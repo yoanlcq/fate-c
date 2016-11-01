@@ -28,8 +28,8 @@
  */
 
 /*! \file fate/crash.h
- *  \brief Crash handling, stack traces, and more.
- *  \defgroup crash Crash handling, stack traces, and more.
+ *  \brief Backtraces and crash handling.
+ *  \defgroup crash Backtraces and crash handling.
  *
  * TODO
  *

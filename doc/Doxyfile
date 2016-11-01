@@ -101,6 +101,12 @@ EXPAND_ONLY_PREDEF     = YES
 PREDEFINED             = "__DOXYGEN__=1" \
                          "__attribute__(x)" \
                          "__declspec(x)" \
-                         "__cplusplus"
+                         "__cplusplus" \
+                         "FE_DECL_DEPRECATED(...)"
+                         "FE_DECL_PRINTF(...)"
+                         "FE_DECL_NONNULL_PARAMS(...)"
+                         "FE_DECL_SENTINEL(...)"
+                         "FE_DECL_WARN_IF_USED(...)"
+                         "FE_DECL_ALIGN(...)"
 INCLUDE_PATH           = ../include
-
+EXTRACT_STATIC         = YES

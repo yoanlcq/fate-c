@@ -63,8 +63,7 @@
  * <b>Compile-time switches :</b>
  * <table>
  * <tr><td>FE_NO_I18N</td>
- * <td>If defined, this module's functionalities are compiled out. Mais bon, 
- *     c'est dommage de faire ça.</td>
+ * <td>If defined, this module's functionalities are compiled out.</td>
  * </tr>
  * </table>
  *

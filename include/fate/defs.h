@@ -94,9 +94,6 @@
     FE_VERSION_BUILD_METADATA
 
 
-/*! \brief Compiler/platform-specific "__declspec(dllexport)". */
-#define FE_EXPORT
-
 #if __DOXYGEN__
 /*! \brief Defined only if the target is Windows. */
 #define FE_TARGET_WINDOWS 1

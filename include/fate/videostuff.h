@@ -31,12 +31,6 @@
  *  \brief TODO
  *  \defgroup videostuff Videostuff : Inspiration for the design of video components
  *
- * TODO
- * Possible FATE 2 extensions :
- * Well, that's equivalent to shipping Blender and GCC with the game.
- * procedural_terrain_extension
- * procedural_entities_extension
- *
  * @{
  */
 

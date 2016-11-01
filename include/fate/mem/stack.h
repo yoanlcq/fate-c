@@ -70,7 +70,7 @@
  * - It's crazy fast, compared to heap allocation (e.g with \c malloc());
  * - Since it's not on the heap, it can help avoiding virtual memory
  *   fragmentation in multithreaded programs;
- * - Stack size is limited by the OS, and knwo to be small,
+ * - Stack size is limited by the OS, and known to be small,
  *   so it should never be used to allocate big chunks of data;
  * - On some platforms, stack size can be grown on-demand (eg. Linux);
  * - Data is automatically freed as soon as the function you are in returns,
