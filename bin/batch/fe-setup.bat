@@ -11,5 +11,7 @@ if agreed NEQ Y (
     set fe_dir "%cd%"
 )
 setx FE_PATH "%fe_dir%"
+set FE_PATH="%fe_dir%"
 rem XXX: This keeps adding to the PATH.
 setx PATH "%FE_PATH%;%path%;"
+set PATH="%FE_PATH%;%path%;"
