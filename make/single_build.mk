@@ -1,7 +1,7 @@
 .PHONY: all game game_res
 all: game_res game
 
-fate:=$(FE_PATH)
+fate:=$(subst \\,/,$(FE_PATH))
 include $(fate)/make/rglob.mk
 include $(fate)/make/newline.mk
 include fatefile.mk

@@ -1,7 +1,7 @@
 .PHONY: all targets clean re mrproper
 all: targets
 
-fate:=$(FE_PATH)
+fate:=$(subst \\,/,$(FE_PATH))
 include fatefile.mk
 include $(fate)/make/see_cmd.mk
 include $(fate)/make/host.mk
