@@ -42,9 +42,9 @@ void fe_dbg_sym_cleanup(void) {
 
 
 bool fe_dbg_sym_init(fe_dbg_sym *sym, void *addr) {
-    *sym = (fe_dbg_sym){0};
+    memset(sym, 0, sizeof *sym);
 
-    static const size_t max_modname_len = 256;
+#define max_modname_len 256
     WCHAR modname[max_modname_len];
     DWORD modname_len;
     HMODULE modhandle;

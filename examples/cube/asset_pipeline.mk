@@ -7,11 +7,11 @@ $(res)/%.jpg: $(art)/%.jpg
 
 $(res)/%.png: $(art)/%.png
 	$(call mkdir_p,$(@D))
-	$(call cp_r,$<,$@)
+	$(call copyfiles,$<,$@)
 
 $(res)/%.ico: $(art)/%.ico
 	$(call mkdir_p,$(@D))
-	$(call cp_r,$<,$@)
+	$(call copyfiles,$<,$@)
 
 $(res)/%.ogg: $(art)/%.ogg
 	$(call mkdir_p,$(@D))

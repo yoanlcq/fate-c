@@ -18,7 +18,13 @@
     #define INITGUID
     #include <KnownFolders.h>
     #undef INITGUID
-/* http://lolengine.net/blog/2011/3/4/fuck-you-microsoft-near-far-macros */
+/* 
+ * http://lolengine.net/blog/2011/3/4/fuck-you-microsoft-near-far-macros 
+ *
+ * The worse is that we can't do anything about it. Undefining them screws
+ * MSVC headers which rely on them.
+ * So I'm leaving this here so I'm not doing that error again.
+ */
 /*
     #ifdef near
     #undef near
