@@ -42,7 +42,7 @@ ifneq ($j,)
 jopt:=-j$j
 endif
 
-sbuild=$(MAKE) $(jopt) -f $(subst \\,/,$(fate))/make/single_build.mk $(MAKEFLAGS) $(MAKECMDGOALS)
+sbuild=$(MAKE) $(jopt) -f $(subst \,/,$(fate))/make/single_build.mk $(MAKEFLAGS) $(MAKECMDGOALS)
 tgt_warn=$(info Ignoring $(1) (toolchain not installed).)
 build_this=$(strip \
 		$(if $($(1)_available), \
