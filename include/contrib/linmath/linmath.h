@@ -352,7 +352,7 @@ static inline void mat4_perspective(mat4 m, float y_fov, float aspect, float n, 
 {
 	/* NOTE: Degrees are an unhandy unit to work with.
 	 * linmath.h uses radians for everything! */
-	float const a = 1.f / tan(y_fov / 2.f);
+	float const a = 1.f / tanf(y_fov / 2.f);
 
 	m[0][0] = a / aspect;
 	m[0][1] = 0.f;
