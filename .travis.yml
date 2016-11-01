@@ -20,5 +20,5 @@ install:
   - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi
   - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then . ./ci/travis/install-osx.sh; fi
 script:
-  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then bin/bash/fe-setup && . ~/.bashrc && cd examples/cube && fe-build j=$(nproc) show_all_cmd=yes target_linux64_${CC}=y target_linux64_${CC}_available=y; fi
-  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then bin/bash/fe-setup && . ~/.bashrc && cd examples/cube && fe-build j=$(sysctl -n hw.ncpu) show_all_cmd=yes target_osx_${CC}=y target_osx_${CC}_available=y; fi
+  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then bin/bash/fe-setup && . ~/.bashrc && cd examples/cube && fe-build j=1 show_all_cmd=yes target_linux64_${CC}=y target_linux64_${CC}_available=y; fi
+  - if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ];   then bin/bash/fe-setup && . ~/.bashrc && cd examples/cube && fe-build j=1 show_all_cmd=yes target_osx_${CC}=y target_osx_${CC}_available=y; fi

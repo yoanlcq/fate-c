@@ -72,8 +72,8 @@ build_script:
     rem set PATH="%FE_PATH%;%path%;"
     cd %APPVEYOR_BUILD_FOLDER%
     cd examples/cube
-    %MINGW32% ..\..\bin\batch\fe-build j=8 show_all_cmd=yes target_windows32_gcc=y target_windows32_gcc_available=y
-    %MSVC%    ..\..\bin\batch\fe-build j=8 show_all_cmd=yes target_windows32_cl=y target_windows32_cl_available=y
+    %MINGW32% ..\..\bin\batch\fe-build j=1 show_all_cmd=yes target_windows32_gcc=y target_windows32_gcc_available=y
+    %MSVC%    ..\..\bin\batch\fe-build j=1 show_all_cmd=yes target_windows32_cl=y target_windows32_cl_available=y
 
 after_build:
   - git status
