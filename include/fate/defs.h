@@ -308,6 +308,9 @@
     #define     fe_pragma_optimize_reset() _Pragma(XSTRINGIFY(GCC reset_options))
 #elif defined(FE_CC_CLANG)
 /* Nothing here, it's fine. */
+#define fe_pragma_optimize_speed()
+#define fe_pragma_optimize_size()
+#define fe_pragma_optimize_reset()
 #else
 #error "Wait! Don't know how to define fe_pragma_optimize_for_speed() here."
 #define fe_pragma_optimize_speed()

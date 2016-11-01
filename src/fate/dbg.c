@@ -10,7 +10,7 @@ static fe_mt_spinlock dh_lock;
 
 static void windows_api_logfail(char *funcname, DWORD err) {
     char *str = fe_syserr_str(err);
-    fe_logd(TAG, "%s() failed with error %d: %s\n", funcname, err, str);
+    fe_logd(TAG, "%s() failed with error %d: %s\n", funcname, (int)err, str);
     fe_mem_heapfree(str);
 }
 
@@ -90,14 +90,14 @@ bool fe_dbg_sym_init(fe_dbg_sym *sym, void *addr) {
     IMAGEHLP_LINEW64 line;
     line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
     fe_mt_spinlock_lock(&dh_lock);
-    if(SymGetLineFromAddr64(process, addr64, &col, &line)) {
+    if(SymGetLineFromAddrW64(process, addr64, &col, &line)) {
         sym->line_number   = line.LineNumber;
         sym->source_file   = fe_utf8_from_win32unicode(line.FileName);
         sym->column_number = col;
     } else windows_api_logfail("SymGetLineFromAddr64", GetLastError());
     fe_mt_spinlock_unlock(&dh_lock);
 
-    sym->addr = symbol->Address;
+    sym->addr = (void*)(intptr_t)symbol->Address;
     if(symbol->MaxNameLen > 0)
         sym->name = fe_utf8_from_win32unicode(symbol->Name);
     if(symbol->Flags & SYMFLAG_VALUEPRESENT) {

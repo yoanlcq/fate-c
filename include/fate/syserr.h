@@ -37,12 +37,13 @@
  * @{
  */
 
-typedef int fe_syserr;
 #ifdef FE_TARGET_WINDOWS
+typedef DWORD fe_syserr;
 #define fe_syserr_set_last_error(err)   SetLastError(err)
 #define fe_syserr_get_last_error()      GetLastError()
 #define fe_syserr_is_user_defined(code) (!!(code & (1<<29)))
 #else
+typedef int fe_syserr;
 #define fe_syserr_set_last_error(err)   (errno = (err))
 #define fe_syserr_get_last_error()      (errno)
 #define fe_syserr_is_user_defined(code) (code < 0)
