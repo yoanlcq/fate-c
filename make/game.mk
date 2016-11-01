@@ -60,6 +60,7 @@ $(gmexe): $(gm_ofiles)
 	@$(call mkdir_p,$(@D))
 	@$(call echo,    $@ ...)
 	$(see_exe_cmd)$(cc) $(cflags) $^ $(cc_out_exe)$@ $(ldlibs)
+	$(if $(wildcard *.pdb),$(see_misc_cmd)$(call movefiles,$(wildcard *.pdb),$(@D),)
 
 ifeq ($(cc_id),emcc)
 gm_emterpreter := $(gm_bin)/emterpreter.bin

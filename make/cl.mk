@@ -3,7 +3,7 @@ fe_cidir:=$(subst /,\\,$(fate)/include/contrib)
 gm_idir :=$(subst /,\\,$(dirs_include))
 cflags = /I$(fe_idir) /I$(fe_cidir) /I$(gm_idir) /Oi /DUNICODE /D_UNICODE /DDBGHELP_TRANSLATE_TCHAR /Wall
 #GLEWFLAGS = /DGLEW_STATIC /DGLEW_NO_GLU
-cflags_debug = /Ob2 /Zi /DEBUG /FS /DFE_DEBUG_BUILD
+cflags_debug = /Ob2 /Zi /Zo /DEBUG /FS /DFE_DEBUG_BUILD
 cflags_release = /O2 /Ot /Ox /GL /Gw /DNDEBUG
 ldlibs = \
  SDL2.lib SDL2main.lib opengl32.lib \
@@ -33,6 +33,3 @@ ifneq ($(builds_$(build)_cai),)
 fe_cai_cflags := /Gh /GH 
 endif
 
-
-
-movepdb = move *.pdb $(bin)
