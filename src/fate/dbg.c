@@ -142,7 +142,7 @@ bool fe_dbg_sym_init(fe_dbg_sym *sym, void *addr) {
     return false;
 #else
     *sym = (fe_dbg_sym){0};
-    #ifdef _GNU_SOURCE
+    #if defined(_GNU_SOURCE) && !defined(FE_TARGET_OSX)
         Dl_info info;
         /* dlerror() won't give messages, according to man :( */
         if(!dladdr(addr, &info))

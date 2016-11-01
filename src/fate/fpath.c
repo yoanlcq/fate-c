@@ -132,9 +132,9 @@ static char *get_executable_path(void) {
 #ifndef FE_TARGET_EMSCRIPTEN
 
 #if defined(FE_TARGET_WINDOWS)
-#define PATHSEP "\\"
+    #define PATHSEP "\\"
 #else
-#define PATHSEP "/"
+    #define PATHSEP "/"
 #endif
 
 static bool remove_last_path_component(char *path) {
@@ -228,6 +228,14 @@ fe_fpath fe_fpath_osx_tmp(const char *filepath) {
         fe_dbg_hope(tmpdir = mkdtemp(tmplate));
     return (fe_fpath){fe_asprintf("%s/%s", tmpdir, filepath)};
 }
+fe_fpath fe_fpath_osx_executable_dir(const char *filepath) {
+    /* XXX We shouldn't compute it every time ? */
+    char *exedir = get_executable_dir();
+    fe_fpath ret = {fe_asprintf("%s/%s", exedir, filepath)};
+    fe_mem_heapfree(exedir);
+    return ret;
+}
+
 
 #elif defined(FE_TARGET_IOS)
 

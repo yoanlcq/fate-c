@@ -83,6 +83,7 @@ fe_fpath fe_fpath_emscripten_memfs(const char *filepath);
 fe_fpath fe_fpath_osx_sdl2basepath(const char *filepath);
 fe_fpath fe_fpath_osx_sdl2prefpath(const char *org, const char *app, const char *filepath);
 fe_fpath fe_fpath_osx_tmp(const char *filepath);
+fe_fpath fe_fpath_osx_executable_dir(const char *filepath);
 #elif defined(FE_TARGET_IOS)
 fe_fpath fe_fpath_ios_sdl2basepath(const char *filepath);
 fe_fpath fe_fpath_ios_sdl2prefpath(const char *org, const char *app, const char *filepath);
