@@ -63,10 +63,10 @@ Feel free to take a look at the CI scripts (`.travis.yml` and `.appveyor.yml`) f
 I'm anyway planning to write a script that automates the installation process for various targets (see `bin/*/fe-setup*`).  
 
 ## Philosophy, Inspirations
-- No one knows better than you how to solve your particular problems. *Not even the compiler. Not even the hardware.*  
+- **No one knows better than you how to solve your particular problems.** *Not even the compiler. Not even the hardware.*  
   FATE, by design, will not assume you're an idiot and make critical decisions on your behalf - instead it'll do its best to provide you with maximum control and help you taking advantage of it.  
   In my opinion, modern engines and languages dramatically fail at it, their excuse being "we're beginner-friendly". I do believe that "beginner" and "full control" are not mutually exclusive.  
-  By the way, the engine should make it easy even for the beignner to write efficient data-oriented code. It's just a matter of well-written and illustrated tutorials.
+  By the way, the engine should make it easy even for the beginner to write efficient data-oriented code. It's just a matter of well-written and illustrated tutorials.
 - **Support for the minority**: Not everyone has a crazy gamer PC to run games on, and not everyone is on Windows.  
   It is part of F.A.T.E's philosophy to make a best effort in providing compatible, efficient and cross-platform games.  
   You'd think that today everyone's average machine is already powerful, but not only this isn't true (because they're expensive), but more and more applications just take resources for granted and waste them in exchange for what their developers think is "pretty-looking" code.
