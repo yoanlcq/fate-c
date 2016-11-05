@@ -1,9 +1,5 @@
-Travis build status - OS X Mavericks and Ubuntu 12.04 64-bits - gcc and clang :  
-[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)
-  
-AppVeyor build status - Windows 64 - gcc and MSVC :  
-[![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)
-
+[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE) (OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang)    
+[![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate) (Windows - GCC and MSVC)  
 
 # FATE
 Fight And Travel (Game) Engine. A very ambitious project that will take years to reach 1.0.  
