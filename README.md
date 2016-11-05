@@ -68,6 +68,7 @@ I'm anyway planning to write a script that automates the installation process fo
   In my opinion, modern engines and languages dramatically fail at it, their excuse being "we're beginner-friendly". I do believe that "beginner" and "full control" are not mutually exclusive.  
   By the way, the engine should make it easy even for the beginner to write efficient data-oriented code. It's just a matter of well-written and illustrated tutorials.
 - **Support for the minority**: Not everyone has a crazy gamer PC to run games on, and not everyone is on Windows.  
+  As a player, if my PC sucks, I **want** your game to run smoothly even with all graphics settings set to minimum.  
   It is part of F.A.T.E's philosophy to make a best effort in providing compatible, efficient and cross-platform games.  
   You'd think that today everyone's average machine is already powerful, but not only this isn't true (because they're expensive), but more and more applications just take resources for granted and waste them in exchange for what their developers think is "pretty-looking" code.
 - The "F" in "FATE" is for **"Fighting"**. [M.U.G.E.N](https://en.wikipedia.org/wiki/M.U.G.E.N) is a huge inspiration for its simplicity and yet the various possibilities it opens up. A M.U.G.E.N clone might even be implemented using FATE someday.
