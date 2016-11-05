@@ -1,7 +1,10 @@
-[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE) (OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang)    
-[![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate) (Windows - GCC and MSVC)  
 
-*I'm actually building a game - It just so happens that I know how to separate concerns.*
+<table>
+<tr><td>OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang</td><td>[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)</td></tr>
+<tr><td>Windows - GCC and MSVC</td><td>[![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)</td></tr>
+</table>  
+  
+*I'm actually building a game - It just so happens that I know how to separate concerns.*  
 
 # FATE, the Fight And Travel (Game) Engine.  
 - **Main focuses** : simplicity, control, performance, and huge universes. All of this implies basic knowledge of the hardware and good knowledge of the data.  
@@ -23,7 +26,7 @@ While you're at it, [learn about Data-Oriented Design](https://github.com/taylor
 
 ## So what do we have here ?
 - **Flexible GNU-Make-based build system**, which gives a lot of control over user-defined builds and per-file C compiler flags.   See `examples/cube/fatefile.mk`. See also the `*.cflags` files in, for instance, `src/fate/`.
-- The demo at `examples/cube` runs sucessfully on Linux, Windows, Android and Emscripten.  
+- The demo at `examples/cube` runs sucessfully on **Linux, Windows, Android and Emscripten**.  
   It would very probably work on OS X and uh... maybe (??) on iOS (need to test next time I boot my Mac Mini).
 - Common platform-specific definitions and macros wrapping compiler attributes;
 - **Compiler-Assisted Instrumentation (CAI)**, configurable on a per-build basis.
