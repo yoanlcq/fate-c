@@ -1,8 +1,6 @@
-
-<table>
-<tr><td>OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang</td><td>[![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)</td></tr>
-<tr><td>Windows - GCC and MSVC</td><td>[![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)</td></tr>
-</table>  
+| **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)  |
+|---|---|
+| **Windows - GCC and MSVC**  | [![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)  |
   
 *I'm actually building a game - It just so happens that I know how to separate concerns.*  
 
