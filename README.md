@@ -21,7 +21,7 @@ I'd like the engine to offer a data-oriented sort of Entity-Component-System API
 
 ## Why C instead of C++ ?
 Many valid reasons. If you really want to know, [this article](http://crafn.kapsi.fi/new_engine.html) (not from me) just hits the nail on the head.  
-While you're at it, [learn about Data-Oriented Design](https://github.com/taylor001/data-oriented-design) and how [OOP sucks](http://harmful.cat-v.org/software/OO_programming/).
+While you're at it, [learn about Data-Oriented Design](https://github.com/taylor001/data-oriented-design) and how [OOP sucks](http://harmful.cat-v.org/software/OO_programming/). [Another article ?](https://blog.grumpycoder.net/index.php/post/2012/03/02/Why-C-is-a-good-language-or-why-you-re-wrong-thinking-C-is-better)
 
 ## So what do we have here ?
 - **Flexible GNU-Make-based build system**, which gives a lot of control over user-defined builds and per-file C compiler flags.   See `examples/cube/fatefile.mk`. See also the `*.cflags` files in, for instance, `src/fate/`.
