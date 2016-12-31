@@ -1,7 +1,3 @@
-# I'd like to compile clean with the -pedantic option, but 'glad.c' just doesn't let me.
-# TODO: allow per-file compiler options.
-# It also complains about empty translation units, but it's good to compile our
-# code with it once in a while.
 cflags = $(strip \
 	-std=c11 \
 	-I$(fate)/include \
