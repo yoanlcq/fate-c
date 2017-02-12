@@ -4,6 +4,7 @@ cflags = $(strip \
 	-I$(fate)/include/contrib \
 	-I$(dirs_include) \
 	-Wall -pedantic \
+	-fms-extensions \
 	-D_GNU_SOURCE \
 	-msse -msse2 \
 )
