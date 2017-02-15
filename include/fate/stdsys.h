@@ -8,7 +8,9 @@
 #endif
 
 #if defined(FE_TARGET_WINDOWS)
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
     #include <Windows.h>
     #include <Winerror.h>
     #include <DbgHelp.h>
