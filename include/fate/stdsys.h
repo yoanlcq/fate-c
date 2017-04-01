@@ -8,9 +8,9 @@
 #endif
 
 #if defined(FE_TARGET_WINDOWS)
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
     #include <Windows.h>
     #include <Winerror.h>
     #include <DbgHelp.h>
@@ -49,7 +49,9 @@
     #include <signal.h>
     #include <fcntl.h>
     #ifndef FE_TARGET_ANDROID
+    #ifndef FE_TARGET_EMSCRIPTEN
         #include <execinfo.h>
+    #endif
     #endif
 #endif
 

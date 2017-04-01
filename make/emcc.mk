@@ -1,20 +1,24 @@
+# Note to self :
+# TOTAL_MEMORY must be a multiple of 16 Mb (16*1024*1024 bytes).
 cflags = \
 	-std=c11 \
 	-idirafter $(fate)/include \
 	-idirafter $(fate)/include/contrib \
 	-Wall -Wno-format-security \
 	--emrun \
-	-s USE_SDL=2 -s ASYNCIFY=1 -s ASSERTIONS=2 -s EMTERPRETIFY=1 \
+	-s USE_SDL=2 \
+	-s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='["png", "jpeg"]' \
+	-s ASYNCIFY=1 -s ASSERTIONS=2 -s EMTERPRETIFY=1 \
 	-s EMTERPRETIFY_ASYNC=1 -s FORCE_FILESYSTEM=1 \
-	-s TOTAL_MEMORY=90331648 \
+	-s TOTAL_MEMORY=83886080 \
 	-s OUTLINING_LIMIT=20000 \
 	-s 'EMTERPRETIFY_FILE="emterpreter.bin"' \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	--use-preload-plugins
 
+#	-s USE_LIBPNG=1 \
+
 # See https://kripken.github.io/emscripten-site/docs/compiling/Building-Projects.html#emscripten-ports
-#-s USE_SDL_IMAGE=2
-#-s 'SDL2_IMAGE_FORMATS="[jpg, png]"'
 # Okay. DO NOT FRICKING COMPILE WITH -Os. This makes stbi_decode_from_memory() fail badly.
 # Or perhaps -s STB_IMAGE=1 could change something.
 cflags_debug = -g -O2 -DFE_DEBUG_BUILD
