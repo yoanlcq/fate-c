@@ -11,9 +11,9 @@
 
 The OpenGL version is required to be 3.0 or greater on desktop, and ES 2 or greater on other targets.  
     
-You can play an online demo [here](http://yoanlecoq.com/dl/dev/fate/demo) (I acknowledge the ~15s loading time, I need to figure out what's causing it).  
+You can play an online demo [here](http://yoanlecoq.com/dl/dev/fate/demo/index.html) (I acknowledge the ~15s loading time, I need to figure out what's causing it).  
 [See the README](https://github.com/yoanlcq/FATE/tree/master/examples/cube) for asset credits.  
-![Rainbow Dice Demo Screenshot](http://yoanlecoq.com/dl/fate_cube_demo/fate0_2_0_rainbow_dice.png)  
+![Rainbow Dice Demo Screenshot](http://yoanlecoq.com/dl/dev/fate/fate0_2_0_rainbow_dice.png)  
   
 The code's documentation is either lacking or out-of-date, because the internal APIs evolve fast, and right now getting actual things done is my priority.  
 The demo (`examples/cube`) does too many things by itself - most tasks such as rendering with OpenGL are yet to be moved into the engine, which must offer a backend-agnostic API for rendering.  
