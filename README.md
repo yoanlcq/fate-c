@@ -5,7 +5,7 @@
 *I'm actually building a game - It just so happens that I know how to separate concerns.*  
 
 # FATE, the Fight And Travel (Game) Engine.  
-- **Main focuses** : simplicity, control, performance, and huge universes. All of this implies basic knowledge of the hardware and good knowledge of the data.  
+- **Main focuses** : control, performance, and huge universes. All of this implies basic knowledge of the hardware and good knowledge of the data.  
 - **Compilers**: GCC, Clang and MSVC.
 - **Targets**: Windows, Linux, OS X, Android, iOS, Emscripten (and probably FreeBSD, but untested).  
 
