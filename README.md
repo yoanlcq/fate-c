@@ -1,3 +1,5 @@
+As of July 2017, this is no maintained anymore, because I'm rewriting it in Rust. This repo is now named `fate-c` and the rewrite is under another repo named `fate`.
+
 | **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)  |
 |---|---|
 | **Windows - GCC and MSVC**  | [![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)  |
