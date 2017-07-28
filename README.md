@@ -15,11 +15,11 @@ I'm keeping this repo as a milestone in my history as a developer - Even though 
 
 I you don't mind taking a look, you might be interested in some of these header/source files (hell, even the `make` files). Feel free to grab them for any purpose.
 
-The remainder of the README has been kept as-is. CI builds fail for some reason I don't feel like investigating, but they actually used to pass.
+The remainder of the README has been kept as-is.
 
 ***
 
-| **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)  |
+| **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/fate-c)  |
 |---|---|
 | **Windows - GCC and MSVC**  | [![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)  |
   
