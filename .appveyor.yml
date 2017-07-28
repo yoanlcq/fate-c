@@ -49,7 +49,7 @@ before_build:
 
   # Depends for MinGW32
   - |-
-    %MINGW32% choco install -y mingw -x86 > nul
+    %MINGW32% choco install mingw -x86 -y
     %NEEDDEPENDS% %MINGW32% appveyor DownloadFile http://www.libsdl.org/release/SDL2-devel-2.0.4-mingw.tar.gz
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar.gz > nul
     %NEEDDEPENDS% %MINGW32% 7z x SDL2-devel-2.0.4-mingw.tar > nul
