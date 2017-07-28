@@ -19,7 +19,7 @@ The remainder of the README has been kept as-is.
 
 ***
 
-| **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/fate-c)  |
+| **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/fate-c.png?branch=master)](https://travis-ci.org/yoanlcq/fate-c)  |
 |---|---|
 | **Windows - GCC and MSVC**  | [![Build status](https://ci.appveyor.com/api/projects/status/ca669xiyxll64vec?svg=true)](https://ci.appveyor.com/project/yoanlcq/fate)  |
   
