@@ -1,4 +1,23 @@
-As of July 2017, this is no maintained anymore, because I'm rewriting it in Rust. This repo is now named `fate-c` and the rewrite is under another repo named `fate`.
+# Unmaintained
+
+As of July 2017, this is no maintained anymore, because I'm rewriting it in Rust. This repo is now named `fate-c` and the rewrite is under another repo named `fate`.  
+
+Rust is much more powerful than C in a lot of aspects, and maps a lot more to the mindset I envisioned. A lot of the stuff I've been writing (or reinventing) in this C project is actually "built-in" to Rust, and most of what I've been wanting to write is far better expressed in Rust.
+Naming but a few features I reinvented which are "built-in" to Rust:
+- Complex build setups with `make` are solved with `cargo`;
+- Metadata via attributes, serialization/deserialization with Serde;
+- Networking and threading primitives;
+- Actual generics;
+- Documentation, tests and benchmarks;
+- So many more reasons (some of them related to practical aspects and ergonomics).
+
+I'm keeping this repo as a milestone in my history as a developer - Even though I'm leaving it behind, it was worth my time. I learned a lot about C (far more than I wanted, *oh boy*), low-level systems, compiler-specific features, what actually matters and what doesn't, and about myself (coding style, naming conventions, and mindset).  
+
+I you don't mind taking a look, you might be interested in some of these header/source files (hell, even the `make` files). Feel free to grab them for any purpose.
+
+The remainder of the README has been kept as-is. CI builds fail for some reason I don't feel like investigating, but they actually used to pass.
+
+***
 
 | **OS X Mavericks and Ubuntu 12.04 64-bits - GCC and Clang**  | [![Travis build Status](https://travis-ci.org/yoanlcq/FATE.png?branch=master)](https://travis-ci.org/yoanlcq/FATE)  |
 |---|---|
