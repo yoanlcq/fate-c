@@ -45,7 +45,7 @@ target_linux64_gcc     := yes
 # target_osx_clang       := yes
 # target_ios             := yes 
 # target_android         := yes
-target_emscripten      := yes
+# target_emscripten      := yes
 
 
 # Custom var for later reuse.
